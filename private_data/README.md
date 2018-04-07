@@ -1,0 +1,1 @@
+Tahle slozka bude lokalne obsahovat citliva data, ktera se nedavaji na GitHub. Slozka je v .gitignore  Nikdy do teto slozky nic necommitujte crome zmen tohoto souboru.
