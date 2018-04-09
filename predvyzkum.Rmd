@@ -10,8 +10,185 @@ library(tidyverse)
 ```
 
 
+
 ```{r}
-data <- read.csv(here("private_data","data_pracovni_170625.csv"))
+data <- read_csv(here("private_data","data_pracovni_170625.csv"), col_types = 
+                   cols(
+                    .default = col_double(),
+                    ev_c = col_character(),
+                    id = col_integer(),
+                    nazev = col_character(),
+                    ic = col_integer(),
+                    ulice = col_character(),
+                    mesto = col_character(),
+                    psc = col_character(),
+                    clenove_do18 = col_integer(),
+                    clenove_nad18 = col_integer(),
+                    clenove_celkem = col_integer(),
+                    id_statement = col_integer(),
+                    typ_ucetnictvi = col_character(),
+                    odevzdano = col_integer(),
+                    tis_kc = col_integer(),
+                    nazev_jednotky2 = col_character(),
+                    typ_kvalifikace = col_character(),
+                    ico2 = col_integer(),
+                    typ_jednotky = col_character(),
+                    nazev_jednotky3 = col_character(),
+                    web = col_character()
+))
 ```
 
+
+```{r}
+psc <- read_csv(here("public_data","psc.csv"), col_types = cols(.default = col_character(), okres_id = col_integer(), kraj_id = col_integer()), quote = "'")
+okresy <- read_csv(here("public_data","okresy.csv"), col_types = cols(.default = col_integer(), lau = col_character(), nazev = col_character()), quote = "'")
+kraje <- read_csv(here("public_data","kraje.csv"), col_types = cols(.default = col_character(), id = col_integer()), quote = "'")
+
+psc_obec_posta <- read_csv2(here("public_data","psc_okres_posta_utf8.csv"), col_types = 
+                               cols(.default = col_character(), PSC = col_character(), KODOKRESU = col_integer())) %>%
+  transmute(nazev_obec = NAZOBCE, psc = PSC, kod_okres = KODOKRESU, nazev_casti = NAZCOBCE, nazev_posta = NAZPOST) %>% 
+  mutate(nazev_casti = gsub(" (část)","", nazev_casti, fixed = TRUE), 
+         nazev_casti = gsub(" x)","", nazev_casti, fixed = TRUE)) 
+
+obce_okresy <- read_csv(here("public_data","obce_okresy_csu.csv"), col_types = cols(
+  KODJAZ = col_character(),
+  TYPVAZ = col_character(),
+  AKRCIS1 = col_character(),
+  KODCIS1 = col_integer(),
+  CHODNOTA1 = col_integer(),
+  TEXT1 = col_character(),
+  AKRCIS2 = col_character(),
+  KODCIS2 = col_integer(),
+  CHODNOTA2 = col_character(),
+  TEXT2 = col_character()
+)) %>%
+  transmute(lau_okres = CHODNOTA2, lau_obec = CHODNOTA1, nazev_obec = TEXT1) 
+
+obyvatele_obce <- read_csv(here("public_data","obyvatele_obce_csu_2017.csv"), col_types = cols(
+  nuts_okres = col_character(),
+  lau_obec = col_integer(),
+  nazev_obec = col_character(),
+  obyvatele = col_integer(),
+  muzi = col_integer(),
+  zeny = col_integer(),
+  avg_vek = col_double(),
+  avg_vek_muzi = col_double(),
+  avg_vek_zeny = col_double()
+))
+
+misto <- psc %>% 
+  inner_join(okresy, by = c("okres_id" = "id")) %>%
+  rename(lau_okres = lau, nazev_psc = nazev.x, kraj_id = kraj_id.y) %>%
+  select(-kraj_id.x, -okres_id) %>%
+  inner_join(kraje, by = c("kraj_id" = "id")) %>%
+  rename(nuts_kraj = nuts, nazev_kraj = nazev) %>%
+  select(-kraj_id) 
+
+if(nrow(misto) != nrow(psc)) stop("Chyba pri joinovani psc")
+
+#Tohle je prusvih - PSC mi neurcuje jednoznacne okres :-(  To je zatim TODO
+misto %>% group_by(psc) %>% summarize(n_okres = length(unique(lau_okres))) %>% filter(n_okres > 2)
+
+```
+
+Vyresit nestandartní adresy
+```{r}
+non_existent_psc_map = c(
+  "28000" = "28002",
+  "25002" = "25001",
+  "18102" = "18100",
+  "77200" = "77900",
+  "40501" = "40502",
+  "64402" = "66402"
+)
+
+mesto_map = c(
+  "Rájec Jestřebí" = "Rájec-Jestřebí",
+  "Rožmitál p. Tř." = "Rožmitál pod Třemšínem",
+  "Libčice n.Vlt." = "Libčice nad Vltavou",
+  "Lipník n.B." = "Lipník nad Bečvou",
+  "České Budejovice" = "České Budějovice",
+  
+  #Zahazuji doplnky nazvu, protoze ty jsou reseny PSC
+  "Hlinsko v Čechách" = "Hlinsko",  
+  "Čechovice, Velký Týnec" = "Čechovice",
+  "Šlapanice u Brna" = "Šlapanice",
+  "Staré Město u Uherského Hradiště" = "Staré Město",
+  "Chrast u Chrudimě" = "Chrast"
+
+)
+
+
+data <- data %>%  
+  mutate(mesto_orig = mesto, psc_orig = psc,
+          mesto = gsub("^Praha[ \\-].*$","Praha",mesto),
+         mesto = gsub("^Brno[ \\-].*$", "Brno", mesto),
+         mesto = gsub("^Ostrava[ \\-].*$", "Ostrava", mesto),
+         mesto = gsub("^Havířov[ \\-].*$", "Havířov", mesto),
+         mesto = gsub("^[0-9 ]*","",mesto), #leading numbers (e.g. psc duplicate)
+         mesto = gsub("[0-9 ]*$","",mesto), #trailing numbers (e.g. cislo popisne)
+         mesto = gsub(" ?- ?","-",mesto), #spaces around "-"
+         mesto = gsub(",* *pošta.*$","",mesto)
+         ) %>%
+  rowwise() %>%
+  mutate(mesto = if_else(mesto %in% names(mesto_map), mesto_map[mesto], mesto), 
+         psc = if_else(psc %in% names(non_existent_psc_map), non_existent_psc_map[psc], psc),
+         psc = if_else(mesto == "Česká Ves" && psc == "79001","79081", psc)) %>% #Specialni pripad - je vice ceskych vsi a ceska ves ma vice PSC
+  ungroup() 
+```
+
+Nazev obce + okres identifikuji mesto? Skoro!
+PSČ + název části obce identifikují obec? Skoro!
+```{r}
+non_identified_obec_okres <- obce_okresy %>% group_by(lau_okres, nazev_obec) %>% summarize(n_obec = length(lau_obec)) %>% filter(n_obec > 1)
+non_identified_obec_okres
+
+non_identified_psc_cast <- psc_obec_posta %>% group_by(psc,nazev_casti) %>% summarize(n_obec = length(unique(nazev_obec))) %>% filter(n_obec > 1)
+non_identified_psc_cast
+```
+
+
+Namapovat lau obce na data - pres mesto + psc najdu standartizovany nazev obce, pres PSC dostanu okres, nazev obce + okres mi da obec (krome prikladu vyse, na ty si dam pozor)
+```{r}
+data_augmented <- data
+psc_pres_nazev_obec_unique <- psc_obec_posta %>% select(psc, nazev_obec) %>% unique()
+psc_pres_nazev_casti_unique <- psc_obec_posta %>% select(psc, nazev_casti, nazev_obec) %>% unique()
+
+
+obec_pres_psc_nazev_obce <- data_augmented %>% select(mesto, psc) %>%
+  left_join(psc_pres_nazev_obec_unique, by = c("psc" = "psc","mesto" = "nazev_obec")) %>%
+  transmute(obec_std = mesto)
+
+neidentifikovana_data <- data_augmented %>% 
+  select(mesto,psc) %>% 
+  semi_join(non_identified_psc_cast, by = c("psc" = "psc", "mesto" = "nazev_casti"))
+
+if(nrow(neidentifikovana_data) > 0) stop("Nektera mesta spadaji do nejednoznacnych PSC + obec/nazev casti")
+
+obec_pres_psc_nazev_casti <- data_augmented %>% select(mesto, psc) %>%
+  left_join(psc_pres_nazev_casti_unique, by = c("psc" = "psc","mesto" = "nazev_casti")) %>%
+  transmute(obec_std = nazev_obec)
+
+data_augmented = data_augmented %>% mutate(nazev_obec = if_else(is.na(obec_pres_psc_nazev_obce$obec_std),obec_pres_psc_nazev_casti$obec_std, obec_pres_psc_nazev_obce$obec_std))
+
+neidentifikovana_data <- data_augmented %>% filter(is.na(nazev_obec) && (!is.na(psc) || !is.na(mesto))) %>% select(mesto,psc) %>% unique()
+
+if(nrow(neidentifikovana_data) > 0) stop("Nektera mesta nelze identifikovat dle PSC + obec/nazev casti")
+
+data_augmented <- data_augmented %>% left_join(misto, by = c("psc" = "psc"))
+
+neidentifikovana_data <- data_augmented %>% 
+  select(nazev_obec, lau_okres) %>% 
+  semi_join(non_identified_obec_okres, by = c("nazev_obec" = "nazev_obec", "lau_okres" = "lau_okres"))
+
+if(nrow(neidentifikovana_data) > 0) stop("Nektera mesta spadaji do nejednoznacnych nazev obce + orkes")
+
+data_augmented <- data_augmented %>% left_join(obce_okresy, by = c("lau_okres" = "lau_okres", "nazev_obec" = "nazev_obec"))
+
+neidentifikovana_data <- data_augmented %>% filter(is.na(lau_obec) && (!is.na(psc) || !is.na(mesto))) %>% select(mesto,psc) %>% unique()
+
+if(nrow(neidentifikovana_data) > 0) stop("K nekterym mestum nelza najit LAU kod")
+
+if(nrow(data_augmented) != nrow(data)) stop("Nekde je problem")
+```
 
