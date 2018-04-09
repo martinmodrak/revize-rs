@@ -32,4 +32,7 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 
+# Notebook outputs
+*.nb.html
+
 /private_data/

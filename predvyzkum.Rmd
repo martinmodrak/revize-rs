@@ -1,0 +1,17 @@
+---
+title: "Vyber strediska pro predvyzkum"
+output: html_notebook
+---
+
+
+```{r setup}
+library(here)
+library(tidyverse)
+```
+
+
+```{r}
+data <- read.csv(here("private_data","data_pracovni_170625.csv"))
+```
+
+
