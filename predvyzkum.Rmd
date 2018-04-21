@@ -13,40 +13,59 @@ library(kableExtra)
 ```
 
 
+```{r}
+jednotky  <- readxl::read_excel(here("private_data","skautis","2017-02-17 Přehled jednotek s počty členů 2004 - 2016-3_F_170225.xlsx"), sheet = "List1",col_types = c("numeric","text","text","text","text","text","text")) %>% rename(ev_cislo = RegistrationNumber, nazev_jednotky = DisplayName, mesto = City, ulice = Street, psc = Postcode )
+
+registrace  <- readxl::read_excel(here("private_data","skautis","data_pracovni_dodatek_170624.csv.xlsx"), sheet = "registrace", col_types = c("text","text", "text", "numeric", "date","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric"), na = "NULL")
+
+pocty_oddilu  <- readxl::read_excel(here("private_data","skautis","data_pracovni_dodatek_170624.csv.xlsx"), sheet = "pocty_oddilu", col_types = c("numeric","text","text","numeric"), na = "NULL") %>% rename(typ_oddilu = DisplayName, pocet_oddilu = Count)
+
+web  <- readxl::read_excel(here("private_data","skautis","data_pracovni_dodatek_170624.csv.xlsx"), sheet = "webove_stranky", col_types = c("numeric","text","numeric","text","text","text"), na = "NULL")
+
+```
 
 ```{r}
-data_raw <- read_csv(here("private_data","data_pracovni_170625.csv"), col_types = 
-                   cols(
-                    .default = col_double(),
-                    ev_c = col_character(),
-                    id = col_integer(),
-                    nazev = col_character(),
-                    ic = col_integer(),
-                    ulice = col_character(),
-                    mesto = col_character(),
-                    psc = col_character(),
-                    clenove_do18 = col_integer(),
-                    clenove_nad18 = col_integer(),
-                    clenove_celkem = col_integer(),
-                    id_statement = col_integer(),
-                    typ_ucetnictvi = col_character(),
-                    odevzdano = col_integer(),
-                    tis_kc = col_integer(),
-                    nazev_jednotky2 = col_factor(c("Klub kmene dospělých", "Kmen roverů/rangers", "Oddíl mladších členů", "Klub rodinného skautingu")),
-                    typ_kvalifikace = col_character(),
-                    ico2 = col_integer(),
-                    typ_jednotky = col_factor(c("kraj","okres","stredisko","zvlastniJednotka")),
-                    nazev_jednotky3 = col_character(),
-                    web = col_character()
-)) 
-data <- data_raw %>% filter(rok == 2015) %>% group_by(id,ev_c,nazev,ic,ulice,mesto,psc, clenove_do18, clenove_nad18, clenove_celkem,typ_jednotky) %>% #nazev_jednotky2,poc_oddilu,poc_kvalifikaci, typ_kvalifikace
-  summarise(ma_kmen = any(nazev_jednotky2 == "Kmen roverů/rangers")) %>% ungroup() 
+ma_kmen <- pocty_oddilu %>% filter(rok == 2017 & typ_oddilu == "Kmen roverů/rangers") %>% mutate(ma_kmen = pocet_oddilu > 0) %>% select(ev_cislo, ma_kmen)
 
-if(nrow(data) != length(unique(data$ev_c))) stop("Dublovane jednotky")
+web_condensed <- web %>% select(ev_cislo,web, typ_jednotky) %>% group_by(ev_cislo, typ_jednotky) %>% summarise(web = paste(web, collapse = ", "))
 
-data_web <- data %>% inner_join(data_raw %>% select(id, web) %>% unique() %>% group_by(id) %>% summarise(web = paste(web, collapse = ", ")), by = c("id" = "id"))
-if(nrow(data) != nrow(data_web)) stop("Blby join")
-data <- data_web
+je_stredisko <- function(nazev_jednotky, ev_cislo) {
+  grepl("středisko|přístav",nazev_jednotky,ignore.case = TRUE) & 
+    !grepl("^[90]00", ev_cislo) #Středisko správy majetku, Gemini, Parvula, ústředí mají ev. číslo 000.x nebo 900.x
+}
+
+data  <- jednotky %>% 
+  left_join(registrace %>% filter(rok_registrace == 2017), by = c("ev_cislo" = "ev_cislo","IC" = "IC"))  %>%
+  left_join(ma_kmen, by = c("ev_cislo" = "ev_cislo")) %>% 
+  mutate(ma_kmen = if_else(is.na(ma_kmen), FALSE, ma_kmen)) %>%
+  left_join(web_condensed, by = c("ev_cislo" = "ev_cislo"))  %>%
+  mutate(typ_jednotky = as.factor(if_else(is.na(typ_jednotky),
+                                if_else(je_stredisko(nazev_jednotky, ev_cislo), 'stredisko', 
+                                        if_else(grepl("okres",nazev_jednotky), 'okres',
+                                                if_else(grepl("kraj",nazev_jednotky),'kraj','zvlastniJednotka'))
+                                        )
+                                , typ_jednotky))
+         )
+
+if(any(is.na(data$typ_jednotky))) {
+  stop("Některým jednotkám se nepodařilo přiřadit typ")
+}
+data <- data %>% 
+  mutate(
+    kategorie_16az18let = if_else(is.na(kategorie_16az18let), 0, kategorie_16az18let), 
+    kategorie_19az26let = if_else(is.na(kategorie_19az26let), 0, kategorie_19az26let)
+  )
+data  <- data %>% mutate(pocet_roveru = kategorie_16az18let + kategorie_19az26let)
+
+if(length(unique(data$ev_cislo)) != length(unique(jednotky$ev_cislo))) {
+  stop("Ztráta jednotek")
+}
+```
+Kolik jednotek jakých typů bylo v datech (pro kontrolu)
+```{r}
+data %>% group_by(typ_jednotky) %>% summarize(pocet = length(unique(ev_cislo)))
+
+
 ```
 
 
@@ -233,9 +252,7 @@ data <- data_augmented
 
 # Samplovat dle kategorii
 
-Note: nemáme některá střediska - asi ty co neměly hospodářský výkaz? Dle https://is.skaut.cz/opendata/ bylo v roce 2015 registrováno 493 středisek.
-
-Střediska jsme seskupili do kategorií dle "regionu" (Morava, Čechy, + Sever = Ústecký + Karlovarský kraj, protože mi přijde specifický :-) ), velikosti obce, zda má (k roku 2015 :-( ) registrovaný kmen a kolik má členů (rozděleno na tři třetiny dle počtu členů).
+Střediska jsme seskupili do kategorií dle "regionu" (Morava, Čechy, + Sever = Ústecký + Karlovarský kraj, protože mi přijde specifický :-) ), velikosti obce, zda má k roku 2017 registrovaný kmen a kolik má členů v roverském věku (18-26) (rozděleno na tři třetiny dle počtu členů).
 
 Některé kategorie obsahovly jen pár středisek a tak jsme je sloučili do skupin.
 
@@ -243,27 +260,25 @@ Některé kategorie obsahovly jen pár středisek a tak jsme je sloučili do sku
 strediska <- data %>% filter(typ_jednotky == "stredisko")
 if(any(is.na(strediska$lau_obec))) stop("Nektera strediska nemaji LAU obec")
 
-cat("Máme", nrow(strediska),"středisek")
-
-
 strediska <- strediska %>% 
   mutate(velikost_obce = cut(obyvatele, c(0,10000,100000,2000000), labels = c("do 10 tis","10-100 tis", "nad 100 tis")),
-         clenove_category = cut(clenove_celkem, c(0, quantile(clenove_celkem, probs = c(0.33,0.66)), 10000), labels = c("Malo", "Stredne", "Hodne")),
+         pocet_roveru_category = cut(pocet_roveru, c(-1, quantile(pocet_roveru, probs = c(0.33,0.66)), 10000), labels = c("Malo", "Stredne", "Hodne")),
          region = if_else(nuts_kraj %in% c("CZ080","CZ072","CZ071","CZ064"), "Morava", 
                           if_else(nuts_kraj %in% c("CZ041","CZ042"), "Sever", "Čechy")
             )
          ) 
 
 strediska_kategorie <- strediska %>%
-  group_by(region, ma_kmen, velikost_obce, clenove_category) %>% summarize(pocet = length(ev_c)) %>%
+  group_by(region, ma_kmen, velikost_obce, pocet_roveru_category) %>% summarize(pocet = length(ev_cislo)) %>%
   ungroup() %>%
   mutate(id_kategorie = 1:nrow(.))
 
 strediska_kategorie 
 
 cat_map <- strediska_kategorie$id_kategorie
-cat_map[41:44] <- 41
-cat_map[37:40] <- 37
+cat_map[42:45] <- 42
+cat_map[39:41] <- 39
+cat_map[37:38] <- 37
 cat_map[34:36] <- 34
 cat_map[31:33] <- 31 
 cat_map[28:30] <- 28
@@ -272,7 +287,7 @@ cat_map[22:24] <- 22
 cat_map[19:21] <- 19
 cat_map[16:18] <- 16
 cat_map[13:15] <- 13
-cat_map[11:12] <- 11
+cat_map[10:11] <- 10
 cat_map[7:8] <- 7
 cat_map[4:5] <- 4
 cat_map[2:3] <- 2
@@ -280,16 +295,14 @@ cat_map[2:3] <- 2
 strediska_kategorie <- strediska_kategorie %>%
   mutate(skupina_id = cat_map) 
 
-#strediska_kategorie %>% group_by(region, ma_kmen, skupina_id) %>% summarize(pocet = sum(pocet))
+strediska_kategorie %>% group_by(region, ma_kmen, skupina_id) %>% summarize(pocet = sum(pocet))
 
-strediska <- strediska %>% inner_join(strediska_kategorie, by = c("ma_kmen", "velikost_obce", "clenove_category", "region"))
+strediska <- strediska %>% inner_join(strediska_kategorie, by = c("ma_kmen", "velikost_obce", "pocet_roveru_category", "region"))
 ```
 
 # Vylosovaná střediska
 
 Z každé skupiny jsme vylosovali 5 středisek. Chtělo by to zkontaktovat alespoň 1 z každé skupiny, ideálně 2. Ostatní tam jsou jako náhrada, kdybyste se někam nedovolali/odmítli vás.
-
-Poznámka: má kmen se vztahuje k roku 2015 :-(
 
 ```{r}
 set.seed(147545)
@@ -297,7 +310,6 @@ for(group in unique(strediska_kategorie$skupina_id)) {
   cat("Skupina ", group,"- kategorie stredisek\n") 
   print(strediska_kategorie %>% filter(skupina_id == group) %>% select(-id_kategorie,-skupina_id))
   cat("Skupina ", group,"- vylosovana strediska\n")  
-  strediska %>% filter(skupina_id == group) %>% sample_n(5) %>% select(ev_c, nazev, nazev_kraj, ma_kmen, web) %>% kable("html") %>% kable_styling(bootstrap_options = "condensed") %>% print()
+  strediska %>% filter(skupina_id == group) %>% sample_n(5) %>% select(ev_cislo, nazev_jednotky, pocet_roveru, ma_kmen, web) %>% kable("html") %>% kable_styling(bootstrap_options = "condensed") %>% print()
 }
 ```
-
