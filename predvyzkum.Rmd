@@ -53,8 +53,9 @@ if(any(is.na(data$typ_jednotky))) {
 data <- data %>% 
   mutate(
     kategorie_16az18let = if_else(is.na(kategorie_16az18let), 0, kategorie_16az18let), 
-    kategorie_19az26let = if_else(is.na(kategorie_19az26let), 0, kategorie_19az26let)
-  )
+    kategorie_19az26let = if_else(is.na(kategorie_19az26let), 0, kategorie_19az26let),
+    clenove_celkem = if_else(is.na(celkem), 0, celkem)
+  ) 
 data  <- data %>% mutate(pocet_roveru = kategorie_16az18let + kategorie_19az26let)
 
 if(length(unique(data$ev_cislo)) != length(unique(jednotky$ev_cislo))) {
@@ -257,28 +258,28 @@ Střediska jsme seskupili do kategorií dle "regionu" (Morava, Čechy, + Sever =
 Některé kategorie obsahovly jen pár středisek a tak jsme je sloučili do skupin.
 
 ```{r}
-strediska <- data %>% filter(typ_jednotky == "stredisko")
+strediska <- data %>% filter(typ_jednotky == "stredisko" & clenove_celkem > 0) #Dve strediska nemaji registraci, mozna jsou v likvidaci nebo tak neco
 if(any(is.na(strediska$lau_obec))) stop("Nektera strediska nemaji LAU obec")
 
 strediska <- strediska %>% 
   mutate(velikost_obce = cut(obyvatele, c(0,10000,100000,2000000), labels = c("do 10 tis","10-100 tis", "nad 100 tis")),
-         pocet_roveru_category = cut(pocet_roveru, c(-1, quantile(pocet_roveru, probs = c(0.33,0.66)), 10000), labels = c("Malo", "Stredne", "Hodne")),
+         clenove_category = cut(clenove_celkem, c(-1, quantile(clenove_celkem, probs = c(0.33,0.66)), 10000), labels = c("Malo", "Stredne", "Hodne")),
          region = if_else(nuts_kraj %in% c("CZ080","CZ072","CZ071","CZ064"), "Morava", 
                           if_else(nuts_kraj %in% c("CZ041","CZ042"), "Sever", "Čechy")
             )
          ) 
 
 strediska_kategorie <- strediska %>%
-  group_by(region, ma_kmen, velikost_obce, pocet_roveru_category) %>% summarize(pocet = length(ev_cislo)) %>%
+  group_by(region, ma_kmen, velikost_obce, clenove_category) %>% summarize(pocet = length(ev_cislo)) %>%
   ungroup() %>%
   mutate(id_kategorie = 1:nrow(.))
 
 strediska_kategorie 
 
 cat_map <- strediska_kategorie$id_kategorie
-cat_map[42:45] <- 42
-cat_map[39:41] <- 39
-cat_map[37:38] <- 37
+cat_map[41:44] <- 41
+cat_map[38:40] <- 38
+#37 muze byt samostatne
 cat_map[34:36] <- 34
 cat_map[31:33] <- 31 
 cat_map[28:30] <- 28
@@ -295,9 +296,9 @@ cat_map[2:3] <- 2
 strediska_kategorie <- strediska_kategorie %>%
   mutate(skupina_id = cat_map) 
 
-strediska_kategorie %>% group_by(region, ma_kmen, skupina_id) %>% summarize(pocet = sum(pocet))
+#strediska_kategorie %>% group_by(region, ma_kmen, skupina_id) %>% summarize(pocet = sum(pocet))
 
-strediska <- strediska %>% inner_join(strediska_kategorie, by = c("ma_kmen", "velikost_obce", "pocet_roveru_category", "region"))
+strediska <- strediska %>% inner_join(strediska_kategorie, by = c("ma_kmen", "velikost_obce", "clenove_category", "region"))
 ```
 
 # Vylosovaná střediska
@@ -305,11 +306,11 @@ strediska <- strediska %>% inner_join(strediska_kategorie, by = c("ma_kmen", "ve
 Z každé skupiny jsme vylosovali 5 středisek. Chtělo by to zkontaktovat alespoň 1 z každé skupiny, ideálně 2. Ostatní tam jsou jako náhrada, kdybyste se někam nedovolali/odmítli vás.
 
 ```{r}
-set.seed(147545)
+set.seed(231485)
 for(group in unique(strediska_kategorie$skupina_id)) {
   cat("Skupina ", group,"- kategorie stredisek\n") 
   print(strediska_kategorie %>% filter(skupina_id == group) %>% select(-id_kategorie,-skupina_id))
   cat("Skupina ", group,"- vylosovana strediska\n")  
-  strediska %>% filter(skupina_id == group) %>% sample_n(5) %>% select(ev_cislo, nazev_jednotky, pocet_roveru, ma_kmen, web) %>% kable("html") %>% kable_styling(bootstrap_options = "condensed") %>% print()
+  strediska %>% filter(skupina_id == group) %>% sample_n(5) %>% select(ev_cislo, nazev_jednotky, pocet_roveru, clenove_celkem, ma_kmen, web) %>% kable("html") %>% kable_styling(bootstrap_options = "condensed") %>% print()
 }
 ```
