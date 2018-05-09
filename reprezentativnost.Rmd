@@ -1,0 +1,27 @@
+---
+title: "Reprezentativnost dat"
+output: html_notebook
+---
+
+
+
+```{r setup}
+library(here)
+library(tidyverse)
+library(kableExtra)
+source(here("R","data_predvyzkum.R"), encoding = "UTF-8")
+source(here("R","data_csu_psc.R"), encoding = "UTF-8")
+
+```
+
+```{r}
+data_skautis <- jednotky_oddily_kmeny_predvyzkum() %>%
+  normalizovat_mesto_psc() %>%
+  pripojit_csu_data()
+```
+
+
+```{r}
+data_kmen <- read_csv(here("private_data","vyzkum_kmen_odpovedi.csv"))
+```
+
