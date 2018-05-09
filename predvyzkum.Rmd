@@ -5,251 +5,31 @@ output: html_notebook
 
 
 ```{r setup}
-knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
 library(here)
 library(tidyverse)
 library(kableExtra)
-
-```
-
-
-```{r}
-jednotky  <- readxl::read_excel(here("private_data","skautis","2017-02-17 Přehled jednotek s počty členů 2004 - 2016-3_F_170225.xlsx"), sheet = "List1",col_types = c("numeric","text","text","text","text","text","text")) %>% rename(ev_cislo = RegistrationNumber, nazev_jednotky = DisplayName, mesto = City, ulice = Street, psc = Postcode )
-
-registrace  <- readxl::read_excel(here("private_data","skautis","data_pracovni_dodatek_170624.csv.xlsx"), sheet = "registrace", col_types = c("text","text", "text", "numeric", "date","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric"), na = "NULL")
-
-pocty_oddilu  <- readxl::read_excel(here("private_data","skautis","data_pracovni_dodatek_170624.csv.xlsx"), sheet = "pocty_oddilu", col_types = c("numeric","text","text","numeric"), na = "NULL") %>% rename(typ_oddilu = DisplayName, pocet_oddilu = Count)
-
-web  <- readxl::read_excel(here("private_data","skautis","data_pracovni_dodatek_170624.csv.xlsx"), sheet = "webove_stranky", col_types = c("numeric","text","numeric","text","text","text"), na = "NULL")
+source(here("R","data_predvyzkum.R"), encoding = "UTF-8")
+source(here("R","data_csu_psc.R"), encoding = "UTF-8")
 
 ```
 
 ```{r}
-ma_kmen <- pocty_oddilu %>% filter(rok == 2017 & typ_oddilu == "Kmen roverů/rangers") %>% mutate(ma_kmen = pocet_oddilu > 0) %>% select(ev_cislo, ma_kmen)
-
-web_condensed <- web %>% select(ev_cislo,web, typ_jednotky) %>% group_by(ev_cislo, typ_jednotky) %>% summarise(web = paste(web, collapse = ", "))
-
-je_stredisko <- function(nazev_jednotky, ev_cislo) {
-  grepl("středisko|přístav",nazev_jednotky,ignore.case = TRUE) & 
-    !grepl("^[90]00", ev_cislo) #Středisko správy majetku, Gemini, Parvula, ústředí mají ev. číslo 000.x nebo 900.x
-}
-
-data  <- jednotky %>% 
-  left_join(registrace %>% filter(rok_registrace == 2017), by = c("ev_cislo" = "ev_cislo","IC" = "IC"))  %>%
-  left_join(ma_kmen, by = c("ev_cislo" = "ev_cislo")) %>% 
-  mutate(ma_kmen = if_else(is.na(ma_kmen), FALSE, ma_kmen)) %>%
-  left_join(web_condensed, by = c("ev_cislo" = "ev_cislo"))  %>%
-  mutate(typ_jednotky = as.factor(if_else(is.na(typ_jednotky),
-                                if_else(je_stredisko(nazev_jednotky, ev_cislo), 'stredisko', 
-                                        if_else(grepl("okres",nazev_jednotky), 'okres',
-                                                if_else(grepl("kraj",nazev_jednotky),'kraj','zvlastniJednotka'))
-                                        )
-                                , typ_jednotky))
-         )
-
-if(any(is.na(data$typ_jednotky))) {
-  stop("Některým jednotkám se nepodařilo přiřadit typ")
-}
-data <- data %>% 
-  mutate(
-    kategorie_16az18let = if_else(is.na(kategorie_16az18let), 0, kategorie_16az18let), 
-    kategorie_19az26let = if_else(is.na(kategorie_19az26let), 0, kategorie_19az26let),
-    clenove_celkem = if_else(is.na(celkem), 0, celkem)
-  ) 
-data  <- data %>% mutate(pocet_roveru = kategorie_16az18let + kategorie_19az26let)
-
-if(length(unique(data$ev_cislo)) != length(unique(jednotky$ev_cislo))) {
-  stop("Ztráta jednotek")
-}
+data <- jednotky_oddily_kmeny_predvyzkum()
 ```
+
+
 Kolik jednotek jakých typů bylo v datech (pro kontrolu)
 ```{r}
 data %>% group_by(typ_jednotky) %>% summarize(pocet = length(unique(ev_cislo)))
 
-
 ```
 
 
 ```{r}
-#psc <- read_csv(here("public_data","psc.csv"), col_types = cols(.default = col_character(), okres_id = col_integer(), kraj_id = col_integer()), quote = "'")
-#okresy <- read_csv(here("public_data","okresy.csv"), col_types = cols(.default = col_integer(), lau = col_character(), nazev = col_character()), quote = "'")
-#kraje <- read_csv(here("public_data","kraje.csv"), col_types = cols(.default = col_character(), id = col_integer()), quote = "'")
-
-okres_kraj <- read_csv(here("public_data","okres_kraj_csu.csv"), col_types = c(.default = col_character())) %>%
-  transmute(nazev_okres = TEXT1, lau_okres = CHODNOTA1, nazev_kraj = TEXT2, nuts_kraj = CHODNOTA2)
-
-psc_obec_posta <- read_csv2(
-  here("public_data","psc_okres_posta_utf8.csv"), 
-    col_types = 
-       cols(.default = col_character(), 
-            PSC = col_character(), KODOKRESU = col_integer())
-    ) %>%
-  transmute(nazev_obec = NAZOBCE, psc = PSC, kod_okres = KODOKRESU, nazev_casti = NAZCOBCE, nazev_posta = NAZPOST, nazev_okres = NAZOKRESU, nazev_okres = if_else(nazev_okres == "Hlavní město Praha", "Praha", nazev_okres)) 
-
-psc_all <- psc_obec_posta %>% 
-  mutate(psc_id = 1:nrow(.)) %>%
-  inner_join(okres_kraj, by = c("nazev_okres" = "nazev_okres")) 
-
-if(nrow(psc_all) != nrow(psc_obec_posta)) stop("Nepodarilo se namapovat PSC na okres")
-
-obce_okresy <- read_csv(here("public_data","obce_okresy_csu.csv"), col_types = cols(
-  KODJAZ = col_character(),
-  TYPVAZ = col_character(),
-  AKRCIS1 = col_character(),
-  KODCIS1 = col_integer(),
-  CHODNOTA1 = col_integer(),
-  TEXT1 = col_character(),
-  AKRCIS2 = col_character(),
-  KODCIS2 = col_integer(),
-  CHODNOTA2 = col_character(),
-  TEXT2 = col_character()
-)) %>%
-  transmute(lau_okres = CHODNOTA2, lau_obec = CHODNOTA1, nazev_obec = TEXT1) 
-
-obyvatele_obce <- read_csv(here("public_data","obyvatele_obce_csu_2017.csv"), col_types = cols(
-  nuts_okres = col_character(),
-  lau_obec = col_integer(),
-  nazev_obec = col_character(),
-  obyvatele = col_integer(),
-  muzi = col_integer(),
-  zeny = col_integer(),
-  avg_vek = col_double(),
-  avg_vek_muzi = col_double(),
-  avg_vek_zeny = col_double()
-))
-
+data <- normalizovat_mesto_psc(data)
+data <- pripojit_csu_data(data)
 ```
 
-
-```{r}
-#Vyresit nestandartní adresy
-non_existent_psc_map = c(
-  "28000" = "28002",
-  "25002" = "25001",
-  "18102" = "18100",
-  "77200" = "77900",
-  "40501" = "40502",
-  "64402" = "66402"
-)
-
-mesto_map = c(
-  "Rájec Jestřebí" = "Rájec-Jestřebí",
-  "Rožmitál p. Tř." = "Rožmitál pod Třemšínem",
-  "Libčice n.Vlt." = "Libčice nad Vltavou",
-  "Lipník n.B." = "Lipník nad Bečvou",
-  "České Budejovice" = "České Budějovice",
-  
-  #Zahazuji doplnky nazvu, protoze ty jsou reseny PSC
-  "Hlinsko v Čechách" = "Hlinsko",  
-  "Čechovice, Velký Týnec" = "Čechovice",
-  "Šlapanice u Brna" = "Šlapanice",
-  "Staré Město u Uherského Hradiště" = "Staré Město",
-  "Chrast u Chrudimě" = "Chrast"
-
-)
-
-
-data <- data %>%  
-  mutate(mesto_orig = mesto, psc_orig = psc,
-          mesto = gsub("^Praha[ \\-].*$","Praha",mesto),
-         mesto = gsub("^Brno[ \\-].*$", "Brno", mesto),
-         mesto = gsub("^Ostrava[ \\-].*$", "Ostrava", mesto),
-         mesto = gsub("^Havířov[ \\-].*$", "Havířov", mesto),
-         mesto = gsub("^[0-9 ]*","",mesto), #leading numbers (e.g. psc duplicate)
-         mesto = gsub("[0-9 ]*$","",mesto), #trailing numbers (e.g. cislo popisne)
-         mesto = gsub(" ?- ?","-",mesto), #spaces around "-"
-         mesto = gsub(",* *pošta.*$","",mesto)
-         ) %>%
-  rowwise() %>%
-  mutate(mesto = if_else(mesto %in% names(mesto_map), mesto_map[mesto], mesto), 
-         psc = if_else(psc %in% names(non_existent_psc_map), non_existent_psc_map[psc], psc),
-         psc = if_else(mesto == "Česká Ves" && psc == "79001","79081", psc)) %>% #Specialni pripad - je vice ceskych vsi a ceska ves ma vice PSC
-  ungroup() 
-```
-
-```{r}
-#Nazev obce + okres identifikuji mesto? Skoro!
-#PSČ + název části obce identifikují obec? Skoro!
-
-non_identified_obec_okres <- obce_okresy %>% group_by(lau_okres, nazev_obec) %>% summarize(n_obec = length(lau_obec)) %>% filter(n_obec > 1)
-#non_identified_obec_okres
-
-non_identified_psc_cast <- psc_obec_posta %>% group_by(psc,nazev_casti) %>% summarize(n_obec = length(unique(nazev_obec))) %>% filter(n_obec > 1)
-#non_identified_psc_cast
-```
-
-
-```{r}
-#Namapovat lau obce na data - pres mesto + psc najdu standartizovany nazev obce, pres PSC dostanu okres, nazev obce + okres mi da obec (krome prikladu vyse, na ty si dam pozor)
-
-data_augmented <- data
-
-find_best_psc <- function(nazev_obec, nazev_posta, psc_id) {
-  if(any(nazev_obec == nazev_posta)) {
-    as.integer(max(psc_id[nazev_obec == nazev_posta]))
-  } else {
-    contains = grepl(unique(nazev_obec), nazev_posta, fixed = TRUE)
-    if(any(contains)) {
-      as.integer(max(psc_id[contains]))
-    } else {
-      as.integer(max(psc_id))
-    }
-  }
-}
-
-psc_pres_nazev_obec_unique <- psc_all %>% group_by(psc, nazev_obec) %>%
-  summarize(psc_id = find_best_psc(nazev_obec, nazev_posta, psc_id)) 
-
-rm(find_best_psc)
-
-psc_pres_nazev_casti_unique <- psc_all %>% group_by(psc, nazev_casti, nazev_obec) %>% summarise(psc_id = as.integer(max(psc_id)), n_psc_id = length(psc_id))
-
-if(any(psc_pres_nazev_casti_unique$n_psc_id > 1)) stop("psc + cast + obec neni unikatni")
-
-
-psc_id_pres_psc_nazev_casti <- data_augmented %>% select(mesto, psc) %>%
-  left_join(psc_pres_nazev_casti_unique, by = c("psc" = "psc","mesto" = "nazev_casti")) %>%
-  select(psc_id)
-
-
-psc_id_pres_psc_nazev_obce <- data_augmented %>% select(mesto, psc) %>%
-  left_join(psc_pres_nazev_obec_unique, by = c("psc" = "psc","mesto" = "nazev_obec")) %>%
-  select(psc_id)
-
-neidentifikovana_data <- data_augmented %>% 
-  select(mesto,psc) %>% 
-  semi_join(non_identified_psc_cast, by = c("psc" = "psc", "mesto" = "nazev_casti"))
-
-if(nrow(neidentifikovana_data) > 0) stop("Nektera mesta spadaji do nejednoznacnych PSC + obec/nazev casti")
-
-
-data_augmented = data_augmented %>% mutate(psc_id = if_else(is.na(psc_id_pres_psc_nazev_casti$psc_id),psc_id_pres_psc_nazev_obce$psc_id, psc_id_pres_psc_nazev_casti$psc_id))
-
-neidentifikovana_data <- data_augmented %>% filter(is.na(psc_id) && (!is.na(psc) || !is.na(mesto))) %>% select(mesto,psc) %>% unique()
-
-if(nrow(neidentifikovana_data) > 0) stop("Nektera mesta nelze identifikovat dle PSC + obec/nazev casti")
-
-data_augmented <- data_augmented %>% left_join(psc_all, by = c("psc_id" = "psc_id"), suffix = c("",".posta"))
-
-neidentifikovana_data <- data_augmented %>% 
-  select(nazev_obec, lau_okres) %>% 
-  semi_join(non_identified_obec_okres, by = c("nazev_obec" = "nazev_obec", "lau_okres" = "lau_okres"))
-
-if(nrow(neidentifikovana_data) > 0) stop("Nektera mesta spadaji do nejednoznacnych nazev obce + orkes")
-
-data_augmented <- data_augmented %>% left_join(obce_okresy, by = c("lau_okres" = "lau_okres", "nazev_obec" = "nazev_obec"))
-
-neidentifikovana_data <- data_augmented %>% filter(is.na(lau_obec) && (!is.na(psc) || !is.na(mesto))) %>% select(mesto,psc) %>% unique()
-
-if(nrow(neidentifikovana_data) > 0) stop("K nekterym mestum nelza najit LAU kod")
-
-data_augmented <- data_augmented %>%
-  inner_join(obyvatele_obce, by = c("lau_obec" = "lau_obec"))
-
-if(nrow(data_augmented) != nrow(data)) stop("Nekde je problem")
-
-data <- data_augmented
-```
 
 # Samplovat dle kategorii
 
