@@ -38,8 +38,11 @@ jednotky_oddily_kmeny_predvyzkum <- function() {
   }
   data <- data %>%
     mutate(
+      kategorie_do6let = if_else(is.na(kategorie_do6let), 0, kategorie_do6let),
+      kategorie_7az15let = if_else(is.na(kategorie_7az15let), 0, kategorie_7az15let),
       kategorie_16az18let = if_else(is.na(kategorie_16az18let), 0, kategorie_16az18let),
       kategorie_19az26let = if_else(is.na(kategorie_19az26let), 0, kategorie_19az26let),
+      kategorie_nad26let = if_else(is.na(kategorie_nad26let), 0, kategorie_nad26let),
       clenove_celkem = if_else(is.na(celkem), 0, celkem)
     )
   data  <- data %>% mutate(pocet_roveru = kategorie_16az18let + kategorie_19az26let)
