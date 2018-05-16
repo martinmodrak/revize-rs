@@ -48,9 +48,26 @@ celkem <- dle_veku_a_obce %>% group_by(kategorie, zdroj) %>% summarise(celkem_v_
 
 dle_veku_a_obce <- dle_veku_a_obce %>%
   inner_join(celkem, by = c("kategorie" = "kategorie", "zdroj" = "zdroj")) %>% 
-  mutate(procent = clenu / celkem_v_datech)
+  mutate(podil = clenu / celkem_v_datech)
 
-dle_veku_a_obce %>% ggplot(aes(x=velikost_obce, y = procent, color = zdroj, group = zdroj)) + geom_point() + geom_line() + facet_wrap(~kategorie,ncol = 1)
+confidence <- dle_veku_a_obce %>% filter(zdroj == "kmen") %>%
+  inner_join(
+    dle_veku_a_obce %>% filter(zdroj == "skautis") %>% 
+      select(velikost_obce, kategorie, podil) %>%
+      rename(podil_skautis = podil)
+      , 
+    by = c("velikost_obce" = "velikost_obce","kategorie" = "kategorie")) %>%
+  mutate(
+    conf_lower = qbinom(0.025, celkem_v_datech, podil_skautis) / celkem_v_datech,
+    conf_upper = qbinom(0.975, celkem_v_datech, podil_skautis) / celkem_v_datech,
+    zdroj = "skautis"
+  )
+
+
+dle_veku_a_obce %>% 
+  ggplot(aes(x=velikost_obce, y = podil, color = zdroj, fill = zdroj, group = zdroj)) + 
+  geom_ribbon(data = confidence, aes(ymin = conf_lower, ymax = conf_upper), alpha = 0.2, color = "transparent") +
+  geom_point() + geom_line() + facet_wrap(~kategorie,ncol = 1, scales = "free_y")
 
 ```
 
