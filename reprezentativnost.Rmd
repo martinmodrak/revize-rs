@@ -1,0 +1,73 @@
+---
+title: "Reprezentativnost dat"
+output: html_notebook
+---
+
+
+
+```{r setup}
+library(here)
+library(tidyverse)
+library(kableExtra)
+source(here("R","data_predvyzkum.R"), encoding = "UTF-8")
+source(here("R","data_csu_psc.R"), encoding = "UTF-8")
+
+```
+
+```{r}
+data_skautis <- jednotky_oddily_kmeny_predvyzkum() %>%
+  normalizovat_mesto_psc() %>%
+  pripojit_csu_data()
+```
+
+
+```{r}
+data_kmen <- read_csv(here("private_data","vyzkum_kmen_odpovedi.csv")) %>% rename(vek = `Kolik Ti je let?`, velikost_obce = `Z jak velkého města pocházíš?`)
+```
+
+```{r}
+dle_veku_a_obce_kmen <- data_kmen %>% 
+  group_by(velikost_obce) %>% summarise(celkem = length(vek), kategorie_nad15 = sum(vek > 15, na.rm = TRUE), kategorie_16_26 = sum(vek >15 & vek <=26, na.rm = TRUE), kategorie_do15 = sum(vek <= 15, na.rm = TRUE)) %>% ungroup() %>% mutate(zdroj = "kmen")
+
+dle_veku_a_obce_skautis <- data_skautis %>% 
+  filter(typ_jednotky == "stredisko") %>%
+  mutate(velikost_obce = cut(obyvatele, breaks = c(0,5000,10000,50000,100000,1e7), labels = c("obec do 5 000 obyvatel","obec do 10 000 obyvatel","obec do 50 000 obyvatel","obec do 100 000 obyvatel","obec nad 100 000 obyvatel"))) %>%
+  group_by(velikost_obce) %>% 
+  summarise(celkem = sum(clenove_celkem), 
+            kategorie_nad15 = sum(kategorie_16az18let + kategorie_19az26let + kategorie_nad26let), 
+            kategorie_16_26 = sum(kategorie_16az18let, kategorie_19az26let),
+            kategorie_do15 = sum(kategorie_7az15let)
+            ) %>% ungroup() %>%
+  mutate(zdroj = "skautis")
+
+dle_veku_a_obce <- rbind(dle_veku_a_obce_kmen, dle_veku_a_obce_skautis) %>%
+  mutate(velikost_obce = factor(velikost_obce, levels = c("obec do 5 000 obyvatel","obec do 10 000 obyvatel","obec do 50 000 obyvatel","obec do 100 000 obyvatel","obec nad 100 000 obyvatel"), labels = c("< 5 000","< 10 000", "< 50 000","< 100 000","100 000 +"))) %>%
+  gather("kategorie","clenu", -velikost_obce, -zdroj)
+
+celkem <- dle_veku_a_obce %>% group_by(kategorie, zdroj) %>% summarise(celkem_v_datech = sum(clenu))
+
+dle_veku_a_obce <- dle_veku_a_obce %>%
+  inner_join(celkem, by = c("kategorie" = "kategorie", "zdroj" = "zdroj")) %>% 
+  mutate(podil = clenu / celkem_v_datech)
+
+confidence <- dle_veku_a_obce %>% filter(zdroj == "kmen") %>%
+  inner_join(
+    dle_veku_a_obce %>% filter(zdroj == "skautis") %>% 
+      select(velikost_obce, kategorie, podil) %>%
+      rename(podil_skautis = podil)
+      , 
+    by = c("velikost_obce" = "velikost_obce","kategorie" = "kategorie")) %>%
+  mutate(
+    conf_lower = qbinom(0.025, celkem_v_datech, podil_skautis) / celkem_v_datech,
+    conf_upper = qbinom(0.975, celkem_v_datech, podil_skautis) / celkem_v_datech,
+    zdroj = "skautis"
+  )
+
+
+dle_veku_a_obce %>% 
+  ggplot(aes(x=velikost_obce, y = podil, color = zdroj, fill = zdroj, group = zdroj)) + 
+  geom_ribbon(data = confidence, aes(ymin = conf_lower, ymax = conf_upper), alpha = 0.2, color = "transparent") +
+  geom_point() + geom_line() + facet_wrap(~kategorie,ncol = 1, scales = "free_y")
+
+```
+
