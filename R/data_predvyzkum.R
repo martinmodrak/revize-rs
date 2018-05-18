@@ -1,4 +1,4 @@
-jednotky_oddily_kmeny_predvyzkum <- function() {
+jednotky_oddily_kmeny_predvyzkum <- function(rok = 2017) {
 
   #warning("Očekávám, že v souboru '2017-02-17 Přehled jednotek s počty členů 2004 - 2016-3_F_170225.xlsx' byl upraven sloupec ")
   jednotky  <- readxl::read_excel(here("private_data","skautis","2017-02-17 Přehled jednotek s počty členů 2004 - 2016-3_F_170225.xlsx"), sheet = "List1",col_types = c("numeric","text","text","text","text","text","text")) %>% rename(ev_cislo = RegistrationNumber, nazev_jednotky = DisplayName, mesto = City, ulice = Street, psc = Postcode )
@@ -11,7 +11,7 @@ jednotky_oddily_kmeny_predvyzkum <- function() {
 
   web  <- readxl::read_excel(here("private_data","skautis","data_pracovni_dodatek_170624.csv.xlsx"), sheet = "webove_stranky", col_types = c("numeric","text","numeric","text","text","text"), na = "NULL")
 
-  ma_kmen <- pocty_oddilu %>% filter(rok == 2017 & typ_oddilu == "Kmen roverů/rangers") %>% mutate(ma_kmen = pocet_oddilu > 0) %>% select(ev_cislo, ma_kmen)
+  ma_kmen <- pocty_oddilu %>% filter(rok == rok & typ_oddilu == "Kmen roverů/rangers") %>% mutate(ma_kmen = pocet_oddilu > 0) %>% select(ev_cislo, ma_kmen)
 
   web_condensed <- web %>% select(ev_cislo,web, typ_jednotky) %>% group_by(ev_cislo, typ_jednotky) %>% summarise(web = paste(web, collapse = ", "))
 
@@ -21,7 +21,7 @@ jednotky_oddily_kmeny_predvyzkum <- function() {
   }
 
   data  <- jednotky %>%
-    left_join(registrace %>% filter(rok_registrace == 2017), by = c("ev_cislo" = "ev_cislo","IC" = "IC"))  %>%
+    left_join(registrace %>% filter(rok_registrace == rok), by = c("ev_cislo" = "ev_cislo","IC" = "IC"))  %>%
     left_join(ma_kmen, by = c("ev_cislo" = "ev_cislo")) %>%
     mutate(ma_kmen = if_else(is.na(ma_kmen), FALSE, ma_kmen)) %>%
     left_join(web_condensed, by = c("ev_cislo" = "ev_cislo"))  %>%

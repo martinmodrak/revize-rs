@@ -3,9 +3,12 @@ title: "Reprezentativnost dat"
 output: html_notebook
 ---
 
+Reprezentativnost dat z ruznych zdroju. V každém obrázku je křivka "skautis", která reprezentuje podíl dané skupiny členstva v datech ze SkautISu (k roku 2017 pro data z kmene, k roku 2015 pro data ze sond o roveringu). Křivka je tam proto, že mi to přijde více názorné, ale samozřejmě důležité jsou konkrétní body, pořadí skupiny není dáno pevně. Tato křivka má kolem sebe pruh vyjadřující nejistotu - jak velký rozptyl bychom čekali, kdybychom vybrali ze skauta náhodně tolik lidí, kolik jich bylo v daném průzkumu. Druhá křivka vyjadřuje podíl dané skupiny, který jsme viděli v průzkumu.
 
+Pro každé seskupení jsou tyto křivky ještě rozděleny podle věkových kategorií.
 
 ```{r setup}
+knitr::opts_chunk$set(echo=FALSE)
 library(here)
 library(tidyverse)
 library(kableExtra)
@@ -18,6 +21,10 @@ source(here("R","data_csu_psc.R"), encoding = "UTF-8")
 data_skautis <- jednotky_oddily_kmeny_predvyzkum() %>%
   normalizovat_mesto_psc() %>%
   pripojit_csu_data()
+data_skautis_2015 <- jednotky_oddily_kmeny_predvyzkum(rok = 2015) %>%
+  normalizovat_mesto_psc() %>%
+  pripojit_csu_data()
+
 ```
 
 
@@ -26,37 +33,36 @@ data_kmen <- read_csv(here("private_data","vyzkum_kmen_odpovedi.csv")) %>% renam
 ```
 
 ```{r}
-dle_veku_a_obce_kmen <- data_kmen %>% 
-  group_by(velikost_obce) %>% summarise(celkem = length(vek), kategorie_nad15 = sum(vek > 15, na.rm = TRUE), kategorie_16_26 = sum(vek >15 & vek <=26, na.rm = TRUE), kategorie_do15 = sum(vek <= 15, na.rm = TRUE)) %>% ungroup() %>% mutate(zdroj = "kmen")
-
-dle_veku_a_obce_skautis <- data_skautis %>% 
-  filter(typ_jednotky == "stredisko") %>%
-  mutate(velikost_obce = cut(obyvatele, breaks = c(0,5000,10000,50000,100000,1e7), labels = c("obec do 5 000 obyvatel","obec do 10 000 obyvatel","obec do 50 000 obyvatel","obec do 100 000 obyvatel","obec nad 100 000 obyvatel"))) %>%
-  group_by(velikost_obce) %>% 
-  summarise(celkem = sum(clenove_celkem), 
+reprezentativnost <- function(data_skautis_, data_pruzkum_, pruzkum_nazev, seskupeni_nazev) {
+  dle_veku_a_seskupeni_pruzkum <- data_pruzkum_ %>% 
+    group_by(seskupeni) %>%
+    summarise(celkem = length(vek), kategorie_nad15 = sum(vek > 15, na.rm = TRUE), kategorie_16_26 = sum(vek >15 & vek <=26, na.rm = TRUE), kategorie_do15 = sum(vek <= 15, na.rm = TRUE)) %>% ungroup() %>% mutate(zdroj = pruzkum_nazev)
+  
+  dle_veku_a_seskupeni_skautis <-  data_skautis_ %>%
+    group_by(seskupeni) %>%
+    summarise(celkem = sum(clenove_celkem), 
             kategorie_nad15 = sum(kategorie_16az18let + kategorie_19az26let + kategorie_nad26let), 
             kategorie_16_26 = sum(kategorie_16az18let, kategorie_19az26let),
             kategorie_do15 = sum(kategorie_7az15let)
             ) %>% ungroup() %>%
   mutate(zdroj = "skautis")
+  
+dle_veku_a_seskupeni <- rbind(dle_veku_a_seskupeni_pruzkum, dle_veku_a_seskupeni_skautis) %>%
+  gather("kategorie","clenu", -seskupeni, -zdroj)
 
-dle_veku_a_obce <- rbind(dle_veku_a_obce_kmen, dle_veku_a_obce_skautis) %>%
-  mutate(velikost_obce = factor(velikost_obce, levels = c("obec do 5 000 obyvatel","obec do 10 000 obyvatel","obec do 50 000 obyvatel","obec do 100 000 obyvatel","obec nad 100 000 obyvatel"), labels = c("< 5 000","< 10 000", "< 50 000","< 100 000","100 000 +"))) %>%
-  gather("kategorie","clenu", -velikost_obce, -zdroj)
+celkem <- dle_veku_a_seskupeni %>% group_by(kategorie, zdroj) %>% summarise(celkem_v_datech = sum(clenu))
 
-celkem <- dle_veku_a_obce %>% group_by(kategorie, zdroj) %>% summarise(celkem_v_datech = sum(clenu))
-
-dle_veku_a_obce <- dle_veku_a_obce %>%
+dle_veku_a_seskupeni <- dle_veku_a_seskupeni %>%
   inner_join(celkem, by = c("kategorie" = "kategorie", "zdroj" = "zdroj")) %>% 
   mutate(podil = clenu / celkem_v_datech)
 
-confidence <- dle_veku_a_obce %>% filter(zdroj == "kmen") %>%
+confidence <- dle_veku_a_seskupeni %>% filter(zdroj == pruzkum_nazev) %>%
   inner_join(
-    dle_veku_a_obce %>% filter(zdroj == "skautis") %>% 
-      select(velikost_obce, kategorie, podil) %>%
+    dle_veku_a_seskupeni %>% filter(zdroj == "skautis") %>% 
+      select(seskupeni, kategorie, podil) %>%
       rename(podil_skautis = podil)
       , 
-    by = c("velikost_obce" = "velikost_obce","kategorie" = "kategorie")) %>%
+    by = c("seskupeni" = "seskupeni","kategorie" = "kategorie")) %>%
   mutate(
     conf_lower = qbinom(0.025, celkem_v_datech, podil_skautis) / celkem_v_datech,
     conf_upper = qbinom(0.975, celkem_v_datech, podil_skautis) / celkem_v_datech,
@@ -64,10 +70,65 @@ confidence <- dle_veku_a_obce %>% filter(zdroj == "kmen") %>%
   )
 
 
-dle_veku_a_obce %>% 
-  ggplot(aes(x=velikost_obce, y = podil, color = zdroj, fill = zdroj, group = zdroj)) + 
+dle_veku_a_seskupeni %>% 
+  ggplot(aes(x=seskupeni, y = podil, color = zdroj, fill = zdroj, group = zdroj)) + 
   geom_ribbon(data = confidence, aes(ymin = conf_lower, ymax = conf_upper), alpha = 0.2, color = "transparent") +
-  geom_point() + geom_line() + facet_wrap(~kategorie,ncol = 1, scales = "free_y")
+  geom_point() + geom_line() + facet_wrap(~kategorie,ncol = 1, scales = "free_y") 
+  
+}
+```
+
+U sond vidíme, že velké města jsou zastoupena častěji než ve SkautISu (a menší města méně). To může ale být - alespoň částečně - způsobeno tím, že lidé do dotazníky vyplnili velikost města, kde žijí, zatímco ve SkautISu bereme město registrace. Tj. rover, který studuje v Brně, ale je registrován ve Velké Bíteši může být v sondách veden jako Brňák, zatímce ve SkautISu jako Bítešan.
+
+```{r}
+
+seskupeni_obec_kmen <- data_kmen %>% 
+  mutate(velikost_obce = factor(velikost_obce, levels = c("obec do 5 000 obyvatel","obec do 10 000 obyvatel","obec do 50 000 obyvatel","obec do 100 000 obyvatel","obec nad 100 000 obyvatel"), labels = c("< 5 000","< 10 000", "< 50 000","< 100 000","100 000 +"))) %>%
+   rename(seskupeni = velikost_obce) 
+
+seskupeni_obec_skautis_kmen <- data_skautis %>% 
+  filter(typ_jednotky == "stredisko") %>%
+  mutate(velikost_obce = cut(obyvatele, breaks = c(0,5000,10000,50000,100000,1e7), labels = c("< 5 000","< 10 000", "< 50 000","< 100 000","100 000 +"))) %>%
+  rename(seskupeni = velikost_obce) 
+
+reprezentativnost(seskupeni_obec_skautis_kmen,seskupeni_obec_kmen, "kmen", "velikost obce")
+
+```
+
+Sondy mají separátní otázku "velikost města kde žiješ" a "velikost města, kde působí tvé středisko". Použil jsem tu druhou, protože se přesně váže na SkautIS a neměl by tedy zde být vidět efekt studentů. SkautIS navíc sbíral nejen velikost obce, ale i kraj, takže se můžeme podívat na obojí. Zdá se, že sondy mají nabohacená střední města na úkor menších měst, ale velké města ani nejmenší obce nejsou zatíženy chybou. U krajů lze vidět jisté navýšení Prahy a nejspíš i Brna (Jihomoravský kraj) a Královéhradeckého kraje, ale není to příliš ostré.
+
+```{r}
+data_sondy <- readRDS("private_data/sondy_180420.rds")
+
+if(! all(unique((data_sondy %>% filter(!is.na(kraj)))$kraj) %in% unique(data_skautis$nazev_kraj))){
+  stop("Nektere kraje ve SkautISu nematchuji na data ze sond")
+}
+```
+
+```{r}
+seskupeni_obec_sondy <- data_sondy %>% 
+  filter(!is.na(vek) & !is.na(pocet_obyvatel_kde_stredisko)) %>%
+  mutate(pocet_obyvatel_kde_stredisko = factor(pocet_obyvatel_kde_stredisko, levels = c("Do 1 999 obyvatel","2 000 – 9 999 obyvatel","10 000 – 99 999 obyvatel","100 000 a více obyvatel"), labels = c("< 2 000","< 10 000", "< 100 000","100 000 +"))) %>%
+   rename(seskupeni = pocet_obyvatel_kde_stredisko) 
+
+seskupeni_obec_skautis_sondy <- data_skautis_2015 %>% 
+  filter(typ_jednotky == "stredisko") %>%
+  mutate(pocet_obyvatel_kde_stredisko = cut(obyvatele, breaks = c(0,2000,10000,100000,1e7), labels = c("< 2 000","< 10 000", "< 100 000","100 000 +"))) %>%
+  rename(seskupeni = pocet_obyvatel_kde_stredisko) 
+
+reprezentativnost(seskupeni_obec_skautis_sondy, seskupeni_obec_sondy, "_sondy", "pocet_obyvatel_kde_stredisko")
+
+```
+```{r, fig.height=8}
+seskupeni_kraj_sondy <- data_sondy %>% 
+  filter(!is.na(vek) & !is.na(kraj)) %>%
+  rename(seskupeni = kraj)
+
+seskupeni_kraj_skautis_sondy <- data_skautis_2015 %>%
+    filter(typ_jednotky == "stredisko") %>%
+    rename(seskupeni = nazev_kraj)
+  
+reprezentativnost(seskupeni_kraj_skautis_sondy, seskupeni_kraj_sondy, "_sondy", "kraj") +  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
 

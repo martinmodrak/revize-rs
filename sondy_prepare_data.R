@@ -6,9 +6,9 @@ df <- readxl::read_excel("private_data/Sondy_Kolo_7_DATA_pro_Orla.xlsx", skip = 
 
 glimpse(df)
 
-df <- df %>% 
-  transmute(id, 
-            q0_clen_junaka = `q0[1]`, 
+df <- df %>%
+  transmute(id,
+            q0_clen_junaka = `q0[1]`,
          q0_vudce_oddilu = `q0[2]`,
          q0_ve_vedeni_oddilu = `q0[3]`,
          q0_vedouci_strediska = `q0[4]`,
@@ -50,7 +50,7 @@ df <- df %>%
          pomoc_strediska_s_poradanim_akci_pro_oddilovou_radu = `VOq3[7]`,
          pomoc_strediska_s_poradanim_stridskovych_akci = `VOq3[8]`,
          pomoc_strediska_s_tipy_na_cinnost = `VOq3[8]`,
-         pomoc_strediska_dalsi = VOq4, 
+         pomoc_strediska_dalsi = VOq4,
          potreba_pomoci = VOq5,
          potreba_pomoci_real = VOq6A,
          potreba_pomoci_moznost = VOq6B,
@@ -241,8 +241,8 @@ df <- df %>%
          dodatek_rs = qZaver2,
          dodatek_cokoli = qZaver3)
 
-         
-         
-        
 
-save(df, file = "private_data/sondy_180420.Rdata")
+
+
+
+saveRDS(df, file = "private_data/sondy_180420.rds")
