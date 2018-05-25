@@ -1,14 +1,15 @@
 ---
 title: "Reprezentativnost dat"
-output: html_notebook
+output: 
+  html_notebook:
+    code_folding: hide
 ---
 
 Reprezentativnost dat z ruznych zdroju. V každém obrázku je křivka "skautis", která reprezentuje podíl dané skupiny členstva v datech ze SkautISu (k roku 2017 pro data z kmene, k roku 2015 pro data ze sond o roveringu). Křivka je tam proto, že mi to přijde více názorné, ale samozřejmě důležité jsou konkrétní body, pořadí skupiny není dáno pevně. Tato křivka má kolem sebe pruh vyjadřující nejistotu - jak velký rozptyl bychom čekali, kdybychom vybrali ze skauta náhodně tolik lidí, kolik jich bylo v daném průzkumu. Druhá křivka vyjadřuje podíl dané skupiny, který jsme viděli v průzkumu.
 
 Pro každé seskupení jsou tyto křivky ještě rozděleny podle věkových kategorií.
 
-```{r setup}
-knitr::opts_chunk$set(echo=FALSE)
+```{r setup, message=FALSE, warning = FALSE}
 library(here)
 library(tidyverse)
 library(kableExtra)
@@ -17,7 +18,7 @@ source(here("R","data_csu_psc.R"), encoding = "UTF-8")
 
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 data_skautis <- jednotky_oddily_kmeny_predvyzkum() %>%
   normalizovat_mesto_psc() %>%
   pripojit_csu_data()
@@ -28,7 +29,7 @@ data_skautis_2015 <- jednotky_oddily_kmeny_predvyzkum(rok = 2015) %>%
 ```
 
 
-```{r}
+```{r, message = FALSE, warning=FALSE}
 data_kmen <- read_csv(here("private_data","vyzkum_kmen_odpovedi.csv")) %>% rename(vek = `Kolik Ti je let?`, velikost_obce = `Z jak velkého města pocházíš?`)
 ```
 
@@ -132,3 +133,15 @@ reprezentativnost(seskupeni_kraj_skautis_sondy, seskupeni_kraj_sondy, "_sondy", 
 
 ```
 
+Pro zajímavost, takhle by to vypadalo, kdybychom vzali ze sond odpověď na otázku "Velikost obce, kde žiješ" - zejména u malých obcí to udělá dost rozdíl (asi dost lidí bydlí v malé obci, ale středisko mají ve větší). Je tedy důležité v dotazníku rozlišit obec kde žiji a obec kde mám středisko.
+
+```{r}
+seskupeni_obec_sondy_ziju <- data_sondy %>% 
+  filter(!is.na(vek) & !is.na(velikost_obce)) %>%
+  mutate(velikost_obce = factor(velikost_obce, levels = c("Do 1 999 obyvatel","2 000 – 9 999 obyvatel","10 000 – 99 999 obyvatel","100 000 a více obyvatel"), labels = c("< 2 000","< 10 000", "< 100 000","100 000 +"))) %>%
+   rename(seskupeni = velikost_obce) 
+
+
+reprezentativnost(seskupeni_obec_skautis_sondy, seskupeni_obec_sondy_ziju, "_sondy", "velikost_obce")
+
+```

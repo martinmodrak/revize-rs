@@ -43,7 +43,7 @@ pripojit_csu_data <- function(data, rok = 2017) {
       avg_vek = col_double(),
       avg_vek_muzi = col_double(),
       avg_vek_zeny = col_double()
-    ))
+    ), progress = FALSE)
   } else {
     #Vyfiltrovat z vetsiho datoveho souboru
     rok_select <- rok
@@ -59,7 +59,8 @@ pripojit_csu_data <- function(data, rok = 2017) {
       casref_do = col_date(format = ""),
       pohlavi_txt = col_character(),
       vuzemi_txt = col_character()
-    )) %>% filter(rok == rok_select) %>%
+    ), progress = FALSE) %>%
+      filter(rok == rok_select) %>%
       transmute(lau_obec = vuzemi_kod, nazev_obec = vuzemi_txt,
                 hodnota = hodnota,
                 skupina = if_else(is.na(pohlavi_txt) | pohlavi_txt == "", "obyvatele",
