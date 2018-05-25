@@ -23,7 +23,7 @@ data_skautis <- jednotky_oddily_kmeny_predvyzkum() %>%
   pripojit_csu_data()
 data_skautis_2015 <- jednotky_oddily_kmeny_predvyzkum(rok = 2015) %>%
   normalizovat_mesto_psc() %>%
-  pripojit_csu_data()
+  pripojit_csu_data(rok = 2015)
 
 ```
 
@@ -100,7 +100,7 @@ Sondy mají separátní otázku "velikost města kde žiješ" a "velikost města
 ```{r}
 data_sondy <- readRDS("private_data/sondy_180420.rds")
 
-if(! all(unique((data_sondy %>% filter(!is.na(kraj)))$kraj) %in% unique(data_skautis$nazev_kraj))){
+if(! all(unique((data_sondy %>% filter(!is.na(kraj)))$kraj) %in% unique(data_skautis_2015$nazev_kraj))){
   stop("Nektere kraje ve SkautISu nematchuji na data ze sond")
 }
 ```

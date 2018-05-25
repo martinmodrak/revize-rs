@@ -1,4 +1,4 @@
-pripojit_csu_data <- function(data) {
+pripojit_csu_data <- function(data, rok = 2017) {
 
    #=============== Nactu data z CSU a PSC ========================
   okres_kraj <- read_csv(here("public_data","okres_kraj_csu.csv"), col_types = c(.default = col_character())) %>%
@@ -32,18 +32,42 @@ pripojit_csu_data <- function(data) {
   )) %>%
     transmute(lau_okres = CHODNOTA2, lau_obec = CHODNOTA1, nazev_obec = TEXT1)
 
-  obyvatele_obce <- read_csv(here("public_data","obyvatele_obce_csu_2017.csv"), col_types = cols(
-    nuts_okres = col_character(),
-    lau_obec = col_integer(),
-    nazev_obec = col_character(),
-    obyvatele = col_integer(),
-    muzi = col_integer(),
-    zeny = col_integer(),
-    avg_vek = col_double(),
-    avg_vek_muzi = col_double(),
-    avg_vek_zeny = col_double()
-  ))
-
+  if(rok == 2017) {
+    obyvatele_obce <- read_csv(here("public_data","obyvatele_obce_csu_2017.csv"), col_types = cols(
+      nuts_okres = col_character(),
+      lau_obec = col_integer(),
+      nazev_obec = col_character(),
+      obyvatele = col_integer(),
+      muzi = col_integer(),
+      zeny = col_integer(),
+      avg_vek = col_double(),
+      avg_vek_muzi = col_double(),
+      avg_vek_zeny = col_double()
+    ))
+  } else {
+    #Vyfiltrovat z vetsiho datoveho souboru
+    rok_select <- rok
+    obyvatele_obce <- read_csv(here("public_data","obyvatele_obce_csu_2000_2017.csv"), col_types = cols(
+      idhod = col_integer(),
+      hodnota = col_integer(),
+      stapro_kod = col_integer(),
+      pohlavi_cis = col_integer(),
+      pohlavi_kod = col_integer(),
+      vuzemi_cis = col_integer(),
+      vuzemi_kod = col_integer(),
+      rok = col_integer(),
+      casref_do = col_date(format = ""),
+      pohlavi_txt = col_character(),
+      vuzemi_txt = col_character()
+    )) %>% filter(rok == rok_select) %>%
+      transmute(lau_obec = vuzemi_kod, nazev_obec = vuzemi_txt,
+                hodnota = hodnota,
+                skupina = if_else(is.na(pohlavi_txt) | pohlavi_txt == "", "obyvatele",
+                              if_else(pohlavi_txt == "muž", "muzi",
+                                  if_else(pohlavi_txt == "žena", "zeny",as.character(NA))))
+                ) %>%
+      spread(skupina, hodnota)
+  }
 
   #Nazev obce + okres identifikuji mesto? Skoro!
   #PSČ + název části obce identifikují obec? Skoro!
