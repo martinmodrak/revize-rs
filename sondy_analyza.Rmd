@@ -1,0 +1,153 @@
+---
+title: "Sondt analyzy"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r load data, warning = F, message = F}
+library(tidyverse)
+sondy <- readRDS("private_data/sondy_180420.rds")
+```
+
+# Je kmen ve stredisku?
+```{r}
+table(sondy$je_rs_kmen_ve_stredisku)
+```
+
+# Je kmen registrovany?
+
+```{r}
+table(sondy$je_rs_kmen_registrovany)
+```
+
+# Proc neni registrovany
+
+```{r proc neni kmen registrovany}
+
+sondy %>% 
+  select(rs_kmen_registace_neni_registrovany_neni_vudce:rs_kmen_registrace_jine) %>% 
+  gather(key = "duvod") %>% 
+  filter(value!="N/A") %>%
+  mutate(value = if_else(value == "Ano", 1, 0)) %>% 
+  ggplot(aes(x=duvod, y = value)) + stat_summary(fun.data = "mean_cl_boot") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  
+```
+
+# Ucast na rs - kmeans
+
+```{r ucast na rs akcich}
+
+sondy_ucast_tmp <- sondy %>% select(ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho) %>% filter(!is.na(ucast_rs_kmen_procenta_lide)) 
+sondy_ucast <- sondy_ucast_tmp %>%
+  mutate(skupina_k2 = kmeans(sondy_ucast_tmp,2)$cluster,
+         skupina_k3 = kmeans(sondy_ucast_tmp,3)$cluster,
+         skupina_k4 = kmeans(sondy_ucast_tmp,4)$cluster,
+         skupina_k5 = kmeans(sondy_ucast_tmp,5)$cluster)
+
+sondy_ucast %>% 
+  summarize_at(.vars = vars(ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho), .funs = mean) %>%
+  gather(key = "duvod", value = "prumer", ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho) %>%
+  ggplot(aes(x = duvod, y = prumer)) +
+  geom_point() + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ylim(0,100)
+
+
+sondy_ucast %>% 
+  group_by(skupina_k2) %>% 
+  summarize_at(.vars = vars(ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho), .funs = mean) %>%
+  gather(key = "duvod", value = "prumer", ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho) %>%
+  ggplot(aes(x = duvod, y = prumer)) +
+  geom_point() + 
+  facet_grid(~skupina_k2) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ylim(0,100)
+
+sondy_ucast %>% 
+  group_by(skupina_k3) %>% 
+  summarize_at(.vars = vars(ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho), .funs = mean) %>%
+  gather(key = "duvod", value = "prumer", ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho) %>%
+  ggplot(aes(x = duvod, y = prumer)) +
+  geom_point() + 
+  facet_grid(~skupina_k3) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ylim(0,100)
+
+sondy_ucast %>% 
+  group_by(skupina_k4) %>% 
+  summarize_at(.vars = vars(ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho), .funs = mean) %>%
+  gather(key = "duvod", value = "prumer", ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho) %>%
+  ggplot(aes(x = duvod, y = prumer)) +
+  geom_point() + 
+  facet_grid(~skupina_k4) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ylim(0,100)
+
+```
+
+# Ucast na rs - kmeans
+
+```{r neucast na rs akcich}
+
+sondy_neucast_tmp <- sondy %>% select(neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine) %>% 
+  filter(!is.na(neucast_rs_kmen_procenta_prace_na_stredisku)) 
+sondy_neucast <- sondy_neucast_tmp %>%
+  mutate(skupina_k2 = kmeans(sondy_neucast_tmp,2)$cluster,
+         skupina_k3 = kmeans(sondy_neucast_tmp,3)$cluster,
+         skupina_k4 = kmeans(sondy_neucast_tmp,4)$cluster,
+         skupina_k5 = kmeans(sondy_neucast_tmp,5)$cluster)
+
+sondy_neucast %>% 
+  summarize_at(.vars = vars(neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine), .funs = mean) %>%
+  gather(key = "duvod", value = "prumer", neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine) %>%
+  ggplot(aes(x = duvod, y = prumer)) +
+  geom_point() + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ylim(0,100)
+
+
+sondy_neucast %>% 
+  group_by(skupina_k2) %>% 
+  summarize_at(.vars = vars(neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine), .funs = mean) %>%
+  gather(key = "duvod", value = "prumer", neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine) %>%
+  ggplot(aes(x = duvod, y = prumer)) +
+  geom_point() + 
+  facet_grid(~skupina_k2) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ylim(0,100)
+
+sondy_neucast %>% 
+  group_by(skupina_k3) %>% 
+  summarize_at(.vars = vars(neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine), .funs = mean) %>%
+  gather(key = "duvod", value = "prumer", neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine) %>%
+  ggplot(aes(x = duvod, y = prumer)) +
+  geom_point() + 
+  facet_grid(~skupina_k3) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ylim(0,100)
+
+sondy_neucast %>% 
+  group_by(skupina_k4) %>% 
+  summarize_at(.vars = vars(neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine), .funs = mean) %>%
+  gather(key = "duvod", value = "prumer", neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine) %>%
+  ggplot(aes(x = duvod, y = prumer)) +
+  geom_point() + 
+  facet_grid(~skupina_k4) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ylim(0,100)
+
+```
+
+# Spokojenost s programem
+
+```{r}
+table(sondy$spokojenost_s_frekvenci_akci)
+table(sondy$celkova_spokojenost_s_programem_rs_kmenu)
+aa <- sondy %>% mutate(celkova_spokojenost_s_programem_rs_kmenu = recode(celkova_spokojenost_s_programem_rs_kmenu, `Velmi nespokojen/a`= 1, `Spíše nespokojen/a` = 2, `Spíše spokojen/a` = 3, `Spíše spokojen/a` = 4, .default = NA_real_),
+                       celkova_spokojenost_s_programem_rs_kmenu = recode(celkova_spokojenost_s_programem_rs_kmenu, `Velmi nespokojen/a`= 1, `Spíše nespokojen/a` = 2, `Spíše spokojen/a` = 3, `Spíše spokojen/a` = 4, .default = NA_real_)
+                       )
+sondy %>% select(spokojenost_s_frekvenci_akci, celkova_spokojenost_s_programem_rs_kmenu, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_schuzky, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice)
+cor(sondy$)
+```
