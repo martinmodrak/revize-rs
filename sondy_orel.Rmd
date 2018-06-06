@@ -1,0 +1,65 @@
+---
+title: "Výtahy ze sond - Orel"
+output: html_notebook
+---
+
+```{r setup}
+library(tidyverse)
+library(scico)
+```
+
+```{r}
+sondy <- readRDS("private_data/sondy_180420.rds")
+
+sondy <- sondy %>%
+  filter(q0_clen_junaka == "Ano") %>%
+  mutate(
+    max_funkce = if_else(
+      q0_vedouci_strediska == "Ano", "vudce_strediska", if_else(
+        q0_vudce_oddilu == "Ano", "vudce_oddilu",if_else(
+          q0_vudce_rs_kmene == "Ano", "vudce_kmene", if_else(
+            funkce_v_oddile_zastupce_VO == "Ano", "zastupce_v_oddilu", if_else(
+              funkce_v_oddile_oddilovy_radce == "Ano", "oddilovy_radce", if_else(
+                funkce_v_oddile_druzinovy_radce == "Ano", "druzinovy_radce", if_else(
+
+                  q0_ve_vedeni_oddilu == "Ano" | funkce_v_oddile_clen_vedeni_oddilu == "Ano", "sirsi_vedeni_oddilu", "nic"
+    ))))))),
+    max_funkce = fct_relevel(max_funkce, "vudce_strediska", "vudce_oddilu", "vudce_kmene", "zastupce_v_oddilu", "oddilovy_radce","druzinovy_radce","sirsi_vedeni_oddilu"),
+    celkova_spokojenost_s_programem_rs_kmenu = fct_relevel(celkova_spokojenost_s_programem_rs_kmenu, "Velmi nespokojen/a", "Spíše nespokojen/a","Spíše spokojen/a","Velmi spokojen/a")
+  )
+```
+
+V datech ze sond je víc žen. Zároveň ženy proporčně častěji mají funkce (s vyjímkou vůdce střediska, vůdce kmene a oddílový rádce).
+
+```{r}
+pocet_pohlavi <- sondy %>% group_by(pohlavi) %>% summarise(pocet_pohlavi = length(id))
+
+pocet_pohlavi
+
+funkce_pohlavi <- sondy %>% filter(pohlavi != "N/A") %>% 
+  group_by(pohlavi, max_funkce) %>% 
+  summarise(pocet_funkce = length(id)) %>% 
+  inner_join(pocet_pohlavi, by = c("pohlavi" = "pohlavi" )) %>%
+  mutate(podil_funkce = pocet_funkce / pocet_pohlavi)
+
+funkce_pohlavi %>%
+  ggplot(aes(x = pohlavi, y = podil_funkce, color = max_funkce, group = max_funkce, shape = max_funkce)) + geom_point() + geom_line()
+
+funkce_pohlavi %>%
+  ggplot(aes(x = pohlavi, y = max_funkce, fill = podil_funkce)) + geom_bin2d(stat="identity")
+
+```
+
+
+```{r}
+spokojenost <- sondy %>% filter(!is.na(celkova_spokojenost_s_programem_rs_kmenu)) 
+pocet_funkci <- spokojenost %>% group_by(max_funkce) %>% summarise(pocet_funkci = length(id))
+
+spokojenost_dle_funkci <- spokojenost %>% group_by(celkova_spokojenost_s_programem_rs_kmenu, max_funkce) %>% summarise(pocet_spokojenych = length(id))
+
+spokojenost_dle_funkci %>% 
+  inner_join(pocet_funkci, by = c("max_funkce" = "max_funkce")) %>%
+  mutate(podil_spokojenych = pocet_spokojenych / pocet_funkci) %>%
+  ggplot(aes(x = max_funkce, y = celkova_spokojenost_s_programem_rs_kmenu, fill = podil_spokojenych)) + geom_bin2d(stat = "identity") + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + scale_fill_scico(palette = "roma")
+```
+
