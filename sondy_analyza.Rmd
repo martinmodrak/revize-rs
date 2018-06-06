@@ -140,14 +140,193 @@ sondy_neucast %>%
 
 ```
 
+# Pocty dat
+
+Zda vubec nektere promenne ma smysl davat do analyz
+
+## vlastni zvyklosti
+
+```{r pocty dat vlastni zvyklosti}
+table(sondy$vlastni_zvyklosti_obnova_slibu)
+table(sondy$vlastni_zvyklosti_ritual_odchodu)
+table(sondy$vlastni_zvyklosti_ritual_vstupu)
+table(sondy$vlastni_zvyklosti_ritual_predavani_vudcovstvi)
+table(sondy$vlastni_zvyklosti_nic)
+```
+
+Ok, to znamena, ze ma smysl pouzivat jen ritual vstupu, ci rozdelovat lidi, zda maji/nemaji ritual
+ritual jine je kvali
+
+## Vychovne nastroje
+
+```{r pocty dat vychovne nastroje}
+table(sondy$vychovne_nastroje_vyzvy)
+table(sondy$vychovne_nastroje_projekty)
+table(sondy$vychovne_nastroje_rovernet)
+table(sondy$vychovne_nastroje_kmen)
+table(sondy$vychovne_nastroje_roversky_zacatek)
+table(sondy$vychovne_nastroje_diar)
+table(sondy$vychovne_nastroje_vlastni_stezka)
+
+```
+
+Pro korelace tam asi mame male pocty..
+
 # Spokojenost s programem
 
-```{r}
+```{r korelacni matice}
 table(sondy$spokojenost_s_frekvenci_akci)
 table(sondy$celkova_spokojenost_s_programem_rs_kmenu)
-aa <- sondy %>% mutate(celkova_spokojenost_s_programem_rs_kmenu = recode(celkova_spokojenost_s_programem_rs_kmenu, `Velmi nespokojen/a`= 1, `Spíše nespokojen/a` = 2, `Spíše spokojen/a` = 3, `Spíše spokojen/a` = 4, .default = NA_real_),
-                       celkova_spokojenost_s_programem_rs_kmenu = recode(celkova_spokojenost_s_programem_rs_kmenu, `Velmi nespokojen/a`= 1, `Spíše nespokojen/a` = 2, `Spíše spokojen/a` = 3, `Spíše spokojen/a` = 4, .default = NA_real_)
+aa <- sondy %>% mutate(celkova_spokojenost_s_programem_rs_kmenu = recode(celkova_spokojenost_s_programem_rs_kmenu, `Velmi nespokojen/a`= 1, `Spíše nespokojen/a` = 2, `Spíše spokojen/a` = 3, `Spíše spokojen/a` = 4, `Velmi spokojen/a` = 5, .default = NA_real_),
+                       spokojenost_s_frekvenci_akci2 = recode(spokojenost_s_frekvenci_akci, `Jsem spokojen/a`= 1, `Nejsem spokojen/a - přál/a bych si akce častěji` = 0, `Nejsem spokojen/a - přál/a bych si akce méně často` = 0, .default = NA_real_),
+                       frekvence_rs_akci_celodenni_akce = recode(frekvence_rs_akci_celodenni_akce, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, `Asi jednou měsíčně` = 4, `Asi jednou za 14 dní` = 5, `Každý týden nebo častěji` = 6),
+                       frekvence_rs_akci_schuzky = recode(frekvence_rs_akci_schuzky, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, `Asi jednou měsíčně` = 4, `Asi jednou za 14 dní` = 5, `Každý týden nebo častěji` = 6),
+                       frekvence_rs_akci_vicedenni_akce = recode(frekvence_rs_akci_vicedenni_akce, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, `Asi jednou měsíčně` = 4, `Asi jednou za 14 dní` = 5),
+                       frekvence_rs_akci_tabory_expedice = recode(frekvence_rs_akci_tabory_expedice, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3),
+                       vychovne_nastroje_vyzvy = recode(vychovne_nastroje_vyzvy, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       vychovne_nastroje_projekty = recode(vychovne_nastroje_projekty, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       vychovne_nastroje_rovernet = recode(vychovne_nastroje_rovernet, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       vychovne_nastroje_kmen = recode(vychovne_nastroje_kmen, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       vychovne_nastroje_roversky_zacatek = recode(vychovne_nastroje_roversky_zacatek, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       vychovne_nastroje_diar = recode(vychovne_nastroje_diar, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       vychovne_nastroje_vlastni_stezka = recode(vychovne_nastroje_vlastni_stezka, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       ma_kmen_vychovny_plan = recode(ma_kmen_vychovny_plan, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       vlastni_zvyklosti_nic = recode(vlastni_zvyklosti_nic, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       vlastni_zvyklosti_ritual_vstupu = recode(vlastni_zvyklosti_ritual_vstupu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       rs_kmen_prvky_vudce = recode(rs_kmen_prvky_vudce, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       rs_kmen_prvky_rada = recode(rs_kmen_prvky_rada, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       rs_kmen_prvky_ani_jedno = recode(rs_kmen_prvky_ani_jedno, `Ano` = 1, `Ne` = 0, .default = NA_real_)
                        )
-sondy %>% select(spokojenost_s_frekvenci_akci, celkova_spokojenost_s_programem_rs_kmenu, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_schuzky, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice)
-cor(sondy$)
+c <- aa %>% select(spokojenost_s_frekvenci_akci2, celkova_spokojenost_s_programem_rs_kmenu, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_schuzky, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice,vychovne_nastroje_vyzvy:vychovne_nastroje_vlastni_stezka, vlastni_zvyklosti_nic:vlastni_zvyklosti_ritual_predavani_vudcovstvi,rs_kmen_prvky_vudce:rs_kmen_prvky_ani_jedno) %>% as.matrix() %>% Hmisc::rcorr(type = "spearman")
+c$r%>% round(2) %>% knitr::kable()
+
+# vlastni_zvyklosti_obnova_slibu = recode(vlastni_zvyklosti_obnova_slibu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+# vlastni_zvyklosti_ritual_odchodu = recode(vlastni_zvyklosti_ritual_odchodu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+# vlastni_zvyklosti_ritual_predavani_vudcovstvi = recode(vlastni_zvyklosti_ritual_predavani_vudcovstvi, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+```
+
+# Podil prace ve stredisku
+
+```{r}
+sondy_podil_casu_tmp <- sondy %>% select(id, podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine) %>% 
+  filter(!is.na(podil_casu_ve_skautu_u_detskych_oddilu)) 
+sondy_podil_casu <- sondy_podil_casu_tmp %>% 
+  mutate(skupina_k2 = kmeans(sondy_podil_casu_tmp %>% select(-id),2)$cluster,
+         skupina_k3 = kmeans(sondy_podil_casu_tmp %>% select(-id),3)$cluster,
+         skupina_k4 = kmeans(sondy_podil_casu_tmp %>% select(-id),4)$cluster,
+         skupina_k5 = kmeans(sondy_podil_casu_tmp %>% select(-id),5)$cluster)
+
+sondy_podil_casu %>% 
+  summarize_at(.vars = vars(podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine), .funs = mean) %>%
+  gather(key = "duvod", value = "prumer", podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine) %>%
+  ggplot(aes(x = duvod, y = prumer)) +
+  geom_point() + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ylim(0,100)
+
+
+sondy_podil_casu %>% 
+  group_by(skupina_k2) %>% 
+  summarize_at(.vars = vars(podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine), .funs = mean) %>%
+  gather(key = "duvod", value = "prumer", podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine) %>%
+  ggplot(aes(x = duvod, y = prumer)) +
+  geom_point() + 
+  facet_grid(~skupina_k2) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ylim(0,100)
+
+sondy_podil_casu %>% 
+  group_by(skupina_k3) %>% 
+  summarize_at(.vars = vars(podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine), .funs = mean) %>%
+  gather(key = "duvod", value = "prumer", podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine) %>%
+  ggplot(aes(x = duvod, y = prumer)) +
+  geom_point() + 
+  facet_grid(~skupina_k3) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ylim(0,100)
+
+sondy_podil_casu %>% 
+  group_by(skupina_k4) %>% 
+  summarize_at(.vars = vars(podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine), .funs = mean) %>%
+  gather(key = "duvod", value = "prumer", podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine) %>%
+  ggplot(aes(x = duvod, y = prumer)) +
+  geom_point() + 
+  facet_grid(~skupina_k4) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ylim(0,100)
+
+```
+
+# Jak se lisi korelacni matice u jednotlivych subskupin
+
+Vezmeme podskupiny podle kmeans a replikujeme na nich korelacni matice
+
+```{r}
+sondy2 <- sondy %>% left_join(sondy_podil_casu %>% select(-(podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine)), by = "id")
+
+aa <- sondy2 %>% mutate(celkova_spokojenost_s_programem_rs_kmenu = recode(celkova_spokojenost_s_programem_rs_kmenu, `Velmi nespokojen/a`= 1, `Spíše nespokojen/a` = 2, `Spíše spokojen/a` = 3, `Spíše spokojen/a` = 4, `Velmi spokojen/a` = 5, .default = NA_real_),
+                       spokojenost_s_frekvenci_akci2 = recode(spokojenost_s_frekvenci_akci, `Jsem spokojen/a`= 1, `Nejsem spokojen/a - přál/a bych si akce častěji` = 0, `Nejsem spokojen/a - přál/a bych si akce méně často` = 0, .default = NA_real_),
+                       frekvence_rs_akci_celodenni_akce = recode(frekvence_rs_akci_celodenni_akce, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, `Asi jednou měsíčně` = 4, `Asi jednou za 14 dní` = 5, `Každý týden nebo častěji` = 6),
+                       frekvence_rs_akci_schuzky = recode(frekvence_rs_akci_schuzky, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, `Asi jednou měsíčně` = 4, `Asi jednou za 14 dní` = 5, `Každý týden nebo častěji` = 6),
+                       frekvence_rs_akci_vicedenni_akce = recode(frekvence_rs_akci_vicedenni_akce, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, `Asi jednou měsíčně` = 4, `Asi jednou za 14 dní` = 5),
+                       frekvence_rs_akci_tabory_expedice = recode(frekvence_rs_akci_tabory_expedice, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3),
+                       vychovne_nastroje_vyzvy = recode(vychovne_nastroje_vyzvy, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       vychovne_nastroje_projekty = recode(vychovne_nastroje_projekty, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       vychovne_nastroje_rovernet = recode(vychovne_nastroje_rovernet, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       vychovne_nastroje_kmen = recode(vychovne_nastroje_kmen, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       vychovne_nastroje_roversky_zacatek = recode(vychovne_nastroje_roversky_zacatek, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       vychovne_nastroje_diar = recode(vychovne_nastroje_diar, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       vychovne_nastroje_vlastni_stezka = recode(vychovne_nastroje_vlastni_stezka, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       ma_kmen_vychovny_plan = recode(ma_kmen_vychovny_plan, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       vlastni_zvyklosti_nic = recode(vlastni_zvyklosti_nic, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       vlastni_zvyklosti_ritual_vstupu = recode(vlastni_zvyklosti_ritual_vstupu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       vlastni_zvyklosti_obnova_slibu = recode(vlastni_zvyklosti_obnova_slibu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       vlastni_zvyklosti_ritual_odchodu = recode(vlastni_zvyklosti_ritual_odchodu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       vlastni_zvyklosti_ritual_predavani_vudcovstvi = recode(vlastni_zvyklosti_ritual_predavani_vudcovstvi, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       rs_kmen_prvky_vudce = recode(rs_kmen_prvky_vudce, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       rs_kmen_prvky_rada = recode(rs_kmen_prvky_rada, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                       rs_kmen_prvky_ani_jedno = recode(rs_kmen_prvky_ani_jedno, `Ano` = 1, `Ne` = 0, .default = NA_real_)
+                       )
+```
+
+## 2 skupiny
+
+```{r korelace pro 2 skupiny}
+
+c <- aa %>% 
+  filter(skupina_k2 == 1) %>%
+  select(spokojenost_s_frekvenci_akci2, celkova_spokojenost_s_programem_rs_kmenu, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_schuzky, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice,vychovne_nastroje_vyzvy:vychovne_nastroje_vlastni_stezka, vlastni_zvyklosti_nic:vlastni_zvyklosti_ritual_predavani_vudcovstvi,rs_kmen_prvky_vudce:rs_kmen_prvky_ani_jedno) %>% 
+  as.matrix() %>% Hmisc::rcorr(type = "spearman")
+c$r%>% round(2) %>% knitr::kable()
+
+c <- aa %>% 
+  filter(skupina_k2 == 2) %>%
+  select(spokojenost_s_frekvenci_akci2, celkova_spokojenost_s_programem_rs_kmenu, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_schuzky, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice,vychovne_nastroje_vyzvy:vychovne_nastroje_vlastni_stezka, vlastni_zvyklosti_nic:vlastni_zvyklosti_ritual_predavani_vudcovstvi,rs_kmen_prvky_vudce:rs_kmen_prvky_ani_jedno) %>% 
+  as.matrix() %>% Hmisc::rcorr(type = "spearman")
+c$r%>% round(2) %>% knitr::kable()
+
+```
+
+## 3 skupiny
+
+```{r korelace pro 3 skupiny}
+
+c <- aa %>% 
+  filter(skupina_k3 == 1) %>%
+  select(spokojenost_s_frekvenci_akci2, celkova_spokojenost_s_programem_rs_kmenu, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_schuzky, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice,vychovne_nastroje_vyzvy:vychovne_nastroje_vlastni_stezka, vlastni_zvyklosti_nic:vlastni_zvyklosti_ritual_predavani_vudcovstvi,rs_kmen_prvky_vudce:rs_kmen_prvky_ani_jedno) %>% 
+  as.matrix() %>% Hmisc::rcorr(type = "spearman")
+c$r%>% round(2) %>% knitr::kable()
+
+c <- aa %>% 
+  filter(skupina_k3 == 2) %>%
+  select(spokojenost_s_frekvenci_akci2, celkova_spokojenost_s_programem_rs_kmenu, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_schuzky, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice,vychovne_nastroje_vyzvy:vychovne_nastroje_vlastni_stezka, vlastni_zvyklosti_nic:vlastni_zvyklosti_ritual_predavani_vudcovstvi,rs_kmen_prvky_vudce:rs_kmen_prvky_ani_jedno) %>% 
+  as.matrix() %>% Hmisc::rcorr(type = "spearman")
+c$r%>% round(2) %>% knitr::kable()
+
+c <- aa %>% 
+  filter(skupina_k3 == 3) %>%
+  select(spokojenost_s_frekvenci_akci2, celkova_spokojenost_s_programem_rs_kmenu, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_schuzky, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice,vychovne_nastroje_vyzvy:vychovne_nastroje_vlastni_stezka, vlastni_zvyklosti_nic:vlastni_zvyklosti_ritual_predavani_vudcovstvi,rs_kmen_prvky_vudce:rs_kmen_prvky_ani_jedno) %>% 
+  as.matrix() %>% Hmisc::rcorr(type = "spearman")
+c$r%>% round(2) %>% knitr::kable()
+
 ```
