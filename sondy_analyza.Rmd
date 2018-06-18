@@ -167,10 +167,44 @@ table(sondy$vychovne_nastroje_kmen)
 table(sondy$vychovne_nastroje_roversky_zacatek)
 table(sondy$vychovne_nastroje_diar)
 table(sondy$vychovne_nastroje_vlastni_stezka)
-
 ```
 
-Pro korelace tam asi mame male pocty..
+## Pomoc u dětských oddílů
+
+```{r pomoc u detskych oddilu}
+table(sondy$pomoc_u_detskych_oddilu_jsem_stale_clenem)
+table(sondy$pomoc_u_detskych_oddilu_nic)
+table(sondy$pomoc_u_detskych_oddilu_vudce_oddilu)
+table(sondy$pomoc_u_detskych_oddilu_vedu_oddil_papirove_nekdo_jiny)
+table(sondy$pomoc_u_detskych_oddilu_zastupce_oddilu_nebo_oddilovy_radce)
+table(sondy$pomoc_u_detskych_oddilu_obecna_pomoc_u_oddilu_bez_funkce)
+table(sondy$pomoc_u_detskych_oddilu_radce_druziny)
+table(sondy$pomoc_u_detskych_oddilu_pomoc_na_schuzkach)
+table(sondy$pomoc_u_detskych_oddilu_pomoc_na_tabore)
+table(sondy$pomoc_u_detskych_oddilu_pomoc_na_vypravach)
+table(sondy$pomoc_u_detskych_oddilu_pomoc_na_klubovne_zakladne_brigadach)
+table(sondy$pomoc_u_detskych_oddilu_jine)
+```
+
+Prekvapuje me, kolik lidi je ve vedeni oddilu! Nejak pomaha hodne lidi
+
+## Probehle akce
+
+```{r}
+table(sondy$roverske_akce_probehle_2roky_zavody)
+table(sondy$roverske_akce_diskuze)
+table(sondy$roverske_akce_probehle_expedice)
+table(sondy$roverske_akce_probehle_tabor)
+table(sondy$roverske_akce_duchovni_programy)
+table(sondy$roverske_akce_pobyt_v_prirode)
+table(sondy$roverske_akce_zahranicni_akce)
+table(sondy$roverske_akce_kulturni_akce)
+table(sondy$roverske_akce_tradicni_akce)
+table(sondy$roverske_akce_setkani_bez_programu_hospoda)
+table(sondy$roverske_akce_sluzba)
+table(sondy$roverske_akce_velke_rs_akce)
+table(sondy$roverske_akce_kurzy_vzdelavaci_akce)
+```
 
 # Spokojenost s programem
 
@@ -261,7 +295,7 @@ sondy_podil_casu %>%
 
 Vezmeme podskupiny podle kmeans a replikujeme na nich korelacni matice
 
-```{r}
+```{r korelacni matice u podskupin}
 sondy2 <- sondy %>% left_join(sondy_podil_casu %>% select(-(podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine)), by = "id")
 
 aa <- sondy2 %>% mutate(celkova_spokojenost_s_programem_rs_kmenu = recode(celkova_spokojenost_s_programem_rs_kmenu, `Velmi nespokojen/a`= 1, `Spíše nespokojen/a` = 2, `Spíše spokojen/a` = 3, `Spíše spokojen/a` = 4, `Velmi spokojen/a` = 5, .default = NA_real_),
@@ -330,3 +364,60 @@ c <- aa %>%
 c$r%>% round(2) %>% knitr::kable()
 
 ```
+
+# Clusterováni na základě typu proběhlých programů
+
+```{r}
+
+plot_cluster <- function(df,k_group, data_vars, xlabel = "akce",ylim_min = 0, ylim_max = 1 ){
+  df$gr <- df[[k_group]]
+  df %>% 
+  group_by(gr) %>% 
+  summarize_at(.vars = data_vars, .funs = mean) %>%
+  gather(key = xlabel, value = "prumer", -gr) %>%
+  ggplot(aes(x = xlabel, y = prumer)) +
+  geom_point() + 
+  facet_wrap(~gr) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ylim(ylim_min, ylim_max)
+}
+
+plot_cluster2 <- function(df,k_group, data_vars, xlabel = "akce",ylim_min = 0, ylim_max = 1 ){
+  df$gr <- df[[k_group]]
+  df %>% 
+  group_by(gr) %>% 
+  summarize_at(.vars = data_vars, .funs = mean) %>%
+  gather(key = xlabel, value = "prumer", -gr) %>%
+  ggplot(aes(x = xlabel, y = prumer, col = as.factor(gr), group = as.factor(gr))) +
+  geom_point() +
+    geom_line() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ylim(ylim_min, ylim_max)
+}
+
+sondy_program_tmp <- sondy %>% select(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce) %>% mutate_all(funs(recode(.,"Ano"=T,"Ne"=F,"N/A"=NA))) %>% filter(!is.na(roverske_akce_probehle_2roky_zavody))
+
+sondy_program <- sondy_program_tmp %>% 
+  mutate(k2 = kmeans(sondy_program_tmp,2)$cluster,
+         k3 = kmeans(sondy_program_tmp,3)$cluster,
+         k4 = kmeans(sondy_program_tmp,4)$cluster,
+         k5 = kmeans(sondy_program_tmp,5)$cluster,
+         k6 = kmeans(sondy_program_tmp,6)$cluster,
+         k7 = kmeans(sondy_program_tmp,7)$cluster,
+         k8 = kmeans(sondy_program_tmp,8)$cluster,
+         k9 = kmeans(sondy_program_tmp,9)$cluster,
+         k10 = kmeans(sondy_program_tmp,10)$cluster)
+         
+plot_cluster(sondy_program, "k2", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
+
+plot_cluster(sondy_program, "k3", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
+plot_cluster(sondy_program, "k4", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
+plot_cluster(sondy_program, "k5", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
+plot_cluster(sondy_program, "k6", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
+
+plot_cluster(sondy_program, "k7", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
+plot_cluster(sondy_program, "k8", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
+plot_cluster(sondy_program, "k9", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
+plot_cluster(sondy_program, "k10", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
+
+plot_cluster2(sondy_program, "k5", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
