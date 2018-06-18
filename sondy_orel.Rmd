@@ -50,16 +50,81 @@ funkce_pohlavi %>%
 
 ```
 
+Nedá se moc říct, že by spokojenost s programem RS kmene souvisela s funkcí ani s další sadou prediktorů.
 
 ```{r}
-spokojenost <- sondy %>% filter(!is.na(celkova_spokojenost_s_programem_rs_kmenu)) 
-pocet_funkci <- spokojenost %>% group_by(max_funkce) %>% summarise(pocet_funkci = length(id))
+spokojenost <- sondy %>% filter(!is.na(celkova_spokojenost_s_programem_rs_kmenu))
 
-spokojenost_dle_funkci <- spokojenost %>% group_by(celkova_spokojenost_s_programem_rs_kmenu, max_funkce) %>% summarise(pocet_spokojenych = length(id))
+plot_spokojenost <- function(spokojenost, group, plot = "hist") {
+  spokojenost$group <- spokojenost[[group]]
+  spokojenost <- spokojenost %>% filter(!is.na(group))
+  pocet_skupiny <- spokojenost %>% group_by(group) %>% summarise(pocet_skupiny = length(id))
+  
+  spokojenost_dle_group <- spokojenost %>% group_by(celkova_spokojenost_s_programem_rs_kmenu, group) %>% summarise(pocet_spokojenych = length(id))
+  
+  spokojenost_dle_group <- spokojenost_dle_group %>% 
+    inner_join(pocet_skupiny, by = c("group" = "group")) %>%
+    mutate(podil_spokojenych = pocet_spokojenych / pocet_skupiny) 
+  
+  if(plot == "heatmap") {
+    spokojenost_dle_group %>% ggplot(aes(x = group, y = celkova_spokojenost_s_programem_rs_kmenu, fill = podil_spokojenych)) + geom_bin2d(stat = "identity") + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + scale_fill_scico(palette = "roma") + xlab(group)
+    
+  } else if (plot == "hist") {
+    mean_spokojenost <- spokojenost %>% group_by(group) %>% 
+      summarise(mean_spokojenost = mean(as.integer(celkova_spokojenost_s_programem_rs_kmenu)))
+    
+    spokojenost_dle_group %>% ggplot(aes(x = celkova_spokojenost_s_programem_rs_kmenu, y = podil_spokojenych)) + geom_bar( stat = "identity") + 
+      geom_label(data = pocet_skupiny, aes(label = pocet_skupiny), x = 1, y = 0.5, inherit.aes = FALSE) +
+      geom_vline(data = mean_spokojenost, aes(xintercept = mean_spokojenost), color = "blue", size = 2) +
+      facet_wrap(~group) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + xlab(group)
+  } else {
+    stop("Unrecognized plot")
+  }
+}
 
-spokojenost_dle_funkci %>% 
-  inner_join(pocet_funkci, by = c("max_funkce" = "max_funkce")) %>%
-  mutate(podil_spokojenych = pocet_spokojenych / pocet_funkci) %>%
-  ggplot(aes(x = max_funkce, y = celkova_spokojenost_s_programem_rs_kmenu, fill = podil_spokojenych)) + geom_bin2d(stat = "identity") + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + scale_fill_scico(palette = "roma")
+plot_spokojenost(spokojenost, "max_funkce", plot="heatmap")
+plot_spokojenost(spokojenost, "max_funkce")
+plot_spokojenost(spokojenost, "je_ve_meste_univezita")
+plot_spokojenost(spokojenost %>% mutate(studium_ve_meste_strediska = fct_recode(studium_ve_meste_strediska, Ne = "Ne, většinu roku trávím mimo místo, kde mám svoje středisko")), "studium_ve_meste_strediska")
+
+plot_spokojenost(spokojenost, "je_vice_rs_kmenu_ve_stredisku")
+#realne_vedeni_oddilu
+
+plot_spokojenost(spokojenost, "je_rs_kmen_registrovany")
+
+plot_spokojenost(spokojenost, "povazujes_se_za_rovera")
+
+
+```
+
+Zdá se, že kmeny, které jsou vedeny jsou trochu spokojenější.
+
+```{r}
+plot_spokojenost(spokojenost %>% 
+                   mutate(rs_kmen_prvky = if_else(rs_kmen_prvky_vudce == "Ano",
+                                                  if_else(rs_kmen_prvky_rada == "Ano", "vudce_rada", "vudce"),
+                                                  if_else(rs_kmen_prvky_rada == "Ano", "rada","nic")))
+                 , "rs_kmen_prvky")
+
+```
+
+
+S rostoucím počet let v kmeni se spokojenost s programem kmenu snižuje. Kmeny, které mají více členů jsou spíše spokojenější. Naopak souvislost s počtem let, kolik funguje není moc viditelná.
+
+```{r}
+plot_spokojenost_continuous <- function(spokojenost, var) {
+  spokojenost$var <- spokojenost[[var]]
+  
+  spokojenost <- spokojenost %>% filter(!is.na(var))
+  
+  spokojenost %>% ggplot(aes(x = celkova_spokojenost_s_programem_rs_kmenu, y = var)) + geom_boxplot(outlier.alpha = 0) +
+    geom_jitter( alpha = 0.2) + ylab(var)
+}
+
+plot_spokojenost_continuous(spokojenost %>% filter(kolik_let_jsi_rover < 20), "kolik_let_jsi_rover") #Odfiltruju jeden outlier
+
+plot_spokojenost_continuous(spokojenost, "kmen_kolik_aktivnich_lidi")
+plot_spokojenost_continuous(spokojenost, "kolik_let_rs_kmen_funguje")
+
 ```
 
