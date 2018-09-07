@@ -5,13 +5,14 @@ author: "Martin 'Orel' Modrák"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 ---
 
-```{r setup}
+```{r setup, message=FALSE}
 knitr::opts_chunk$set(echo=FALSE)
 library(lubridate)
 library(readxl)
 library(tidyverse)
 library(forcats)
 library(here)
+library(bindrcpp)
 ```
 
 ```{r}
@@ -96,7 +97,7 @@ cat("Počet členů kteří odešli do 12 let a pak znovu do 16ti let:", sum(roz
 ```
 
 Pro další analýzy budeme brát přestávku jednoho roku jako souvislé členství. 
-Bohužel je tu tedy dost lidí, kteří odešli vícekrát a to i ve věku, který nás zajímá. Budeme tedy zvlášť analyzovat první odchody a poslední odchody.
+Bohužel je tu (po započítání přestávky) tedy dost lidí, kteří odešli vícekrát a to i ve věku, který nás zajímá. Budeme tedy zvlášť analyzovat první odchody a poslední odchody.
 
 ```{r}
 pocty_clenu_rok_vek_pohlavi <- registrace %>%
@@ -107,6 +108,9 @@ pocty_clenu_rok_vek_pohlavi <- registrace %>%
 
 ## Poslední odchody
 
+Zde vidíme, jaká část členské základny Junáka daného věku odešla v daném roce (tj. když v roce 2006 měl Junáka 5000 dvanáctiletých děvčat a 500 dvanáctiletých děvčat ten rok odešlo, bude uvedeno 0.1). Sledujeme poslední odchody, tj. rok, kdy se naposledy registrovali. 
+
+
 ```{r}
 plot_odchody <- function(odchody, pocty_clenu_rok_vek_pohlavi, additional_info = NULL) {
 if(is.null(additional_info)) {
@@ -116,17 +120,17 @@ if(is.null(additional_info)) {
   odchody$kategorie = factor(paste(odchody$ID_Sex, additional_info))
 }
 
-  
-sumar_odchodu <- odchody %>% 
+  sumar_odchodu <- odchody %>% 
   group_by(ID_Sex, kategorie, vek_odchodu, rok_odchodu) %>%
   summarise(pocet_odeslych = length(Person_PseudoID)) %>%
   inner_join(pocty_clenu_rok_vek_pohlavi, by = c("vek_odchodu" = "vek", "rok_odchodu" = "Year", "ID_Sex" = "ID_Sex")) %>% 
-  mutate(procento_odchazejicich = pocet_odeslych / pocet_clenu_v_kategorii)
+  mutate(podil_odchazejicich = pocet_odeslych / pocet_clenu_v_kategorii)
 
 
-sumar_odchodu %>% filter(vek_odchodu >= 9, vek_odchodu <= 18) %>%
-  ggplot(aes(x = vek_odchodu, y = procento_odchazejicich, color = kategorie)) + geom_line() + 
+sumar_odchodu %>% filter(vek_odchodu >= 9, vek_odchodu <= 21, rok_odchodu > 2010) %>%
+  ggplot(aes(x = vek_odchodu, y = podil_odchazejicich, color = kategorie)) + geom_line() + 
   facet_wrap(~ rok_odchodu)
+
 }
 
 ```
@@ -140,8 +144,12 @@ posledni_odchody <- rozsah_clenstvi %>%
 plot_odchody(posledni_odchody, pocty_clenu_rok_vek_pohlavi)
 
 ```
+Data mají sestupný trend v čase (tj. poslední dobou méně lidí odchází) ale nutno podotknout, že zde očekáváme sestupný trend v čase i kdyby se nic neměnilo - část lidí se do Junáka vrací a ti z posledních let kteří se v budoucnu vrátí jsou v grafu vedeni jako ztracení. Neukazují ale výrazný vrchol kolem 15tého roku.
 
 ## První odchody
+
+Můžeme se ještě podívat na první odchody, tj. kdy poprvé měl člověk v členství delší pauzu dvou let. Ti, kteří se pak vrátili jsou počítáni pouze ke svému prvnímu odchodu.
+
 
 ```{r}
 prvni_odchody <- rozsah_clenstvi %>%
@@ -152,17 +160,32 @@ plot_odchody(prvni_odchody, pocty_clenu_rok_vek_pohlavi)
 
 ```
 
-Obecně vidíme, že odchází hodně lidí (až čtvrtina ročníku). To budou asi lidé, kteří se registrovali jen krátce. Zaměříme se tedy na 
+Vidíme, že trendy v prvních odchodech jsou velmi podobné jako v posledních odchodech, dál bereme tedy poslední odchody.
 
 ## Poslední odchody, dlouhodobí členové
 
+V grafech výše  se spíše nevyskytuje žádná špička u přechodu do roverského věku. Ale vidíme, že odchází celkem hodně lidí (až čtvrtina ročníku). To budou asi lidé, kteří se registrovali jen krátce. Zaměříme se tedy jen na ty, kteří chodili do Junáka alespoň dva roky. A ještě si dáme zvlášť ty, co chodili 4 a více let - to už jsou zkušení členové. Údaje jsou relativní k celkovému počtu dlouhodobých členů v té době registrovaných.
+
+
 ```{r}
-posledni_odchody_dlouhodobi <- posledni_odchody %>%
-  mutate(roku_clenstvi = posledni_registrace - prvni_registrace - prestavky_celkem_let) %>%
-  filter(roku_clenstvi >= 2) %>%
-  mutate(type = if_else(roku_clenstvi >= 4,"alespon_4_roky","2_az_3_roky")) 
+plot_odchody_minimalni_delka <- function(posledni_odchody, registrace, minimalni_delka_clenstvi) {
 
-plot_odchody(posledni_odchody_dlouhodobi, pocty_clenu_rok_vek_pohlavi, additional_info = posledni_odchody_dlouhodobi$type)
+  posledni_odchody_2_roky <- posledni_odchody %>%
+    mutate(roku_clenstvi = posledni_registrace - prvni_registrace - prestavky_celkem_let) %>%
+    filter(roku_clenstvi >= minimalni_delka_clenstvi) 
+  
+  pocty_clenu_rok_vek_pohlavi_2_roky <- registrace %>%
+    inner_join(rozsah_clenstvi %>% select(Person_PseudoID,prvni_registrace), by = c("Person_PseudoID" = "Person_PseudoID") ) %>%
+    filter(Year - prvni_registrace >= minimalni_delka_clenstvi) %>%
+    group_by(Year, vek, ID_Sex) %>% 
+    summarise(pocet_clenu_v_kategorii = length(unique(Person_PseudoID)))
+  
+  
+  plot_odchody(posledni_odchody_2_roky, pocty_clenu_rok_vek_pohlavi_2_roky) + ggtitle(paste("Členství alespoň ", minimalni_delka_clenstvi, "roky"))
+}
 
+plot_odchody_minimalni_delka(posledni_odchody, registrace, 2)
+plot_odchody_minimalni_delka(posledni_odchody, registrace, 4)
 ```
 
+U dlouhodobějších členů lze najít vrchol někde kolem 15 roku věku, ale zejména u opravdu dlouhodobých členů se nezdá velmi výrazný (tedy vzhledem k odchodům během skautských let). Je nicméně hloupé, že ty jzkušenější nejspíš skutečně ztrácíme v přechodu do roverského věku o něco víc.
