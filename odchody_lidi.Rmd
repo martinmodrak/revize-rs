@@ -1,0 +1,168 @@
+---
+title: "Odchody lidí v roverském věku"
+output: html_notebook
+author: "Martin 'Orel' Modrák"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+---
+
+```{r setup}
+knitr::opts_chunk$set(echo=FALSE)
+library(lubridate)
+library(readxl)
+library(tidyverse)
+library(forcats)
+library(here)
+```
+
+```{r}
+registrace <- read_excel(here("private_data","Registrace (2003 až 2018) - psedonymizovaný seznam členů.xlsx"),col_types = c("numeric","numeric","numeric","date","text","text","text")) 
+registrace <- registrace %>% 
+  mutate(Year = as.integer(Year), Unit_PseudoID = as.integer(Unit_PseudoID),
+            Person_PseudoID = as.integer(Person_PseudoID), ID_Sex = factor(ID_Sex),
+            ID_MembershipType = factor(ID_MembershipType), 
+            ID_MembershipCategory = factor(ID_MembershipCategory),
+            rok_narozeni = year(Birthday),
+            vek = Year - rok_narozeni) 
+
+cat("Data obsahují", sum(registrace$ID_Sex == "NULL"), "řádků s neznámým pohlavím. Ignoruji je.")
+registrace <- registrace %>% filter(ID_Sex != "NULL") %>% droplevels()
+```
+
+
+```{r}
+cat("Zpracováváme data od roku",min(registrace$Year),"do roku", max(registrace$Year))
+posledni_rok <- max(registrace$Year)
+```
+
+Všude bereme že věk = rok registrace - rok narození.
+
+```{r}
+zacatky <- function(x, tolerovana_prestavka) {
+  sorted <- sort(x)
+  sorted_diff <- diff(sorted)
+  sorted[c(TRUE, sorted_diff > tolerovana_prestavka + 1)]  
+}
+
+konce <- function(x, tolerovana_prestavka) {
+  sorted <- sort(x)
+  sorted_diff <- diff(sorted)
+  sorted[c(sorted_diff > tolerovana_prestavka + 1, TRUE)]  
+}
+
+#Rychle testy, jestli funkce funguje
+stopifnot(all(konce(c(2008,2005,2006,2007), 1) == 2008))
+stopifnot(all(konce(c(2008,2005,2006,2007), 0) == 2008))
+stopifnot(all(konce(c(2008,2005), 1) == c(2005,2008)))
+stopifnot(all(konce(c(2008,2005), 2) == 2008))
+stopifnot(all(konce(c(2008,2006), 1) == 2008))
+stopifnot(all(konce(c(2008,2006), 0) == c(2006,2008)))
+stopifnot(all(konce(c(2008,2001,2002,2005,2006,2007), 1) == c(2002,2008)))
+stopifnot(all(konce(c(2008,2001,2002,2005,2006,2007,2011,2012), 1) == c(2002,2008,2012)))
+stopifnot(all(konce(c(2008,2002,2003,2005,2001,2006,2007,2011,2012), 1) == c(2008,2012)))
+stopifnot(all(konce(c(2008,2001,2002,2003,2005,2006,2007,2011,2012), 0) == c(2003,2008,2012)))
+
+
+stopifnot(all(zacatky(c(2008,2006), 1) == 2006))
+stopifnot(all(zacatky(c(2008,2001,2002,2005,2006,2007,2011,2012), 1) == c(2001,2005,2011)))
+stopifnot(all(zacatky(c(2008,2002,2003,2005,2001,2006,2007,2011,2012), 1) == c(2001,2011)))
+stopifnot(all(zacatky(c(2008,2001,2002,2003,2005,2006,2007,2011,2012), 0) == c(2001,2005,2011)))
+
+```
+
+Zkontroluji, jak časté jsou přestávky v členství
+
+```{r}
+tolerovana_prestavka <- 1
+
+rozsah_clenstvi <- registrace %>%
+  group_by(Person_PseudoID) %>%
+  summarise(rok_narozeni = unique(rok_narozeni), ID_Sex = unique(ID_Sex),
+            
+            prvni_registrace = min(Year), posledni_registrace = max(Year), 
+            prvni_konec = min(konce(Year, tolerovana_prestavka = 1)),
+            konec_do_12_let = any(konce(Year, tolerovana_prestavka = 1) - rok_narozeni <= 12),
+            konec_13_az_16_let = any(between(konce(Year, tolerovana_prestavka = 1) - rok_narozeni, 13, 16)),
+            prestavky_celkem_let =  (posledni_registrace - prvni_registrace + 1) - length(unique(Year)),
+            pocet_prestavek = sum(diff(sort(Year)) > 1)
+            )
+
+```
+
+
+```{r}
+rozsah_clenstvi %>% group_by(pocet_prestavek) %>% summarise(pocet_osob = length(rok_narozeni))
+rozsah_clenstvi %>% group_by(prestavky_celkem_let) %>% summarise(pocet_osob = length(rok_narozeni))
+cat("Počet členů kteří odešli do 12 let a pak znovu do 16ti let:", sum(rozsah_clenstvi$konec_do_12_let & rozsah_clenstvi$konec_13_az_16_let))
+```
+
+Pro další analýzy budeme brát přestávku jednoho roku jako souvislé členství. 
+Bohužel je tu tedy dost lidí, kteří odešli vícekrát a to i ve věku, který nás zajímá. Budeme tedy zvlášť analyzovat první odchody a poslední odchody.
+
+```{r}
+pocty_clenu_rok_vek_pohlavi <- registrace %>%
+  group_by(Year, vek, ID_Sex) %>% 
+  summarise(pocet_clenu_v_kategorii = length(unique(Person_PseudoID)))
+```
+
+
+## Poslední odchody
+
+```{r}
+plot_odchody <- function(odchody, pocty_clenu_rok_vek_pohlavi, additional_info = NULL) {
+if(is.null(additional_info)) {
+  odchody$kategorie = odchody$ID_Sex
+} else 
+{
+  odchody$kategorie = factor(paste(odchody$ID_Sex, additional_info))
+}
+
+  
+sumar_odchodu <- odchody %>% 
+  group_by(ID_Sex, kategorie, vek_odchodu, rok_odchodu) %>%
+  summarise(pocet_odeslych = length(Person_PseudoID)) %>%
+  inner_join(pocty_clenu_rok_vek_pohlavi, by = c("vek_odchodu" = "vek", "rok_odchodu" = "Year", "ID_Sex" = "ID_Sex")) %>% 
+  mutate(procento_odchazejicich = pocet_odeslych / pocet_clenu_v_kategorii)
+
+
+sumar_odchodu %>% filter(vek_odchodu >= 9, vek_odchodu <= 18) %>%
+  ggplot(aes(x = vek_odchodu, y = procento_odchazejicich, color = kategorie)) + geom_line() + 
+  facet_wrap(~ rok_odchodu)
+}
+
+```
+
+
+```{r}
+posledni_odchody <- rozsah_clenstvi %>%
+  filter(posledni_registrace < posledni_rok - tolerovana_prestavka) %>%
+  mutate(vek_odchodu = posledni_registrace - rok_narozeni, rok_odchodu = posledni_registrace)
+
+plot_odchody(posledni_odchody, pocty_clenu_rok_vek_pohlavi)
+
+```
+
+## První odchody
+
+```{r}
+prvni_odchody <- rozsah_clenstvi %>%
+  filter(prvni_konec < posledni_rok - tolerovana_prestavka) %>%
+  mutate(vek_odchodu = prvni_konec - rok_narozeni, rok_odchodu = prvni_konec)
+
+plot_odchody(prvni_odchody, pocty_clenu_rok_vek_pohlavi)
+
+```
+
+Obecně vidíme, že odchází hodně lidí (až čtvrtina ročníku). To budou asi lidé, kteří se registrovali jen krátce. Zaměříme se tedy na 
+
+## Poslední odchody, dlouhodobí členové
+
+```{r}
+posledni_odchody_dlouhodobi <- posledni_odchody %>%
+  mutate(roku_clenstvi = posledni_registrace - prvni_registrace - prestavky_celkem_let) %>%
+  filter(roku_clenstvi >= 2) %>%
+  mutate(type = if_else(roku_clenstvi >= 4,"alespon_4_roky","2_az_3_roky")) 
+
+plot_odchody(posledni_odchody_dlouhodobi, pocty_clenu_rok_vek_pohlavi, additional_info = posledni_odchody_dlouhodobi$type)
+
+```
+

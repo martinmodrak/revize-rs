@@ -1,5 +1,7 @@
 ---
 title: "Vyber strediska pro predvyzkum"
+author: "Martin 'Orel' Modrák"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_notebook
 ---
 
