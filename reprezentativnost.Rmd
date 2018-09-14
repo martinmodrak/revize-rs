@@ -11,11 +11,14 @@ Pro každé seskupení jsou tyto křivky ještě rozděleny podle věkových kat
 
 ```{r setup}
 knitr::opts_chunk$set(echo=FALSE)
-library(here)
+library(lubridate)
+library(readxl)
 library(tidyverse)
 library(kableExtra)
+library(here)
 source(here("R","data_predvyzkum.R"), encoding = "UTF-8")
 source(here("R","data_csu_psc.R"), encoding = "UTF-8")
+source(here("R","data_registrace_jednotlivci.R"), encoding = "UTF-8")
 
 ```
 
@@ -134,3 +137,58 @@ reprezentativnost(seskupeni_kraj_skautis_sondy, seskupeni_kraj_sondy, "_sondy", 
 
 ```
 
+# Reprezenativnost dle věku
+
+
+
+```{r}
+reprezentativnost_vek <- function(data_skautis_, data_pruzkum_, pruzkum_nazev, min_vek = 15, max_vek = 21) {
+  dle_veku_pruzkum <- data_pruzkum_ %>% 
+    filter(!is.na(vek), vek >= min_vek, vek <= max_vek) %>%
+    group_by(vek) %>%
+    summarise(clenu = length(vek)) %>% ungroup() %>% mutate(zdroj = pruzkum_nazev)
+  
+  dle_veku_skautis <-  data_skautis_ %>%
+    filter(vek >= min_vek, vek <= max_vek) %>%
+    group_by(vek) %>%
+    summarise(clenu = length(vek)) %>% 
+    ungroup() %>%
+    mutate(zdroj = "skautis")
+  
+dle_veku <- rbind(dle_veku_pruzkum, dle_veku_skautis) 
+
+celkem <- dle_veku %>% group_by(zdroj) %>% summarise(celkem_v_datech = sum(clenu))
+
+dle_veku <- dle_veku %>%
+  inner_join(celkem, by = c("zdroj" = "zdroj")) %>% 
+  mutate(podil = clenu / celkem_v_datech)
+
+confidence <- dle_veku %>% filter(zdroj == pruzkum_nazev) %>%
+  inner_join(
+    dle_veku %>% filter(zdroj == "skautis") %>% 
+      select(vek, podil) %>%
+      rename(podil_skautis = podil)
+      , 
+    by = c("vek" = "vek")) %>%
+  mutate(
+    conf_lower = qbinom(0.025, celkem_v_datech, podil_skautis) / celkem_v_datech,
+    conf_upper = qbinom(0.975, celkem_v_datech, podil_skautis) / celkem_v_datech,
+    zdroj = "skautis"
+  )
+
+
+dle_veku %>% 
+  ggplot(aes(x=vek, y = podil, color = zdroj, fill = zdroj, group = zdroj)) + 
+  geom_ribbon(data = confidence, aes(ymin = conf_lower, ymax = conf_upper), alpha = 0.2, color = "transparent") +
+  geom_point() + geom_line()  
+}
+```
+
+```{r}
+data_skautis_jednotlivci_raw <- registrace_jednotlivci()
+data_skautis_jednotlivci <- data_skautis_jednotlivci_raw %>%
+  select(Year, Person_PseudoID, vek) %>% distinct()
+
+reprezentativnost_vek(data_skautis_jednotlivci %>% filter(Year == 2018), data_kmen, "kmen")
+reprezentativnost_vek(data_skautis_jednotlivci %>% filter(Year == 2015), data_sondy, "_sondy")
+```
