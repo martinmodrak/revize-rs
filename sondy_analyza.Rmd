@@ -7,7 +7,7 @@ output: html_document
 
 ```{r load data, warning = F, message = F}
 library(tidyverse)
-sondy <- readRDS("private_data/sondy_180420.rds")
+sondy <- readRDS(here::here("private_data/sondy_180420.rds"))
 
 cisti_data <- function(df) {
   aa <- df %>% mutate(celkova_spokojenost_s_programem_rs_kmenu = recode(celkova_spokojenost_s_programem_rs_kmenu, `Velmi nespokojen/a`= 1, `Spíše nespokojen/a` = 2, `Spíše spokojen/a` = 3, `Spíše spokojen/a` = 4, `Velmi spokojen/a` = 5, .default = NA_real_),
@@ -37,18 +37,24 @@ cisti_data <- function(df) {
 }
 ```
 
-# Je kmen ve stredisku?
-```{r}
-table(sondy$je_rs_kmen_ve_stredisku)
+# Základní deskripce 
+Nejprve se podíváme na základní deskriptivní data o střeidsku
+
+
+
+```{r je kmen ve stredisku}
+table(sondy$je_rs_kmen_ve_stredisku) %>% as.tibble() %>% transmute(`Je kmen ve stredisku`=Var1,n) %>% 
+  knitr::kable(caption = "Pocet odpovedi, kde existuje kmen ve stredisku")
 ```
 
-# Je kmen registrovany?
 
 ```{r}
-table(sondy$je_rs_kmen_registrovany)
+table(sondy$je_rs_kmen_registrovany) %>% as.tibble() %>%  transmute(`Je rs kmen registrovany`=Var1,n)  %>% knitr::kable( caption = "Pocet odpovedi, zda je kmen registovany")
 ```
 
 # Proc neni registrovany
+
+Nasledujici graf ukazje procenta uzivatelu, kteri vybrali dany duvod neregistrace kmene. Lide mohli zaskrtavat vice odpovedi, proto nesedi soucet do sta procent. Svisla cara oznacuje standardni cybu prumeru
 
 ```{r proc neni kmen registrovany}
 
@@ -58,8 +64,9 @@ sondy %>%
   filter(value!="N/A") %>%
   mutate(value = if_else(value == "Ano", 1, 0)) %>% 
   ggplot(aes(x=duvod, y = value)) + stat_summary(fun.data = "mean_cl_boot") + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-  
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ylim(0,1) + 
+  scale_x_discrete(labels = c("Neni dost clenu", "Nema vudce", "Clenove se neregistruji", "Clenove se se registruji pod strediskem", "clenove se registruji u oddilu", "Jine", "Registace cinnosti nepmuze"))
+   
 ```
 
 # Ucast na rs - kmeans
@@ -77,20 +84,25 @@ sondy_ucast %>%
   summarize_at(.vars = vars(ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho), .funs = mean) %>%
   gather(key = "duvod", value = "prumer", ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho) %>%
   ggplot(aes(x = duvod, y = prumer)) +
-  geom_point() + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  ylim(0,100)
+  stat_summary(fun.data = "mean_cl_boot") +  
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  scale_x_discrete(labels = c("Lide", "Moznost realizace", "Neco jineho", "Odpocinek od oddilu", "Setrvacnost", "Jine", "Registace cinnosti nepmuze")) +
+    ylim(0,100)
 
 
 sondy_ucast %>% 
   group_by(skupina_k2) %>% 
   summarize_at(.vars = vars(ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho), .funs = mean) %>%
   gather(key = "duvod", value = "prumer", ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho) %>%
-  ggplot(aes(x = duvod, y = prumer)) +
-  geom_point() + 
-  facet_grid(~skupina_k2) + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  ylim(0,100)
+  left_join(sondy_ucast %>% 
+    group_by(skupina_k2) %>% summarize(n = n()), by = "skupina_k2") %>% 
+  ggplot(aes(x = duvod, y = prumer, col = as.factor(skupina_k2), group = skupina_k2)) +
+  geom_point(aes(size = n)) + 
+  geom_line() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  ylim(0,100) +
+  scale_color_discrete(labels= c("skupina 1", "Skupina 2")) +
+  scale_x_discrete(labels = c("Lide", "Moznost realizace", "Neco jineho", "Odpocinek od oddilu", "Setrvacnost", "Jine", "Registace cinnosti nepmuze"))
 
 sondy_ucast %>% 
   group_by(skupina_k3) %>% 
