@@ -5,7 +5,9 @@ output: html_notebook
 
 ```{r setup}
 library(tidyverse)
+library(brms)
 library(scico)
+options(mc.cores=parallel::detectCores())
 ```
 
 ```{r}
@@ -25,7 +27,8 @@ sondy <- sondy %>%
                   q0_ve_vedeni_oddilu == "Ano" | funkce_v_oddile_clen_vedeni_oddilu == "Ano", "sirsi_vedeni_oddilu", "nic"
     ))))))),
     max_funkce = fct_relevel(max_funkce, "vudce_strediska", "vudce_oddilu", "vudce_kmene", "zastupce_v_oddilu", "oddilovy_radce","druzinovy_radce","sirsi_vedeni_oddilu"),
-    celkova_spokojenost_s_programem_rs_kmenu = fct_relevel(celkova_spokojenost_s_programem_rs_kmenu, "Velmi nespokojen/a", "Spíše nespokojen/a","Spíše spokojen/a","Velmi spokojen/a")
+    celkova_spokojenost_s_programem_rs_kmenu = fct_relevel(celkova_spokojenost_s_programem_rs_kmenu, "Velmi nespokojen/a", "Spíše nespokojen/a","Spíše spokojen/a","Velmi spokojen/a"),
+    organizace_spolecenstvi = fct_recode(vyrok_o_spolecenstvi, uzka_skupina = "Program připravuje úzká skupina lidí", vsichni =  "Na přípravě programu se podílí různí členové podle toho, o jakou činnost se jedná.", vudce =  "Program připravuje vůdce/vůdkyně kmene nebo roverského společenství"   )
   )
 ```
 
@@ -53,7 +56,9 @@ funkce_pohlavi %>%
 Nedá se moc říct, že by spokojenost s programem RS kmene souvisela s funkcí ani s další sadou prediktorů.
 
 ```{r}
-spokojenost <- sondy %>% filter(!is.na(celkova_spokojenost_s_programem_rs_kmenu))
+spokojenost <- sondy %>% 
+  filter(!is.na(celkova_spokojenost_s_programem_rs_kmenu)) %>% 
+  mutate(studium_ve_meste_strediska = fct_recode(studium_ve_meste_strediska, Ne = "Ne, většinu roku trávím mimo místo, kde mám svoje středisko"))
 
 plot_spokojenost <- function(spokojenost, group, plot = "hist") {
   spokojenost$group <- spokojenost[[group]]
@@ -82,10 +87,12 @@ plot_spokojenost <- function(spokojenost, group, plot = "hist") {
   }
 }
 
+plot_spokojenost(spokojenost, "pohlavi")
+
 plot_spokojenost(spokojenost, "max_funkce", plot="heatmap")
 plot_spokojenost(spokojenost, "max_funkce")
 plot_spokojenost(spokojenost, "je_ve_meste_univezita")
-plot_spokojenost(spokojenost %>% mutate(studium_ve_meste_strediska = fct_recode(studium_ve_meste_strediska, Ne = "Ne, většinu roku trávím mimo místo, kde mám svoje středisko")), "studium_ve_meste_strediska")
+plot_spokojenost(spokojenost, "studium_ve_meste_strediska")
 
 plot_spokojenost(spokojenost, "je_vice_rs_kmenu_ve_stredisku")
 #realne_vedeni_oddilu
@@ -93,7 +100,7 @@ plot_spokojenost(spokojenost, "je_vice_rs_kmenu_ve_stredisku")
 plot_spokojenost(spokojenost, "je_rs_kmen_registrovany")
 
 plot_spokojenost(spokojenost, "povazujes_se_za_rovera")
-
+plot_spokojenost(spokojenost, "organizace_spolecenstvi")
 
 ```
 
@@ -125,6 +132,60 @@ plot_spokojenost_continuous(spokojenost %>% filter(kolik_let_jsi_rover < 20), "k
 
 plot_spokojenost_continuous(spokojenost, "kmen_kolik_aktivnich_lidi")
 plot_spokojenost_continuous(spokojenost, "kolik_let_rs_kmen_funguje")
+
+```
+
+Lineární model pro spokojenost. Ignorujeme ty, co mají neuvedené číselné hodnoty. U výběru z možností zavádíme kategorii "Neuvedeno" (hulvátský, ale co už). 
+V zásadě se dá říct, že model podporuje to, co jsme  viděli v grafech výše: kmeny s více lidmi jsou spokojenější (to je nejsilnější pozorovaná korelace), kmeny s vůdcem jsou více spokojené. Ostatní věci se pohybují někde kolem nuly.
+
+TODO: rozmyslet 1||x vs x (první se lépe čte, ale pro binární není moc vhodné)
+
+```{r, message=FALSE}
+std_normalize <- function(x) {
+  (x - mean(x)) / sd(x)
+}
+
+replace_na <- function(x) {
+  if_else(is.na(x), "Neuvedeno", as.character(x)) %>% factor()
+}
+
+spokojenost_pro_model <- spokojenost %>% 
+  filter(!is.na(kmen_kolik_aktivnich_lidi), !is.na(kolik_let_rs_kmen_funguje)) %>%
+  mutate(
+    celkova_spokojenost_int = as.integer(celkova_spokojenost_s_programem_rs_kmenu),
+    pohlavi = if_else(pohlavi == "N/A", "Neuvedeno", pohlavi),
+    je_ve_meste_univezita = if_else(je_ve_meste_univezita == "N/A", "Neuvedeno", je_ve_meste_univezita),
+    studium_ve_meste_strediska = replace_na(studium_ve_meste_strediska), 
+    je_vice_rs_kmenu_ve_stredisku = replace_na(je_vice_rs_kmenu_ve_stredisku),
+    je_rs_kmen_registrovany = replace_na(je_rs_kmen_registrovany),
+    povazujes_se_za_rovera = replace_na(povazujes_se_za_rovera),
+    kmen_kolik_aktivnich_lidi = std_normalize(kmen_kolik_aktivnich_lidi),
+    kolik_let_rs_kmen_funguje = std_normalize(kolik_let_rs_kmen_funguje),
+    organizace_spolecenstvi = replace_na(organizace_spolecenstvi),
+    povazujes_se_za_rovera = replace_na(fct_recode(povazujes_se_za_rovera, Ano = "Ano, považuji se za rovera/rangers", Ne_ale_budu = "Ne, nyní se nepovažuji za rovera/rangers, ale myslím, že rover/rangers budu", Ne_ale_byl =  "Ne, nyní se nepovažuji za rovera/rangers, ale dříve jsem byl/a"))
+    )
+
+cat("Pro model dostupných ", nrow(spokojenost_pro_model), "řádků (",nrow(spokojenost_pro_model)/nrow(spokojenost), ")\n")
+
+
+formula_spokojenost <- brmsformula(celkova_spokojenost_int ~ kmen_kolik_aktivnich_lidi + kolik_let_rs_kmen_funguje + (1|| pohlavi + rs_kmen_prvky_vudce + rs_kmen_prvky_rada + max_funkce + je_ve_meste_univezita + studium_ve_meste_strediska + je_vice_rs_kmenu_ve_stredisku + je_rs_kmen_registrovany + povazujes_se_za_rovera + organizace_spolecenstvi),
+                                   family = cumulative("logit"))
+
+#get_prior(formula_spokojenost, data = spokojenost_pro_model)
+priors <- c(prior(normal(0,1), class = "b"),#prior(horseshoe(par_ratio = 0.3), class = "b"),
+            prior(normal(0,1), class = "sd"))
+#priors <- prior(normal(0,1), class = "b")
+
+#make_stancode(formula_spokojenost, data = spokojenost_pro_model, prior = priors) 
+fit_spokojenost <- brm(formula_spokojenost, data = spokojenost_pro_model, prior = priors, control = list(adapt_delta = 0.95))
+fit_spokojenost
+
+my_scale <- scale_y_discrete(labels = function(x) { gsub(",Intercept","", x)})
+
+stanplot(fit_spokojenost, pars = "(^b_[^I])|(^r_[a-n])",type = "intervals") + #The regex for pars should filter out the intercept terms 
+  my_scale 
+stanplot(fit_spokojenost, pars = "(^r_[^a-n])",type = "intervals") + #The regex for pars should filter out the intercept terms 
+  my_scale 
 
 ```
 
