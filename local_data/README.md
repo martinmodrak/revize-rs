@@ -1,0 +1,1 @@
+This directory contains local data computed during analysis. Nothing should be commited here.
