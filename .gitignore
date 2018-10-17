@@ -36,4 +36,5 @@ vignettes/*.pdf
 *.nb.html
 
 /private_data/
+/local_data/
 .Rproj.user

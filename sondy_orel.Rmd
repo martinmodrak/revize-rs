@@ -29,8 +29,17 @@ sondy <- sondy %>%
                   q0_ve_vedeni_oddilu == "Ano" | funkce_v_oddile_clen_vedeni_oddilu == "Ano", "sirsi_vedeni_oddilu", "nic"
     ))))))),
     max_funkce = fct_relevel(max_funkce, "vudce_strediska", "vudce_oddilu", "vudce_kmene", "zastupce_v_oddilu", "oddilovy_radce","druzinovy_radce","sirsi_vedeni_oddilu"),
+    max_funkce_v_kmeni = case_when(
+      rs_kmen_moje_funkce_vudce == "Ano" ~ "vudce",
+      rs_kmen_moje_funkce_rada == "Ano" ~ "rada",
+      !is.na(rs_kmen_moje_funkce_jine) ~ "jine",
+      rs_kmen_moje_funkce_clen == "Ano" ~ "clen",
+      TRUE ~ "zadna"
+    ),
+    max_funkce_v_kmeni = fct_relevel(max_funkce_v_kmeni, "vudce","rada","jine","clen", "zadna"),
     celkova_spokojenost_s_programem_rs_kmenu = fct_relevel(celkova_spokojenost_s_programem_rs_kmenu, "Velmi nespokojen/a", "Spíše nespokojen/a","Spíše spokojen/a","Velmi spokojen/a"),
-    organizace_spolecenstvi = fct_recode(vyrok_o_spolecenstvi, uzka_skupina = "Program připravuje úzká skupina lidí", vsichni =  "Na přípravě programu se podílí různí členové podle toho, o jakou činnost se jedná.", vudce =  "Program připravuje vůdce/vůdkyně kmene nebo roverského společenství"   )
+    organizace_spolecenstvi = fct_recode(vyrok_o_spolecenstvi, uzka_skupina = "Program připravuje úzká skupina lidí", vsichni =  "Na přípravě programu se podílí různí členové podle toho, o jakou činnost se jedná.", vudce =  "Program připravuje vůdce/vůdkyně kmene nebo roverského společenství"   ),
+    studium_ve_meste_strediska = fct_recode(studium_ve_meste_strediska, Ne = "Ne, většinu roku trávím mimo místo, kde mám svoje středisko")
   )
 ```
 
@@ -59,8 +68,7 @@ Nedá se moc říct, že by spokojenost s programem RS kmene souvisela s funkcí
 
 ```{r}
 spokojenost <- sondy %>% 
-  filter(!is.na(celkova_spokojenost_s_programem_rs_kmenu)) %>% 
-  mutate(studium_ve_meste_strediska = fct_recode(studium_ve_meste_strediska, Ne = "Ne, většinu roku trávím mimo místo, kde mám svoje středisko"))
+  filter(!is.na(celkova_spokojenost_s_programem_rs_kmenu))
 
 plot_spokojenost <- function(spokojenost, group, plot = "hist") {
   spokojenost$group <- spokojenost[[group]]
@@ -93,6 +101,7 @@ plot_spokojenost(spokojenost, "pohlavi")
 
 plot_spokojenost(spokojenost, "max_funkce", plot="heatmap")
 plot_spokojenost(spokojenost, "max_funkce")
+plot_spokojenost(spokojenost, "max_funkce_v_kmeni")
 plot_spokojenost(spokojenost, "je_ve_meste_univezita")
 plot_spokojenost(spokojenost, "studium_ve_meste_strediska")
 
@@ -151,11 +160,9 @@ replace_na <- function(x) {
   if_else(is.na(x), "Neuvedeno", as.character(x)) %>% factor()
 }
 
-recode_frekvence <- function(x) {
-  recode(x, .default = NA_real_, `Nikdy` = 1, `Méně často než 1 za rok` = 2, `Asi jednou za půl roku` = 3, `Asi jednou za čtvrt roku` = 4, `Asi jednou měsíčně` = 5, `Asi jednou za 14 dní` = 6, `Každý týden nebo častěji` = 7) %>% as.integer() 
-}
 
-spokojenost_pro_model <- spokojenost %>% 
+zakladni_data_pro_model <- sondy %>% 
+  filter(!is.na(kolik_let_rs_kmen_funguje), !is.na(kmen_kolik_aktivnich_lidi)) %>%
   mutate(
     celkova_spokojenost_int = as.integer(celkova_spokojenost_s_programem_rs_kmenu),
     pohlavi = if_else(pohlavi == "N/A", "Neuvedeno", pohlavi),
@@ -167,29 +174,28 @@ spokojenost_pro_model <- spokojenost %>%
     kmen_kolik_aktivnich_lidi = std_normalize(kmen_kolik_aktivnich_lidi),
     kolik_let_rs_kmen_funguje = std_normalize(kolik_let_rs_kmen_funguje),
     organizace_spolecenstvi = replace_na(organizace_spolecenstvi),
-    povazujes_se_za_rovera = replace_na(fct_recode(povazujes_se_za_rovera, Ano = "Ano, považuji se za rovera/rangers", Ne_ale_budu = "Ne, nyní se nepovažuji za rovera/rangers, ale myslím, že rover/rangers budu", Ne_ale_byl =  "Ne, nyní se nepovažuji za rovera/rangers, ale dříve jsem byl/a")),
-    frekvence_rs_akci_celodenni_akce = recode_frekvence(frekvence_rs_akci_celodenni_akce),
-    frekvence_rs_akci_schuzky = recode_frekvence(frekvence_rs_akci_schuzky),
-    frekvence_rs_akci_vicedenni_akce = recode_frekvence(frekvence_rs_akci_vicedenni_akce),
-    frekvence_rs_akci_tabory_expedice = recode_frekvence(frekvence_rs_akci_tabory_expedice)
+    povazujes_se_za_rovera = replace_na(fct_recode(povazujes_se_za_rovera, Ano = "Ano, považuji se za rovera/rangers", Ne_ale_budu = "Ne, nyní se nepovažuji za rovera/rangers, ale myslím, že rover/rangers budu", Ne_ale_byl =  "Ne, nyní se nepovažuji za rovera/rangers, ale dříve jsem byl/a"))
     )
 
-predictor_matrix <- matrix(0, nrow = 3, ncol = ncol(spokojenost_pro_model))
-colnames(predictor_matrix) <- names(spokojenost_pro_model)
-predictor_matrix[, c("kmen_kolik_aktivnich_lidi","kolik_let_rs_kmen_funguje", "je_rs_kmen_registrovany", "je_ve_meste_univezita")] <- 1
-predictor_matrix[3,c("frekvence_rs_akci_celodenni_akce","frekvence_rs_akci_schuzky",
-                                            "frekvence_rs_akci_vicedenni_akce","frekvence_rs_akci_tabory_expedice")] <- 1
+spokojenost_pro_model <- zakladni_data_pro_model %>%
+  filter(!is.na(celkova_spokojenost_s_programem_rs_kmenu))
+
+# predictor_matrix <- matrix(0, nrow = 3, ncol = ncol(spokojenost_pro_model))
+# colnames(predictor_matrix) <- names(spokojenost_pro_model)
+# predictor_matrix[, c("kmen_kolik_aktivnich_lidi","kolik_let_rs_kmen_funguje", "je_rs_kmen_registrovany", "je_ve_meste_univezita")] <- 1
+# predictor_matrix[3,c("frekvence_rs_akci_celodenni_akce","frekvence_rs_akci_schuzky",
+#                                             "frekvence_rs_akci_vicedenni_akce","frekvence_rs_akci_tabory_expedice")] <- 1
 
 
-spokojenost_imputed <- mice(spokojenost_pro_model, 
-                            blocks = list("kmen_kolik_aktivnich_lidi","kolik_let_rs_kmen_funguje", 
-                                          c("frekvence_rs_akci_celodenni_akce","frekvence_rs_akci_schuzky",
-                                            "frekvence_rs_akci_vicedenni_akce","frekvence_rs_akci_tabory_expedice")),
-                            predictorMatrix = predictor_matrix)
-#cat("Pro model dostupných ", nrow(spokojenost_pro_model), "řádků (",nrow(spokojenost_pro_model)/nrow(spokojenost), ")\n")
+# spokojenost_imputed <- mice(spokojenost_pro_model, 
+#                             blocks = list("kmen_kolik_aktivnich_lidi","kolik_let_rs_kmen_funguje", 
+#                                           c("frekvence_rs_akci_celodenni_akce","frekvence_rs_akci_schuzky",
+#                                             "frekvence_rs_akci_vicedenni_akce","frekvence_rs_akci_tabory_expedice")),
+#                             predictorMatrix = predictor_matrix)
+cat("Pro model dostupných ", nrow(spokojenost_pro_model), "řádků (",nrow(spokojenost_pro_model)/nrow(sondy), ")\n")
 
 
-formula_spokojenost <- brmsformula(celkova_spokojenost_int ~ kmen_kolik_aktivnich_lidi + kolik_let_rs_kmen_funguje + (1|| pohlavi + rs_kmen_prvky_vudce + rs_kmen_prvky_rada + max_funkce + je_ve_meste_univezita + studium_ve_meste_strediska + je_vice_rs_kmenu_ve_stredisku + je_rs_kmen_registrovany + povazujes_se_za_rovera + organizace_spolecenstvi),
+formula_spokojenost <- brmsformula(celkova_spokojenost_int ~ kmen_kolik_aktivnich_lidi + kolik_let_rs_kmen_funguje + (1|| pohlavi + rs_kmen_prvky_vudce + rs_kmen_prvky_rada + max_funkce + max_funkce_v_kmeni + je_ve_meste_univezita + studium_ve_meste_strediska + je_vice_rs_kmenu_ve_stredisku + je_rs_kmen_registrovany + povazujes_se_za_rovera + organizace_spolecenstvi),
                                    family = cumulative("logit"))
 
 #get_prior(formula_spokojenost, data = spokojenost_pro_model)
@@ -198,7 +204,7 @@ priors <- c(prior(normal(0,1), class = "b"),#prior(horseshoe(par_ratio = 0.3), c
 #priors <- prior(normal(0,1), class = "b")
 
 #make_stancode(formula_spokojenost, data = spokojenost_pro_model, prior = priors) 
-fit_spokojenost <- brm_multiple(formula_spokojenost, data = spokojenost_imputed, prior = priors, control = list(adapt_delta = 0.95), file = here("local_data","fit_spokojenost"))
+fit_spokojenost <- brm(formula_spokojenost, data = spokojenost_pro_model, prior = priors, control = list(adapt_delta = 0.95), file = here("local_data","fit_spokojenost"))
 fit_spokojenost
 
 my_scale <- scale_y_discrete(labels = function(x) { gsub(",Intercept","", x)})
@@ -210,25 +216,56 @@ stanplot(fit_spokojenost, pars = "(^r_[^a-n])",type = "intervals") + #The regex 
 
 ```
 
+Aktivita - vyhodime, kdo nevyplnil vse, pokud vyplnil aspon jedno, dame vsude jinde "Nikdy"
+
 ```{r}
+recode_frekvence <- function(x) {
+  #Davame default "Nikdy"
+  recode(x, .default = 1, `Nikdy` = 1, `Méně často než 1 za rok` = 2, `Asi jednou za půl roku` = 3, `Asi jednou za čtvrt roku` = 4, `Asi jednou měsíčně` = 5, `Asi jednou za 14 dní` = 6, `Každý týden nebo častěji` = 7) %>% as.integer() 
+}
+
+
+aktivita_pro_model <- zakladni_data_pro_model %>%
+  filter(!is.na(frekvence_rs_akci_schuzky) || !is.na(frekvence_rs_akci_celodenni_akce) || !is.na(frekvence_rs_akci_vicedenni_akce) || !is.na(frekvence_rs_akci_tabory_expedice)) %>%
+  mutate(    
+    frekvence_rs_akci_celodenni_akce = recode_frekvence(frekvence_rs_akci_celodenni_akce),
+    frekvence_rs_akci_schuzky = recode_frekvence(frekvence_rs_akci_schuzky),
+    frekvence_rs_akci_vicedenni_akce = recode_frekvence(frekvence_rs_akci_vicedenni_akce),
+    frekvence_rs_akci_tabory_expedice = recode_frekvence(frekvence_rs_akci_tabory_expedice)
+ )
+
+cat("Pro model dostupných ", nrow(aktivita_pro_model), "řádků (",nrow(aktivita_pro_model)/nrow(sondy), ")\n")
+
+
 formula_aktivita <- update.formula(formula_spokojenost, cbind(frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_schuzky, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice) ~ .)
 #formula_aktivita <- update.formula(formula_spokojenost, frekvence_rs_akci_celodenni_akce ~ .)
 
-priors_multivar <- c("frekvence_rs_akci_celodenni_akce","frekvence_rs_akci_schuzky","frekvence_rs_akci_vicedenni_akce", "frekvence_rs_akci_tabory_expedice") %>%
-  gsub("_","", ., fixed = TRUE) %>%
+response_names <- 
+  c("frekvence_rs_akci_celodenni_akce","frekvence_rs_akci_schuzky","frekvence_rs_akci_vicedenni_akce", "frekvence_rs_akci_tabory_expedice") %>%
+  #"" %>%
+  gsub("_","", ., fixed = TRUE)
+
+priors_multivar <- 
+  response_names %>%
   map(function(resp) { c(set_prior("normal(0,1)", class = "b", resp = resp),#prior(horseshoe(par_ratio = 0.3), class = "b"),
             set_prior("normal(0,1)", class = "sd", resp = resp)) }) %>% do.call(c, .)
 
 
-fit_aktivita <- brm_multiple(formula_aktivita, data = spokojenost_imputed, prior = priors_multivar, control = list(adapt_delta = 0.95), family = cumulative("logit"), file = here("local_data","fit_aktivita")) 
+fit_aktivita <- brm(formula_aktivita, data = aktivita_pro_model, prior = priors_multivar, control = list(adapt_delta = 0.95), family = cumulative("logit"), file = here("local_data","fit_aktivita")) 
 fit_aktivita
 
-my_scale <- scale_y_discrete(labels = function(x) { gsub(",Intercept","", x)})
+my_scale_aktivita <- scale_y_discrete(labels = function(x) { gsub(",Intercept","", x) %>% gsub("frekvence[^_\\[]*","", .)})
 
-stanplot(fit_spokojenost, pars = "(^b_[^I])|(^r_[a-n])",type = "intervals") + #The regex for pars should filter out the intercept terms 
-  my_scale 
-stanplot(fit_spokojenost, pars = "(^r_[^a-n])",type = "intervals") + #The regex for pars should filter out the intercept terms 
-  my_scale 
+response_names %>% walk(
+  function(resp) {
+    p1 <- stanplot(fit_aktivita, pars = paste0("(^b_",resp,"_[^I])|(^r_[a-n].*",resp,")"),type = "intervals") + #The regex for pars should filter out the intercept terms 
+      my_scale_aktivita + ggtitle(resp)
+    p2 <- stanplot(fit_aktivita, pars = paste0("(^r_[^a-n].*",resp,")"),type = "intervals") + #The regex for pars should filter out the intercept terms 
+      my_scale_aktivita + ggtitle(resp)
+    print(p1)
+    print(p2)
+  }
+)
 
 ```
 

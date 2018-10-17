@@ -2,7 +2,9 @@
 title: "Vyber strediska pro predvyzkum"
 author: "Martin 'Orel' Modrák"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
-output: html_notebook
+output: 
+  html_notebook:
+    code_folding:hide
 ---
 
 
