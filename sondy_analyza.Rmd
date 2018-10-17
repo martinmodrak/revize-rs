@@ -1,45 +1,23 @@
 ---
-title: "Sondt analyzy"
+title: "Sondy analyzy"
 author: "Filip Děchtěrenko"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
-```{r load data, warning = F, message = F}
+```{r load libraries}
 library(tidyverse)
+
+source(here::here("R/tools_sondy.R"))
+```
+
+```{r load data, warning = F, message = F, echo = F}
 sondy <- readRDS(here::here("private_data/sondy_180420.rds"))
 
-cisti_data <- function(df) {
-  aa <- df %>% mutate(celkova_spokojenost_s_programem_rs_kmenu = recode(celkova_spokojenost_s_programem_rs_kmenu, `Velmi nespokojen/a`= 1, `Spíše nespokojen/a` = 2, `Spíše spokojen/a` = 3, `Spíše spokojen/a` = 4, `Velmi spokojen/a` = 5, .default = NA_real_),
-                       spokojenost_s_frekvenci_akci2 = recode(spokojenost_s_frekvenci_akci, `Jsem spokojen/a`= 1, `Nejsem spokojen/a - přál/a bych si akce častěji` = 0, `Nejsem spokojen/a - přál/a bych si akce méně často` = 0, .default = NA_real_),
-                       frekvence_rs_akci_celodenni_akce = recode(frekvence_rs_akci_celodenni_akce, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, `Asi jednou měsíčně` = 4, `Asi jednou za 14 dní` = 5, `Každý týden nebo častěji` = 6),
-                       frekvence_rs_akci_schuzky = recode(frekvence_rs_akci_schuzky, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, `Asi jednou měsíčně` = 4, `Asi jednou za 14 dní` = 5, `Každý týden nebo častěji` = 6),
-                       frekvence_rs_akci_vicedenni_akce = recode(frekvence_rs_akci_vicedenni_akce, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, `Asi jednou měsíčně` = 4, `Asi jednou za 14 dní` = 5),
-                       frekvence_rs_akci_tabory_expedice = recode(frekvence_rs_akci_tabory_expedice, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3),
-                       vychovne_nastroje_vyzvy = recode(vychovne_nastroje_vyzvy, `Ano` = 1, `Ne` = 0, .default = NA_real_),
-                       vychovne_nastroje_projekty = recode(vychovne_nastroje_projekty, `Ano` = 1, `Ne` = 0, .default = NA_real_),
-                       vychovne_nastroje_rovernet = recode(vychovne_nastroje_rovernet, `Ano` = 1, `Ne` = 0, .default = NA_real_),
-                       vychovne_nastroje_kmen = recode(vychovne_nastroje_kmen, `Ano` = 1, `Ne` = 0, .default = NA_real_),
-                       vychovne_nastroje_roversky_zacatek = recode(vychovne_nastroje_roversky_zacatek, `Ano` = 1, `Ne` = 0, .default = NA_real_),
-                       vychovne_nastroje_diar = recode(vychovne_nastroje_diar, `Ano` = 1, `Ne` = 0, .default = NA_real_),
-                       vychovne_nastroje_vlastni_stezka = recode(vychovne_nastroje_vlastni_stezka, `Ano` = 1, `Ne` = 0, .default = NA_real_),
-                       ma_kmen_vychovny_plan = recode(ma_kmen_vychovny_plan, `Ano` = 1, `Ne` = 0, .default = NA_real_),
-                       vlastni_zvyklosti_nic = recode(vlastni_zvyklosti_nic, `Ano` = 1, `Ne` = 0, .default = NA_real_),
-                       vlastni_zvyklosti_ritual_vstupu = recode(vlastni_zvyklosti_ritual_vstupu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
-                       vlastni_zvyklosti_obnova_slibu = recode(vlastni_zvyklosti_obnova_slibu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
-                       vlastni_zvyklosti_ritual_odchodu = recode(vlastni_zvyklosti_ritual_odchodu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
-                       vlastni_zvyklosti_ritual_predavani_vudcovstvi = recode(vlastni_zvyklosti_ritual_predavani_vudcovstvi, `Ano` = 1, `Ne` = 0, .default = NA_real_),
-                       rs_kmen_prvky_vudce = recode(rs_kmen_prvky_vudce, `Ano` = 1, `Ne` = 0, .default = NA_real_),
-                       rs_kmen_prvky_rada = recode(rs_kmen_prvky_rada, `Ano` = 1, `Ne` = 0, .default = NA_real_),
-                       rs_kmen_prvky_ani_jedno = recode(rs_kmen_prvky_ani_jedno, `Ano` = 1, `Ne` = 0, .default = NA_real_)
-                       )
-  aa
-}
 ```
 
 # Základní deskripce 
-Nejprve se podíváme na základní deskriptivní data o střeidsku
-
+Nejprve se podíváme na základní deskriptivní data o středisku
 
 
 ```{r je kmen ve stredisku}
@@ -54,7 +32,7 @@ table(sondy$je_rs_kmen_registrovany) %>% as.tibble() %>%  transmute(`Je rs kmen 
 
 # Proc neni registrovany
 
-Nasledujici graf ukazje procenta uzivatelu, kteri vybrali dany duvod neregistrace kmene. Lide mohli zaskrtavat vice odpovedi, proto nesedi soucet do sta procent. Svisla cara oznacuje standardni cybu prumeru
+Nasledujici graf ukazje procenta uzivatelu, kteri vybrali dany duvod neregistrace kmene. Lide mohli zaskrtavat vice odpovedi, proto nesedi soucet do sta procent. Svisla cara oznacuje standardni chybu prumeru
 
 ```{r proc neni kmen registrovany}
 
@@ -71,62 +49,47 @@ sondy %>%
 
 # Ucast na rs - kmeans
 
+ datech mame popsany duvody, proc se lide ucastni akci. Kazdy mohl procenta rozdelit dle sebe. Je zde tedy moznost, ze tu jsou urcite "skupiny" lidi, ktere chodi na akce z podobnych duvodu. Proto jsme zkusili udelat [k-means](https://cs.wikipedia.org/wiki/K-means), ktera nam data rozdeli do do k skupin, aby si byly co nejblize. Protoze nevime, kolik by melo byt takovychto skupin, budeme zkouset rozdeleni do 2 az 5 skupin
+
 ```{r ucast na rs akcich}
 
-sondy_ucast_tmp <- sondy %>% select(ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho) %>% filter(!is.na(ucast_rs_kmen_procenta_lide)) 
+sondy_ucast_tmp <- sondy %>% select(id, ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho) %>% filter(!is.na(ucast_rs_kmen_procenta_lide)) 
 sondy_ucast <- sondy_ucast_tmp %>%
   mutate(skupina_k2 = kmeans(sondy_ucast_tmp,2)$cluster,
          skupina_k3 = kmeans(sondy_ucast_tmp,3)$cluster,
          skupina_k4 = kmeans(sondy_ucast_tmp,4)$cluster,
          skupina_k5 = kmeans(sondy_ucast_tmp,5)$cluster)
 
-sondy_ucast %>% 
-  summarize_at(.vars = vars(ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho), .funs = mean) %>%
-  gather(key = "duvod", value = "prumer", ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho) %>%
+summarize_group(sondy_ucast)
+
+sondy_ucast2 %>%  
   ggplot(aes(x = duvod, y = prumer)) +
-  stat_summary(fun.data = "mean_cl_boot") +  
+  geom_point() +
+  geom_linerange(aes(ymin = lower, ymax = upper)) +
+  geom_line(group = 1) +
+  geom_text(data = sondy_n, x = 1, y = 60, aes(label = n)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  scale_x_discrete(labels = c("Lide", "Moznost realizace", "Neco jineho", "Odpocinek od oddilu", "Setrvacnost", "Jine", "Registace cinnosti nepmuze")) +
+  scale_x_discrete(labels = c("Lide", "Moznost realizace", "Neco jineho", "Odpocinek od oddilu", "Setrvacnost", "Jine", "Registrace cinnosti nepomuze")) +
     ylim(0,100)
 
+sondy_ucast2 <- summarize_group(sondy_ucast, "skupina_k2")
+plot_sondy_ucast(sondy_ucast2)
 
-sondy_ucast %>% 
-  group_by(skupina_k2) %>% 
-  summarize_at(.vars = vars(ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho), .funs = mean) %>%
-  gather(key = "duvod", value = "prumer", ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho) %>%
-  left_join(sondy_ucast %>% 
-    group_by(skupina_k2) %>% summarize(n = n()), by = "skupina_k2") %>% 
-  ggplot(aes(x = duvod, y = prumer, col = as.factor(skupina_k2), group = skupina_k2)) +
-  geom_point(aes(size = n)) + 
-  geom_line() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  ylim(0,100) +
-  scale_color_discrete(labels= c("skupina 1", "Skupina 2")) +
-  scale_x_discrete(labels = c("Lide", "Moznost realizace", "Neco jineho", "Odpocinek od oddilu", "Setrvacnost", "Jine", "Registace cinnosti nepmuze"))
+sondy_ucast2 <- summarize_group(sondy_ucast, "skupina_k3")
+plot_sondy_ucast(sondy_ucast2)
 
-sondy_ucast %>% 
-  group_by(skupina_k3) %>% 
-  summarize_at(.vars = vars(ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho), .funs = mean) %>%
-  gather(key = "duvod", value = "prumer", ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho) %>%
-  ggplot(aes(x = duvod, y = prumer)) +
-  geom_point() + 
-  facet_grid(~skupina_k3) + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  ylim(0,100)
+sondy_ucast2 <- summarize_group(sondy_ucast, "skupina_k4")
+plot_sondy_ucast(sondy_ucast2)
 
-sondy_ucast %>% 
-  group_by(skupina_k4) %>% 
-  summarize_at(.vars = vars(ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho), .funs = mean) %>%
-  gather(key = "duvod", value = "prumer", ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho) %>%
-  ggplot(aes(x = duvod, y = prumer)) +
-  geom_point() + 
-  facet_grid(~skupina_k4) + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  ylim(0,100)
+summarize_group(sondy_ucast, "skupina_k5") %>% plot_sondy_ucast()
 
 ```
 
-# Ucast na rs - kmeans
+Nevychazi to nijak zajimave..
+
+# NeUcast na rs - kmeans
+
+To stejne muzeme zjistit pro neucast
 
 ```{r neucast na rs akcich}
 
@@ -138,44 +101,11 @@ sondy_neucast <- sondy_neucast_tmp %>%
          skupina_k4 = kmeans(sondy_neucast_tmp,4)$cluster,
          skupina_k5 = kmeans(sondy_neucast_tmp,5)$cluster)
 
-sondy_neucast %>% 
-  summarize_at(.vars = vars(neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine), .funs = mean) %>%
-  gather(key = "duvod", value = "prumer", neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine) %>%
-  ggplot(aes(x = duvod, y = prumer)) +
-  geom_point() + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  ylim(0,100)
+summarize_group_neucast(sondy_neucast, "skupina_k2") %>% plot_sondy_neucast()
 
-
-sondy_neucast %>% 
-  group_by(skupina_k2) %>% 
-  summarize_at(.vars = vars(neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine), .funs = mean) %>%
-  gather(key = "duvod", value = "prumer", neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine) %>%
-  ggplot(aes(x = duvod, y = prumer)) +
-  geom_point() + 
-  facet_grid(~skupina_k2) + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  ylim(0,100)
-
-sondy_neucast %>% 
-  group_by(skupina_k3) %>% 
-  summarize_at(.vars = vars(neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine), .funs = mean) %>%
-  gather(key = "duvod", value = "prumer", neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine) %>%
-  ggplot(aes(x = duvod, y = prumer)) +
-  geom_point() + 
-  facet_grid(~skupina_k3) + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  ylim(0,100)
-
-sondy_neucast %>% 
-  group_by(skupina_k4) %>% 
-  summarize_at(.vars = vars(neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine), .funs = mean) %>%
-  gather(key = "duvod", value = "prumer", neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine) %>%
-  ggplot(aes(x = duvod, y = prumer)) +
-  geom_point() + 
-  facet_grid(~skupina_k4) + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  ylim(0,100)
+summarize_group_neucast(sondy_neucast, "skupina_k3") %>% plot_sondy_neucast()
+summarize_group_neucast(sondy_neucast, "skupina_k4") %>% plot_sondy_neucast()
+summarize_group_neucast(sondy_neucast, "skupina_k5") %>% plot_sondy_neucast()
 
 ```
 
