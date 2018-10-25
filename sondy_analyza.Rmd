@@ -60,17 +60,7 @@ sondy_ucast <- sondy_ucast_tmp %>%
          skupina_k4 = kmeans(sondy_ucast_tmp,4)$cluster,
          skupina_k5 = kmeans(sondy_ucast_tmp,5)$cluster)
 
-summarize_group(sondy_ucast)
-
-sondy_ucast2 %>%  
-  ggplot(aes(x = duvod, y = prumer)) +
-  geom_point() +
-  geom_linerange(aes(ymin = lower, ymax = upper)) +
-  geom_line(group = 1) +
-  geom_text(data = sondy_n, x = 1, y = 60, aes(label = n)) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  scale_x_discrete(labels = c("Lide", "Moznost realizace", "Neco jineho", "Odpocinek od oddilu", "Setrvacnost", "Jine", "Registrace cinnosti nepomuze")) +
-    ylim(0,100)
+summarize_group(sondy_ucast) %>% plot_sondy_ucast()
 
 sondy_ucast2 <- summarize_group(sondy_ucast, "skupina_k2")
 plot_sondy_ucast(sondy_ucast2)
@@ -138,6 +128,8 @@ table(sondy$vychovne_nastroje_diar)
 table(sondy$vychovne_nastroje_vlastni_stezka)
 ```
 
+Tady to docela jde, pouze je teba davat pozor na konfidencni intervaly
+
 ## Pomoc u dětských oddílů
 
 ```{r pomoc u detskych oddilu}
@@ -155,7 +147,7 @@ table(sondy$pomoc_u_detskych_oddilu_pomoc_na_klubovne_zakladne_brigadach)
 table(sondy$pomoc_u_detskych_oddilu_jine)
 ```
 
-Prekvapuje me, kolik lidi je ve vedeni oddilu! Nejak pomaha hodne lidi
+Prekvapuje me, kolik lidi je ve vedeni oddilu! Nejak pomaha hodne lidi, jinak je asi taky ok
 
 ## Probehle akce
 
@@ -175,19 +167,23 @@ table(sondy$roverske_akce_velke_rs_akce)
 table(sondy$roverske_akce_kurzy_vzdelavaci_akce)
 ```
 
+Taky asi mame dost programu
+
 # Spokojenost s programem
 
 ```{r korelacni matice}
 table(sondy$spokojenost_s_frekvenci_akci)
 table(sondy$celkova_spokojenost_s_programem_rs_kmenu)
-aa <- sondy %>% cisti_data()
-c <- aa %>% select(spokojenost_s_frekvenci_akci2, celkova_spokojenost_s_programem_rs_kmenu, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_schuzky, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice,vychovne_nastroje_vyzvy:vychovne_nastroje_vlastni_stezka, vlastni_zvyklosti_nic:vlastni_zvyklosti_ritual_predavani_vudcovstvi,rs_kmen_prvky_vudce:rs_kmen_prvky_ani_jedno) %>% 
-  filter(!is.na(spokojenost_s_frekvenci_akci2)) %>% as.matrix() %>% Hmisc::rcorr(type = "spearman")
-c$r%>% round(2) %>% knitr::kable()
 
-# vlastni_zvyklosti_obnova_slibu = recode(vlastni_zvyklosti_obnova_slibu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
-# vlastni_zvyklosti_ritual_odchodu = recode(vlastni_zvyklosti_ritual_odchodu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
-# vlastni_zvyklosti_ritual_predavani_vudcovstvi = recode(vlastni_zvyklosti_ritual_predavani_vudcovstvi, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+v <- vars(spokojenost_s_frekvenci_akci2, celkova_spokojenost_s_programem_rs_kmenu, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_schuzky, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice,vychovne_nastroje_vyzvy:vychovne_nastroje_vlastni_stezka, vlastni_zvyklosti_nic,vlastni_zvyklosti_ritual_vstupu,rs_kmen_prvky_vudce:rs_kmen_prvky_ani_jedno)
+
+aa <- sondy %>% cisti_data()
+c <- aa %>% select_at(v) %>% 
+  filter(!is.na(spokojenost_s_frekvenci_akci2)) %>% as.matrix() %>% Hmisc::rcorr(type = "spearman")
+
+
+format_corrtable(c) %>% knitr::kable()
+
 ```
 
 # Podil prace ve stredisku
@@ -201,44 +197,11 @@ sondy_podil_casu <- sondy_podil_casu_tmp %>%
          skupina_k4 = kmeans(sondy_podil_casu_tmp %>% select(-id),4)$cluster,
          skupina_k5 = kmeans(sondy_podil_casu_tmp %>% select(-id),5)$cluster)
 
-sondy_podil_casu %>% 
-  summarize_at(.vars = vars(podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine), .funs = mean) %>%
-  gather(key = "duvod", value = "prumer", podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine) %>%
-  ggplot(aes(x = duvod, y = prumer)) +
-  geom_point() + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  ylim(0,100)
-
-
-sondy_podil_casu %>% 
-  group_by(skupina_k2) %>% 
-  summarize_at(.vars = vars(podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine), .funs = mean) %>%
-  gather(key = "duvod", value = "prumer", podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine) %>%
-  ggplot(aes(x = duvod, y = prumer)) +
-  geom_point() + 
-  facet_grid(~skupina_k2) + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  ylim(0,100)
-
-sondy_podil_casu %>% 
-  group_by(skupina_k3) %>% 
-  summarize_at(.vars = vars(podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine), .funs = mean) %>%
-  gather(key = "duvod", value = "prumer", podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine) %>%
-  ggplot(aes(x = duvod, y = prumer)) +
-  geom_point() + 
-  facet_grid(~skupina_k3) + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  ylim(0,100)
-
-sondy_podil_casu %>% 
-  group_by(skupina_k4) %>% 
-  summarize_at(.vars = vars(podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine), .funs = mean) %>%
-  gather(key = "duvod", value = "prumer", podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine) %>%
-  ggplot(aes(x = duvod, y = prumer)) +
-  geom_point() + 
-  facet_grid(~skupina_k4) + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  ylim(0,100)
+sondy_podil_casu %>% summarize_group_podil_prace() %>% plot_sondy_podil_casu()
+sondy_podil_casu %>% summarize_group_podil_prace("skupina_k2") %>% plot_sondy_podil_casu()
+sondy_podil_casu %>% summarize_group_podil_prace("skupina_k3") %>% plot_sondy_podil_casu()
+sondy_podil_casu %>% summarize_group_podil_prace("skupina_k4") %>% plot_sondy_podil_casu()
+sondy_podil_casu %>% summarize_group_podil_prace("skupina_k5") %>% plot_sondy_podil_casu()
 
 ```
 
@@ -256,102 +219,82 @@ aa <- sondy2 %>% cisti_data()
 
 ```{r korelace pro 2 skupiny}
 
-c <- aa %>% 
-  filter(skupina_k2 == 1) %>%
-  select(spokojenost_s_frekvenci_akci2, celkova_spokojenost_s_programem_rs_kmenu, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_schuzky, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice,vychovne_nastroje_vyzvy:vychovne_nastroje_vlastni_stezka, vlastni_zvyklosti_nic:vlastni_zvyklosti_ritual_predavani_vudcovstvi,rs_kmen_prvky_vudce:rs_kmen_prvky_ani_jedno) %>% 
-  as.matrix() %>% Hmisc::rcorr(type = "spearman")
-c$r%>% round(2) %>% knitr::kable()
+subgroup_corr <- function(df, v, grp_var, grp_id){
+  
+  df %>% 
+  filter_at(grp_var, all_vars(. == grp_id)) %>%
+  select_at(v) %>% 
+  as.matrix() %>% Hmisc::rcorr(type = "spearman") %>% 
+  format_corrtable() 
+}
 
-c <- aa %>% 
-  filter(skupina_k2 == 2) %>%
-  select(spokojenost_s_frekvenci_akci2, celkova_spokojenost_s_programem_rs_kmenu, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_schuzky, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice,vychovne_nastroje_vyzvy:vychovne_nastroje_vlastni_stezka, vlastni_zvyklosti_nic:vlastni_zvyklosti_ritual_predavani_vudcovstvi,rs_kmen_prvky_vudce:rs_kmen_prvky_ani_jedno) %>% 
-  as.matrix() %>% Hmisc::rcorr(type = "spearman")
-c$r%>% round(2) %>% knitr::kable()
+subgroup_corr(aa,v,vars(skupina_k2), 1) %>% knitr::kable(caption="dve skupiny, skupina 1")  
+subgroup_corr(aa,v,vars(skupina_k2), 2) %>% knitr::kable(caption="dve skupiny, skupina 2")  
 
 ```
 
 ## 3 skupiny
 
 ```{r korelace pro 3 skupiny}
-
-c <- aa %>% 
-  filter(skupina_k3 == 1) %>%
-  select(spokojenost_s_frekvenci_akci2, celkova_spokojenost_s_programem_rs_kmenu, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_schuzky, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice,vychovne_nastroje_vyzvy:vychovne_nastroje_vlastni_stezka, vlastni_zvyklosti_nic:vlastni_zvyklosti_ritual_predavani_vudcovstvi,rs_kmen_prvky_vudce:rs_kmen_prvky_ani_jedno) %>% 
-  as.matrix() %>% Hmisc::rcorr(type = "spearman")
-c$r%>% round(2) %>% knitr::kable()
-
-c <- aa %>% 
-  filter(skupina_k3 == 2) %>%
-  select(spokojenost_s_frekvenci_akci2, celkova_spokojenost_s_programem_rs_kmenu, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_schuzky, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice,vychovne_nastroje_vyzvy:vychovne_nastroje_vlastni_stezka, vlastni_zvyklosti_nic:vlastni_zvyklosti_ritual_predavani_vudcovstvi,rs_kmen_prvky_vudce:rs_kmen_prvky_ani_jedno) %>% 
-  as.matrix() %>% Hmisc::rcorr(type = "spearman")
-c$r%>% round(2) %>% knitr::kable()
-
-c <- aa %>% 
-  filter(skupina_k3 == 3) %>%
-  select(spokojenost_s_frekvenci_akci2, celkova_spokojenost_s_programem_rs_kmenu, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_schuzky, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice,vychovne_nastroje_vyzvy:vychovne_nastroje_vlastni_stezka, vlastni_zvyklosti_nic:vlastni_zvyklosti_ritual_predavani_vudcovstvi,rs_kmen_prvky_vudce:rs_kmen_prvky_ani_jedno) %>% 
-  as.matrix() %>% Hmisc::rcorr(type = "spearman")
-c$r%>% round(2) %>% knitr::kable()
-
+subgroup_corr(aa,v,vars(skupina_k3), 1) %>% knitr::kable(caption="tri skupiny, skupina 1")  
+subgroup_corr(aa,v,vars(skupina_k3), 2) %>% knitr::kable(caption="tri skupiny, skupina 2") 
+subgroup_corr(aa,v,vars(skupina_k3), 2) %>% knitr::kable(caption="tri skupiny, skupina 3") 
 ```
+
+## 4 skupiny
+
+```{r korelace pro 4 skupiny}
+subgroup_corr(aa,v,vars(skupina_k4), 1) %>% knitr::kable(caption="ctyri skupiny, skupina 1")  
+subgroup_corr(aa,v,vars(skupina_k4), 2) %>% knitr::kable(caption="ctyri skupiny, skupina 2") 
+subgroup_corr(aa,v,vars(skupina_k4), 3) %>% knitr::kable(caption="ctyri skupiny, skupina 3") 
+subgroup_corr(aa,v,vars(skupina_k4), 4) %>% knitr::kable(caption="ctyri skupiny, skupina 4") 
+```
+
+## 5 skupin
+
+```{r korelace pro 5 skupiny}
+subgroup_corr(aa,v,vars(skupina_k5), 1) %>% knitr::kable(caption="pet skupin, skupina 1")  
+subgroup_corr(aa,v,vars(skupina_k5), 2) %>% knitr::kable(caption="pet skupin, skupina 2") 
+subgroup_corr(aa,v,vars(skupina_k5), 3) %>% knitr::kable(caption="pet skupin, skupina 3") 
+subgroup_corr(aa,v,vars(skupina_k5), 4) %>% knitr::kable(caption="pet skupin, skupina 4") 
+subgroup_corr(aa,v,vars(skupina_k5), 5) %>% knitr::kable(caption="pet skupin, skupina 5") 
+```
+
 
 # Clusterováni na základě typu proběhlých programů
 
-```{r}
+```{r clusterovani - typ programu}
+cluster_var <- vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce)
 
-plot_cluster <- function(df,k_group, data_vars, xlabel = "akce",ylim_min = 0, ylim_max = 1 ){
-  df$gr <- df[[k_group]]
-  df %>% 
-  group_by(gr) %>% 
-  summarize_at(.vars = data_vars, .funs = mean) %>%
-  gather(key = xlabel, value = "prumer", -gr) %>%
-  ggplot(aes(x = xlabel, y = prumer)) +
-  geom_point() + 
-  facet_wrap(~gr) + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  ylim(ylim_min, ylim_max)
-}
-
-plot_cluster2 <- function(df,k_group, data_vars, xlabel = "akce",ylim_min = 0, ylim_max = 1 ){
-  df$gr <- df[[k_group]]
-  df %>% 
-  group_by(gr) %>% 
-  summarize_at(.vars = data_vars, .funs = mean) %>%
-  gather(key = xlabel, value = "prumer", -gr) %>%
-  ggplot(aes(x = xlabel, y = prumer, col = as.factor(gr), group = as.factor(gr))) +
-  geom_point() +
-    geom_line() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  ylim(ylim_min, ylim_max)
-}
-
-sondy_program_tmp <- sondy %>% select(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce) %>% mutate_all(funs(recode(.,"Ano"=T,"Ne"=F,"N/A"=NA))) %>%
-mutate(id = sondy$id) %>% 
-  filter(!is.na(roverske_akce_probehle_2roky_zavody))
+sondy_program_tmp <- sondy %>% 
+  select_at(cluster_var) %>% 
+  mutate_all(funs(recode(.,"Ano"=T,"Ne"=F,"N/A"=NA))) %>%
+  mutate(id = sondy$id) %>% 
+  filter(!is.na(roverske_akce_probehle_2roky_zavody)) 
 
 sondy_program <- sondy_program_tmp %>% 
-  mutate(k2 = kmeans(sondy_program_tmp %>% select(-id),2)$cluster,
-         k3 = kmeans(sondy_program_tmp %>% select(-id),3)$cluster,
-         k4 = kmeans(sondy_program_tmp %>% select(-id),4)$cluster,
-         k5 = kmeans(sondy_program_tmp %>% select(-id),5)$cluster,
-         k6 = kmeans(sondy_program_tmp %>% select(-id),6)$cluster,
-         k7 = kmeans(sondy_program_tmp %>% select(-id),7)$cluster,
-         k8 = kmeans(sondy_program_tmp %>% select(-id),8)$cluster,
-         k9 = kmeans(sondy_program_tmp %>% select(-id),9)$cluster,
-         k10 = kmeans(sondy_program_tmp  %>% select(-id),10)$cluster)
-         
-plot_cluster2(sondy_program, "k2", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
+  mutate(skupina_k2 = kmeans(sondy_program_tmp %>% select(-id),2)$cluster,
+         skupina_k3 = kmeans(sondy_program_tmp %>% select(-id),3)$cluster,
+         skupina_k4 = kmeans(sondy_program_tmp %>% select(-id),4)$cluster,
+         skupina_k5 = kmeans(sondy_program_tmp %>% select(-id),5)$cluster,
+         skupina_k6 = kmeans(sondy_program_tmp %>% select(-id),6)$cluster,
+         skupina_k7 = kmeans(sondy_program_tmp %>% select(-id),7)$cluster,
+         skupina_k8 = kmeans(sondy_program_tmp %>% select(-id),8)$cluster,
+         skupina_k9 = kmeans(sondy_program_tmp %>% select(-id),9)$cluster,
+         skupina_k10 = kmeans(sondy_program_tmp  %>% select(-id),10)$cluster)
 
-plot_cluster2(sondy_program, "k3", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
-plot_cluster2(sondy_program, "k4", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
-plot_cluster2(sondy_program, "k5", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
-plot_cluster2(sondy_program, "k6", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
+l <- c("zavody", "expedice", "tabor", "programy", "pobyt v prirode", "zahranicni akce", "kulturni akce", "diskuze", "tradicni akce", "setkani bez programu/hospoda", "sluzba", "velke rs akce", "vzdelavaci akce")
 
-plot_cluster2(sondy_program, "k7", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
-plot_cluster2(sondy_program, "k8", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
-plot_cluster2(sondy_program, "k9", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
-plot_cluster(sondy_program, "k10", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
-
-plot_cluster2(sondy_program, "k5", vars(roverske_akce_probehle_2roky_zavody:roverske_akce_kurzy_vzdelavaci_akce))  
+sondy_program %>% summarize_group_typ_programu() %>% plot_sondy_clusters(l)
+sondy_program %>% summarize_group_typ_programu("skupina_k2") %>% plot_sondy_clusters(l)
+sondy_program %>% summarize_group_typ_programu("skupina_k3") %>% plot_sondy_clusters(l)
+sondy_program %>% summarize_group_typ_programu("skupina_k4") %>% plot_sondy_clusters(l)
+sondy_program %>% summarize_group_typ_programu("skupina_k5") %>% plot_sondy_clusters(l)
+sondy_program %>% summarize_group_typ_programu("skupina_k6") %>% plot_sondy_clusters(l)
+sondy_program %>% summarize_group_typ_programu("skupina_k7") %>% plot_sondy_clusters(l)
+sondy_program %>% summarize_group_typ_programu("skupina_k8") %>% plot_sondy_clusters(l)
+sondy_program %>% summarize_group_typ_programu("skupina_k9") %>% plot_sondy_clusters(l)
+sondy_program %>% summarize_group_typ_programu("skupina_k10") %>% plot_sondy_clusters(l)
 
 ```
 
@@ -359,37 +302,33 @@ plot_cluster2(sondy_program, "k5", vars(roverske_akce_probehle_2roky_zavody:rove
 
 ```{r korelace po skupinach}
 
-
-ab <- sondy %>% left_join(sondy_program %>% select(id, k2:k10), by = "id") %>% cisti_data()
+ab <- sondy %>% left_join(sondy_program %>% select(id, skupina_k2:skupina_k10), by = "id") %>% cisti_data()
 
 v <- vars(spokojenost_s_frekvenci_akci2, celkova_spokojenost_s_programem_rs_kmenu, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_schuzky, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice,vychovne_nastroje_vyzvy:vychovne_nastroje_vlastni_stezka, vlastni_zvyklosti_nic:vlastni_zvyklosti_ritual_predavani_vudcovstvi,rs_kmen_prvky_vudce:rs_kmen_prvky_ani_jedno)
 
-c1 <- ab %>% 
-  filter(k2 == 1) %>%
-  select(v) %>% 
-  as.matrix() %>% Hmisc::rcorr(type = "spearman")
-c1$r%>% round(2) %>% knitr::kable()
+subgroup_corr(ab,v,vars(skupina_k2), 1) %>% knitr::kable(caption="dve skupiny, skupina 1") 
+subgroup_corr(ab,v,vars(skupina_k2), 2) %>% knitr::kable(caption="dve skupiny, skupina 2") 
 
-c2 <- ab %>% 
-  filter(k2 == 2) %>%
-  select(v) %>% 
-  as.matrix() %>% Hmisc::rcorr(type = "spearman")
-c2$r%>% round(2) %>% knitr::kable()
+subgroup_corr(ab, v, vars(skupina_k3), 1) %>% knitr::kable(caption="tri skupiny, skupina 1") 
+subgroup_corr(ab, v, vars(skupina_k3), 2) %>% knitr::kable(caption="tri skupiny, skupina 2") 
+subgroup_corr(ab, v, vars(skupina_k3), 3) %>% knitr::kable(caption="tri skupiny, skupina 3") 
 
-(c1$r - c2$r) %>% round(2) %>% knitr::kable() 
-
-ab %>% 
-  group_by(k2) %>%
-  summarize_at(v, .funs = funs(mean,sd),na.rm = T) %>% 
-  round(2) %>%  t()
+subgroup_corr(ab, v, vars(skupina_k4), 1) %>% knitr::kable(caption="ctyri skupiny, skupina 1") 
+subgroup_corr(ab, v, vars(skupina_k4), 2) %>% knitr::kable(caption="ctyri skupiny, skupina 2") 
+subgroup_corr(ab, v, vars(skupina_k4), 3) %>% knitr::kable(caption="ctyri skupiny, skupina 3") 
+subgroup_corr(ab, v, vars(skupina_k4), 4) %>% knitr::kable(caption="ctyri skupiny, skupina 4") 
 
 ```
 
-```{r dvoje kmeans}
-dva_kmeans <- ab %>% left_join(sondy_podil_casu %>% select(-(podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine)), by = "id")
-xtabs(~k2+skupina_k3, dva_kmeans)
-xtabs(~k2+skupina_k3, dva_kmeans) %>% chisq.test()
-xtabs(~k2+skupina_k4, dva_kmeans)
-xtabs(~k2+skupina_k4, dva_kmeans) %>% chisq.test()
+# Korelace mezi podilem cinnosti a typem programu
 
+```{r korealce mezi clustery}
+podilcasu_program <- sondy_podil_casu %>% rename(podilcasu2 = skupina_k2,podilcasu3 = skupina_k3,
+                            podilcasu4 = skupina_k4,podilcasu5 = skupina_k5) %>% left_join(sondy_program, by = "id") 
+podilcasu_program %>% select(podilcasu2:podilcasu5,skupina_k2:skupina_k10) %>% as.matrix() %>% Hmisc::rcorr() %>% format_corrtable()
+
+xtabs(~podilcasu5+skupina_k2, podilcasu_program)
+xtabs(~podilcasu3+skupina_k2, podilcasu_program)
 ```
+
+Nvychazi tam zadna zajimava souvislost
