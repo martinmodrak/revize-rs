@@ -9,6 +9,7 @@ library(brms)
 library(scico)
 library(mice)
 library(here)
+library(cowplot)
 options(mc.cores=parallel::detectCores())
 ```
 
@@ -160,6 +161,11 @@ replace_na <- function(x) {
   if_else(is.na(x), "Neuvedeno", as.character(x)) %>% factor()
 }
 
+normalized_translator <- function(x) {
+  function(val) {
+    (val - mean(x, na.rm = TRUE)) / sd(x, na.rm = TRUE)
+  }
+}
 
 zakladni_data_pro_model <- sondy %>% 
   filter(!is.na(kolik_let_rs_kmen_funguje), !is.na(kmen_kolik_aktivnich_lidi)) %>%
@@ -171,11 +177,16 @@ zakladni_data_pro_model <- sondy %>%
     je_vice_rs_kmenu_ve_stredisku = replace_na(je_vice_rs_kmenu_ve_stredisku),
     je_rs_kmen_registrovany = replace_na(je_rs_kmen_registrovany),
     povazujes_se_za_rovera = replace_na(povazujes_se_za_rovera),
+    kmen_kolik_aktivnich_lidi_orig = kmen_kolik_aktivnich_lidi,
+    kolik_let_rs_kmen_funguje_orig = kolik_let_rs_kmen_funguje,
     kmen_kolik_aktivnich_lidi = std_normalize(kmen_kolik_aktivnich_lidi),
     kolik_let_rs_kmen_funguje = std_normalize(kolik_let_rs_kmen_funguje),
     organizace_spolecenstvi = replace_na(organizace_spolecenstvi),
     povazujes_se_za_rovera = replace_na(fct_recode(povazujes_se_za_rovera, Ano = "Ano, považuji se za rovera/rangers", Ne_ale_budu = "Ne, nyní se nepovažuji za rovera/rangers, ale myslím, že rover/rangers budu", Ne_ale_byl =  "Ne, nyní se nepovažuji za rovera/rangers, ale dříve jsem byl/a"))
     )
+
+normalized_translator_aktivni_lide <- normalized_translator(zakladni_data_pro_model$kmen_kolik_aktivnich_lidi_orig)
+normalized_translator_let_funguje <- normalized_translator(zakladni_data_pro_model$kolik_let_rs_kmen_funguje)
 
 spokojenost_pro_model <- zakladni_data_pro_model %>%
   filter(!is.na(celkova_spokojenost_s_programem_rs_kmenu))
@@ -215,6 +226,114 @@ stanplot(fit_spokojenost, pars = "(^r_[^a-n])",type = "intervals") + #The regex 
   my_scale 
 
 ```
+
+
+```{r}
+effects_by_prediction <- function(fit, orig_data, var_name, var_values, var_labels = var_values, response_title, num_low_categories, n_samples = 500, max_lines = 200) {
+
+    data_for_prediction_all_values <- var_values %>% imap_dfr(function(var_value, var_value_index) {
+    data_for_prediction <- orig_data
+    data_for_prediction[, var_name] <- var_value
+    data_for_prediction$var_value_index <- var_value_index
+    data_for_prediction 
+  })
+  
+  prediction_array <- posterior_linpred(fit, newdata = data_for_prediction_all_values, nsamples = n_samples, transform = TRUE)
+  prediction <- apply(prediction_array, MARGIN = c(1,2), FUN = function(x) {1 - sum(x[1:num_low_categories])})
+  
+  predicted_data <- prediction %>% t() %>% as.tibble() %>% 
+      mutate(id = data_for_prediction_all_values$id, 
+             var_value = factor(data_for_prediction_all_values[[var_name]], levels = var_values, labels = var_labels), 
+             var_value_index = data_for_prediction_all_values$var_value_index) %>%  
+      gather("sample", "response", -id, -var_value, -var_value_index) %>%
+      mutate(sample = factor(sample), id_sample = factor(paste(id, sample, sep = "__"))) 
+  
+  predicted_data_for_lines <- predicted_data %>%
+      filter(id_sample %in% sample(unique(id_sample), max_lines))
+
+  data_sign <- predicted_data_for_lines %>% filter(var_value_index < length(var_values)) %>%
+    mutate(next_var_value_index = var_value_index + 1) %>%
+    inner_join(predicted_data_for_lines %>% select(id_sample, response, var_value_index) %>% rename(next_response = response, next_var_value_index = var_value_index),
+         by = c("id_sample" = "id_sample", "next_var_value_index" = "next_var_value_index")) %>%
+    mutate(sign = if_else(response < next_response, "positive","negative") %>% 
+             factor(levels = c("negative", "positive"))) %>%
+    select(var_value_index, sign, id_sample)
+  
+  # data_diff %>%
+  #   mutate(increased = next_value > value, equal = next_value == value, decreased = next_value < value,
+  #          change = paste0(var_values[var_value_index], "->", var_values[next_var_value_index])) %>%
+  #   group_by(change, sample) %>%
+  #   summarise(increased = mean(increased), equal = mean(equal), decreased = mean(decreased)) %>%
+  #   gather("type","chance", increased, equal, decreased) %>%
+  #   ggplot(aes(x = type, y = chance, group = type)) + geom_boxplot() + facet_wrap(~change)
+  # 
+  
+  predicted_data_for_lines_sign <- predicted_data_for_lines %>%
+    left_join(data_sign, by = c("var_value_index","id_sample")) %>%
+    mutate(sign = if_else(is.na(sign), factor("positive", levels = c("negative","positive")),sign))
+  
+  predicted_data %>%
+    group_by(var_value) %>%
+    summarise(Estimate = median(response), 
+              lower = quantile(response, 0.025),
+              upper = quantile(response, 0.975),
+              lower50 = quantile(response, 0.25),
+              upper50 = quantile(response, 0.75)
+              ) %>%
+    ggplot(aes(x = var_value)) +
+      geom_line(data = predicted_data_for_lines_sign,
+                mapping = aes(x = var_value, y = response, group = id_sample, color = sign),
+                inherit.aes = FALSE,
+                alpha = 0.2) +
+      geom_linerange(aes(ymin = lower50, ymax = upper50), size = 2) +
+      geom_linerange(aes(ymin = lower, ymax = upper)) +
+      scale_color_discrete(drop = FALSE) +
+      scale_y_continuous(response_title, limits = c(0,1)) +
+      scale_x_discrete(var_name) +
+      guides(color = guide_legend(override.aes = list(alpha=1))) +
+      if(length(var_values) > 4 && max(nchar(var_labels) > 4)) {
+        theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) 
+      } else {
+        NULL
+      }
+  
+}
+```
+
+```{r}
+effects_by_prediction_spokojenost <- function(var_name, var_values = levels(spokojenost_pro_model[[var_name]]), var_labels = var_values) {
+  effects_by_prediction(fit_spokojenost, spokojenost_pro_model, var_name, var_values, var_labels = var_labels,
+                        num_low_categories = 2, response_title = "P(spíše spokojen než ne)")
+}
+
+pocty_lidi <- seq(5,30, by = 5)
+effects_by_prediction_spokojenost("kmen_kolik_aktivnich_lidi", normalized_translator_aktivni_lide(pocty_lidi), var_labels = pocty_lidi)
+
+roky_kmene <- c(1,2,3,4,5)
+effects_by_prediction_spokojenost("kolik_let_rs_kmen_funguje", normalized_translator_let_funguje(roky_kmene), var_labels = roky_kmene )
+
+
+effects_by_prediction_spokojenost("rs_kmen_prvky_vudce", c("Ne", "Ano"))
+
+effects_by_prediction_spokojenost("rs_kmen_prvky_vudce", c("Ne", "Ano"))
+effects_by_prediction_spokojenost("rs_kmen_prvky_rada", c("Ne", "Ano"))
+effects_by_prediction_spokojenost("organizace_spolecenstvi", c("Nevím", "Neuvedeno","vudce","uzka_skupina", "vsichni"))
+
+effects_by_prediction_spokojenost("povazujes_se_za_rovera", c("Neuvedeno","Ne_ale_budu","Ne_ale_byl", "Ano"))
+
+effects_by_prediction_spokojenost("studium_ve_meste_strediska", c("Ne", "Ano"))
+
+effects_by_prediction_spokojenost("max_funkce")
+
+effects_by_prediction_spokojenost("je_vice_rs_kmenu_ve_stredisku")
+effects_by_prediction_spokojenost("je_rs_kmen_registrovany")
+
+
+
+```
+
+
+
 
 Aktivita - vyhodime, kdo nevyplnil vse, pokud vyplnil aspon jedno, dame vsude jinde "Nikdy"
 
