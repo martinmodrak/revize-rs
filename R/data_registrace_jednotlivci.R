@@ -13,6 +13,13 @@ registrace_jednotlivci <- function() {
            rok_narozeni = year(Birthday),
            vek = Year - rok_narozeni)
 
-  cat("Data obsahují", sum(registrace$ID_Sex == "NULL"), "řádků s neznámým pohlavím. Ignoruji je.")
+  cat("Data obsahují", sum(registrace$ID_Sex == "NULL"), "řádků s neznámým pohlavím. Ignoruji je.\n")
   registrace <- registrace %>% filter(ID_Sex != "NULL") %>% droplevels()
+
+  registrovani_pred_narozenim <- registrace %>% filter(rok_narozeni >= Year) %>% get("Person_PseudoID",.) %>% unique()
+
+  cat("Data obsahují", length(registrovani_pred_narozenim), "osob, které byly registrovány dříve, než se narodily. Ignoruji je.\n")
+  registrace <- registrace %>% filter(!(Person_PseudoID %in% registrovani_pred_narozenim))
+
+  registrace
 }

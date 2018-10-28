@@ -13,8 +13,13 @@ library(tidyverse)
 library(forcats)
 library(here)
 library(bindrcpp)
+library(brms)
+options(mc.cores=parallel::detectCores())
+library(cowplot)
 
-source(here("R","data_registrace_jednotlivci.R"), encoding = "UTF-8")
+source(here::here("R","data_registrace_jednotlivci.R"), encoding = "UTF-8")
+source(here::here("R","tools_brms.R"))
+source(here::here("R","tools_odchody.R"))
 ```
 
 ```{r}
@@ -65,19 +70,21 @@ stopifnot(all(zacatky(c(2008,2001,2002,2003,2005,2006,2007,2011,2012), 0) == c(2
 Zkontroluji, jak časté jsou přestávky v členství
 
 ```{r}
-tolerovana_prestavka <- 1
+tolerovana_prestavka <- 0
 
 rozsah_clenstvi <- registrace %>%
   group_by(Person_PseudoID) %>%
   summarise(rok_narozeni = unique(rok_narozeni), ID_Sex = unique(ID_Sex),
             
             prvni_registrace = min(Year), posledni_registrace = max(Year), 
-            prvni_konec = min(konce(Year, tolerovana_prestavka = 1)),
-            konec_do_12_let = any(konce(Year, tolerovana_prestavka = 1) - rok_narozeni <= 12),
-            konec_13_az_16_let = any(between(konce(Year, tolerovana_prestavka = 1) - rok_narozeni, 13, 16)),
+            prvni_konec = min(konce(Year, tolerovana_prestavka = tolerovana_prestavka)),
+            konec_do_12_let = any(konce(Year, tolerovana_prestavka = tolerovana_prestavka) - rok_narozeni <= 12),
+            konec_13_az_16_let = any(between(konce(Year, tolerovana_prestavka = tolerovana_prestavka) - rok_narozeni, 13, 16)),
             prestavky_celkem_let =  (posledni_registrace - prvni_registrace + 1) - length(unique(Year)),
             pocet_prestavek = sum(diff(sort(Year)) > 1)
-            )
+            ) %>%
+    mutate(delka_clenstvi = posledni_registrace - prvni_registrace)
+
 
 ```
 
@@ -88,8 +95,9 @@ rozsah_clenstvi %>% group_by(prestavky_celkem_let) %>% summarise(pocet_osob = le
 cat("Počet členů kteří odešli do 12 let a pak znovu do 16ti let:", sum(rozsah_clenstvi$konec_do_12_let & rozsah_clenstvi$konec_13_az_16_let))
 ```
 
-Pro další analýzy budeme brát přestávku jednoho roku jako souvislé členství. 
-Bohužel je tu (po započítání přestávky) tedy dost lidí, kteří odešli vícekrát a to i ve věku, který nás zajímá. Budeme tedy zvlášť analyzovat první odchody a poslední odchody.
+Bohužel je tu dost lidí, kteří odešli vícekrát a to i ve věku, který nás zajímá. Budeme tedy zvlášť analyzovat první odchody a poslední odchody.
+V této analýze bereme neregistraci jako konec členství. Výsledky jsou ale podobné i když vezmeme jednoroční přestávku jako souvislé členství.
+
 
 ```{r}
 pocty_clenu_rok_vek_pohlavi <- registrace %>%
@@ -100,31 +108,37 @@ pocty_clenu_rok_vek_pohlavi <- registrace %>%
 
 ## Poslední odchody
 
-Zde vidíme, jaká část členské základny Junáka daného věku odešla v daném roce (tj. když v roce 2006 měl Junáka 5000 dvanáctiletých děvčat a 500 dvanáctiletých děvčat ten rok odešlo, bude uvedeno 0.1). Sledujeme poslední odchody, tj. rok, kdy se naposledy registrovali. 
+Zde vidíme, jaká část členské základny Junáka daného věku odešla v daném roce (tj. když v roce 2006 měl Junáka 5000 dvanáctiletých děvčat a 500 dvanáctiletých děvčat ten rok odešlo, bude uvedeno 0.1). Pruh kolem údajů ukazuje očekávanou nejistotu (vychází z celkového počtu členů v kategorii) Sledujeme poslední odchody, tj. rok, kdy se naposledy registrovali. 
 
 
 ```{r}
-plot_odchody <- function(odchody, pocty_clenu_rok_vek_pohlavi, additional_info = NULL) {
-if(is.null(additional_info)) {
-  odchody$kategorie = odchody$ID_Sex
-} else 
-{
-  odchody$kategorie = factor(paste(odchody$ID_Sex, additional_info))
+plot_odchody <- function(odchody, pocty_clenu_rok_vek_pohlavi, additional_info = NULL, min_vek_odchodu = 9, max_vek_odchodu = 21) {
+  if(is.null(additional_info)) {
+    odchody$kategorie = odchody$ID_Sex
+  } else 
+  {
+    odchody$kategorie = factor(paste(odchody$ID_Sex, additional_info))
+  }
+
+  sumar_odchodu <- odchody %>%
+    filter(vek_odchodu >= min_vek_odchodu, vek_odchodu <= max_vek_odchodu, rok_odchodu > 2011) %>%
+    group_by(ID_Sex, kategorie, vek_odchodu, rok_odchodu) %>%
+    summarise(pocet_odeslych = length(Person_PseudoID)) %>%
+    inner_join(pocty_clenu_rok_vek_pohlavi, by = c("vek_odchodu" = "vek", "rok_odchodu" = "Year", "ID_Sex" = "ID_Sex")) %>% 
+    mutate(podil_odchazejicich = pocet_odeslych / pocet_clenu_v_kategorii,
+           lower = qbeta(0.025, pocet_odeslych + 1, pocet_clenu_v_kategorii - pocet_odeslych + 1),
+           upper = qbeta(0.975, pocet_odeslych + 1, pocet_clenu_v_kategorii - pocet_odeslych + 1)
+           )
+
+
+  sumar_odchodu %>% 
+    ggplot(aes(x = vek_odchodu, y = podil_odchazejicich, ymin = lower, ymax = upper, fill = kategorie)) + 
+    geom_ribbon(alpha = 0.1) +
+    geom_vline(xintercept = 15, size = 1, linetype = "dashed", color = "gray") +
+    geom_line(aes(color = kategorie)) +
+    facet_wrap(~ rok_odchodu)
+
 }
-
-  sumar_odchodu <- odchody %>% 
-  group_by(ID_Sex, kategorie, vek_odchodu, rok_odchodu) %>%
-  summarise(pocet_odeslych = length(Person_PseudoID)) %>%
-  inner_join(pocty_clenu_rok_vek_pohlavi, by = c("vek_odchodu" = "vek", "rok_odchodu" = "Year", "ID_Sex" = "ID_Sex")) %>% 
-  mutate(podil_odchazejicich = pocet_odeslych / pocet_clenu_v_kategorii)
-
-
-sumar_odchodu %>% filter(vek_odchodu >= 9, vek_odchodu <= 21, rok_odchodu > 2010) %>%
-  ggplot(aes(x = vek_odchodu, y = podil_odchazejicich, color = kategorie)) + geom_line() + 
-  facet_wrap(~ rok_odchodu)
-
-}
-
 ```
 
 
@@ -136,11 +150,11 @@ posledni_odchody <- rozsah_clenstvi %>%
 plot_odchody(posledni_odchody, pocty_clenu_rok_vek_pohlavi)
 
 ```
-Data mají sestupný trend v čase (tj. poslední dobou méně lidí odchází) ale nutno podotknout, že zde očekáváme sestupný trend v čase i kdyby se nic neměnilo - část lidí se do Junáka vrací a ti z posledních let kteří se v budoucnu vrátí jsou v grafu vedeni jako ztracení. Neukazují ale výrazný vrchol kolem 15tého roku.
+Data mají mírně sestupný trend v čase (tj. poslední dobou méně lidí odchází) ale nutno podotknout, že zde očekáváme sestupný trend v čase i kdyby se nic neměnilo - část lidí se do Junáka vrací a ti z posledních let kteří se v budoucnu vrátí jsou v grafu vedeni jako ztracení. Neukazují ale výrazný vrchol kolem 15tého roku.
 
 ## První odchody
 
-Můžeme se ještě podívat na první odchody, tj. kdy poprvé měl člověk v členství delší pauzu dvou let. Ti, kteří se pak vrátili jsou počítáni pouze ke svému prvnímu odchodu.
+Můžeme se ještě podívat na první odchody, tj. kdy poprvé měl člověk v pauzu v registraci. Ti, kteří se pak vrátili jsou počítáni pouze ke svému prvnímu odchodu.
 
 
 ```{r}
@@ -160,9 +174,9 @@ V grafech výše  se spíše nevyskytuje žádná špička u přechodu do rovers
 
 
 ```{r}
-plot_odchody_minimalni_delka <- function(posledni_odchody, registrace, minimalni_delka_clenstvi) {
+plot_odchody_minimalni_delka <- function(odchody, registrace, minimalni_delka_clenstvi, min_vek_odchodu = 9, max_vek_odchodu = 21) {
 
-  posledni_odchody_2_roky <- posledni_odchody %>%
+  odchody_2_roky <- odchody %>%
     mutate(roku_clenstvi = posledni_registrace - prvni_registrace - prestavky_celkem_let) %>%
     filter(roku_clenstvi >= minimalni_delka_clenstvi) 
   
@@ -173,11 +187,100 @@ plot_odchody_minimalni_delka <- function(posledni_odchody, registrace, minimalni
     summarise(pocet_clenu_v_kategorii = length(unique(Person_PseudoID)))
   
   
-  plot_odchody(posledni_odchody_2_roky, pocty_clenu_rok_vek_pohlavi_2_roky) + ggtitle(paste("Členství alespoň ", minimalni_delka_clenstvi, "roky"))
+  plot_odchody(odchody_2_roky, pocty_clenu_rok_vek_pohlavi_2_roky, min_vek_odchodu = min_vek_odchodu, max_vek_odchodu = max_vek_odchodu) + ggtitle(paste("Členství alespoň ", minimalni_delka_clenstvi, "roky"))
 }
 
-plot_odchody_minimalni_delka(posledni_odchody, registrace, 2)
-plot_odchody_minimalni_delka(posledni_odchody, registrace, 4)
+#Nezobrazuji 9ti lete, protoze je tam dost malo odchazejicich dlouhodobych
+plot_odchody_minimalni_delka(posledni_odchody, registrace, 2, min_vek_odchodu = 10)
+plot_odchody_minimalni_delka(posledni_odchody, registrace, 4, min_vek_odchodu = 10)
 ```
 
-U dlouhodobějších členů lze najít vrchol někde kolem 15 roku věku, ale zejména u opravdu dlouhodobých členů se nezdá velmi výrazný (tedy vzhledem k odchodům během skautských let). Je nicméně hloupé, že ty jzkušenější nejspíš skutečně ztrácíme v přechodu do roverského věku o něco víc.
+```{r}
+plot_odchody_minimalni_delka(prvni_odchody, registrace, 2, min_vek_odchodu = 10)
+plot_odchody_minimalni_delka(prvni_odchody, registrace, 4, min_vek_odchodu = 10)
+
+```
+
+
+U dlouhodobějších členů lze najít vrchol někde kolem 15 roku věku, ale zejména u opravdu dlouhodobých členů se nezdá velmi výrazný (tedy vzhledem k odchodům během skautských let). Data ale nevylučují, že by množství odchodů bylo téměř konstantní během celého skautského věku
+
+# Analýza s modelem
+
+```{r}
+rozsah_clenstvi %>% 
+  filter(posledni_registrace >= 2012, posledni_registrace < 2018, prvni_registrace > 2003) %>%
+  ggplot(aes(x=delka_clenstvi)) + geom_histogram(binwidth = 1)
+```
+
+```{r}
+clenstvi_pro_model_neseskupeno <- 
+  registrace %>%
+  mutate(vek = Year - rok_narozeni) %>%
+  filter(Year >= 2013, Year <= 2017, vek >= 6 & vek <= 21) %>%
+  inner_join(rozsah_clenstvi %>% select(-rok_narozeni, -ID_Sex), by = c("Person_PseudoID" = "Person_PseudoID")) %>%
+  mutate(ukonceno = Year == posledni_registrace) 
+
+clenstvi_pro_model <- clenstvi_pro_model_neseskupeno %>%
+  group_by(Year, vek, ID_Sex) %>%
+  summarise(n_ukonceno = sum(ukonceno), pocet = length(Person_PseudoID)) %>%
+  ungroup() %>%
+  mutate(year_normalized = std_normalize(Year),
+         vek_normalized = std_normalize(vek))
+  
+formula_ukonceno_vek_pohlavi <- brmsformula(n_ukonceno | trials(pocet) ~ s(vek_normalized, k = 10) + ID_Sex, family = "binomial")
+
+#get_prior(formula_ukonceno, data = clenstvi_pro_model)
+fit_ukonceno_vek_pohlavi <- brm(formula_ukonceno_vek_pohlavi, data = clenstvi_pro_model, here::here("local_data","fit_ukonceno_vek_pohlavi"))
+
+fit_ukonceno_vek_pohlavi
+
+# my_scale <- scale_y_discrete(labels = function(x) { gsub(",Intercept","", x)})
+# 
+# stanplot(fit_ukonceno_vek_pohlavi, type = "intervals") + #The regex for pars should filter out the intercept terms 
+#   my_scale 
+# 
+# run_pp_checks(fit_ukonceno_vek_pohlavi, clenstvi_pro_model)
+
+veky = 6:21
+data_for_prediction <- tibble(vek = veky, vek_normalized = (normalized_translator(clenstvi_pro_model$vek)(veky))) %>% 
+  crossing(tibble(ID_Sex = c("male","female"))) %>%
+  mutate(pocet = 1)
+
+predicted <- fitted(fit_ukonceno_vek_pohlavi, newdata = data_for_prediction, nsamples = 1000, probs = c(0.025,0.25,0.75,0.975)) %>%
+  cbind(data_for_prediction)  
+  
+predicted %>% ggplot(aes(x = vek, y = Estimate, group = ID_Sex, fill = ID_Sex)) + geom_line(aes(color = ID_Sex)) + 
+  geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5), alpha = 0.1) +     
+  geom_vline(xintercept = 15, size = 1, linetype = "dashed", color = "gray")
+
+```
+
+```{r}
+clenstvi_pro_model_delka <- clenstvi_pro_model_neseskupeno %>%
+  group_by(vek, ID_Sex, delka_clenstvi) %>%
+  summarise(n_ukonceno = sum(ukonceno), pocet = length(Person_PseudoID)) %>%
+  ungroup() %>%
+  mutate(
+         vek_normalized = std_normalize(vek),
+         delka_clenstvi_normalized = std_normalize(delka_clenstvi))
+  
+formula_ukonceno_vek_pohlavi_delka <- brmsformula(update.formula(formula_ukonceno_vek_pohlavi, . ~ . + s(delka_clenstvi)), family = "binomial")
+
+#get_prior(formula_ukonceno, data = clenstvi_pro_model)
+fit_ukonceno_vek_pohlavi_delka <- brm(formula_ukonceno_vek_pohlavi_delka, data = clenstvi_pro_model_delka, here::here("local_data","fit_ukonceno_vek_pohlavi_delka"))
+
+fit_ukonceno_vek_pohlavi_delka
+
+delky = c(2,3,4)
+data_for_prediction_delka <- data_for_prediction %>% 
+  crossing(tibble(delka_clenstvi = delky, delka_clenstvi_normalized = (normalized_translator(clenstvi_pro_model_delka$delka_clenstvi)(delky))))
+
+predicted <- fitted(fit_ukonceno_vek_pohlavi_delka, newdata = data_for_prediction_delka, nsamples = 1000, probs = c(0.025,0.25,0.75,0.975)) %>%
+  cbind(data_for_prediction_delka)  
+  
+predicted %>% ggplot(aes(x = vek, y = Estimate, group = ID_Sex, fill = ID_Sex)) + geom_line(aes(color = ID_Sex)) + 
+  geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5), alpha = 0.1) +     
+  geom_vline(xintercept = 15, size = 1, linetype = "dashed", color = "gray") + facet_wrap(~ delky, ncol = 1)
+
+```
+
