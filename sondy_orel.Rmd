@@ -11,6 +11,8 @@ library(mice)
 library(here)
 library(cowplot)
 options(mc.cores=parallel::detectCores())
+
+source(here::here("R","tools_brms.R"))
 ```
 
 ```{r}
@@ -39,7 +41,7 @@ sondy <- sondy %>%
     ),
     max_funkce_v_kmeni = fct_relevel(max_funkce_v_kmeni, "vudce","rada","jine","clen", "zadna"),
     celkova_spokojenost_s_programem_rs_kmenu = fct_relevel(celkova_spokojenost_s_programem_rs_kmenu, "Velmi nespokojen/a", "Spíše nespokojen/a","Spíše spokojen/a","Velmi spokojen/a"),
-    organizace_spolecenstvi = fct_recode(vyrok_o_spolecenstvi, uzka_skupina = "Program připravuje úzká skupina lidí", vsichni =  "Na přípravě programu se podílí různí členové podle toho, o jakou činnost se jedná.", vudce =  "Program připravuje vůdce/vůdkyně kmene nebo roverského společenství"   ),
+    kdo_pripravuje_program = fct_recode(vyrok_o_spolecenstvi, uzka_skupina = "Program připravuje úzká skupina lidí", vsichni =  "Na přípravě programu se podílí různí členové podle toho, o jakou činnost se jedná.", vudce =  "Program připravuje vůdce/vůdkyně kmene nebo roverského společenství"   ),
     studium_ve_meste_strediska = fct_recode(studium_ve_meste_strediska, Ne = "Ne, většinu roku trávím mimo místo, kde mám svoje středisko")
   )
 ```
@@ -112,7 +114,7 @@ plot_spokojenost(spokojenost, "je_vice_rs_kmenu_ve_stredisku")
 plot_spokojenost(spokojenost, "je_rs_kmen_registrovany")
 
 plot_spokojenost(spokojenost, "povazujes_se_za_rovera")
-plot_spokojenost(spokojenost, "organizace_spolecenstvi")
+plot_spokojenost(spokojenost, "kdo_pripravuje_program")
 
 ```
 
@@ -153,19 +155,6 @@ V zásadě se dá říct, že model podporuje to, co jsme  viděli v grafech vý
 TODO: rozmyslet 1||x vs x (první se lépe čte, ale pro binární není moc vhodné)
 
 ```{r, message=FALSE}
-std_normalize <- function(x) {
-  (x - mean(x, na.rm = TRUE)) / sd(x, na.rm = TRUE)
-}
-
-replace_na <- function(x) {
-  if_else(is.na(x), "Neuvedeno", as.character(x)) %>% factor()
-}
-
-normalized_translator <- function(x) {
-  function(val) {
-    (val - mean(x, na.rm = TRUE)) / sd(x, na.rm = TRUE)
-  }
-}
 
 zakladni_data_pro_model <- sondy %>% 
   filter(!is.na(kolik_let_rs_kmen_funguje), !is.na(kmen_kolik_aktivnich_lidi)) %>%
@@ -173,6 +162,9 @@ zakladni_data_pro_model <- sondy %>%
     celkova_spokojenost_int = as.integer(celkova_spokojenost_s_programem_rs_kmenu),
     pohlavi = if_else(pohlavi == "N/A", "Neuvedeno", pohlavi),
     je_ve_meste_univezita = if_else(je_ve_meste_univezita == "N/A", "Neuvedeno", je_ve_meste_univezita),
+    kraj = replace_na(kraj),
+    velikost_obce = replace_na(velikost_obce),
+    pocet_obyvatel_kde_stredisko = replace_na(pocet_obyvatel_kde_stredisko),
     studium_ve_meste_strediska = replace_na(studium_ve_meste_strediska), 
     je_vice_rs_kmenu_ve_stredisku = replace_na(je_vice_rs_kmenu_ve_stredisku),
     je_rs_kmen_registrovany = replace_na(je_rs_kmen_registrovany),
@@ -181,12 +173,12 @@ zakladni_data_pro_model <- sondy %>%
     kolik_let_rs_kmen_funguje_orig = kolik_let_rs_kmen_funguje,
     kmen_kolik_aktivnich_lidi = std_normalize(kmen_kolik_aktivnich_lidi),
     kolik_let_rs_kmen_funguje = std_normalize(kolik_let_rs_kmen_funguje),
-    organizace_spolecenstvi = replace_na(organizace_spolecenstvi),
+    kdo_pripravuje_program = replace_na(kdo_pripravuje_program),
     povazujes_se_za_rovera = replace_na(fct_recode(povazujes_se_za_rovera, Ano = "Ano, považuji se za rovera/rangers", Ne_ale_budu = "Ne, nyní se nepovažuji za rovera/rangers, ale myslím, že rover/rangers budu", Ne_ale_byl =  "Ne, nyní se nepovažuji za rovera/rangers, ale dříve jsem byl/a"))
     )
 
 normalized_translator_aktivni_lide <- normalized_translator(zakladni_data_pro_model$kmen_kolik_aktivnich_lidi_orig)
-normalized_translator_let_funguje <- normalized_translator(zakladni_data_pro_model$kolik_let_rs_kmen_funguje)
+normalized_translator_let_funguje <- normalized_translator(zakladni_data_pro_model$kolik_let_rs_kmen_funguje_orig)
 
 spokojenost_pro_model <- zakladni_data_pro_model %>%
   filter(!is.na(celkova_spokojenost_s_programem_rs_kmenu))
@@ -206,7 +198,7 @@ spokojenost_pro_model <- zakladni_data_pro_model %>%
 cat("Pro model dostupných ", nrow(spokojenost_pro_model), "řádků (",nrow(spokojenost_pro_model)/nrow(sondy), ")\n")
 
 
-formula_spokojenost <- brmsformula(celkova_spokojenost_int ~ kmen_kolik_aktivnich_lidi + kolik_let_rs_kmen_funguje + (1|| pohlavi + rs_kmen_prvky_vudce + rs_kmen_prvky_rada + max_funkce + max_funkce_v_kmeni + je_ve_meste_univezita + studium_ve_meste_strediska + je_vice_rs_kmenu_ve_stredisku + je_rs_kmen_registrovany + povazujes_se_za_rovera + organizace_spolecenstvi),
+formula_spokojenost <- brmsformula(celkova_spokojenost_int ~ kmen_kolik_aktivnich_lidi + kolik_let_rs_kmen_funguje + (1|| pohlavi + rs_kmen_prvky_vudce + rs_kmen_prvky_rada + max_funkce + max_funkce_v_kmeni + je_ve_meste_univezita + studium_ve_meste_strediska + je_vice_rs_kmenu_ve_stredisku + je_rs_kmen_registrovany + povazujes_se_za_rovera + kdo_pripravuje_program),
                                    family = cumulative("logit"))
 
 #get_prior(formula_spokojenost, data = spokojenost_pro_model)
@@ -215,7 +207,7 @@ priors <- c(prior(normal(0,1), class = "b"),#prior(horseshoe(par_ratio = 0.3), c
 #priors <- prior(normal(0,1), class = "b")
 
 #make_stancode(formula_spokojenost, data = spokojenost_pro_model, prior = priors) 
-fit_spokojenost <- brm(formula_spokojenost, data = spokojenost_pro_model, prior = priors, control = list(adapt_delta = 0.95), file = here("local_data","fit_spokojenost"))
+fit_spokojenost <- brm(formula_spokojenost, data = spokojenost_pro_model, prior = priors, control = list(adapt_delta = 0.95), file = here::here("local_data","fit_spokojenost"))
 fit_spokojenost
 
 my_scale <- scale_y_discrete(labels = function(x) { gsub(",Intercept","", x)})
@@ -231,7 +223,7 @@ stanplot(fit_spokojenost, pars = "(^r_[^a-n])",type = "intervals") + #The regex 
 ```{r}
 effects_by_prediction <- function(fit, orig_data, var_name, var_values, var_labels = var_values, response_title, num_low_categories, n_samples = 500, max_lines = 200) {
 
-    data_for_prediction_all_values <- var_values %>% imap_dfr(function(var_value, var_value_index) {
+  data_for_prediction_all_values <- var_values %>% imap_dfr(function(var_value, var_value_index) {
     data_for_prediction <- orig_data
     data_for_prediction[, var_name] <- var_value
     data_for_prediction$var_value_index <- var_value_index
@@ -251,12 +243,16 @@ effects_by_prediction <- function(fit, orig_data, var_name, var_values, var_labe
   predicted_data_for_lines <- predicted_data %>%
       filter(id_sample %in% sample(unique(id_sample), max_lines))
 
+  
+  positive_label = "kladná"
+  negative_label = "záporná"
+  
   data_sign <- predicted_data_for_lines %>% filter(var_value_index < length(var_values)) %>%
     mutate(next_var_value_index = var_value_index + 1) %>%
     inner_join(predicted_data_for_lines %>% select(id_sample, response, var_value_index) %>% rename(next_response = response, next_var_value_index = var_value_index),
          by = c("id_sample" = "id_sample", "next_var_value_index" = "next_var_value_index")) %>%
-    mutate(sign = if_else(response < next_response, "positive","negative") %>% 
-             factor(levels = c("negative", "positive"))) %>%
+    mutate(sign = if_else(response < next_response, positive_label,negative_label) %>% 
+             factor(levels = c(negative_label, positive_label))) %>%
     select(var_value_index, sign, id_sample)
   
   # data_diff %>%
@@ -270,8 +266,23 @@ effects_by_prediction <- function(fit, orig_data, var_name, var_values, var_labe
   
   predicted_data_for_lines_sign <- predicted_data_for_lines %>%
     left_join(data_sign, by = c("var_value_index","id_sample")) %>%
-    mutate(sign = if_else(is.na(sign), factor("positive", levels = c("negative","positive")),sign))
+    mutate(sign = if_else(is.na(sign), factor(positive_label, levels = c(negative_label,positive_label)),sign))
   
+  orig_data$var_value = orig_data[[var_name]]
+  if(is.numeric(orig_data$var_value)) {
+    orig_data <- orig_data %>%
+      rowwise() %>%
+      mutate(var_value = var_values[which.min(abs(var_values-var_value))]) %>% #Find the nearest value
+      ungroup()
+  } 
+  
+  orig_data_for_plot <- orig_data %>% 
+    mutate(var_value = factor(var_value, levels = var_values, labels = var_labels)) %>%
+    group_by(var_value) %>%
+    summarise(p_vetsi = 1 - mean(celkova_spokojenost_int <= num_low_categories),
+              pocet = length(celkova_spokojenost_int))
+  
+    
   predicted_data %>%
     group_by(var_value) %>%
     summarise(Estimate = median(response), 
@@ -285,18 +296,26 @@ effects_by_prediction <- function(fit, orig_data, var_name, var_values, var_labe
                 mapping = aes(x = var_value, y = response, group = id_sample, color = sign),
                 inherit.aes = FALSE,
                 alpha = 0.2) +
+      geom_point(data = orig_data_for_plot, mapping = aes(y = p_vetsi, size = pocet), color = "#2ca25f" ) +
       geom_linerange(aes(ymin = lower50, ymax = upper50), size = 2) +
       geom_linerange(aes(ymin = lower, ymax = upper)) +
-      scale_color_discrete(drop = FALSE) +
+      scale_color_discrete("Asociace", drop = FALSE) +
       scale_y_continuous(response_title, limits = c(0,1)) +
       scale_x_discrete(var_name) +
-      guides(color = guide_legend(override.aes = list(alpha=1))) +
+      scale_size_continuous(range = c(4,7)) +
+      guides(color = guide_legend(override.aes = list(alpha=1)), size = FALSE) +
       if(length(var_values) > 4 && max(nchar(var_labels) > 4)) {
         theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) 
       } else {
         NULL
       }
   
+}
+
+continous_var_labels <- function(var_values) {
+  labels <- as.character(var_values)
+  labels[length(labels)] <- paste0(labels[length(labels)], "+")
+  labels
 }
 ```
 
@@ -307,17 +326,16 @@ effects_by_prediction_spokojenost <- function(var_name, var_values = levels(spok
 }
 
 pocty_lidi <- seq(5,30, by = 5)
-effects_by_prediction_spokojenost("kmen_kolik_aktivnich_lidi", normalized_translator_aktivni_lide(pocty_lidi), var_labels = pocty_lidi)
+effects_by_prediction_spokojenost("kmen_kolik_aktivnich_lidi", normalized_translator_aktivni_lide(pocty_lidi), var_labels = continous_var_labels(pocty_lidi))
 
-roky_kmene <- c(1,2,3,4,5)
-effects_by_prediction_spokojenost("kolik_let_rs_kmen_funguje", normalized_translator_let_funguje(roky_kmene), var_labels = roky_kmene )
+roky_kmene <- c(1,2,4,8,16)
+effects_by_prediction_spokojenost("kolik_let_rs_kmen_funguje", normalized_translator_let_funguje(roky_kmene), var_labels = continous_var_labels(roky_kmene ))
 
-
-effects_by_prediction_spokojenost("rs_kmen_prvky_vudce", c("Ne", "Ano"))
 
 effects_by_prediction_spokojenost("rs_kmen_prvky_vudce", c("Ne", "Ano"))
+
 effects_by_prediction_spokojenost("rs_kmen_prvky_rada", c("Ne", "Ano"))
-effects_by_prediction_spokojenost("organizace_spolecenstvi", c("Nevím", "Neuvedeno","vudce","uzka_skupina", "vsichni"))
+effects_by_prediction_spokojenost("kdo_pripravuje_program", c("Nevím", "Neuvedeno","vudce","uzka_skupina", "vsichni"))
 
 effects_by_prediction_spokojenost("povazujes_se_za_rovera", c("Neuvedeno","Ne_ale_budu","Ne_ale_byl", "Ano"))
 
@@ -328,6 +346,7 @@ effects_by_prediction_spokojenost("max_funkce")
 effects_by_prediction_spokojenost("je_vice_rs_kmenu_ve_stredisku")
 effects_by_prediction_spokojenost("je_rs_kmen_registrovany")
 
+effects_by_prediction_spokojenost("pohlavi", c("Neuvedeno","Žena","Muž"))
 
 
 ```
@@ -370,7 +389,7 @@ priors_multivar <-
             set_prior("normal(0,1)", class = "sd", resp = resp)) }) %>% do.call(c, .)
 
 
-fit_aktivita <- brm(formula_aktivita, data = aktivita_pro_model, prior = priors_multivar, control = list(adapt_delta = 0.95), family = cumulative("logit"), file = here("local_data","fit_aktivita")) 
+fit_aktivita <- brm(formula_aktivita, data = aktivita_pro_model, prior = priors_multivar, control = list(adapt_delta = 0.95), family = cumulative("logit"), file = here::here("local_data","fit_aktivita")) 
 fit_aktivita
 
 my_scale_aktivita <- scale_y_discrete(labels = function(x) { gsub(",Intercept","", x) %>% gsub("frekvence[^_\\[]*","", .)})
