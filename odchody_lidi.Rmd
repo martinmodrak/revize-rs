@@ -221,16 +221,20 @@ clenstvi_pro_model_neseskupeno <-
   mutate(ukonceno = Year == posledni_registrace) 
 
 clenstvi_pro_model <- clenstvi_pro_model_neseskupeno %>%
-  group_by(Year, vek, ID_Sex) %>%
+  group_by(vek, ID_Sex) %>%
   summarise(n_ukonceno = sum(ukonceno), pocet = length(Person_PseudoID)) %>%
   ungroup() %>%
-  mutate(year_normalized = std_normalize(Year),
-         vek_normalized = std_normalize(vek))
+  mutate(vek_normalized = std_normalize(vek))
+
+clenstvi_pro_model %>% ggplot(aes(x = vek, y = n_ukonceno/pocet, group = ID_Sex)) + geom_line(aes(color = ID_Sex)) + 
+
+  geom_vline(xintercept = 15, size = 1, linetype = "dashed", color = "gray")
+
   
 formula_ukonceno_vek_pohlavi <- brmsformula(n_ukonceno | trials(pocet) ~ s(vek_normalized, k = 10) + ID_Sex, family = "binomial")
 
 #get_prior(formula_ukonceno, data = clenstvi_pro_model)
-fit_ukonceno_vek_pohlavi <- brm(formula_ukonceno_vek_pohlavi, data = clenstvi_pro_model, here::here("local_data","fit_ukonceno_vek_pohlavi"))
+fit_ukonceno_vek_pohlavi <- brm(formula_ukonceno_vek_pohlavi, data = clenstvi_pro_model, file = here::here("local_data","fit_ukonceno_vek_pohlavi"))
 
 fit_ukonceno_vek_pohlavi
 
@@ -256,18 +260,49 @@ predicted %>% ggplot(aes(x = vek, y = Estimate, group = ID_Sex, fill = ID_Sex)) 
 ```
 
 ```{r}
+formula_ukonceno_vek_pohlavi_interaction <- brmsformula(n_ukonceno | trials(pocet) ~ s(vek_normalized, by = ID_Sex), family = "binomial")
+
+#get_prior(formula_ukonceno_vek_pohlavi_interaction, data = clenstvi_pro_model)
+priors = c(
+  prior(normal(0,2), class = Intercept),
+  prior(normal(0,2), class = sds),
+  prior(normal(0,2), class = b)
+)
+
+fit_ukonceno_vek_pohlavi_interaction <- brm(formula_ukonceno_vek_pohlavi_interaction, data = clenstvi_pro_model, file = here::here("local_data","fit_ukonceno_vek_pohlavi_interaction"), prior = priors, control = list(adapt_delta = 0.95))
+
+predicted <- fitted(fit_ukonceno_vek_pohlavi_interaction, newdata = data_for_prediction, nsamples = 1000, probs = c(0.025,0.25,0.75,0.975)) %>%
+  cbind(data_for_prediction)  
+  
+predicted %>% ggplot(aes(x = vek, y = Estimate, group = ID_Sex, fill = ID_Sex)) + geom_line(aes(color = ID_Sex)) + 
+  geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5), alpha = 0.1) +     
+  geom_vline(xintercept = 15, size = 1, linetype = "dashed", color = "gray")
+
+
+```
+
+
+```{r}
 clenstvi_pro_model_delka <- clenstvi_pro_model_neseskupeno %>%
+  mutate(delka_clenstvi = Year - prvni_registrace) %>%
   group_by(vek, ID_Sex, delka_clenstvi) %>%
   summarise(n_ukonceno = sum(ukonceno), pocet = length(Person_PseudoID)) %>%
   ungroup() %>%
   mutate(
          vek_normalized = std_normalize(vek),
          delka_clenstvi_normalized = std_normalize(delka_clenstvi))
+
+test_dlouholeti <- clenstvi_pro_model_delka %>% filter(vek >= 14, vek <=16, delka_clenstvi > 2)
+run_pp_checks(fit_ukonceno_vek_pohlavi, test_dlouholeti)
+```
+
+
+```{r}
   
-formula_ukonceno_vek_pohlavi_delka <- brmsformula(update.formula(formula_ukonceno_vek_pohlavi, . ~ . + s(delka_clenstvi)), family = "binomial")
+formula_ukonceno_vek_pohlavi_delka <- brmsformula(update.formula(formula_ukonceno_vek_pohlavi, . ~ . + delka_clenstvi_normalized), family = "binomial")
 
 #get_prior(formula_ukonceno, data = clenstvi_pro_model)
-fit_ukonceno_vek_pohlavi_delka <- brm(formula_ukonceno_vek_pohlavi_delka, data = clenstvi_pro_model_delka, here::here("local_data","fit_ukonceno_vek_pohlavi_delka"))
+fit_ukonceno_vek_pohlavi_delka <- brm(formula_ukonceno_vek_pohlavi_delka, data = clenstvi_pro_model_delka, file = here::here("local_data","fit_ukonceno_vek_pohlavi_delka"), control = list(adapt_delta = 0.95))
 
 fit_ukonceno_vek_pohlavi_delka
 

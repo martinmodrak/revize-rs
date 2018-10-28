@@ -5,7 +5,7 @@ run_pp_checks <- function(fit, data,
                           prediction_filter = NULL,
                           out_func = print) {
 
-  predicted <- posterior_predict(fit, nsamples = 1000)
+  predicted <- posterior_predict(fit, nsamples = 1000, newdata = data)
 
   if(!is.null(prediction_filter)) {
     predicted <- predicted[,prediction_filter]
