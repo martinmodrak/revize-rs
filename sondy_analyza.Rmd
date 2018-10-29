@@ -132,6 +132,8 @@ Tady to docela jde, pouze je teba davat pozor na konfidencni intervaly
 
 ## Pomoc u dětských oddílů
 
+TODO: jiný počet odpovědí než u členů RS.
+
 ```{r pomoc u detskych oddilu}
 table(sondy$pomoc_u_detskych_oddilu_jsem_stale_clenem)
 table(sondy$pomoc_u_detskych_oddilu_nic)
@@ -187,6 +189,8 @@ format_corrtable(c) %>% knitr::kable()
 ```
 
 # Podil prace ve stredisku
+
+TODO: ke clusterům počty lidí v nich
 
 ```{r}
 sondy_podil_casu_tmp <- sondy %>% select(id, podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine) %>% 
