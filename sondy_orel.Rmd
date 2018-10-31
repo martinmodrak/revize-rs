@@ -15,6 +15,9 @@ source(here::here("R","tools_brms.R"))
 ```
 
 ```{r}
+if(!file.exists("private_data/sondy_180420.rds")) {
+  stop("Nenalezena predzpracovana data ze sond. Spust sondy_prepare_data.R")
+}
 sondy <- readRDS("private_data/sondy_180420.rds")
 
 sondy <- sondy %>%

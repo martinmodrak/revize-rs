@@ -1,11 +1,32 @@
 ---
 title: "Odchody lidí v roverském věku"
-output: html_notebook
+output: html_document
 author: "Martin 'Orel' Modrák"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 ---
 
-```{r setup, message=FALSE}
+_Kompletní kód analýzy je k nalezení na https://github.com/martinmodrak/revize-rs _
+
+# Otázka, kterou chceme zodpovědět
+
+Ve skauting se často operuje s představou, že nízké množství roverů je dáno problematickým přechodem mezi skautskou a roverskou výchovnou kategorií. Dle mého soukromého názoru převládá představa, že kolem patnáctého roku věku, při přechodu do roverské kategorie, Junák ztrácí velké množství mladých lidí. Chci tedy zjistit do jaké míry je tato zvýšená míra odchodů viditelná v datech z registrace.
+
+# Shrnutí výsledků
+
+V datech z registrace za roky 2012-2018 lze v některých skupinách členů vidět mírný vzestup míry odchodů kolem 15tého roku věku. Nejsilnější takový nárust jsme pozorovali u chlapců, kteří jsou již členy Junáka alespoň 4 roky. Ve 12ti letech opouští organizaci v průměru 14% takovýchto chlapců z ročníku (tj. zhruba jeden ze sedmi), tato míra pak roste plynule až k 16ti letům, kdy jich odchází 17% z ročníku (tj. zhruba jeden z šesti). V jiných kategoriích je nárůst kolem přechodu do roverského věku nižší. V roverském věku pak míra odchodů klesá s rostoucím věkem klesá.
+
+Jistou míru optimismu lze brát z toho, že v datech z let 2017-2018 již tento vzestup kolem 15tého roku není viditelný, jakkoliv nelze vyloučit, že to je pouze náhoda.
+
+V každém případě data nenaznačují, že by nárůst odchodů kolem přechodu do roverského věku byl zásadní problém. Zároveň lze očekávat, že data z registrace jsou v tomto ohledu spíše pesimistická - u členů do 15ti let je velmi nezvyklé, že by nebyli registrování, zatímcu u roverských kmenů lze registrační disciplínu očekávat nižší. 
+
+Nízký počet roverů je pravděpodobně více ovlivněn výrazným poklesem přílivu nováčků s rostoucím věkem a celkově vysokým "odpadem" nováčků (až 33% prvně registrovaných se neregistruje podruhé) i zkušenějších členů (až 18% z ročníku) napříč skautským věkem. I pokud bychom předpokládali, že při přechodu ze skautského věku do roverů dojde ke stejné míře odchodů jako během skautského věku, nedá se očekávat nárůst počtu roverů o víc jak jednotky procent.
+
+Zajímavým poznatkem je také to, že dívky odcházejí obecně ve stejné nebo menší míře než chlapci. 
+
+# Hlavní kvantitativní výstupy
+
+
+```{r setup, message=FALSE, echo = FALSE}
 knitr::opts_chunk$set(echo=FALSE)
 library(lubridate)
 library(readxl)
@@ -14,11 +35,11 @@ library(forcats)
 library(here)
 library(bindrcpp)
 library(brms)
-options(mc.cores=parallel::detectCores())
+library(knitr)
 library(cowplot)
 
 source(here::here("R","data_registrace_jednotlivci.R"), encoding = "UTF-8")
-source(here::here("R","tools_brms.R"))
+source(here::here("R","tools_odchody.R"), encoding = "UTF-8")
 
 tolerovana_prestavka <- 0
 min_rok <- 2012
@@ -26,7 +47,7 @@ min_vek <- 6
 max_vek <- 21
 ```
 
-```{r}
+```{r nacist_registraci, cache=TRUE}
 registrace <- registrace_jednotlivci() %>% rename(Sex = ID_Sex)
 ```
 
@@ -36,72 +57,17 @@ posledni_rok <- max(registrace$Year)
 cat("Zpracováváme data od roku",min_rok,"do roku", posledni_rok)
 ```
 
-Všude bereme že věk = rok registrace - rok narození.
-
-```{r}
-zacatky <- function(x, tolerovana_prestavka) {
-  sorted <- sort(x)
-  sorted_diff <- diff(sorted)
-  sorted[c(TRUE, sorted_diff > tolerovana_prestavka + 1)]  
-}
-
-konce <- function(x, tolerovana_prestavka) {
-  sorted <- sort(x)
-  sorted_diff <- diff(sorted)
-  sorted[c(sorted_diff > tolerovana_prestavka + 1, TRUE)]  
-}
-
-#Rychle testy, jestli funkce funguje
-stopifnot(all(konce(c(2008,2005,2006,2007), 1) == 2008))
-stopifnot(all(konce(c(2008,2005,2006,2007), 0) == 2008))
-stopifnot(all(konce(c(2008,2005), 1) == c(2005,2008)))
-stopifnot(all(konce(c(2008,2005), 2) == 2008))
-stopifnot(all(konce(c(2008,2006), 1) == 2008))
-stopifnot(all(konce(c(2008,2006), 0) == c(2006,2008)))
-stopifnot(all(konce(c(2008,2001,2002,2005,2006,2007), 1) == c(2002,2008)))
-stopifnot(all(konce(c(2008,2001,2002,2005,2006,2007,2011,2012), 1) == c(2002,2008,2012)))
-stopifnot(all(konce(c(2008,2002,2003,2005,2001,2006,2007,2011,2012), 1) == c(2008,2012)))
-stopifnot(all(konce(c(2008,2001,2002,2003,2005,2006,2007,2011,2012), 0) == c(2003,2008,2012)))
+_Poznámka: Všude bereme že věk = rok registrace - rok narození._
 
 
-stopifnot(all(zacatky(c(2008,2006), 1) == 2006))
-stopifnot(all(zacatky(c(2008,2001,2002,2005,2006,2007,2011,2012), 1) == c(2001,2005,2011)))
-stopifnot(all(zacatky(c(2008,2002,2003,2005,2001,2006,2007,2011,2012), 1) == c(2001,2011)))
-stopifnot(all(zacatky(c(2008,2001,2002,2003,2005,2006,2007,2011,2012), 0) == c(2001,2005,2011)))
 
-```
-
-Zkontroluji, jak časté jsou přestávky v členství
-
-```{r}
-
-rozsah_clenstvi <- registrace %>%
-  group_by(Person_PseudoID) %>%
-  summarise(rok_narozeni = unique(rok_narozeni), Sex = unique(Sex),
-            
-            prvni_registrace = min(Year), posledni_registrace = max(Year), 
-            prvni_konec = min(konce(Year, tolerovana_prestavka = tolerovana_prestavka)),
-            konec_do_12_let = any(konce(Year, tolerovana_prestavka = tolerovana_prestavka) - rok_narozeni <= 12),
-            konec_13_az_16_let = any(between(konce(Year, tolerovana_prestavka = tolerovana_prestavka) - rok_narozeni, 13, 16)),
-            prestavky_celkem_let =  (posledni_registrace - prvni_registrace + 1) - length(unique(Year)),
-            pocet_prestavek = sum(diff(sort(Year)) > 1)
-            ) 
-
-
+```{r spocitat_rozsahy, cache=TRUE,dependson= "nacist_registraci"}
+rozsah_clenstvi <- rozsah_clenstvi_z_registrace(registrace)
 ```
 
 
 ```{r}
-rozsah_clenstvi %>% group_by(pocet_prestavek) %>% summarise(pocet_osob = length(rok_narozeni))
-rozsah_clenstvi %>% group_by(prestavky_celkem_let) %>% summarise(pocet_osob = length(rok_narozeni))
-cat("Počet členů kteří odešli do 12 let a pak znovu do 16ti let:", sum(rozsah_clenstvi$konec_do_12_let & rozsah_clenstvi$konec_13_az_16_let))
-```
-
-Bohužel je tu dost lidí, kteří odešli vícekrát a to i ve věku, který nás zajímá. Budeme tedy zvlášť analyzovat první odchody a poslední odchody.
-V této analýze bereme neregistraci jako konec členství. Výsledky jsou ale podobné i když vezmeme jednoroční přestávku jako souvislé členství.
-
-
-```{r}
+#Zvlast prvni a posledni odchody, duvody a analyza nize
 odchazeni <- 
   registrace %>%
   mutate(vek = Year - rok_narozeni) %>%
@@ -118,61 +84,54 @@ odchazeni_prvni <- odchazeni %>%
 
 ```
 
+Zde vidíme, jaká část členské základny Junáka daného věku odešla během sledovaného období, rozděleno na nováčky (registrují se poprvé) a ostatní. Raději příklad: kdyby za roky 2012-2017 období bylo v Junáku celkem 1000 chlapců, kteří se poprvé registrovali během svých 13ti let a z toho se jich 200 již znovu neregistrovalo, bude v grafu 0.2. Pruh kolem údajů ukazuje očekávanou nejistotu/šum (čím méně lidí v kategorii, tím méně si jsme jisti, že to co vidíme je reprezentativní). 
 
-## Poslední odchody
+```{r}
+odchazeni_posledni_focus <- odchazeni_posledni %>% filter(vek >= 10, vek <= 18)
+plot_odchody(odchazeni_posledni_focus , "delka_clenstvi") + ggtitle("Podíl odchodů dle délky předchozí registrace a věku")
+```
 
-Zde vidíme, jaká část členské základny Junáka daného věku odešla během sledovaného období (tj. kdyby za toto období bylo v Junáku celkem 1000 chlapců během svých 13ti let a z toho jich 200 ve 13ti odešlo, bude zde 0.2). Pruh kolem údajů ukazuje očekávanou nejistotu (vychází z celkového počtu členů v kategorii). Sledujeme poslední odchody, tj. rok, kdy se naposledy registrovali. 
+Vysoká míra nejistoty u nováčků je daná tím, že ve vyšším věku máme už docela málo nováčků. To samé platí pro členy s 2 -3 letou zkušeností v roverském věku. Kvůli této nejistotě nelze brát příliš vážně nárůst podílu odchodů u méně zkušených členů po 17 roce. V celkovém pohledu (viz níže) je dokonce vidět pokles. Jakkoliv zde vidíme jístý nárůst ke konci skautského věku, nezdá se být příliš výrazný (max tři procentní body). 
+
+Nedostatek roverů lze tedy snáze vysvětlit nízkým počtem nováčků ve skautském věku:
+
+```{r}
+plot_prichody(odchazeni, by = "year", response = n_novych) + ggtitle("Počty nováčků")
+```
+
+Zde vidíme, že počet nováčků napříč lety stabilně klesá v celém skautském věku a v roverském věku je minimální.
+
+S jistou mírou optimismu je pak možné se podívat na odchody jen za poslední dva roky, kde se zdá, že se stoupající trend ve skautském věku vytrácí, ale s jistotou si to netroufám říct.
+
+```{r}
+plot_odchody(odchazeni_posledni_focus %>% filter(Year >= 2016) , "delka_clenstvi") + ggtitle("Podíl odchodů dle délky předchozí registrace a věku od roku 2016")
+
+```
+
+
+# Doplňkové a kontrolní výstupy
+
+Zkontroluji, jak časté jsou přestávky v členství
 
 
 ```{r}
-sumar_odchodu <- function(odchazeni, by = "none") {
-  if(by == "year") {
-    group_var <- quo(Year)
-  } else if(by == "delka_clenstvi") {
-    odchazeni <- odchazeni %>% mutate(delka_clenstvi_cat = case_when(
-      delka_clenstvi >= 4 ~ "4 a více let",
-      delka_clenstvi >= 2 ~ "2-3 roky",
-      TRUE ~ "1 rok"))
-    group_var <- quo(delka_clenstvi_cat)
-  } else if(by == "none") {
-    group_var <- quo(1)
-  } else {
-    stop("Neplatné by.")
-  }
-  
-  odchazeni %>%
-    group_by(vek, Sex, !! group_var) %>%
-    summarise(n_ukonceno = sum(ukonceno), pocet = length(Person_PseudoID)) %>%
-    ungroup() %>%
-    mutate(podil_odchazejicich = n_ukonceno / pocet,
-           lower = qbeta(0.025, n_ukonceno + 1, pocet - n_ukonceno + 1),
-           upper = qbeta(0.975, n_ukonceno + 1, pocet - n_ukonceno + 1)
-           )
-}
-
-plot_odchody <- function(odchazeni, by = "none") {
-
-  if(by == "year") {
-    facet <- facet_wrap( ~ Year)
-  } else if(by == "delka_clenstvi") {
-    facet <- facet_wrap( ~ delka_clenstvi_cat, nrow = 1)
-  } else if(by == "none") {
-    facet <- NULL
-  } else {
-    stop("Neplatné by.")
-  }
-
-
-  sumar_odchodu(odchazeni, by) %>% 
-    ggplot(aes(x = vek, y = podil_odchazejicich, ymin = lower, ymax = upper, fill = Sex)) + 
-    geom_ribbon(alpha = 0.1) +
-    geom_vline(xintercept = 15, size = 1, linetype = "dashed", color = "gray") +
-    geom_line(aes(color = Sex)) +
-    facet
-
-}
-plot_odchody(odchazeni_posledni)
+rozsah_clenstvi %>% group_by(pocet_prestavek) %>% summarise(pocet_osob = length(rok_narozeni)) %>% kable()
+rozsah_clenstvi %>% group_by(prestavky_celkem_let) %>% summarise(pocet_osob = length(rok_narozeni)) %>% kable()
+cat("Počet členů kteří odešli do 12 let a pak znovu do 16ti let:", sum(rozsah_clenstvi$konec_do_12_let & rozsah_clenstvi$konec_13_az_16_let))
 ```
+
+Bohužel je tu dost lidí, kteří odešli vícekrát a to i ve věku, který nás zajímá. Budeme tedy zvlášť analyzovat první odchody a poslední odchody.
+V této analýze bereme neregistraci jako konec členství. Výsledky jsou ale podobné i když vezmeme jednoroční přestávku jako souvislé členství.
+
+
+## Poslední odchody
+
+
+```{r}
+plot_odchody(odchazeni_posledni) + ggtitle("Souhrnný podíl odchodů")
+```
+
+Asi vás překvapí, že na tomto grafu není v podstatě žádná špička kolem 15tého roku vidět - důvodem je, že mícháme dvě dost odlišné skupiny: nováčky a ostatní. Jak to, že když odchody v každé skupině zvlášť během skautského věku rostou, tak součet neroste? Důvodem je, že se s věkem zmenšuje podíl nováčků (kteří odcházejí hodně) a tím se snižuje celková míra odchodů, ač v obou skupinách zvlášť roste. To je hezká ukázka toho, jak snadné je se mýlit špatným pohledem na data.
 
 Zdá se tedy, že z Junáka odchází během skautského věku poměrně rovnoměrně kolem 18% členů z ročníku (chlapců o něco víc). To odpovídá "poločasu rozpadu" pro skauty cca 3.5 roku. Po 15tém roce se toto číslo nezvyšuje, naopak klesá. Nezdá se tedy, že by 15tý rok byl více zlomový pro členství než jiné roky.
 
@@ -180,7 +139,7 @@ Pro jistotu se podívejme zvlášť na každý rok. Opět vidíme podíl členů
 
 
 ```{r}
-plot_odchody(odchazeni_posledni, "year")
+plot_odchody(odchazeni_posledni, "year") + ggtitle("Souhrnný podíl odchodů po letech")
 ```
 
 ```{r}
@@ -200,126 +159,66 @@ Data mají mírně sestupný trend v čase (tj. poslední dobou méně lidí odc
 Pro jistotu se podíváme na ty samé grafy, ale s prvními odchody, tj. kdy poprvé měl člověk v pauzu v registraci. Ti, kteří se pak vrátili jsou počítáni pouze ke svému prvnímu odchodu.
 
 ```{r}
-plot_odchody(odchazeni_prvni)
-plot_odchody(odchazeni_prvni, "year")
+plot_odchody(odchazeni_prvni) + ggtitle("Souhrný poddíl prvních odchodů")
+plot_odchody(odchazeni_prvni, "year") + ggtitle("Poddíl prvních odchodů po letech")
 
 ```
 
-Vidíme, že trendy v prvních odchodech jsou velmi podobné jako v posledních odchodech, dál bereme tedy poslední odchody.
+Vidíme, že trendy v prvních odchodech jsou velmi podobné jako v posledních odchodech, dál bereme tedy poslední odchody (ty jsou také počítány ve shrnutí na začátku).
 
 ## Poslední odchody, dlouhodobí členové
 
 V grafech výše  se spíše nevyskytuje žádná špička u přechodu do roverského věku. Ale vidíme, že odchází celkem hodně lidí (cca pětina ročníku). To budou asi lidé, kteří se registrovali jen krátce. Podíváme se tedy, jestli to vypadá stejně u členů, kteří již chodili déle. Údaje jsou relativní k celkovému počtu dlouhodobých členů v té době registrovaných.
 
+```{r}
+plot_odchody(odchazeni_posledni, "delka_clenstvi") + ggtitle("Podíl odchodů dle délky předchozí registrace")
+
+```
+
+Vysoký míra nejistoty u zkušených členů v nízkém věku není překvapivá - jedná se malou skupinu (9ti letí, kteří se registrují počtvrté a vícté)
+
+Můžeme se taky na tyto segmenty podívat napříč sledovaným časem.
 
 ```{r}
 odchazeni_posledni_novacci <- odchazeni_posledni %>% filter(vek >= 10, delka_clenstvi == 1)  
-odchazeni_posledni_2_roky <- odchazeni_posledni %>% filter(vek >= 10, delka_clenstvi >= 2)  
+odchazeni_posledni_2_roky <- odchazeni_posledni %>% filter(vek >= 10, delka_clenstvi >= 2, delka_clenstvi <= 3)  
 odchazeni_posledni_4_roky <- odchazeni_posledni %>% filter(vek >= 10, delka_clenstvi >= 4)  
-plot_odchody(odchazeni_posledni_novacci)
-plot_odchody(odchazeni_posledni_novacci,"year")
-plot_odchody(odchazeni_posledni_2_roky)
-plot_odchody(odchazeni_posledni_2_roky, "year")
-plot_odchody(odchazeni_posledni_4_roky)
-plot_odchody(odchazeni_posledni_4_roky, "year")
+plot_odchody(odchazeni_posledni_novacci,"year") + ggtitle("Odchody nováčků")
+plot_odchody(odchazeni_posledni_2_roky, "year") + ggtitle("Odchody 2-3 roky")
+plot_odchody(odchazeni_posledni_4_roky, "year") + ggtitle("Odchody 4+ let")
 ```
 
+S jístou mírou mžourání si můžeme myslet, že špička kolem 15tého roku v čase spíše mizí.
 
-```{r}
-plot_odchody(odchazeni_posledni_2_roky %>% filter(Year >= 2016))
-
-```
 
 # Příchody nováčků
 
+Zde vidíme podíl nováčků v každém registrovaném ročníku
+
 ```{r}
-sumar_prichody <- function(odchazeni, by = "none", response = podil_novych) {
-  response <- enquo(response)
-  if(by == "year") {
-    group_var <- quo(Year)
-  } else if(by == "none") {
-    group_var <- quo(1)
-  } else {
-    stop("Neplatné by.")
-  }
-  
-  odchazeni %>%
-    group_by(vek, Sex, !! group_var) %>%
-    summarise(n_novych = sum(prvni_registrace == Year), pocet = length(Person_PseudoID)) %>%
-    ungroup() %>%
-    mutate(podil_novych = n_novych / pocet
-           )
-}
-
-plot_prichody <- function(odchazeni, by = "none", response = podil_novych) {
-  
-  if(by == "year") {
-    facet <- facet_wrap( ~ Year)
-  } else if(by == "none") {
-    facet <- NULL
-  } else {
-    stop("Neplatné by.")
-  }  
-  
-  response <- enquo(response)
-
-  sumar_prichody(odchazeni, by, !! response) %>% 
-    ggplot(aes(x = vek, y = !! response)) + 
-    geom_vline(xintercept = 15, size = 1, linetype = "dashed", color = "gray") +
-    geom_line(aes(color = Sex)) +
-    facet
-
-}
-plot_prichody(odchazeni_posledni)
+plot_prichody(odchazeni_posledni) + ggtitle("Podíl nováčků souhrně")
 ```
 
 
 ```{r}
-plot_prichody(odchazeni_posledni, response = n_novych)
+plot_prichody(odchazeni_posledni, response = n_novych) + ggtitle("Počet nováčků souhrně")
 
-plot_prichody(odchazeni_posledni, by = "year")
+plot_prichody(odchazeni_posledni, by = "year") + ggtitle("Podíl nováčků po letech")
 ```
+
+# Celkové počty členů
+
+A ještě se můžeme podívat na celkové počty členů - souhrný graf má vysoká čísla, protože sčítá přes všechny sledované roky.
 
 ```{r}
-sumar_pocty <- function(odchazeni, by = "none") {
-  if(by == "year") {
-    group_var <- quo(Year)
-  } else if(by == "none") {
-    group_var <- quo(1)
-  } else {
-    stop("Neplatné by.")
-  }
-  
-  odchazeni %>%
-    group_by(vek, Sex, !! group_var) %>%
-    summarise(pocet = length(Person_PseudoID)) %>%
-    ungroup() 
-}
 
-plot_pocty <- function(odchazeni, by = "none") {
-  if(by == "year") {
-    facet <- facet_wrap( ~ Year)
-  } else if(by == "none") {
-    facet <- NULL
-  } else {
-    stop("Neplatné by.")
-  }
-
-  sumar_pocty(odchazeni, by) %>% 
-    ggplot(aes(x = vek, y = pocet)) + 
-    geom_vline(xintercept = 15, size = 1, linetype = "dashed", color = "gray") +
-    geom_line(aes(color = Sex)) +
-    facet
-
-}
-plot_pocty(odchazeni_posledni)
+plot_pocty(odchazeni_posledni) + ggtitle("Souhrnný počet členů (2012-2017)")
+plot_pocty(odchazeni_posledni, by = "year") + ggtitle("Počet členů pro každý rok")
+plot_pocty(odchazeni_posledni %>% filter(delka_clenstvi >= 2)) + ggtitle("Souhrný počet členů kromě nováčků")
 
 ```
 
-```{r}
-plot_pocty(odchazeni_posledni %>% filter(delka_clenstvi >= 2))
-plot_pocty(odchazeni_posledni, by = "year")
-```
+# Co by znamenalo srovnat odchody napříč skautským věkem
 
 ```{r}
 optimisticky_odhad_zmeny <- 0.03
@@ -328,18 +227,49 @@ optimisticky_odhad_poctu_2016 <- odchazeni %>% filter(Year == 2016 & (vek == 14)
 optimisticky_odhad_poctu_2017 <- odchazeni %>% filter(Year == 2017 & (vek == 15)) %>% 
   summarise(pocet  = length(Person_PseudoID), zustavsi =  pocet * (optimisticky_odhad_zmeny)) 
 optimisticky_odhad_poctu <- optimisticky_odhad_poctu_2016$zustavsi + optimisticky_odhad_poctu_2017$zustavsi
-optimisticky_odhad_poctu
+
+soucasny_pocet <- registrace %>% filter(Year == 2018 & (vek == 16)) %>%
+   summarise(pocet  = length(Person_PseudoID))
+
+optimisticky_odhad_podilu <- optimisticky_odhad_poctu / soucasny_pocet$pocet
+
 ```
 
-TODO: Odchody novacci, starsi - udelat facety
-+ vysypat konkrétní čísla
+Při optimistickém odhadu, že ve 14ti a 15ti letech zvládneme snížit odchod o `r optimisticky_odhad_zmeny *100` procentní body, tj. že z `r optimisticky_odhad_poctu_2016$pocet` čtrnáctiletých v roce 2016 a z `r optimisticky_odhad_poctu_2017$pocet` patnáctiletých v roce 2017 by vždy `r optimisticky_odhad_zmeny *100`% lidí NEodešly, pak bychom "získali" `r round(optimisticky_odhad_poctu)` šestnáctiletých roverů navíc k současnému počtu `r soucasny_pocet$pocet` (tj. `r round(optimisticky_odhad_podilu * 100)`%)
 
+# Délka členství
 
-# Analýza s modelem
+Zdá se, že až na rozdíl mezi nováčky a ostatními se délka řídé geometrickým rozložením.
 
 ```{r}
 rozsah_clenstvi %>% 
   filter(posledni_registrace >= min_rok, posledni_registrace < posledni_rok - tolerovana_prestavka, prvni_registrace > 2003) %>%
   ggplot(aes(x=posledni_registrace - prvni_registrace)) + geom_histogram(binwidth = 1)
+```
+
+# Kontroly
+
+Data úplně nesedí s daty z https://is.skaut.cz/opendata/, ale taky nejsou úplně mimo... :-( těžko říct, co si o tom myslet. 
+
+```{r}
+pocty_is_raw <- read.csv2("https://is.skaut.cz/opendata/data/person/clenove-vekova-struktura-pohlavi.csv")
+pocty_is <- skautis_to_tidy(pocty_is_raw)
+
+pocty_my <- registrace_pro_porovnani_se_skautisem(registrace) %>%
+      summarise(pocet = length(Person_PseudoID))
+
+porovnej_skautis_my(pocty_is, pocty_my ) + ggtitle("Kontrola - počty reg. členů")
+```
+
+
+```{r}
+novacci_is_raw <- read.csv2("https://is.skaut.cz/opendata/data/person/clenove-novacci-vek-pohlavi.csv") 
+novacci_is <-  skautis_to_tidy(novacci_is_raw)
+
+novacci_my <- sumar_prichody(odchazeni_posledni, by = "year", response = n_novych) %>% 
+  registrace_pro_porovnani_se_skautisem() %>%
+  summarise(pocet = sum(n_novych))
+
+porovnej_skautis_my(novacci_is, novacci_my) + ggtitle("Kontrola - počty nováčků")
 ```
 
