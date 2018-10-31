@@ -19,7 +19,6 @@ library(cowplot)
 
 source(here::here("R","data_registrace_jednotlivci.R"), encoding = "UTF-8")
 source(here::here("R","tools_brms.R"))
-source(here::here("R","tools_odchody.R"))
 
 tolerovana_prestavka <- 0
 min_rok <- 2012
@@ -126,24 +125,22 @@ Zde vidíme, jaká část členské základny Junáka daného věku odešla běh
 
 
 ```{r}
-plot_odchody <- function(odchazeni, by = "none") {
+sumar_odchodu <- function(odchazeni, by = "none") {
   if(by == "year") {
     group_var <- quo(Year)
-    facet <- facet_wrap( ~ Year)
   } else if(by == "delka_clenstvi") {
     odchazeni <- odchazeni %>% mutate(delka_clenstvi_cat = case_when(
       delka_clenstvi >= 4 ~ "4 a více let",
       delka_clenstvi >= 2 ~ "2-3 roky",
       TRUE ~ "1 rok"))
     group_var <- quo(delka_clenstvi_cat)
-    facet <- facet_wrap( ~ delka_clenstvi_cat, nrow = 1)
   } else if(by == "none") {
     group_var <- quo(1)
-    facet <- NULL
   } else {
     stop("Neplatné by.")
   }
-  sumar_odchodu <- odchazeni %>%
+  
+  odchazeni %>%
     group_by(vek, Sex, !! group_var) %>%
     summarise(n_ukonceno = sum(ukonceno), pocet = length(Person_PseudoID)) %>%
     ungroup() %>%
@@ -151,9 +148,22 @@ plot_odchody <- function(odchazeni, by = "none") {
            lower = qbeta(0.025, n_ukonceno + 1, pocet - n_ukonceno + 1),
            upper = qbeta(0.975, n_ukonceno + 1, pocet - n_ukonceno + 1)
            )
+}
+
+plot_odchody <- function(odchazeni, by = "none") {
+
+  if(by == "year") {
+    facet <- facet_wrap( ~ Year)
+  } else if(by == "delka_clenstvi") {
+    facet <- facet_wrap( ~ delka_clenstvi_cat, nrow = 1)
+  } else if(by == "none") {
+    facet <- NULL
+  } else {
+    stop("Neplatné by.")
+  }
 
 
-  sumar_odchodu %>% 
+  sumar_odchodu(odchazeni, by) %>% 
     ggplot(aes(x = vek, y = podil_odchazejicich, ymin = lower, ymax = upper, fill = Sex)) + 
     geom_ribbon(alpha = 0.1) +
     geom_vline(xintercept = 15, size = 1, linetype = "dashed", color = "gray") +
@@ -214,7 +224,113 @@ plot_odchody(odchazeni_posledni_4_roky)
 plot_odchody(odchazeni_posledni_4_roky, "year")
 ```
 
-U dlouhodobějších členů lze najít vrchol někde kolem 15 roku věku, ale zejména u opravdu dlouhodobých členů se nezdá velmi výrazný (tedy vzhledem k odchodům během skautských let). Data ale nevylučují, že by množství odchodů bylo téměř konstantní během celého skautského věku
+
+```{r}
+plot_odchody(odchazeni_posledni_2_roky %>% filter(Year >= 2016))
+
+```
+
+# Příchody nováčků
+
+```{r}
+sumar_prichody <- function(odchazeni, by = "none", response = podil_novych) {
+  response <- enquo(response)
+  if(by == "year") {
+    group_var <- quo(Year)
+  } else if(by == "none") {
+    group_var <- quo(1)
+  } else {
+    stop("Neplatné by.")
+  }
+  
+  odchazeni %>%
+    group_by(vek, Sex, !! group_var) %>%
+    summarise(n_novych = sum(prvni_registrace == Year), pocet = length(Person_PseudoID)) %>%
+    ungroup() %>%
+    mutate(podil_novych = n_novych / pocet
+           )
+}
+
+plot_prichody <- function(odchazeni, by = "none", response = podil_novych) {
+  
+  if(by == "year") {
+    facet <- facet_wrap( ~ Year)
+  } else if(by == "none") {
+    facet <- NULL
+  } else {
+    stop("Neplatné by.")
+  }  
+  
+  response <- enquo(response)
+
+  sumar_prichody(odchazeni, by, !! response) %>% 
+    ggplot(aes(x = vek, y = !! response)) + 
+    geom_vline(xintercept = 15, size = 1, linetype = "dashed", color = "gray") +
+    geom_line(aes(color = Sex)) +
+    facet
+
+}
+plot_prichody(odchazeni_posledni)
+```
+
+
+```{r}
+plot_prichody(odchazeni_posledni, response = n_novych)
+
+plot_prichody(odchazeni_posledni, by = "year")
+```
+
+```{r}
+sumar_pocty <- function(odchazeni, by = "none") {
+  if(by == "year") {
+    group_var <- quo(Year)
+  } else if(by == "none") {
+    group_var <- quo(1)
+  } else {
+    stop("Neplatné by.")
+  }
+  
+  odchazeni %>%
+    group_by(vek, Sex, !! group_var) %>%
+    summarise(pocet = length(Person_PseudoID)) %>%
+    ungroup() 
+}
+
+plot_pocty <- function(odchazeni, by = "none") {
+  if(by == "year") {
+    facet <- facet_wrap( ~ Year)
+  } else if(by == "none") {
+    facet <- NULL
+  } else {
+    stop("Neplatné by.")
+  }
+
+  sumar_pocty(odchazeni, by) %>% 
+    ggplot(aes(x = vek, y = pocet)) + 
+    geom_vline(xintercept = 15, size = 1, linetype = "dashed", color = "gray") +
+    geom_line(aes(color = Sex)) +
+    facet
+
+}
+plot_pocty(odchazeni_posledni)
+
+```
+
+```{r}
+plot_pocty(odchazeni_posledni %>% filter(delka_clenstvi >= 2))
+plot_pocty(odchazeni_posledni, by = "year")
+```
+
+```{r}
+optimisticky_odhad_zmeny <- 0.03
+optimisticky_odhad_poctu_2016 <- odchazeni %>% filter(Year == 2016 & (vek == 14)) %>% 
+  summarise(pocet  = length(Person_PseudoID), zustavsi =  pocet * (optimisticky_odhad_zmeny + optimisticky_odhad_zmeny ^ 2)) 
+optimisticky_odhad_poctu_2017 <- odchazeni %>% filter(Year == 2017 & (vek == 15)) %>% 
+  summarise(pocet  = length(Person_PseudoID), zustavsi =  pocet * (optimisticky_odhad_zmeny)) 
+optimisticky_odhad_poctu <- optimisticky_odhad_poctu_2016$zustavsi + optimisticky_odhad_poctu_2017$zustavsi
+optimisticky_odhad_poctu
+```
+
 
 # Analýza s modelem
 
