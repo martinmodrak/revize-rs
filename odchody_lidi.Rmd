@@ -331,6 +331,9 @@ optimisticky_odhad_poctu <- optimisticky_odhad_poctu_2016$zustavsi + optimistick
 optimisticky_odhad_poctu
 ```
 
+TODO: Odchody novacci, starsi - udelat facety
++ vysypat konkrétní čísla
+
 
 # Analýza s modelem
 

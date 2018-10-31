@@ -7,7 +7,6 @@ output: html_notebook
 library(tidyverse)
 library(brms)
 library(scico)
-library(mice)
 library(here)
 library(cowplot)
 options(mc.cores=parallel::detectCores())
@@ -219,6 +218,7 @@ stanplot(fit_spokojenost, pars = "(^r_[^a-n])",type = "intervals") + #The regex 
 
 ```
 
+TODO: velikost tecky
 
 ```{r}
 effects_by_prediction <- function(fit, orig_data, var_name, var_values, var_labels = var_values, response_title, num_low_categories, n_samples = 500, max_lines = 200) {
@@ -359,7 +359,7 @@ Aktivita - vyhodime, kdo nevyplnil vse, pokud vyplnil aspon jedno, dame vsude ji
 ```{r}
 recode_frekvence <- function(x) {
   #Davame default "Nikdy"
-  recode(x, .default = 1, `Nikdy` = 1, `Méně často než 1 za rok` = 2, `Asi jednou za půl roku` = 3, `Asi jednou za čtvrt roku` = 4, `Asi jednou měsíčně` = 5, `Asi jednou za 14 dní` = 6, `Každý týden nebo častěji` = 7) %>% as.integer() 
+  recode(x, .missing = 1, `Nikdy` = 1, `Méně často než 1 za rok` = 2, `Asi jednou za půl roku` = 3, `Asi jednou za čtvrt roku` = 4, `Asi jednou měsíčně` = 5, `Asi jednou za 14 dní` = 6, `Každý týden nebo častěji` = 7) %>% as.integer() 
 }
 
 
