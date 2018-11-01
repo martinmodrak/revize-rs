@@ -2,22 +2,34 @@
 title: "Reprezentativnost dat"
 author: "Martin 'Orel' Modrák"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
-output: html_notebook
+output: html_document
 ---
 
+_Kompletní kód analýzy je k nalezení na https://github.com/martinmodrak/revize-rs _
 
-Reprezentativnost dat z ruznych zdroju. V každém obrázku je křivka "skautis", která reprezentuje podíl dané skupiny členstva v datech ze SkautISu (k roku 2017 pro data z kmene, k roku 2015 pro data ze sond o roveringu). Křivka je tam proto, že mi to přijde více názorné, ale samozřejmě důležité jsou konkrétní body, pořadí skupiny není dáno pevně. Tato křivka má kolem sebe pruh vyjadřující nejistotu - jak velký rozptyl bychom čekali, kdybychom vybrali ze skauta náhodně tolik lidí, kolik jich bylo v daném průzkumu. Druhá křivka vyjadřuje podíl dané skupiny, který jsme viděli v průzkumu.
+# Otázka, kterou chceme zodpovědět
 
-```{r setup, message=FALSE}
+Když se snažíme o roverech něco zjistit online výzkumem (jako byly sondy do skautského světa nebo průzkum od roverského kmene), může být výsledek nereprezentativní - například můžeme primárně zasahovat rovery z větších měst, které jsou blíž ústředním komunikačním kanálům. Chceme odhadnout, jak moc nereprezentativní takový průzkum je.
+
+# Shrnutí výsledků
+
+V hlavních demografických měřítkách (věk, kraj, velikost města) byly sondy i průzkum kmene slušně reprezentativní. Nejproblematičtější se zdá věk, kdy byl obecně malý zásah u patnáctiletých, zatímco u sond jsou naopak nabohaceny starší ročníky. Nezdá se ale, že bychom primárně zasahovali rovery z větších měst, a u krajů je jen malé nabohacení Prahy, Jihomoravského kraje a Královehradeckého kraje.
+
+# Výsledky podrobněji
+
+Níže je grafické zobrazení reprezentativnosti dat z ruznych zdroju. V každém obrázku je křivka "skautis", která reprezentuje podíl dané skupiny členstva v datech ze SkautISu (k roku 2017 pro data z kmene, k roku 2015 pro data ze sond o roveringu). Křivka je tam proto, že mi to přijde více názorné, ale samozřejmě důležité jsou konkrétní body, pořadí skupiny není dáno pevně. Tato křivka má kolem sebe pruh vyjadřující nejistotu - jak velký rozptyl bychom čekali, kdybychom vybrali ze skauta náhodně tolik lidí, kolik jich bylo v daném průzkumu. Druhá křivka vyjadřuje podíl dané skupiny, který jsme viděli v průzkumu. V zásadě lze říct, že když se křivka průzkumu vejde do pruhu kolem dat ze SkautISu je výzkum v tomto ohledu reprezentativní.
+
+```{r setup, message=FALSE, echo =FALSE}
 knitr::opts_chunk$set(echo=FALSE)
 library(lubridate)
 library(readxl)
 library(tidyverse)
 library(kableExtra)
 library(here)
-source(here("R","data_predvyzkum.R"), encoding = "UTF-8")
-source(here("R","data_csu_psc.R"), encoding = "UTF-8")
-source(here("R","data_registrace_jednotlivci.R"), encoding = "UTF-8")
+
+source(here::here("R","data_predvyzkum.R"), encoding = "UTF-8")
+source(here::here("R","data_csu_psc.R"), encoding = "UTF-8")
+source(here::here("R","data_registrace_jednotlivci.R"), encoding = "UTF-8")
 
 ```
 
@@ -88,7 +100,7 @@ dle_veku_a_seskupeni %>%
 }
 ```
 
-U sond vidíme, že velké města jsou zastoupena častěji než ve SkautISu (a menší města méně). To může ale být - alespoň částečně - způsobeno tím, že lidé do dotazníky vyplnili velikost města, kde žijí, zatímco ve SkautISu bereme město registrace. Tj. rover, který studuje v Brně, ale je registrován ve Velké Bíteši může být v sondách veden jako Brňák, zatímce ve SkautISu jako Bítešan.
+U dotazníku roverského kmene vidíme, že velké města jsou zastoupena častěji než ve SkautISu (a menší města méně). To může ale být - alespoň částečně - způsobeno tím, že lidé do dotazníky vyplnili velikost města, kde žijí, zatímco ve SkautISu bereme město registrace. Tj. rover, který studuje v Brně, ale je registrován ve Velké Bíteši může být v průzkumu kmene veden jako Brňák, zatímce ve SkautISu jako Bítešan.
 
 ```{r}
 
@@ -105,7 +117,7 @@ reprezentativnost(seskupeni_obec_skautis_kmen,seskupeni_obec_kmen, "kmen", "veli
 
 ```
 
-Sondy mají separátní otázku "velikost města kde žiješ" a "velikost města, kde působí tvé středisko". Použil jsem tu druhou, protože se přesně váže na SkautIS a neměl by tedy zde být vidět efekt studentů. Sondy navíc sbíraly nejen velikost obce, ale i kraj, takže se můžeme podívat na obojí. Zdá se, že sondy mají nabohacená střední města na úkor menších měst, ale velké města ani nejmenší obce nejsou zatíženy chybou. U krajů lze vidět jisté navýšení Prahy a nejspíš i Brna (Jihomoravský kraj) a Královéhradeckého kraje, ale není to příliš ostré.
+Sondy mají separátní otázku "velikost města kde žiješ" a "velikost města, kde působí tvé středisko". Použil jsem tu druhou, protože se lépe váže na SkautIS a neměl by tedy zde být vidět efekt studentů - jakkoliv je stále možné, že středisko má sídlo jinde, než kde působí (například jedno Brněnské středisko má sídlo mimo Brno, nejspíš střediskový vůdce chtěl bydlet v přírodě). Sondy navíc sbíraly nejen velikost obce, ale i kraj, takže se můžeme podívat na obojí. Zdá se, že sondy mají nabohacená střední města na úkor menších měst, ale velké města ani nejmenší obce nejsou zatíženy chybou. U krajů lze vidět jisté navýšení Prahy a nejspíš i Brna (Jihomoravský kraj) a Královéhradeckého kraje, ale není to příliš ostré.
 
 ```{r}
 data_sondy <- readRDS("private_data/sondy_180420.rds")
@@ -144,7 +156,7 @@ reprezentativnost(seskupeni_kraj_skautis_sondy, seskupeni_kraj_sondy, "_sondy", 
 
 # Reprezenativnost dle věku
 
-Díky pseudonymizovaným datům ze SkautISu se můžeme podívat i na reprezentativnost podle věku s přesností na roky (k těmto datům ale nelze přiřadit velikost města nebo kraj.) Tyto křivky se trochu hůře interpretují, protože očekáváme, že v dotazech o roveringu nebudou odpovědi mladších a starších členů. Jak moc jsou data reprezentativní závisí dost na tom, jaké věkové rozmezí bychom očekávali, u lidí, kteří odpovídají. Rozhodl jsem se omezit na dvě rozpětí:  16-20 let a 15-26 let, ale nemá to žádný hluboký důvod. Každopádně vidíme, že sondy i kmen měly malý zásah u 15ti letých, sondy i u 16ti letých. V rozmezí 17-20 je reprezentativnost dobrá, kmen pak méně zachytil starší respondenty, zatímco sondy jich naopak mají více než bychom čekali.
+Díky pseudonymizovaným datům ze SkautISu se můžeme podívat i na reprezentativnost podle věku s přesností na roky (k těmto datům ale nelze přiřadit velikost města nebo kraj.) Tyto křivky se trochu hůře interpretují, protože očekáváme, že v dotazech o roveringu nebudou odpovědi mladších a starších členů. Jak moc jsou data reprezentativní závisí dost na tom, jaké věkové rozmezí bychom očekávali, u lidí, kteří odpovídají. Rozhodl jsem se omezit na dvě rozpětí:  16-20 let a 15-26 let, ale nemá to žádný hluboký důvod. Každopádně vidíme, že sondy i kmen měly malý zásah u 15ti letých, sondy i u 16ti letých. V rozmezí 17-20 je reprezentativnost dobrá, kmen pak méně zachytil starší respondenty, zatímco sondy jich naopak mají více než bychom čekali. Pro dotazník kmene je důležité mít na paměti, že vybírali lidi podle výchovné kategorie, zatímco my pracujeme podle věku, jelikož výchovnou kategorii v našich datech nemáme.
 
 ```{r}
 reprezentativnost_vek <- function(data_skautis_, data_pruzkum_, pruzkum_nazev, min_vek = 15, max_vek = 21) {
