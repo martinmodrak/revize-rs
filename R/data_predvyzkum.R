@@ -1,7 +1,25 @@
 jednotky_oddily_kmeny_predvyzkum <- function(rok = 2017) {
 
-  #warning("Očekávám, že v souboru '2017-02-17 Přehled jednotek s počty členů 2004 - 2016-3_F_170225.xlsx' byl upraven sloupec ")
-  jednotky  <- readxl::read_excel(here("private_data","skautis","2017-02-17 Přehled jednotek s počty členů 2004 - 2016-3_F_170225.xlsx"), sheet = "List1",col_types = c("numeric","text","text","text","text","text","text")) %>% rename(ev_cislo = RegistrationNumber, nazev_jednotky = DisplayName, mesto = City, ulice = Street, psc = Postcode )
+  #Hack - na pocitacich, kde ma R problemy s cestinou prejmenovat soubor
+  jednotky_file1 <- here::here("private_data","skautis",
+                         "2017-02-17 Přehled jednotek s počty členů 2004 - 2016-3_F_170225.xlsx")
+  jednotky_file2 <- here::here("private_data","skautis",
+                         "prehled_jednotek_2004_2016_170225.xlsx")
+
+  if(!file.exists(jednotky_file2)) {
+    if(!file.exists(jednotky_file1)) {
+      stop(paste0("Nenalezen soubor jednotek (z Fidovych exportu ze SkautISu): ", jednotky_file1))
+    } else {
+      jednotky_file = jednotky_file1
+    }
+  } else {
+    jednotky_file = jednotky_file2
+  }
+
+  jednotky  <- readxl::read_excel(jednotky_file, sheet = "List1",
+                                  col_types = c("numeric","text","text","text","text","text","text")) %>%
+    rename(ev_cislo = RegistrationNumber, nazev_jednotky = DisplayName,
+           mesto = City, ulice = Street, psc = Postcode )
 
   warning("Používám rucne upravený soubor - rok_registrace je v originalnim 'data_pracovni_dodatek_170624.csv.xlsx'  castecne formatovan jako datum, nutno vyřešit")
   #registrace  <- readxl::read_excel(here("private_data","skautis","data_pracovni_dodatek_170624.csv.xlsx"), sheet = "registrace", col_types = c("text","text", "text", "numeric", "date","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric"), na = "NULL")

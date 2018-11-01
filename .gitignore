@@ -28,12 +28,17 @@ vignettes/*.pdf
 /*_cache/
 /cache/
 
+# Compiled markdown
+/*_files/
+/*.html
+
+# Notebook outputs
+*.nb.html
+
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
 
-# Notebook outputs
-*.nb.html
 
 /private_data/
 /local_data/
