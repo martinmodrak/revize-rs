@@ -41,9 +41,9 @@ source(here::here("R","tools_spokojenost_aktivita.R"), encoding = "UTF-8")
 if(!file.exists("private_data/sondy_181101.rds")) {
   stop("Nenalezena predzpracovana data ze sond. Spust sondy_prepare_data.R")
 }
-sondy <- readRDS("private_data/sondy_181101.rds")
+sondy_raw <- readRDS("private_data/sondy_181101.rds")
 
-sondy <- sondy %>%
+sondy <- sondy_raw %>%
   filter(q0_clen_junaka == "Ano") %>%
   mutate(
     max_funkce = if_else(
@@ -71,10 +71,20 @@ sondy <- sondy %>%
   )
 ```
 
-Nejprve několik poznám
+# Hlavní kvalitativní výsledky
+
+Nejprve několik obecných poznámek k tomu, jak jsme s daty pracovali:
+
+ * Spokojenost je měřena dle odpovědi na otázku "Jak jsi celkově spokojen/a s činností roverského společenství?" s odpovědmi na čtyřstupňové škále Velmi/spíše (ne)spokojen. Respondenty, kteří na tuto otázku neodpověděli vynecháváme.
+ * Aktivita je měřena odpovědí na otázku "Jaká je frekvence setkávání roverského společenství?", ta má čtyři kategorie (schůzky, celodenní akce, vícedenní akce, tábory/expedice), a odpověď je na osmistupňové škále od "Nikdy" a "Méně často než 1 za rok", až po "Každý týden nebo častěji". Respondenty, kteří neodpověděli ani v jedné podotázce vynecháváme, u těch, kteří odpověděli jen na některé podotázky bereme, že odpověd na ostatní je "Nikdy"
+ * Data obsahují hodně prázdných odpovědí i v otázkách ve kterých hledáme asociace se spokojeností/aktivitou. U kategorických odpovědí (typicky Ano/Ne) jsme doplnili kategorii "Neuvedeno", zatímco respondenty s chybějícími číselnými hodnotami (věk, kolik let RS kmen funguje, počet aktivních lidí v kmeni) jsme vyhodili. To je trochu hack a vyhodí to nepříjemně mnoho odpovědí. Nevíme, jak moc neovlivní výsledky, ale udělat to líp je víc práce, než jsme teď ochotní vydat.
+ * Data jsou využita v Bayesovském lineárním modelu, který bere odpovědi ke spokojenosti i aktivitě jako seřazené, ale nepřevádí je na číselnou škálu (tj. očekáváme, že mezi "Velmi nespokojen" a "Spíše nespokojen" může být jiný rozdíl než mezi "Spíše nespokojen" a "Spíše spokojen"). Odpovědi k aktivitě jsou brány každá zvlášť, ale sloučeny v jednom modelu (tj. nepovažujeme je ze nezávislé).
+ 
+ TODO: jak se poznají ti, co vůbec dostali roverské otázky?
 
 ```{r model_spokojenost, message=FALSE}
 
+#Filtrace data pro neuvedene hodnoty ciselnych prediktoru a nahrazovani neuvedenych u kategorickych za "Neuvedeno"
 zakladni_data_pro_model <- sondy %>% 
   filter(!is.na(kolik_let_rs_kmen_funguje), !is.na(kmen_kolik_aktivnich_lidi), !is.na(vek)) %>%
   mutate(
@@ -105,36 +115,57 @@ normalized_translator_vek <- normalized_translator(zakladni_data_pro_model$vek_o
 spokojenost_pro_model <- zakladni_data_pro_model %>%
   filter(!is.na(celkova_spokojenost_s_programem_rs_kmenu))
 
-# predictor_matrix <- matrix(0, nrow = 3, ncol = ncol(spokojenost_pro_model))
-# colnames(predictor_matrix) <- names(spokojenost_pro_model)
-# predictor_matrix[, c("kmen_kolik_aktivnich_lidi","kolik_let_rs_kmen_funguje", "je_rs_kmen_registrovany", "je_ve_meste_univerzita")] <- 1
-# predictor_matrix[3,c("frekvence_rs_akci_celodenni_akce","frekvence_rs_akci_schuzky",
-#                                             "frekvence_rs_akci_vicedenni_akce","frekvence_rs_akci_tabory_expedice")] <- 1
-
-
-# spokojenost_imputed <- mice(spokojenost_pro_model, 
-#                             blocks = list("kmen_kolik_aktivnich_lidi","kolik_let_rs_kmen_funguje", 
-#                                           c("frekvence_rs_akci_celodenni_akce","frekvence_rs_akci_schuzky",
-#                                             "frekvence_rs_akci_vicedenni_akce","frekvence_rs_akci_tabory_expedice")),
-#                             predictorMatrix = predictor_matrix)
-cat("Pro model spokojenosti je dostupných ", nrow(spokojenost_pro_model), "řádků (",nrow(spokojenost_pro_model)/nrow(sondy), ")\n")
+celkem_roveru_v_dotazniku <- sondy %>% filter(!is.na(celkova_spokojenost_s_programem_rs_kmenu) | grepl("Ano", jsi_clenem_rs_kmene)) %>% nrow()
+cat("Pro model spokojenosti je dostupných ", nrow(spokojenost_pro_model), "řádků (",round(100 * nrow(spokojenost_pro_model)/celkem_roveru_v_dotazniku), "%)\n")
 
 
 formula_spokojenost <- brmsformula(celkova_spokojenost_int ~ kmen_kolik_aktivnich_lidi + kolik_let_rs_kmen_funguje + vek + (1|| pohlavi + rs_kmen_prvky_vudce + rs_kmen_prvky_rada + max_funkce + max_funkce_v_kmeni + je_ve_meste_univerzita + studium_ve_meste_strediska + je_vice_rs_kmenu_ve_stredisku + je_rs_kmen_registrovany + povazujes_se_za_rovera + kdo_pripravuje_program + kraj + velikost_obce),
                                    family = cumulative("logit"))
 
-#get_prior(formula_spokojenost, data = spokojenost_pro_model)
-priors <- c(prior(normal(0,1), class = "b"),#prior(horseshoe(par_ratio = 0.3), class = "b"),
+priors <- c(prior(normal(0,1), class = "b"),
             prior(normal(0,1), class = "sd"))
-#priors <- prior(normal(0,1), class = "b")
 
-#make_stancode(formula_spokojenost, data = spokojenost_pro_model, prior = priors) 
+
 fit_spokojenost <- brm(formula_spokojenost, data = spokojenost_pro_model, prior = priors, control = list(adapt_delta = 0.99), file = here::here("local_data","fit_spokojenost"))
 
 ```
 
+```{r model_aktivita, message = FALSE}
+aktivita_pro_model <- zakladni_data_pro_model %>%
+  filter(!is.na(frekvence_rs_akci_schuzky) || !is.na(frekvence_rs_akci_celodenni_akce) || !is.na(frekvence_rs_akci_vicedenni_akce) || !is.na(frekvence_rs_akci_tabory_expedice)) %>%
+  mutate(    
+    frekvence_rs_akci_celodenni_akce = recode_frekvence(frekvence_rs_akci_celodenni_akce),
+    frekvence_rs_akci_schuzky = recode_frekvence(frekvence_rs_akci_schuzky),
+    frekvence_rs_akci_vicedenni_akce = recode_frekvence(frekvence_rs_akci_vicedenni_akce),
+    frekvence_rs_akci_tabory_expedice = recode_frekvence(frekvence_rs_akci_tabory_expedice)
+ )
+
+cat("Pro model aktivity je dostupných ", nrow(aktivita_pro_model), "řádků (",round(100 * nrow(spokojenost_pro_model)/celkem_roveru_v_dotazniku), "%)\n")
+
+formula_aktivita <- update.formula(formula_spokojenost, cbind(frekvence_rs_akci_schuzky, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice) ~ .)
+#formula_aktivita <- update.formula(formula_spokojenost, frekvence_rs_akci_celodenni_akce ~ .)
+
+response_names <- 
+  c("frekvence_rs_akci_celodenni_akce","frekvence_rs_akci_schuzky","frekvence_rs_akci_vicedenni_akce", "frekvence_rs_akci_tabory_expedice") %>%
+  #"" %>%
+  gsub("_","", ., fixed = TRUE)
+
+priors_multivar <- 
+  response_names %>%
+  map(function(resp) { c(set_prior("normal(0,1)", class = "b", resp = resp),#prior(horseshoe(par_ratio = 0.3), class = "b"),
+            set_prior("normal(0,1)", class = "sd", resp = resp)) }) %>% do.call(c, .)
+
+
+fit_aktivita <- brm(formula_aktivita, data = aktivita_pro_model, prior = priors_multivar, control = list(adapt_delta = 0.99), family = cumulative("logit"), file = here::here("local_data","fit_aktivita")) 
+
+```
+
+Pro účely zobrazovávní výsledků provedeme zjednodušení - odpovědi na spokojenost rozdělíme na dvě kategorie (spokojen vs. nespokojen) a aktivitu taktéž - za aktivní považujeme kmen, který má schůzky alespoň jednou za 14 dní NEBO celodenní akce alespoň jednou měsíčně NEBO vícedenní akce alespoň jednou za čtvrt roku NEBO tábory/expedice častěji než jednou za rok. Hlavní výhodou je, že obě kategorizace dělí odpovědi zhruba na polovinu.
+
 ```{r}
 #pomocne nastroje pro ploteni spokojenosti
+
+# Prevede cisla na string uvede ze horni limit je neurcen
 continous_var_labels <- function(var_values) {
   labels <- as.character(var_values)
   labels[length(labels)] <- paste0(labels[length(labels)], "+")
@@ -161,46 +192,14 @@ effects_by_prediction_spokojenost <- function(var_name, var_values = levels(spok
                         response_to_value_func = function(x) {1 - sum(x[1:num_low_categories])}, 
                         response_title = "P(spíše spokojen než ne)",
                         n_samples = n_samples,
-                        max_lines = max_lines)
+                        max_lines = max_lines) + ggtitle(paste0("Spokojenost dle ", var_name))
 }
 ```
 
 
-Aktivita - vyhodime, kdo nevyplnil vse, pokud vyplnil aspon jedno, dame vsude jinde "Nikdy"
-
-
-```{r model_aktivita}
-aktivita_pro_model <- zakladni_data_pro_model %>%
-  filter(!is.na(frekvence_rs_akci_schuzky) || !is.na(frekvence_rs_akci_celodenni_akce) || !is.na(frekvence_rs_akci_vicedenni_akce) || !is.na(frekvence_rs_akci_tabory_expedice)) %>%
-  mutate(    
-    frekvence_rs_akci_celodenni_akce = recode_frekvence(frekvence_rs_akci_celodenni_akce),
-    frekvence_rs_akci_schuzky = recode_frekvence(frekvence_rs_akci_schuzky),
-    frekvence_rs_akci_vicedenni_akce = recode_frekvence(frekvence_rs_akci_vicedenni_akce),
-    frekvence_rs_akci_tabory_expedice = recode_frekvence(frekvence_rs_akci_tabory_expedice)
- )
-
-cat("Pro model dostupných ", nrow(aktivita_pro_model), "řádků (",nrow(aktivita_pro_model)/nrow(sondy), ")\n")
-
-
-formula_aktivita <- update.formula(formula_spokojenost, cbind(frekvence_rs_akci_schuzky, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice) ~ .)
-#formula_aktivita <- update.formula(formula_spokojenost, frekvence_rs_akci_celodenni_akce ~ .)
-
-response_names <- 
-  c("frekvence_rs_akci_celodenni_akce","frekvence_rs_akci_schuzky","frekvence_rs_akci_vicedenni_akce", "frekvence_rs_akci_tabory_expedice") %>%
-  #"" %>%
-  gsub("_","", ., fixed = TRUE)
-
-priors_multivar <- 
-  response_names %>%
-  map(function(resp) { c(set_prior("normal(0,1)", class = "b", resp = resp),#prior(horseshoe(par_ratio = 0.3), class = "b"),
-            set_prior("normal(0,1)", class = "sd", resp = resp)) }) %>% do.call(c, .)
-
-
-fit_aktivita <- brm(formula_aktivita, data = aktivita_pro_model, prior = priors_multivar, control = list(adapt_delta = 0.95), family = cumulative("logit"), file = here::here("local_data","fit_aktivita")) 
-
-```
-
 ```{r}
+# Pomucky pro vykresleni aktivity
+
 # Tvrdime, ze kmen je aktivni, kdyz ma schuzky >= 7 (jednou za 14 dni) NEBO celodenky >= 6 (jednou mesicne) NEBO vicedenky >= 5 (jednou za 1/4 roku) NEBO tabory/expedice >= 4 (jednou za pul roku).
 effects_by_prediction_aktivita <- function(var_name, var_values = levels(aktivita_pro_model[[var_name]]), var_labels = var_values, order = FALSE) {
   prah_schuzky = 7
@@ -242,11 +241,11 @@ effects_by_prediction_aktivita <- function(var_name, var_values = levels(aktivit
                             sum(x[offset_vicedenky:(offset_vicedenky + prah_vicedenky - 2)]) * 
                             sum(x[offset_tabory:(offset_tabory + prah_tabory - 2)])
                           }, 
-                        response_title = "P(spíše aktivní než ne)")
+                        response_title = "P(spíše aktivní než ne)") + ggtitle(paste0("Aktivita dle ", var_name))
 }
 ```
 
-
+Níže již zobrazené výsledky modelu pro jednotlivé zajímavé asociace. Velké zelené tečky reprezentují podíl spokojených/aktivních v datech, velikost tečky odpovídá počtu respondentů v dané kategorii. Svislé čáry reprezentují celkovou predikci modelu pro tuto kategorii (tenká čára 95% interval, tlust8)
 
 ```{r}
 veky <- seq(15,25, by = 2)
