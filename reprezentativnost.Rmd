@@ -48,7 +48,7 @@ data_skautis_2015 <- jednotky_oddily_kmeny_predvyzkum(rok = 2015) %>%
 data_kmen <- read_csv(here("private_data","vyzkum_kmen_odpovedi.csv")) %>% rename(vek = `Kolik Ti je let?`, velikost_obce = `Z jak velkého města pocházíš?`)
 ```
 
-# Reprezentativnost podle místa, kde žiji
+## Reprezentativnost podle místa, kde žiji
 
 Křivky zobrazujeme zvlášť pro věkové kategorie, které máme vyexportované ze SkautISu (lepší rozlišení nemáme).
 
@@ -120,7 +120,7 @@ reprezentativnost(seskupeni_obec_skautis_kmen,seskupeni_obec_kmen, "kmen", "veli
 Sondy mají separátní otázku "velikost města kde žiješ" a "velikost města, kde působí tvé středisko". Použil jsem tu druhou, protože se lépe váže na SkautIS a neměl by tedy zde být vidět efekt studentů - jakkoliv je stále možné, že středisko má sídlo jinde, než kde působí (například jedno Brněnské středisko má sídlo mimo Brno, nejspíš střediskový vůdce chtěl bydlet v přírodě). Sondy navíc sbíraly nejen velikost obce, ale i kraj, takže se můžeme podívat na obojí. Zdá se, že sondy mají nabohacená střední města na úkor menších měst, ale velké města ani nejmenší obce nejsou zatíženy chybou. U krajů lze vidět jisté navýšení Prahy a nejspíš i Brna (Jihomoravský kraj) a Královéhradeckého kraje, ale není to příliš ostré.
 
 ```{r}
-data_sondy <- readRDS("private_data/sondy_180420.rds")
+data_sondy <- readRDS("private_data/sondy_181101.rds")
 
 if(! all(unique((data_sondy %>% filter(!is.na(kraj)))$kraj) %in% unique(data_skautis$nazev_kraj))){
   stop("Nektere kraje ve SkautISu nematchuji na data ze sond")
@@ -154,7 +154,7 @@ reprezentativnost(seskupeni_kraj_skautis_sondy, seskupeni_kraj_sondy, "_sondy", 
 
 ```
 
-# Reprezenativnost dle věku
+## Reprezenativnost dle věku
 
 Díky pseudonymizovaným datům ze SkautISu se můžeme podívat i na reprezentativnost podle věku s přesností na roky (k těmto datům ale nelze přiřadit velikost města nebo kraj.) Tyto křivky se trochu hůře interpretují, protože očekáváme, že v dotazech o roveringu nebudou odpovědi mladších a starších členů. Jak moc jsou data reprezentativní závisí dost na tom, jaké věkové rozmezí bychom očekávali, u lidí, kteří odpovídají. Rozhodl jsem se omezit na dvě rozpětí:  16-20 let a 15-26 let, ale nemá to žádný hluboký důvod. Každopádně vidíme, že sondy i kmen měly malý zásah u 15ti letých, sondy i u 16ti letých. V rozmezí 17-20 je reprezentativnost dobrá, kmen pak méně zachytil starší respondenty, zatímco sondy jich naopak mají více než bychom čekali. Pro dotazník kmene je důležité mít na paměti, že vybírali lidi podle výchovné kategorie, zatímco my pracujeme podle věku, jelikož výchovnou kategorii v našich datech nemáme.
 

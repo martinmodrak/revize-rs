@@ -1,3 +1,30 @@
+plot_spokojenost <- function(spokojenost, group, plot = "hist") {
+  spokojenost$group <- spokojenost[[group]]
+  spokojenost <- spokojenost %>% filter(!is.na(group))
+  pocet_skupiny <- spokojenost %>% group_by(group) %>% summarise(pocet_skupiny = length(id))
+
+  spokojenost_dle_group <- spokojenost %>% group_by(celkova_spokojenost_s_programem_rs_kmenu, group) %>% summarise(pocet_spokojenych = length(id))
+
+  spokojenost_dle_group <- spokojenost_dle_group %>%
+    inner_join(pocet_skupiny, by = c("group" = "group")) %>%
+    mutate(podil_spokojenych = pocet_spokojenych / pocet_skupiny)
+
+  if(plot == "heatmap") {
+    spokojenost_dle_group %>% ggplot(aes(x = group, y = celkova_spokojenost_s_programem_rs_kmenu, fill = podil_spokojenych)) + geom_bin2d(stat = "identity") + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + scale_fill_scico(palette = "roma") + xlab(group)
+
+  } else if (plot == "hist") {
+    mean_spokojenost <- spokojenost %>% group_by(group) %>%
+      summarise(mean_spokojenost = mean(as.integer(celkova_spokojenost_s_programem_rs_kmenu)))
+
+    spokojenost_dle_group %>% ggplot(aes(x = celkova_spokojenost_s_programem_rs_kmenu, y = podil_spokojenych)) + geom_bar( stat = "identity") +
+      geom_label(data = pocet_skupiny, aes(label = pocet_skupiny), x = 1, y = 0.5, inherit.aes = FALSE) +
+      geom_vline(data = mean_spokojenost, aes(xintercept = mean_spokojenost), color = "blue", size = 2) +
+      facet_wrap(~group) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + xlab(group)
+  } else {
+    stop("Unrecognized plot")
+  }
+}
+
 recode_frekvence <- function(x) {
   #Davame default "Nikdy"
   recode(x, .missing = 1,

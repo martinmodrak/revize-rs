@@ -36,7 +36,7 @@ df <- df %>%
          funkce_v_oddile_druzinovy_radce = `qs9OddFce[3]`,
          funkce_v_oddile_clen_vedeni_oddilu = `qs9OddFce[4]`,
          funkce_v_oddile_jine = `qs9OddFce[other]`,
-         je_ve_meste_univezita = qRS1StredUniv,
+         je_ve_meste_univerzita = qRS1StredUniv,
          studium_ve_meste_strediska = qRS2Studium,
          pocet_obyvatel_kde_vetsina_roku = qRS3Size,
          realne_vedeni_oddilu = VOq1,
@@ -245,4 +245,4 @@ df <- df %>%
 
 
 
-saveRDS(df, file = "private_data/sondy_180420.rds")
+saveRDS(df, file = "private_data/sondy_181101.rds")
