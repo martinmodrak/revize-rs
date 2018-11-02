@@ -128,7 +128,7 @@ effects_by_prediction <- function(fit, orig_data, var_name, var_values, var_labe
     scale_y_continuous(response_title, limits = c(0,1)) +
     scale_x_discrete(var_name) +
     scale_size_continuous(range = c(2,8)) +
-    guides(color = guide_legend(override.aes = list(alpha=1)), size = FALSE) +
+    guides(color = guide_legend(override.aes = list(alpha=1))) +
     if(length(var_values) > 4 && max(nchar(var_labels) > 4)) {
       theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
     } else {

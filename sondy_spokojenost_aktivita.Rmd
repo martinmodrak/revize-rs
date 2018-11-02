@@ -80,8 +80,6 @@ Nejprve několik obecných poznámek k tomu, jak jsme s daty pracovali:
  * Data obsahují hodně prázdných odpovědí i v otázkách ve kterých hledáme asociace se spokojeností/aktivitou. U kategorických odpovědí (typicky Ano/Ne) jsme doplnili kategorii "Neuvedeno", zatímco respondenty s chybějícími číselnými hodnotami (věk, kolik let RS kmen funguje, počet aktivních lidí v kmeni) jsme vyhodili. To je trochu hack a vyhodí to nepříjemně mnoho odpovědí. Nevíme, jak moc neovlivní výsledky, ale udělat to líp je víc práce, než jsme teď ochotní vydat.
  * Data jsou využita v Bayesovském lineárním modelu, který bere odpovědi ke spokojenosti i aktivitě jako seřazené, ale nepřevádí je na číselnou škálu (tj. očekáváme, že mezi "Velmi nespokojen" a "Spíše nespokojen" může být jiný rozdíl než mezi "Spíše nespokojen" a "Spíše spokojen"). Odpovědi k aktivitě jsou brány každá zvlášť, ale sloučeny v jednom modelu (tj. nepovažujeme je ze nezávislé).
  
- TODO: jak se poznají ti, co vůbec dostali roverské otázky?
-
 ```{r model_spokojenost, message=FALSE}
 
 #Filtrace data pro neuvedene hodnoty ciselnych prediktoru a nahrazovani neuvedenych u kategorickych za "Neuvedeno"
@@ -160,7 +158,7 @@ fit_aktivita <- brm(formula_aktivita, data = aktivita_pro_model, prior = priors_
 
 ```
 
-Pro účely zobrazovávní výsledků provedeme zjednodušení - odpovědi na spokojenost rozdělíme na dvě kategorie (spokojen vs. nespokojen) a aktivitu taktéž - za aktivní považujeme kmen, který má schůzky alespoň jednou za 14 dní NEBO celodenní akce alespoň jednou měsíčně NEBO vícedenní akce alespoň jednou za čtvrt roku NEBO tábory/expedice častěji než jednou za rok. Hlavní výhodou je, že obě kategorizace dělí odpovědi zhruba na polovinu.
+Pro účely zobrazovávní výsledků provedeme zjednodušení - odpovědi na spokojenost rozdělíme na dvě kategorie (spokojen vs. nespokojen) a aktivitu taktéž - za aktivní považujeme kmen, který má schůzky alespoň jednou za 14 dní NEBO celodenní akce alespoň jednou měsíčně NEBO vícedenní akce alespoň jednou za čtvrt roku NEBO tábory/expedice častěji než jednou za rok. Hlavní výhodou je, že obě kategorizace dělí odpovědi zhruba na polovinu. Jsou taky jisté důvody se domnívat, že to jen přiměřeně zkresluje výsledky modelu.
 
 ```{r}
 #pomocne nastroje pro ploteni spokojenosti
@@ -245,98 +243,64 @@ effects_by_prediction_aktivita <- function(var_name, var_values = levels(aktivit
 }
 ```
 
-Níže již zobrazené výsledky modelu pro jednotlivé zajímavé asociace. Velké zelené tečky reprezentují podíl spokojených/aktivních v datech, velikost tečky odpovídá počtu respondentů v dané kategorii. Svislé čáry reprezentují celkovou predikci modelu pro tuto kategorii (tenká čára 95% interval, tlust8)
-
 ```{r}
-veky <- seq(15,25, by = 2)
-effects_by_prediction_spokojenost("vek", normalized_translator_vek(veky), var_labels = continous_var_labels(veky))
-
-effects_by_prediction_spokojenost("pohlavi", c("Neuvedeno","Žena","Muž"))
-
-effects_by_prediction_spokojenost("velikost_obce")
-
-effects_by_prediction_spokojenost("kraj", order = TRUE)
-
+combined_effects_by_prediction <- function(var_name, var_values = levels(aktivita_pro_model[[var_name]]), var_labels = var_values, order = FALSE) {
+  effects_by_prediction_spokojenost(var_name, var_values, var_labels, order) %>% print()
+  effects_by_prediction_aktivita(var_name, var_values, var_labels, order) %>% print()
+}
 ```
+
+
+Níže již zobrazené výsledky modelu pro jednotlivé zajímavé asociace. Začneme počtem aktivních lidí. Pokochejte se tím pohledem, hned si vysvětlíme, co to všechno znamená.
 
 ```{r}
 pocty_lidi <- seq(5,30, by = 5)
-effects_by_prediction_spokojenost("kmen_kolik_aktivnich_lidi", normalized_translator_aktivni_lide(pocty_lidi), var_labels = continous_var_labels(pocty_lidi))
+combined_effects_by_prediction("kmen_kolik_aktivnich_lidi", normalized_translator_aktivni_lide(pocty_lidi), var_labels = continous_var_labels(pocty_lidi))
+```
 
+
+ Velké zelené tečky reprezentují podíl spokojených/aktivních v datech, velikost tečky odpovídá počtu respondentů v dané kategorii. Zbytek jsou předpovědi modelu - pro každou proměnnou, která nás zajímá (zde počet aktivních lidí v kmeni), vezmeme všechny respondenty a představíme si jejich hypotetické kopie, které se liší právě jen v té jedné proměnné (zde jedna kopie v kmeni s 5 lidmi, další s 10 lidmi, ...). Pro každou kopii rovera pak uděláme několik set drobně odlišných předpovědí, které jsou všechny konzistentní s pozorovanými daty. Tyto různé předpovědi reprezentují naši nejistotu způsobenou tím, že nemáme nekonečně dat a tím, že dva roveři, kteří by na vše kromě spokojenosti a aktivity odpověděli v sondách stejně nemusí být stejně spokojení/aktivní.
+ 
+ Svislé černé čáry reprezentují celkovou predikci modelu pro tuto kategorii. Tenká černá čára ukazuje interval, kam se vejde 95% předpovědí pro hypotetické rovery, pod tlustou čáru se vejde 50% předpovědí. Vidíme, že nejistota je velká a tyto intervaly široké, ale v průměru mírně stoupají. Každá "vodorovná" barevná čára reprezentuje jednu sadu předpovědí pro všechny kopie jednoho skutečného rovera (jde o malý náhodný vzorek z roverů i předpovědí, aby to bylo přehledné). Tyto nám umožnějí hezky vidět variabilitu mezi rovery a nejistotu v předpovědích. Vidíme, že přestože variabilita je velká, tak je ve všech případech asociace kladná - pravděpodobnost, že rover bude spokojený nebo že jeho kmen bude aktivní je u kmenů s větším počtem členů vyšší.
+ 
+Tento příklad nám zároveň hezky ukazuje limity závěrů z takovéto analýzy: jsou roveři spokojenější/aktivnější, protože je v kmenu více lidí? Nebo kmen spokojených/aktivních roverů více láká další lidi, aby se připojili a zůstali v kmeni? Nebo nějaká kombinace obojího? Rozhodně by ale bylo bláhové očekávat, že kdybychom sloučili dva kmeny, abychom dostali jeden větší, tak spolehlivě získáme spokojenější nebo aktivnější kmen.
+
+Podívejme se na o něco zajímavější asociaci - mít či nemít vůdce kmene?
+
+```{r}
+combined_effects_by_prediction("rs_kmen_prvky_vudce", c("Ne", "Ano"))
+```
+
+```{r}
+combined_effects_by_prediction("rs_kmen_prvky_rada", c("Ne", "Ano"))
+```
+
+
+
+```{r}
 roky_kmene <- c(1,2,4,8,16)
-effects_by_prediction_spokojenost("kolik_let_rs_kmen_funguje", normalized_translator_let_funguje(roky_kmene), var_labels = continous_var_labels(roky_kmene ))
+combined_effects_by_prediction("kolik_let_rs_kmen_funguje", normalized_translator_let_funguje(roky_kmene), var_labels = continous_var_labels(roky_kmene ))
 
-
-effects_by_prediction_spokojenost("rs_kmen_prvky_vudce", c("Ne", "Ano"))
-
-effects_by_prediction_spokojenost("rs_kmen_prvky_rada", c("Ne", "Ano"))
-effects_by_prediction_spokojenost("kdo_pripravuje_program", c("Nevím", "Neuvedeno","vudce","uzka_skupina", "vsichni"))
-
-effects_by_prediction_spokojenost("povazujes_se_za_rovera", c("Neuvedeno","Ne_ale_budu","Ne_ale_byl", "Ano"))
-
-effects_by_prediction_spokojenost("studium_ve_meste_strediska", c("Ne", "Ano"))
-
-effects_by_prediction_spokojenost("max_funkce")
-
-effects_by_prediction_spokojenost("je_ve_meste_univerzita", c("Ne","Ano"))
-```
-
-```{r}
-effects_by_prediction_spokojenost("je_vice_rs_kmenu_ve_stredisku")
-effects_by_prediction_spokojenost("je_rs_kmen_registrovany")
-
-```
-
-
-
-
-
-
-
-
-```{r}
-effects_by_prediction_aktivita("vek", normalized_translator_vek(veky), var_labels = continous_var_labels(veky))
-
-effects_by_prediction_aktivita("pohlavi", c("Neuvedeno","Žena","Muž"))
-
-effects_by_prediction_aktivita("velikost_obce")
-
-effects_by_prediction_aktivita("kraj", order = TRUE)
 ```
 
 
 ```{r}
-
-
-effects_by_prediction_aktivita("kmen_kolik_aktivnich_lidi", normalized_translator_aktivni_lide(pocty_lidi), var_labels = continous_var_labels(pocty_lidi))
-
-effects_by_prediction_aktivita("kolik_let_rs_kmen_funguje", normalized_translator_let_funguje(roky_kmene), var_labels = continous_var_labels(roky_kmene ))
-
-
-effects_by_prediction_aktivita("rs_kmen_prvky_vudce", c("Ne", "Ano"))
-
-effects_by_prediction_aktivita("rs_kmen_prvky_rada", c("Ne", "Ano"))
-effects_by_prediction_aktivita("kdo_pripravuje_program", c("Nevím", "Neuvedeno","uzka_skupina", "vsichni","vudce"))
-
-effects_by_prediction_aktivita("povazujes_se_za_rovera", c("Neuvedeno","Ne_ale_budu","Ne_ale_byl", "Ano"))
-
-effects_by_prediction_aktivita("studium_ve_meste_strediska", c("Ne", "Ano"))
-
-effects_by_prediction_aktivita("max_funkce")
-
-effects_by_prediction_aktivita("je_vice_rs_kmenu_ve_stredisku")
-effects_by_prediction_aktivita("je_rs_kmen_registrovany")
-
+combined_effects_by_prediction("kdo_pripravuje_program", c("Nevím", "Neuvedeno","vudce","uzka_skupina", "vsichni"))
 
 ```
+
 
 ```{r}
-effects_by_prediction_aktivita("kraj")
+combined_effects_by_prediction("velikost_obce")
 
 ```
 
 
-# Hlavní kvantitativní výsledky
+```{r}
+veky <- seq(15,25, by = 2)
+combined_effects_by_prediction("vek", normalized_translator_vek(veky), var_labels = continous_var_labels(veky))
+```
+
 
 # Podrobnější a doplňkové výsledky
 
@@ -360,6 +324,41 @@ funkce_pohlavi %>%
   ggplot(aes(x = pohlavi, y = max_funkce, fill = podil_funkce)) + geom_bin2d(stat="identity")
 
 ```
+
+## Predikce modelu pro další proměnné
+
+```{r}
+
+combined_effects_by_prediction("pohlavi", c("Neuvedeno","Žena","Muž"))
+
+combined_effects_by_prediction("kraj", order = TRUE)
+
+```
+
+
+
+```{r}
+
+combined_effects_by_prediction("povazujes_se_za_rovera", c("Neuvedeno","Ne_ale_budu","Ne_ale_byl", "Ano"))
+
+combined_effects_by_prediction("studium_ve_meste_strediska", c("Ne", "Ano"))
+
+combined_effects_by_prediction("max_funkce")
+
+combined_effects_by_prediction("je_ve_meste_univerzita", c("Ne","Ano"))
+```
+
+```{r}
+combined_effects_by_prediction("je_vice_rs_kmenu_ve_stredisku")
+combined_effects_by_prediction("je_rs_kmen_registrovany")
+
+```
+
+
+
+
+
+## Přímý pohled na data
 
 Nedá se moc říct, že by spokojenost s programem RS kmene souvisela s funkcí ani s další sadou prediktorů.
 
@@ -416,17 +415,7 @@ plot_spokojenost_continuous(spokojenost, "kolik_let_rs_kmen_funguje")
 
 ```
 
-Lineární model pro spokojenost. Ignorujeme ty, co mají neuvedené číselné hodnoty. U výběru z možností zavádíme kategorii "Neuvedeno" (hulvátský, ale co už). 
-V zásadě se dá říct, že model podporuje to, co jsme  viděli v grafech výše: kmeny s více lidmi jsou spokojenější (to je nejsilnější pozorovaná korelace), kmeny s vůdcem jsou více spokojené. Ostatní věci se pohybují někde kolem nuly.
-
-TODO: rozmyslet 1||x vs x (první se lépe čte, ale pro binární není moc vhodné)
-
-
-
-TODO: velikost tecky
-
-
-
+## Nastavení prahu pro "aktivní" kmen
 
 ```{r}
 celkova_aktivita_dle_prahu <- function(prahy) {
