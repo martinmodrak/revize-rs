@@ -19,9 +19,7 @@ Spokojenost i aktivita roverů se zdá (nepřekvapivě) být nejvíc asociována
 
 Slabší  asociaci jsme také našli u toho, kdo připravuje program - příprava programu pouze v úzké skupině je spojena s nižší aktivitou zatímco nejvyšší aktivitu jsme viděli u kmenů, kde program připravuju hlavně vůdce. Program připravovaný hlavně vůdcem je ale spojen s nižší spokojeností zatímce ve kmenech, kde je vyšší spokojenost se na přípravě spíše podílejí všichni.
 
-Roveři v menších městech se zdají být méně aktivní, ale podobně spokojení.
-
-Naopak jsme NEpozorovali asociaci s délkou fungování kmene
+Naopak jsme NEpozorovali asociaci s délkou fungování kmene. U velikosti obce, kde roveři žijí také nelze pozorovat jasný trend.
 
 ```{r setup, message=FALSE, echo = FALSE}
 knitr::opts_chunk$set(echo=FALSE)
@@ -263,7 +261,9 @@ combined_effects_by_prediction("kmen_kolik_aktivnich_lidi", normalized_translato
  
  Svislé černé čáry reprezentují celkovou predikci modelu pro tuto kategorii. Tenká černá čára ukazuje interval, kam se vejde 95% předpovědí pro hypotetické rovery, pod tlustou čáru se vejde 50% předpovědí. Vidíme, že nejistota je velká a tyto intervaly široké, ale v průměru mírně stoupají. Každá "vodorovná" barevná čára reprezentuje jednu sadu předpovědí pro všechny kopie jednoho skutečného rovera (jde o malý náhodný vzorek z roverů i předpovědí, aby to bylo přehledné). Tyto nám umožnějí hezky vidět variabilitu mezi rovery a nejistotu v předpovědích. Vidíme, že přestože variabilita je velká, tak je ve všech případech asociace kladná - pravděpodobnost, že rover bude spokojený nebo že jeho kmen bude aktivní je u kmenů s větším počtem členů vyšší.
  
-Tento příklad nám zároveň hezky ukazuje limity závěrů z takovéto analýzy: jsou roveři spokojenější/aktivnější, protože je v kmenu více lidí? Nebo kmen spokojených/aktivních roverů více láká další lidi, aby se připojili a zůstali v kmeni? Nebo nějaká kombinace obojího? Rozhodně by ale bylo bláhové očekávat, že kdybychom sloučili dva kmeny, abychom dostali jeden větší, tak spolehlivě získáme spokojenější nebo aktivnější kmen.
+Tento příklad nám zároveň hezky ukazuje limity závěrů z takovéto analýzy: jsou roveři spokojenější/aktivnější, protože je v kmenu více lidí? Nebo kmen spokojených/aktivních roverů více láká další lidi, aby se připojili a zůstali v kmeni? Nebo nějaká kombinace obojího? A není ta vazba ještě  nějak komplikovanější? Rozhodně by ale bylo bláhové očekávat, že kdybychom sloučili dva kmeny, abychom dostali jeden větší, tak spolehlivě získáme spokojenější nebo aktivnější kmen.
+
+Efekt také není bůhvíjak silný - šance na spokojenost/aktivitu se zvyšuje maximálně o cca 20% a to jen u některých "hypotetických roverů". Zároveň je toto asi nejsilnější efekt, jaký jsme v datech našli.
 
 Podívejme se na o něco zajímavější asociaci - mít či nemít vůdce kmene?
 
@@ -271,11 +271,15 @@ Podívejme se na o něco zajímavější asociaci - mít či nemít vůdce kmene
 combined_effects_by_prediction("rs_kmen_prvky_vudce", c("Ne", "Ano"))
 ```
 
+Pro spokojenost i aktivitu je asociace s vůdcem kmene pozitivní a jen o něco menší než pro počet lidí v kmeni. To je rozhodně něco, co nás zajímá - je rozumné doporučovat, aby kmeny měly vůdce nebo se organizovaly decentralizovaně? Sondy nevylučují, že mít vůdce pomáhá, ale je nemožné říct, jestli vůdce dělá kmeny lepšími nebo jestli funkčnější kmeny snáze najdou někoho, kdo je bude vést.  Navíc jak vidíme (ve velikosti teček), respondentů z kmenů, kde je vůdce, není příliš mnoho a je tedy potřeba brát tyto s rezervou. 
+
+A co takhle mít oddílovou radu?
+
 ```{r}
 combined_effects_by_prediction("rs_kmen_prvky_rada", c("Ne", "Ano"))
 ```
 
-
+Vyšší aktivita je asociována s oddílovou radou, zatímco spokojenosti není výrazně asociována - vidíme velké množství kladných i záporných asociací, tj. velkou nejistotu o tom, jaká je skutečnost. Zároveň můžeme s velkou pravděpodobností vyloučit výrazně pozitivní i výrazně negativní asociaci.
 
 ```{r}
 roky_kmene <- c(1,2,4,8,16)
@@ -283,17 +287,36 @@ combined_effects_by_prediction("kolik_let_rs_kmen_funguje", normalized_translato
 
 ```
 
+Stejně tak nenajdeme jasný vztah pro délku fungování kmene. Tradice se tedy v těchto datech neprojevuje jako výhoda. U aktivity si lze s trochou mžourání říct, že krátce fungující kmeny jsou akční, pak ztrácejí elán a hodně dlouho fungující kmeny pak jsou opět aktivnější, což by náš model neodhalil (očekává čistě rostoucí/klesající vztah), ale úplně bych si na to nevsadil - je také možné, že to, jak dlouho kmen funguje koreluje s dalším proměnnými, které aktivitu předpovídají lépe a model to zachytil. Kupříkladu kmeny v kategorii cca 8 let fungování mají (nejspíš shodou okolností) také nejvíce aktivních členů.
+
+```{r}
+spokojenost_pro_model %>% ggplot(aes( x = kolik_let_rs_kmen_funguje_orig, y = kmen_kolik_aktivnich_lidi_orig)) + geom_jitter(alpha = 0.5) 
+```
+
+
+Další z prakticky zajímavých otázek je "Který z výroků nejlépe vystihuje situaci ve vašem roverském společenství-" s možnostmi "Na přípravě programu se podílí různí členové podle toho, o jakou činnost se jedná." (vsichni), "Program připravuje úzká skupina lidí" (uzka_skupina), "Program připravuje vůdce/vůdkyně kmene nebo roverského společenství" (vudce) a "Nevím" 
+
 
 ```{r}
 combined_effects_by_prediction("kdo_pripravuje_program", c("Nevím", "Neuvedeno","vudce","uzka_skupina", "vsichni"))
 
 ```
 
+Zde nás trochu zrazuje naše vizualizace, protože odpovědi nelze přesně seřadit, nicméně spokojenost se zdá růst když se na přípravě podílí více lidí, zatímcaktivnější kmeny mají spíše vůdce. Můžeme si řazení u aktivity upravit, aby to trochu vylezlo:
 
 ```{r}
-combined_effects_by_prediction("velikost_obce")
+effects_by_prediction_aktivita("kdo_pripravuje_program", c("uzka_skupina", "vsichni", "vudce"))
 
 ```
+
+Model si je seřazením zdá se poměrně jistý (i když připouští, oba směry rozdílu mezi přípravou všemi a přípravou od vůdce).
+
+
+```{r}
+combined_effects_by_prediction("velikost_obce", c("100 000 a více obyvatel", "10 000 – 99 999 obyvatel", "2 000 – 9 999 obyvatel" ,  "Do 1 999 obyvatel", "Neuvedeno"))
+```
+
+Ač jsou roveři ve velkých i malých městech podobně spokojení, aktivita se v různě velkých městech liší, není zde ale jasný trend...  Těžko říct, co si o tom myslet. 
 
 
 ```{r}
@@ -301,6 +324,7 @@ veky <- seq(15,25, by = 2)
 combined_effects_by_prediction("vek", normalized_translator_vek(veky), var_labels = continous_var_labels(veky))
 ```
 
+Spokojenost se zdá spíše klesat s věkem rovera, ale nijak výrazně. U aktivity je těžké vidět nějaký jasný trend.
 
 # Podrobnější a doplňkové výsledky
 
@@ -359,6 +383,8 @@ combined_effects_by_prediction("je_rs_kmen_registrovany")
 
 
 ## Přímý pohled na data
+
+TODO plot více jako model - tečky za každou úroveň. Dát víc úrovní aktivity.
 
 Nedá se moc říct, že by spokojenost s programem RS kmene souvisela s funkcí ani s další sadou prediktorů.
 
