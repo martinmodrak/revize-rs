@@ -23,11 +23,11 @@ jednotky_oddily_kmeny_predvyzkum <- function(rok = 2017) {
 
   warning("Používám rucne upravený soubor - rok_registrace je v originalnim 'data_pracovni_dodatek_170624.csv.xlsx'  castecne formatovan jako datum, nutno vyřešit")
   #registrace  <- readxl::read_excel(here("private_data","skautis","data_pracovni_dodatek_170624.csv.xlsx"), sheet = "registrace", col_types = c("text","text", "text", "numeric", "date","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric"), na = "NULL")
-  registrace  <- readxl::read_excel(here("private_data","skautis","data_pracovni_dodatek_170624_upraveno.xls"), sheet = "registrace", col_types = c("text","text", "text", "numeric", "date","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric"), na = "NULL")
+  registrace  <- readxl::read_excel(here::here("private_data","skautis","data_pracovni_dodatek_170624_upraveno.xls"), sheet = "registrace", col_types = c("text","text", "text", "numeric", "date","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric"), na = "NULL")
 
-  pocty_oddilu  <- readxl::read_excel(here("private_data","skautis","data_pracovni_dodatek_170624.csv.xlsx"), sheet = "pocty_oddilu", col_types = c("numeric","text","text","numeric"), na = "NULL") %>% rename(typ_oddilu = DisplayName, pocet_oddilu = Count)
+  pocty_oddilu  <- readxl::read_excel(here::here("private_data","skautis","data_pracovni_dodatek_170624.csv.xlsx"), sheet = "pocty_oddilu", col_types = c("numeric","text","text","numeric"), na = "NULL") %>% rename(typ_oddilu = DisplayName, pocet_oddilu = Count)
 
-  web  <- readxl::read_excel(here("private_data","skautis","data_pracovni_dodatek_170624.csv.xlsx"), sheet = "webove_stranky", col_types = c("numeric","text","numeric","text","text","text"), na = "NULL")
+  web  <- readxl::read_excel(here::here("private_data","skautis","data_pracovni_dodatek_170624.csv.xlsx"), sheet = "webove_stranky", col_types = c("numeric","text","numeric","text","text","text"), na = "NULL")
 
   ma_kmen <- pocty_oddilu %>% filter(rok == rok & typ_oddilu == "Kmen roverů/rangers") %>% mutate(ma_kmen = pocet_oddilu > 0) %>% select(ev_cislo, ma_kmen)
 

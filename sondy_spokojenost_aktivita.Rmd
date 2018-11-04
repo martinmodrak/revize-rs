@@ -21,7 +21,7 @@ Slabší  asociaci jsme také našli u toho, kdo připravuje program - příprav
 
 Naopak jsme NEpozorovali asociaci s délkou fungování kmene. U velikosti obce, kde roveři žijí také nelze pozorovat jasný trend.
 
-```{r setup, message=FALSE, echo = FALSE}
+```{r setup, message=FALSE, echo = FALSE, results='hide'}
 knitr::opts_chunk$set(echo=FALSE)
 library(tidyverse)
 library(brms)
@@ -29,6 +29,7 @@ library(scico)
 library(here)
 library(cowplot)
 library(bindrcpp)
+library(knitr)
 options(mc.cores=parallel::detectCores())
 Sys.setlocale(locale = "Czech")
 source(here::here("R","tools_brms.R"), encoding = "UTF-8")
@@ -333,7 +334,7 @@ V datech ze sond je víc žen. Zároveň ženy proporčně častěji mají funkc
 ```{r}
 pocet_pohlavi <- sondy %>% group_by(pohlavi) %>% summarise(pocet_pohlavi = length(id))
 
-pocet_pohlavi
+pocet_pohlavi %>% kable()
 
 funkce_pohlavi <- sondy %>% filter(pohlavi != "N/A") %>% 
   group_by(pohlavi, max_funkce) %>% 
@@ -345,7 +346,7 @@ funkce_pohlavi %>%
   ggplot(aes(x = pohlavi, y = podil_funkce, color = max_funkce, group = max_funkce, shape = max_funkce)) + geom_point() + geom_line()
 
 funkce_pohlavi %>%
-  ggplot(aes(x = pohlavi, y = max_funkce, fill = podil_funkce)) + geom_bin2d(stat="identity")
+  ggplot(aes(x = pohlavi, y = max_funkce, fill = podil_funkce)) + geom_bin2d(stat="identity") + scale_fill_distiller(palette = "Spectral")
 
 ```
 
