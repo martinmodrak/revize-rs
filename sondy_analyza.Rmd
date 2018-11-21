@@ -5,7 +5,8 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
-```{r load libraries}
+```{r load libraries, message = F, echo = F}
+knitr::opts_chunk$set(echo=FALSE)
 library(tidyverse)
 
 source(here::here("R/tools_sondy.R"))
@@ -21,6 +22,7 @@ Nejprve se podíváme na základní deskriptivní data o středisku
 
 
 ```{r je kmen ve stredisku}
+
 table(sondy$je_rs_kmen_ve_stredisku) %>% as.tibble() %>% transmute(`Je kmen ve stredisku`=Var1,n) %>% 
   knitr::kable(caption = "Pocet odpovedi, kde existuje kmen ve stredisku")
 ```
@@ -47,9 +49,10 @@ sondy %>%
    
 ```
 
-# Ucast na rs - kmeans
+Nejvice lidi se neregistruje, protoze pracuji u oddilu. Zajimava je i cast, ktera povazuje registraci za zbytecnou.
 
- datech mame popsany duvody, proc se lide ucastni akci. Kazdy mohl procenta rozdelit dle sebe. Je zde tedy moznost, ze tu jsou urcite "skupiny" lidi, ktere chodi na akce z podobnych duvodu. Proto jsme zkusili udelat [k-means](https://cs.wikipedia.org/wiki/K-means), ktera nam data rozdeli do do k skupin, aby si byly co nejblize. Protoze nevime, kolik by melo byt takovychto skupin, budeme zkouset rozdeleni do 2 az 5 skupin
+# Ucast na rs - kmeans
+V datech mame popsany duvody, proc se lide ucastni akci. Kazdy mohl procenta rozdelit dle sebe. Je zde tedy moznost, ze tu jsou urcite "skupiny" lidi, ktere chodi na akce z podobnych duvodu. Proto jsme zkusili udelat [k-means](https://cs.wikipedia.org/wiki/K-means), ktera nam data rozdeli do do k skupin, aby si byly co nejblize. Protoze nevime, kolik by melo byt takovychto skupin, budeme zkouset rozdeleni do 2 az 5 skupin
 
 ```{r ucast na rs akcich}
 
@@ -59,29 +62,29 @@ sondy_ucast <- sondy_ucast_tmp %>%
          skupina_k3 = kmeans(sondy_ucast_tmp,3)$cluster,
          skupina_k4 = kmeans(sondy_ucast_tmp,4)$cluster,
          skupina_k5 = kmeans(sondy_ucast_tmp,5)$cluster)
+lab_ucast <- c("Lide", "Zajimavy program", "Odpocinek od oddilu", "Moznost realizace", "Setrvacnost", "Jine")
 
-summarize_group(sondy_ucast) %>% plot_sondy_ucast()
+summarize_group(sondy_ucast) %>% plot_sondy_clusters(lab_ucast, ylim_min = 0, ylim_max = 100)
 
-sondy_ucast2 <- summarize_group(sondy_ucast, "skupina_k2")
-plot_sondy_ucast(sondy_ucast2)
+summarize_group(sondy_ucast, "skupina_k2") %>% plot_sondy_clusters(lab_ucast, ylim_min = 0, ylim_max = 100)
 
-sondy_ucast2 <- summarize_group(sondy_ucast, "skupina_k3")
-plot_sondy_ucast(sondy_ucast2)
+summarize_group(sondy_ucast, "skupina_k3") %>% plot_sondy_clusters(lab_ucast, ylim_min = 0, ylim_max = 100)
 
-sondy_ucast2 <- summarize_group(sondy_ucast, "skupina_k4")
-plot_sondy_ucast(sondy_ucast2)
+summarize_group(sondy_ucast, "skupina_k4") %>% plot_sondy_clusters(lab_ucast, ylim_min = 0, ylim_max = 100)
 
-summarize_group(sondy_ucast, "skupina_k5") %>% plot_sondy_ucast()
+summarize_group(sondy_ucast, "skupina_k5") %>% plot_sondy_clusters(lab_ucast, ylim_min = 0, ylim_max = 100)
+
+
 
 ```
 
-Nevychazi to nijak zajimave..
+Nevychazi to nijak zajimave. Obecne je nejvic lidi registrovanych kvuli lidem
 
-# NeUcast na rs - kmeans
+# Neucast na rs - kmeans
 
 To stejne muzeme zjistit pro neucast
 
-```{r neucast na rs akcich}
+```{r neucast na rs akcich, warning=F}
 
 sondy_neucast_tmp <- sondy %>% select(neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine) %>% 
   filter(!is.na(neucast_rs_kmen_procenta_prace_na_stredisku)) 
@@ -91,13 +94,17 @@ sondy_neucast <- sondy_neucast_tmp %>%
          skupina_k4 = kmeans(sondy_neucast_tmp,4)$cluster,
          skupina_k5 = kmeans(sondy_neucast_tmp,5)$cluster)
 
-summarize_group_neucast(sondy_neucast, "skupina_k2") %>% plot_sondy_neucast()
+lab_neucast <- c("Cinovnicka funkce", "Jina parta", "Jine", "Nemam cas", "Nezajimavy program", "Odchod na SS/VS", "Prace na stredisku", "Rodinny zivot", "Skolni povinnosti", "Vztahy ve spolecenstvi")
 
-summarize_group_neucast(sondy_neucast, "skupina_k3") %>% plot_sondy_neucast()
-summarize_group_neucast(sondy_neucast, "skupina_k4") %>% plot_sondy_neucast()
-summarize_group_neucast(sondy_neucast, "skupina_k5") %>% plot_sondy_neucast()
+summarize_group_neucast(sondy_neucast, "skupina_k2") %>% plot_sondy_clusters(lab_neucast, ylim_min = 0, ylim_max = 100)
+
+summarize_group_neucast(sondy_neucast, "skupina_k3") %>% plot_sondy_clusters(lab_neucast, ylim_min = 0, ylim_max = 100)
+summarize_group_neucast(sondy_neucast, "skupina_k4") %>% plot_sondy_clusters(lab_neucast, ylim_min = 0, ylim_max = 100)
+summarize_group_neucast(sondy_neucast, "skupina_k5") %>% plot_sondy_clusters(lab_neucast, ylim_min = 0, ylim_max = 100)
 
 ```
+
+Tady to vychazi lepe, jsou zde ruzne skupiny lidi, ktere se lid dle duvodu. Napr. pro pet clusteru je skupina 1 "cinovnicka", skupina 2 "obecny nedostatek casu", skupina 3 "zmena skoly", skupina 5 "jina parta". Zajimava je skupina 4, ktera se vyskytuje u vsech clusteru, u ktere nezname duvod. 
 
 # Pocty dat
 
@@ -106,26 +113,27 @@ Zda vubec nektere promenne ma smysl davat do analyz
 ## vlastni zvyklosti
 
 ```{r pocty dat vlastni zvyklosti}
-table(sondy$vlastni_zvyklosti_obnova_slibu)
-table(sondy$vlastni_zvyklosti_ritual_odchodu)
-table(sondy$vlastni_zvyklosti_ritual_vstupu)
-table(sondy$vlastni_zvyklosti_ritual_predavani_vudcovstvi)
-table(sondy$vlastni_zvyklosti_nic)
+rbind(table(sondy$vlastni_zvyklosti_obnova_slibu),
+table(sondy$vlastni_zvyklosti_ritual_odchodu),
+table(sondy$vlastni_zvyklosti_ritual_vstupu),
+table(sondy$vlastni_zvyklosti_ritual_predavani_vudcovstvi),
+table(sondy$vlastni_zvyklosti_nic)) %>% as_tibble() %>% 
+  select(-`N/A`) %>% transmute(promenna = c("Obnova slibu", "Ritual odchodu", "Ritual vstupu", "Predavani vudcovstvi", "Nic"), Ano, Ne) %>% knitr::kable(caption = "Pocty dat pro ritualy (803 lidi nevyplnilo)")
 ```
 
-Ok, to znamena, ze ma smysl pouzivat jen ritual vstupu, ci rozdelovat lidi, zda maji/nemaji ritual
-ritual jine je kvali
+Ok, to znamena, ze ma smysl pouzivat jen ritual vstupu, ci rozdelovat lidi, zda maji/nemaji ritual. 
 
 ## Vychovne nastroje
 
 ```{r pocty dat vychovne nastroje}
-table(sondy$vychovne_nastroje_vyzvy)
-table(sondy$vychovne_nastroje_projekty)
-table(sondy$vychovne_nastroje_rovernet)
-table(sondy$vychovne_nastroje_kmen)
-table(sondy$vychovne_nastroje_roversky_zacatek)
-table(sondy$vychovne_nastroje_diar)
-table(sondy$vychovne_nastroje_vlastni_stezka)
+rbind(table(sondy$vychovne_nastroje_vyzvy),
+table(sondy$vychovne_nastroje_projekty),
+table(sondy$vychovne_nastroje_rovernet),
+table(sondy$vychovne_nastroje_kmen),
+table(sondy$vychovne_nastroje_roversky_zacatek),
+table(sondy$vychovne_nastroje_diar),
+table(sondy$vychovne_nastroje_vlastni_stezka)) %>% as_tibble() %>% 
+  select(-`N/A`) %>% transmute(promenna = c("Vyzvy", "Projekty", "Rovernet", "Kmen", "Roversky zacatek", "Diar", "Vlastni stezka"), Ano, Ne) %>% knitr::kable(caption = "Pocty dat pro vychovne nastroje (803 lidi nevyplnilo)")
 ```
 
 Tady to docela jde, pouze je teba davat pozor na konfidencni intervaly
