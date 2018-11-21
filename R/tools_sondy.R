@@ -64,7 +64,8 @@ summarize_group <- function(df, grp_var = NULL) {
       gather(key = "duvod", value = "upper", ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho)  
     sondy_n <- df %>% 
       summarize(n = n()) 
-    sondy_ucast2 <- sondy_mean %>% left_join(sondy_lower) %>% left_join(sondy_upper)
+    sondy_ucast2 <- sondy_mean %>% left_join(sondy_lower) %>% left_join(sondy_upper) %>% mutate(grp ="1")
+    
     return(sondy_ucast2)
   } else {
     df$grp <- as.factor(df[[grp_var]])
@@ -105,7 +106,7 @@ summarize_group_neucast <- function(df, grp_var = NULL) {
       gather(key = "duvod", value = "upper", neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine)  
     sondy_n <- df %>% 
       summarize(n = n()) 
-    sondy_ucast2 <- sondy_mean %>% left_join(sondy_lower) %>% left_join(sondy_upper)
+    sondy_ucast2 <- sondy_mean %>% left_join(sondy_lower,by = "duvod") %>% left_join(sondy_upper,by = "duvod")
     return(sondy_ucast2)
   } else {
     df$grp <- as.factor(df[[grp_var]])
@@ -239,7 +240,7 @@ plot_sondy_ucast <- function(df) {
     geom_linerange(aes(ymin = lower, ymax = upper)) +
     geom_line() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-    scale_x_discrete(labels = c("Lide", "Moznost realizace", "Neco jineho", "Odpocinek od oddilu", "Setrvacnost", "Jine", "Registrace cinnosti nepomuze")) +
+    scale_x_discrete(labels = ) +
     ylim(0,100)
   
 }
