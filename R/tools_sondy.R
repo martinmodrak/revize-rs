@@ -64,7 +64,7 @@ summarize_group <- function(df, grp_var = NULL) {
       gather(key = "duvod", value = "upper", ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho)  
     sondy_n <- df %>% 
       summarize(n = n()) 
-    sondy_ucast2 <- sondy_mean %>% left_join(sondy_lower) %>% left_join(sondy_upper) %>% mutate(grp ="1")
+    sondy_ucast2 <- sondy_mean %>% left_join(sondy_lower, by = c("duvod")) %>% left_join(sondy_upper, by = c("duvod")) %>% mutate(grp ="1")
     
     return(sondy_ucast2)
   } else {

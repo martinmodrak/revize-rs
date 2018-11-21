@@ -5,7 +5,7 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
-```{r load libraries, message = F, echo = F}
+```{r load libraries, message = F, echo = F, warning=FALSE}
 knitr::opts_chunk$set(echo=FALSE)
 library(tidyverse)
 
@@ -18,8 +18,12 @@ sondy <- readRDS(here::here("private_data/sondy_180420.rds"))
 ```
 
 # Základní deskripce 
-Nejprve se podíváme na základní deskriptivní data o středisku
+Nejprve se podíváme na základní deskriptivní data o středisku.
 
+## Počty dat
+
+
+Zda vubec nektere promenne ma smysl davat do analyz
 
 ```{r je kmen ve stredisku}
 
@@ -32,11 +36,87 @@ table(sondy$je_rs_kmen_ve_stredisku) %>% as.tibble() %>% transmute(`Je kmen ve s
 table(sondy$je_rs_kmen_registrovany) %>% as.tibble() %>%  transmute(`Je rs kmen registrovany`=Var1,n)  %>% knitr::kable( caption = "Pocet odpovedi, zda je kmen registovany")
 ```
 
+## vlastni zvyklosti
+
+```{r pocty dat vlastni zvyklosti}
+rbind(table(sondy$vlastni_zvyklosti_obnova_slibu),
+table(sondy$vlastni_zvyklosti_ritual_odchodu),
+table(sondy$vlastni_zvyklosti_ritual_vstupu),
+table(sondy$vlastni_zvyklosti_ritual_predavani_vudcovstvi),
+table(sondy$vlastni_zvyklosti_nic)) %>% as_tibble() %>% 
+  select(-`N/A`) %>% transmute(promenna = c("Obnova slibu", "Ritual odchodu", "Ritual vstupu", "Predavani vudcovstvi", "Nic"), Ano, Ne) %>% knitr::kable(caption = "Pocty dat pro ritualy (803 lidi nevyplnilo)")
+```
+
+Ok, to znamena, ze ma smysl pouzivat jen ritual vstupu, ci rozdelovat lidi, zda maji/nemaji ritual. 
+
+## Vychovne nastroje
+
+```{r pocty dat vychovne nastroje}
+rbind(table(sondy$vychovne_nastroje_vyzvy),
+table(sondy$vychovne_nastroje_projekty),
+table(sondy$vychovne_nastroje_rovernet),
+table(sondy$vychovne_nastroje_kmen),
+table(sondy$vychovne_nastroje_roversky_zacatek),
+table(sondy$vychovne_nastroje_diar),
+table(sondy$vychovne_nastroje_vlastni_stezka)) %>% as_tibble() %>% 
+  select(-`N/A`) %>% transmute(promenna = c("Vyzvy", "Projekty", "Rovernet", "Kmen", "Roversky zacatek", "Diar", "Vlastni stezka"), Ano, Ne) %>% knitr::kable(caption = "Pocty dat pro vychovne nastroje (803 lidi nevyplnilo)")
+```
+
+Tady to docela jde, pouze je teba davat pozor na konfidencni intervaly
+
+## Pomoc u dětských oddílů
+
+TODO: jiný počet odpovědí než u členů RS.
+
+```{r pomoc u detskych oddilu}
+rbind(table(sondy$pomoc_u_detskych_oddilu_jsem_stale_clenem),
+table(sondy$pomoc_u_detskych_oddilu_nic),
+table(sondy$pomoc_u_detskych_oddilu_vudce_oddilu),
+table(sondy$pomoc_u_detskych_oddilu_vedu_oddil_papirove_nekdo_jiny),
+table(sondy$pomoc_u_detskych_oddilu_zastupce_oddilu_nebo_oddilovy_radce),
+table(sondy$pomoc_u_detskych_oddilu_obecna_pomoc_u_oddilu_bez_funkce),
+table(sondy$pomoc_u_detskych_oddilu_radce_druziny),
+table(sondy$pomoc_u_detskych_oddilu_pomoc_na_schuzkach),
+table(sondy$pomoc_u_detskych_oddilu_pomoc_na_tabore),
+table(sondy$pomoc_u_detskych_oddilu_pomoc_na_vypravach),
+table(sondy$pomoc_u_detskych_oddilu_pomoc_na_klubovne_zakladne_brigadach),
+table(sondy$pomoc_u_detskych_oddilu_jine)) %>% as_tibble() %>% 
+  select(-`N/A`) %>%
+  transmute(promenna = c("Clennem u oddilu", "Nic", "Vudce oddilu", "Vedu oddil pouze papirove", "Zastupce oddilu nebo oddilovy radce", "Obecna pomoc u oddilu", "Radce druziny", "Pomoc na schuzkach", "Pomoc na tabore", "Pomoc na vypravach", "Pomoc na klubovne/zakladne/brigadach", "Jine"), Ano, Ne) %>% knitr::kable(caption = "Pocty dat pro pomoc u detskych oddilu (424 nevyplnilo)")
+  
+```
+
+Prekvapuje me, kolik lidi je ve vedeni oddilu! Nejak pomaha hodne lidi, jinak je asi taky ok
+
+## Probehle akce
+
+```{r}
+rbind(table(sondy$roverske_akce_probehle_2roky_zavody),
+table(sondy$roverske_akce_diskuze),
+table(sondy$roverske_akce_probehle_expedice),
+table(sondy$roverske_akce_probehle_tabor),
+table(sondy$roverske_akce_duchovni_programy),
+table(sondy$roverske_akce_pobyt_v_prirode),
+table(sondy$roverske_akce_zahranicni_akce),
+table(sondy$roverske_akce_kulturni_akce),
+table(sondy$roverske_akce_tradicni_akce),
+table(sondy$roverske_akce_setkani_bez_programu_hospoda),
+table(sondy$roverske_akce_sluzba),
+table(sondy$roverske_akce_velke_rs_akce),
+table(sondy$roverske_akce_kurzy_vzdelavaci_akce)) %>% 
+  as_tibble() %>% 
+  select(-`N/A`) %>%
+  transmute(promenna = c("Probehle zavody behem 2 let", "Diskuze", "Expedice", "Tabor", "Duchovni programy", "Pobyt v prirode", "Zahranicni akce", "Kulturni akce", "Tradicni akce", "Setkani bez programu/hospoda", "Sluzba", "Velke RS akce", "Kurzy/Vzdelavaci akce"), Ano, Ne) %>% knitr::kable(caption = "Pocty dat pro probehle akce (803 nevyplnilo)")
+```
+
+Taky asi mame dost programu
+
+
 # Proc neni registrovany
 
 Nasledujici graf ukazje procenta uzivatelu, kteri vybrali dany duvod neregistrace kmene. Lide mohli zaskrtavat vice odpovedi, proto nesedi soucet do sta procent. Svisla cara oznacuje standardni chybu prumeru
 
-```{r proc neni kmen registrovany}
+```{r proc neni kmen registrovany, warning=F}
 
 sondy %>% 
   select(rs_kmen_registace_neni_registrovany_neni_vudce:rs_kmen_registrace_jine) %>% 
@@ -78,7 +158,7 @@ summarize_group(sondy_ucast, "skupina_k5") %>% plot_sondy_clusters(lab_ucast, yl
 
 ```
 
-Nevychazi to nijak zajimave. Obecne je nejvic lidi registrovanych kvuli lidem
+Nevychazi to nijak zajimave. Obecne je nejvic lidi registrovanych kvuli lidem.
 
 # Neucast na rs - kmeans
 
@@ -106,88 +186,36 @@ summarize_group_neucast(sondy_neucast, "skupina_k5") %>% plot_sondy_clusters(lab
 
 Tady to vychazi lepe, jsou zde ruzne skupiny lidi, ktere se lid dle duvodu. Napr. pro pet clusteru je skupina 1 "cinovnicka", skupina 2 "obecny nedostatek casu", skupina 3 "zmena skoly", skupina 5 "jina parta". Zajimava je skupina 4, ktera se vyskytuje u vsech clusteru, u ktere nezname duvod. 
 
-# Pocty dat
-
-Zda vubec nektere promenne ma smysl davat do analyz
-
-## vlastni zvyklosti
-
-```{r pocty dat vlastni zvyklosti}
-rbind(table(sondy$vlastni_zvyklosti_obnova_slibu),
-table(sondy$vlastni_zvyklosti_ritual_odchodu),
-table(sondy$vlastni_zvyklosti_ritual_vstupu),
-table(sondy$vlastni_zvyklosti_ritual_predavani_vudcovstvi),
-table(sondy$vlastni_zvyklosti_nic)) %>% as_tibble() %>% 
-  select(-`N/A`) %>% transmute(promenna = c("Obnova slibu", "Ritual odchodu", "Ritual vstupu", "Predavani vudcovstvi", "Nic"), Ano, Ne) %>% knitr::kable(caption = "Pocty dat pro ritualy (803 lidi nevyplnilo)")
-```
-
-Ok, to znamena, ze ma smysl pouzivat jen ritual vstupu, ci rozdelovat lidi, zda maji/nemaji ritual. 
-
-## Vychovne nastroje
-
-```{r pocty dat vychovne nastroje}
-rbind(table(sondy$vychovne_nastroje_vyzvy),
-table(sondy$vychovne_nastroje_projekty),
-table(sondy$vychovne_nastroje_rovernet),
-table(sondy$vychovne_nastroje_kmen),
-table(sondy$vychovne_nastroje_roversky_zacatek),
-table(sondy$vychovne_nastroje_diar),
-table(sondy$vychovne_nastroje_vlastni_stezka)) %>% as_tibble() %>% 
-  select(-`N/A`) %>% transmute(promenna = c("Vyzvy", "Projekty", "Rovernet", "Kmen", "Roversky zacatek", "Diar", "Vlastni stezka"), Ano, Ne) %>% knitr::kable(caption = "Pocty dat pro vychovne nastroje (803 lidi nevyplnilo)")
-```
-
-Tady to docela jde, pouze je teba davat pozor na konfidencni intervaly
-
-## Pomoc u dětských oddílů
-
-TODO: jiný počet odpovědí než u členů RS.
-
-```{r pomoc u detskych oddilu}
-table(sondy$pomoc_u_detskych_oddilu_jsem_stale_clenem)
-table(sondy$pomoc_u_detskych_oddilu_nic)
-table(sondy$pomoc_u_detskych_oddilu_vudce_oddilu)
-table(sondy$pomoc_u_detskych_oddilu_vedu_oddil_papirove_nekdo_jiny)
-table(sondy$pomoc_u_detskych_oddilu_zastupce_oddilu_nebo_oddilovy_radce)
-table(sondy$pomoc_u_detskych_oddilu_obecna_pomoc_u_oddilu_bez_funkce)
-table(sondy$pomoc_u_detskych_oddilu_radce_druziny)
-table(sondy$pomoc_u_detskych_oddilu_pomoc_na_schuzkach)
-table(sondy$pomoc_u_detskych_oddilu_pomoc_na_tabore)
-table(sondy$pomoc_u_detskych_oddilu_pomoc_na_vypravach)
-table(sondy$pomoc_u_detskych_oddilu_pomoc_na_klubovne_zakladne_brigadach)
-table(sondy$pomoc_u_detskych_oddilu_jine)
-```
-
-Prekvapuje me, kolik lidi je ve vedeni oddilu! Nejak pomaha hodne lidi, jinak je asi taky ok
-
-## Probehle akce
-
-```{r}
-table(sondy$roverske_akce_probehle_2roky_zavody)
-table(sondy$roverske_akce_diskuze)
-table(sondy$roverske_akce_probehle_expedice)
-table(sondy$roverske_akce_probehle_tabor)
-table(sondy$roverske_akce_duchovni_programy)
-table(sondy$roverske_akce_pobyt_v_prirode)
-table(sondy$roverske_akce_zahranicni_akce)
-table(sondy$roverske_akce_kulturni_akce)
-table(sondy$roverske_akce_tradicni_akce)
-table(sondy$roverske_akce_setkani_bez_programu_hospoda)
-table(sondy$roverske_akce_sluzba)
-table(sondy$roverske_akce_velke_rs_akce)
-table(sondy$roverske_akce_kurzy_vzdelavaci_akce)
-```
-
-Taky asi mame dost programu
 
 # Spokojenost s programem
 
 ```{r korelacni matice}
-table(sondy$spokojenost_s_frekvenci_akci)
-table(sondy$celkova_spokojenost_s_programem_rs_kmenu)
 
 v <- vars(spokojenost_s_frekvenci_akci2, celkova_spokojenost_s_programem_rs_kmenu, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_schuzky, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice,vychovne_nastroje_vyzvy:vychovne_nastroje_vlastni_stezka, vlastni_zvyklosti_nic,vlastni_zvyklosti_ritual_vstupu,rs_kmen_prvky_vudce:rs_kmen_prvky_ani_jedno)
 
-aa <- sondy %>% cisti_data()
+aa <- sondy %>% mutate(celkova_spokojenost_s_programem_rs_kmenu = recode(celkova_spokojenost_s_programem_rs_kmenu, `Velmi nespokojen/a`= 1, `Spíše nespokojen/a` = 2, `Spíše spokojen/a` = 3, `Spíše spokojen/a` = 4, `Velmi spokojen/a` = 5, .default = NA_real_),
+                      spokojenost_s_frekvenci_akci2 = recode(spokojenost_s_frekvenci_akci, `Jsem spokojen/a`= 1, `Nejsem spokojen/a - přál/a bych si akce častěji` = 0, `Nejsem spokojen/a - přál/a bych si akce méně často` = 0, .default = NA_real_),
+                      frekvence_rs_akci_celodenni_akce = recode(frekvence_rs_akci_celodenni_akce, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, `Asi jednou měsíčně` = 4, `Asi jednou za 14 dní` = 5, `Každý týden nebo častěji` = 6, .default = NA_real_),
+                      frekvence_rs_akci_schuzky = recode(frekvence_rs_akci_schuzky, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, `Asi jednou měsíčně` = 4, `Asi jednou za 14 dní` = 5, `Každý týden nebo častěji` = 6, .default = NA_real_),
+                      frekvence_rs_akci_vicedenni_akce = recode(frekvence_rs_akci_vicedenni_akce, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, `Asi jednou měsíčně` = 4, `Asi jednou za 14 dní` = 5, .default = NA_real_),
+                      frekvence_rs_akci_tabory_expedice = recode(frekvence_rs_akci_tabory_expedice, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, .default = NA_real_),
+                      vychovne_nastroje_vyzvy = recode(vychovne_nastroje_vyzvy, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vychovne_nastroje_projekty = recode(vychovne_nastroje_projekty, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vychovne_nastroje_rovernet = recode(vychovne_nastroje_rovernet, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vychovne_nastroje_kmen = recode(vychovne_nastroje_kmen, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vychovne_nastroje_roversky_zacatek = recode(vychovne_nastroje_roversky_zacatek, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vychovne_nastroje_diar = recode(vychovne_nastroje_diar, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vychovne_nastroje_vlastni_stezka = recode(vychovne_nastroje_vlastni_stezka, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      ma_kmen_vychovny_plan = recode(ma_kmen_vychovny_plan, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vlastni_zvyklosti_nic = recode(vlastni_zvyklosti_nic, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vlastni_zvyklosti_ritual_vstupu = recode(vlastni_zvyklosti_ritual_vstupu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vlastni_zvyklosti_obnova_slibu = recode(vlastni_zvyklosti_obnova_slibu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vlastni_zvyklosti_ritual_odchodu = recode(vlastni_zvyklosti_ritual_odchodu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vlastni_zvyklosti_ritual_predavani_vudcovstvi = recode(vlastni_zvyklosti_ritual_predavani_vudcovstvi, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      rs_kmen_prvky_vudce = recode(rs_kmen_prvky_vudce, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      rs_kmen_prvky_rada = recode(rs_kmen_prvky_rada, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      rs_kmen_prvky_ani_jedno = recode(rs_kmen_prvky_ani_jedno, `Ano` = 1, `Ne` = 0, .default = NA_real_)
+  )
 c <- aa %>% select_at(v) %>% 
   filter(!is.na(spokojenost_s_frekvenci_akci2)) %>% as.matrix() %>% Hmisc::rcorr(type = "spearman")
 
@@ -224,7 +252,28 @@ Vezmeme podskupiny podle kmeans a replikujeme na nich korelacni matice
 ```{r korelacni matice u podskupin}
 sondy2 <- sondy %>% left_join(sondy_podil_casu %>% select(-(podil_casu_ve_skautu_u_detskych_oddilu:podil_casu_ve_skautu_jine)), by = "id")
 
-aa <- sondy2 %>% cisti_data()
+aa <- sondy2 %>% mutate(celkova_spokojenost_s_programem_rs_kmenu = recode(celkova_spokojenost_s_programem_rs_kmenu, `Velmi nespokojen/a`= 1, `Spíše nespokojen/a` = 2, `Spíše spokojen/a` = 3, `Spíše spokojen/a` = 4, `Velmi spokojen/a` = 5, .default = NA_real_),spokojenost_s_frekvenci_akci2 = recode(spokojenost_s_frekvenci_akci, `Jsem spokojen/a`= 1, `Nejsem spokojen/a - přál/a bych si akce častěji` = 0, `Nejsem spokojen/a - přál/a bych si akce méně často` = 0, .default = NA_real_),
+                      frekvence_rs_akci_celodenni_akce = recode(frekvence_rs_akci_celodenni_akce, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, `Asi jednou měsíčně` = 4, `Asi jednou za 14 dní` = 5, `Každý týden nebo častěji` = 6, .default = NA_real_),
+                      frekvence_rs_akci_schuzky = recode(frekvence_rs_akci_schuzky, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, `Asi jednou měsíčně` = 4, `Asi jednou za 14 dní` = 5, `Každý týden nebo častěji` = 6, .default = NA_real_),
+                      frekvence_rs_akci_vicedenni_akce = recode(frekvence_rs_akci_vicedenni_akce, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, `Asi jednou měsíčně` = 4, `Asi jednou za 14 dní` = 5, .default = NA_real_),
+                      frekvence_rs_akci_tabory_expedice = recode(frekvence_rs_akci_tabory_expedice, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, .default = NA_real_),
+                      vychovne_nastroje_vyzvy = recode(vychovne_nastroje_vyzvy, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vychovne_nastroje_projekty = recode(vychovne_nastroje_projekty, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vychovne_nastroje_rovernet = recode(vychovne_nastroje_rovernet, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vychovne_nastroje_kmen = recode(vychovne_nastroje_kmen, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vychovne_nastroje_roversky_zacatek = recode(vychovne_nastroje_roversky_zacatek, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vychovne_nastroje_diar = recode(vychovne_nastroje_diar, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vychovne_nastroje_vlastni_stezka = recode(vychovne_nastroje_vlastni_stezka, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      ma_kmen_vychovny_plan = recode(ma_kmen_vychovny_plan, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vlastni_zvyklosti_nic = recode(vlastni_zvyklosti_nic, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vlastni_zvyklosti_ritual_vstupu = recode(vlastni_zvyklosti_ritual_vstupu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vlastni_zvyklosti_obnova_slibu = recode(vlastni_zvyklosti_obnova_slibu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vlastni_zvyklosti_ritual_odchodu = recode(vlastni_zvyklosti_ritual_odchodu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vlastni_zvyklosti_ritual_predavani_vudcovstvi = recode(vlastni_zvyklosti_ritual_predavani_vudcovstvi, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      rs_kmen_prvky_vudce = recode(rs_kmen_prvky_vudce, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      rs_kmen_prvky_rada = recode(rs_kmen_prvky_rada, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      rs_kmen_prvky_ani_jedno = recode(rs_kmen_prvky_ani_jedno, `Ano` = 1, `Ne` = 0, .default = NA_real_)
+  )
 ```
 
 ## 2 skupiny
@@ -314,7 +363,29 @@ sondy_program %>% summarize_group_typ_programu("skupina_k10") %>% plot_sondy_clu
 
 ```{r korelace po skupinach}
 
-ab <- sondy %>% left_join(sondy_program %>% select(id, skupina_k2:skupina_k10), by = "id") %>% cisti_data()
+ab <- sondy %>% left_join(sondy_program %>% select(id, skupina_k2:skupina_k10), by = "id") %>% mutate(celkova_spokojenost_s_programem_rs_kmenu = recode(celkova_spokojenost_s_programem_rs_kmenu, `Velmi nespokojen/a`= 1, `Spíše nespokojen/a` = 2, `Spíše spokojen/a` = 3, `Spíše spokojen/a` = 4, `Velmi spokojen/a` = 5, .default = NA_real_),
+                      spokojenost_s_frekvenci_akci2 = recode(spokojenost_s_frekvenci_akci, `Jsem spokojen/a`= 1, `Nejsem spokojen/a - přál/a bych si akce častěji` = 0, `Nejsem spokojen/a - přál/a bych si akce méně často` = 0, .default = NA_real_),
+                      frekvence_rs_akci_celodenni_akce = recode(frekvence_rs_akci_celodenni_akce, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, `Asi jednou měsíčně` = 4, `Asi jednou za 14 dní` = 5, `Každý týden nebo častěji` = 6, .default = NA_real_),
+                      frekvence_rs_akci_schuzky = recode(frekvence_rs_akci_schuzky, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, `Asi jednou měsíčně` = 4, `Asi jednou za 14 dní` = 5, `Každý týden nebo častěji` = 6, .default = NA_real_),
+                      frekvence_rs_akci_vicedenni_akce = recode(frekvence_rs_akci_vicedenni_akce, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, `Asi jednou měsíčně` = 4, `Asi jednou za 14 dní` = 5, .default = NA_real_),
+                      frekvence_rs_akci_tabory_expedice = recode(frekvence_rs_akci_tabory_expedice, `Nikdy` = 0, `Méně často než 1 za rok` = 1, `Asi jednou za půl roku` = 2, `Asi jednou za čtvrt roku` = 3, .default = NA_real_),
+                      vychovne_nastroje_vyzvy = recode(vychovne_nastroje_vyzvy, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vychovne_nastroje_projekty = recode(vychovne_nastroje_projekty, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vychovne_nastroje_rovernet = recode(vychovne_nastroje_rovernet, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vychovne_nastroje_kmen = recode(vychovne_nastroje_kmen, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vychovne_nastroje_roversky_zacatek = recode(vychovne_nastroje_roversky_zacatek, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vychovne_nastroje_diar = recode(vychovne_nastroje_diar, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vychovne_nastroje_vlastni_stezka = recode(vychovne_nastroje_vlastni_stezka, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      ma_kmen_vychovny_plan = recode(ma_kmen_vychovny_plan, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vlastni_zvyklosti_nic = recode(vlastni_zvyklosti_nic, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vlastni_zvyklosti_ritual_vstupu = recode(vlastni_zvyklosti_ritual_vstupu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vlastni_zvyklosti_obnova_slibu = recode(vlastni_zvyklosti_obnova_slibu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vlastni_zvyklosti_ritual_odchodu = recode(vlastni_zvyklosti_ritual_odchodu, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      vlastni_zvyklosti_ritual_predavani_vudcovstvi = recode(vlastni_zvyklosti_ritual_predavani_vudcovstvi, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      rs_kmen_prvky_vudce = recode(rs_kmen_prvky_vudce, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      rs_kmen_prvky_rada = recode(rs_kmen_prvky_rada, `Ano` = 1, `Ne` = 0, .default = NA_real_),
+                      rs_kmen_prvky_ani_jedno = recode(rs_kmen_prvky_ani_jedno, `Ano` = 1, `Ne` = 0, .default = NA_real_)
+  )
 
 v <- vars(spokojenost_s_frekvenci_akci2, celkova_spokojenost_s_programem_rs_kmenu, frekvence_rs_akci_celodenni_akce, frekvence_rs_akci_schuzky, frekvence_rs_akci_vicedenni_akce, frekvence_rs_akci_tabory_expedice,vychovne_nastroje_vyzvy:vychovne_nastroje_vlastni_stezka, vlastni_zvyklosti_nic:vlastni_zvyklosti_ritual_predavani_vudcovstvi,rs_kmen_prvky_vudce:rs_kmen_prvky_ani_jedno)
 
@@ -337,10 +408,10 @@ subgroup_corr(ab, v, vars(skupina_k4), 4) %>% knitr::kable(caption="ctyri skupin
 ```{r korealce mezi clustery}
 podilcasu_program <- sondy_podil_casu %>% rename(podilcasu2 = skupina_k2,podilcasu3 = skupina_k3,
                             podilcasu4 = skupina_k4,podilcasu5 = skupina_k5) %>% left_join(sondy_program, by = "id") 
-podilcasu_program %>% select(podilcasu2:podilcasu5,skupina_k2:skupina_k10) %>% as.matrix() %>% Hmisc::rcorr() %>% format_corrtable()
+podilcasu_program %>% select(podilcasu2:podilcasu5,skupina_k2:skupina_k10) %>% as.matrix() %>% Hmisc::rcorr() %>% format_corrtable() %>% knitr::kable()
 
-xtabs(~podilcasu5+skupina_k2, podilcasu_program)
-xtabs(~podilcasu3+skupina_k2, podilcasu_program)
+#xtabs(~podilcasu5+skupina_k2, podilcasu_program) %>% knitr::kable()
+#xtabs(~podilcasu3+skupina_k2, podilcasu_program)%>% knitr::kable()
 ```
 
 Nvychazi tam zadna zajimava souvislost
