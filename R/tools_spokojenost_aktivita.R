@@ -54,7 +54,7 @@ order_by_response_positive <- function(orig_data, var_name, var_values = levels(
 }
 
 effects_by_prediction <- function(fit, orig_data, var_name, var_values, var_labels = var_values,
-                                  response_title, response_to_value_func, n_samples = 500, max_lines = 200) {
+                                  response_title, response_to_value_func, n_samples = 500, max_lines = 200, plot_type = "all") {
 
   data_for_prediction_all_values <- var_values %>% imap_dfr(function(var_value, var_value_index) {
     data_for_prediction <- orig_data
@@ -107,6 +107,23 @@ effects_by_prediction <- function(fit, orig_data, var_name, var_values, var_labe
               pocet = length(response_positive))
 
 
+  if(plot_type == "all") {
+    sample_geom = geom_line(data = predicted_data_for_lines_sign,
+                            mapping = aes(x = var_value, y = response, group = id_sample, color = sign),
+                            inherit.aes = FALSE,
+                            alpha = 0.2)
+  } else {
+    sample_geom = NULL
+  }
+
+  if(plot_type == "all" || plot_type == "orig_estimate") {
+    estimate_geom1 =  geom_linerange(aes(ymin = lower50, ymax = upper50), size = 2)
+    estimate_geom2 =  geom_linerange(aes(ymin = lower, ymax = upper))
+  } else {
+    estimate_geom1 = NULL
+    estimate_geom2 = NULL
+  }
+
   predicted_data %>%
     group_by(var_value) %>%
     summarise(Estimate = median(response),
@@ -116,14 +133,10 @@ effects_by_prediction <- function(fit, orig_data, var_name, var_values, var_labe
               upper50 = quantile(response, 0.75)
     ) %>%
     ggplot(aes(x = var_value)) +
-    geom_line(data = predicted_data_for_lines_sign,
-              mapping = aes(x = var_value, y = response, group = id_sample, color = sign),
-              inherit.aes = FALSE,
-              alpha = 0.2) +
+    sample_geom +
     geom_point(data = orig_data_for_plot, mapping = aes(y = p_vetsi, size = pocet), color = "#2ca25f",
                position = position_nudge(x = 0.05) ) +
-    geom_linerange(aes(ymin = lower50, ymax = upper50), size = 2) +
-    geom_linerange(aes(ymin = lower, ymax = upper)) +
+    estimate_geom1 + estimate_geom2 +
     scale_color_discrete("Asociace", drop = FALSE) +
     scale_y_continuous(response_title, limits = c(0,1)) +
     scale_x_discrete(var_name) +

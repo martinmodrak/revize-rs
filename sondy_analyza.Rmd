@@ -187,6 +187,8 @@ summarize_group_neucast(sondy_neucast, "skupina_k5") %>% plot_sondy_clusters(lab
 Tady to vychazi lepe, jsou zde ruzne skupiny lidi, ktere se lid dle duvodu. Napr. pro pet clusteru je skupina 1 "cinovnicka", skupina 2 "obecny nedostatek casu", skupina 3 "zmena skoly", skupina 5 "jina parta". Zajimava je skupina 4, ktera se vyskytuje u vsech clusteru, u ktere nezname duvod. 
 
 
+TODO: tady by možná stálo zjistit, kolik lidí vůbec dalo výrazný podíl více věcem naráz...
+
 # Spokojenost s programem
 
 ```{r korelacni matice}

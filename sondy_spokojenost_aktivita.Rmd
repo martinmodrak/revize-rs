@@ -150,7 +150,7 @@ response_names <-
 priors_multivar <- 
   response_names %>%
   map(function(resp) { c(set_prior("normal(0,1)", class = "b", resp = resp),#prior(horseshoe(par_ratio = 0.3), class = "b"),
-            set_prior("normal(0,1)", class = "sd", resp = resp)) }) %>% do.call(c, .)
+            set_prior("normal(0,1)", class = "sd", resp = resp)) }) %>% do.call("c", .)
 
 
 fit_aktivita <- brm(formula_aktivita, data = aktivita_pro_model, prior = priors_multivar, control = list(adapt_delta = 0.99), family = cumulative("logit"), file = here::here("local_data","fit_aktivita")) 
@@ -169,7 +169,7 @@ continous_var_labels <- function(var_values) {
   labels
 }
 
-effects_by_prediction_spokojenost <- function(var_name, var_values = levels(spokojenost_pro_model[[var_name]]), var_labels = var_values, order = FALSE, n_samples = 500, max_lines = 200) {
+effects_by_prediction_spokojenost <- function(var_name, var_values = levels(spokojenost_pro_model[[var_name]]), var_labels = var_values, order = FALSE, n_samples = 500, max_lines = 200, plot_type = "all") {
   
   num_low_categories <- 2
   
@@ -189,7 +189,9 @@ effects_by_prediction_spokojenost <- function(var_name, var_values = levels(spok
                         response_to_value_func = function(x) {1 - sum(x[1:num_low_categories])}, 
                         response_title = "P(spíše spokojen než ne)",
                         n_samples = n_samples,
-                        max_lines = max_lines) + ggtitle(paste0("Spokojenost dle ", var_name))
+                        max_lines = max_lines, 
+                        plot_type = plot_type
+                        ) + ggtitle(paste0("Spokojenost dle ", var_name))
 }
 ```
 
@@ -198,7 +200,7 @@ effects_by_prediction_spokojenost <- function(var_name, var_values = levels(spok
 # Pomucky pro vykresleni aktivity
 
 # Tvrdime, ze kmen je aktivni, kdyz ma schuzky >= 7 (jednou za 14 dni) NEBO celodenky >= 6 (jednou mesicne) NEBO vicedenky >= 5 (jednou za 1/4 roku) NEBO tabory/expedice >= 4 (jednou za pul roku).
-effects_by_prediction_aktivita <- function(var_name, var_values = levels(aktivita_pro_model[[var_name]]), var_labels = var_values, order = FALSE) {
+effects_by_prediction_aktivita <- function(var_name, var_values = levels(aktivita_pro_model[[var_name]]), var_labels = var_values, order = FALSE, plot_type = "all") {
   prah_schuzky = 7
   prah_celodenky = 6
   prah_vicedenky = 5
@@ -238,7 +240,9 @@ effects_by_prediction_aktivita <- function(var_name, var_values = levels(aktivit
                             sum(x[offset_vicedenky:(offset_vicedenky + prah_vicedenky - 2)]) * 
                             sum(x[offset_tabory:(offset_tabory + prah_tabory - 2)])
                           }, 
-                        response_title = "P(spíše aktivní než ne)") + ggtitle(paste0("Aktivita dle ", var_name))
+                        response_title = "P(spíše aktivní než ne)", 
+                        plot_type = plot_type
+                        ) + ggtitle(paste0("Aktivita dle ", var_name))
 }
 ```
 
