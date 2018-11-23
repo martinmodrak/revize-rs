@@ -247,9 +247,9 @@ effects_by_prediction_aktivita <- function(var_name, var_values = levels(aktivit
 ```
 
 ```{r}
-combined_effects_by_prediction <- function(var_name, var_values = levels(aktivita_pro_model[[var_name]]), var_labels = var_values, order = FALSE) {
-  effects_by_prediction_spokojenost(var_name, var_values, var_labels, order) %>% print()
-  effects_by_prediction_aktivita(var_name, var_values, var_labels, order) %>% print()
+combined_effects_by_prediction <- function(var_name, var_values = levels(aktivita_pro_model[[var_name]]), var_labels = var_values, order = FALSE, plot_type = "all") {
+  effects_by_prediction_spokojenost(var_name, var_values, var_labels, order, plot_type = plot_type) %>% print()
+  effects_by_prediction_aktivita(var_name, var_values, var_labels, order, plot_type = plot_type) %>% print()
 }
 ```
 
