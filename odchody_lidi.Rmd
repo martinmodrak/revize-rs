@@ -23,6 +23,8 @@ Nízký počet roverů je pravděpodobně více ovlivněn výrazným poklesem p�
 
 Zajímavým poznatkem je také to, že dívky odcházejí obecně ve stejné nebo menší míře než chlapci. 
 
+TODO: odchody dle velikosti mesta/kraje
+
 # Hlavní kvantitativní výstupy
 
 

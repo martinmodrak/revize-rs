@@ -1,0 +1,91 @@
+---
+title: "Explorace sond - Orel"
+output: html_notebook
+---
+
+```{r setup}
+library(tidyverse)
+source(here::here("R","tools_sondy_orel.R"), encoding = "UTF-8")
+
+```
+
+```{r}
+sondy <- nacti_sondy()
+```
+
+# Zániky kmenů
+
+```{r}
+duvody <- unique(sondy$duvody_zaniku_kmene)
+duvody <- duvody[!is.na(duvody)]
+duvody
+```
+```{r}
+id_nezajem = c(2,3,4, 17, 21, 23, 27, 30, 32, 33, 34, 35, 38, 39, 41, 45, 52)  
+id_malo_casu_oddil = c(7,16, 42, 43)
+id_malo_casu_jinak = c(13, 20, 28, 36)
+id_chybi_vudce = c(5,6, 17, 26, 31)
+id_odchody_pryc = c(1, 4, 16, 21, 41, 42, 47, 50, 51)
+id_mezilidske_vztahy_neshody = c(1,10,12, 13, 15, 33, 38, 39, 40, 44, 47, 52)
+id_transformace = c(8, 19, 32, 34, 38, 43, 48)
+id_nebyl_program = c(12, 14)
+id_neschopnost = c(24, 25)
+id_vedeni_strediska = c(9, 18)
+id_jine = c(11, 22, 29, 46, 49, 52)
+
+```
+
+
+Opakující se témata:
+
+  * nezájem (`r length(id_nezajem)`)
+  * nedostatek času
+    * kvůli práci u oddílů (`r length(id_malo_casu_oddil)`)
+    * z jiných důvodů (`r length(id_malo_casu_jinak)`)
+  * absence vudci osobnosti (`r length(id_chybi_vudce)`)
+  * rozpad mezilidských vztahů (`r length(id_mezilidske_vztahy_neshody)`)
+  * odchod mimo místo působení (zejména na VŠ, ale i jinam) (`r length(id_odchody_pryc)`)
+  * nebyl program, neschopnost se zorganizovat (`r length(unique(c(id_nebyl_program, id_neschopnost)))`)
+  * neshody s vedenim strediska (`r length(id_vedeni_strediska)`)
+  * transformace v něco jiného, stárnutí - tedy v podstate "smrt z přirozených příčin" (`r length(id_transformace)`)
+  
+
+```{r}
+sondy %>% drop_na(kolik_let_fungoval_zanikly_rs_kmen) %>%
+  ggplot(aes(x = kolik_let_fungoval_zanikly_rs_kmen)) + geom_histogram(binwidth = 1)
+```
+
+# Pouze formalne reg. kmeny
+```{r}
+sumar_formalne <- sondy %>% filter(je_rs_kmen_registrovany == "Ano") %>% summarise(pocet_registrovanych = length(id), jen_formalne = sum(je_neaktivni_rs_kmen == "Ano", na.rm = TRUE), nevim_formalne = sum(je_neaktivni_rs_kmen == "Nevím", na.rm = TRUE) + sum(is.na(je_neaktivni_rs_kmen)))
+sumar_formalne
+```
+
+```{r}
+cred_int_formalne = qbeta(c(0.025, 0.975), sumar_formalne$pocet_registrovanych - sumar_formalne$nevim_formalne - sumar_formalne$jen_formalne + 1, sumar_formalne$jen_formalne + 1)
+```
+
+Můžeme usuzovat, že `r round(cred_int_formalne[1] * 100)`% až `r round(cred_int_formalne[2] * 100)`% registrovaných roverských kmenů vykazuje činnost (nejsou registrované pouze formálně).
+
+# RS neformálně vedou oddíl
+
+```{r}
+sondy %>% group_by(vedeni_nekdo_z_rs_detsky_oddil_ale_realne_je_vedouci_nekdo_jiny) %>% summarise(pocet = length(id))
+```
+
+```{r}
+cred_int_rs_neformalne_vede <- round(qbeta(c(0.025, 0.975), 4 + 1, 11 + 1) * 100)
+```
+
+Můžeme očekávat, že `r cred_int_rs_neformalne_vede[1]`% až `r cred_int_rs_neformalne_vede[2]`% roverských společenství má ve svém středu někoho, kdo neformálně vede oddíl.
+
+```{r}
+unique(sondy$odhad_zapojeni_ve_stredisku_do_detskych_oddilu_15_19)
+```
+
+# Další kvalitativní otázky
+
+```{r}
+unique(sondy %>% drop_na(dodatek_rs) %>% pull(dodatek_rs))
+```
+
