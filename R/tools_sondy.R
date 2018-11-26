@@ -270,3 +270,25 @@ plot_sondy_clusters <- function(df, lab = c("zavody", "expedice", "tabor", "prog
     ylim(ylim_min, ylim_max)
   
 }
+
+subgroup_corr <- function(df, v, grp_var, grp_id){
+  
+  df %>% 
+    filter_at(grp_var, all_vars(. == grp_id)) %>%
+    select_at(v) %>% 
+    as.matrix() %>% Hmisc::rcorr(type = "spearman") %>% 
+    format_corrtable() 
+}
+
+compare_corr_table <- function(df,v,grp_var1,grp_id1, grp_var2, grp_id2) {
+  c1 <- df %>% 
+    filter_at(grp_var1, all_vars(. == grp_id1)) %>%
+    select_at(v) %>% 
+    as.matrix() %>% Hmisc::rcorr(type = "spearman")
+  c2 <- df %>% 
+    filter_at(grp_var2, all_vars(. == grp_id2)) %>%
+    select_at(v) %>% 
+    as.matrix() %>% Hmisc::rcorr(type = "spearman")
+  cr <- c1$r-c2$r
+  ggcorrplot(c1$r-c2$r, type = "lower")
+}
