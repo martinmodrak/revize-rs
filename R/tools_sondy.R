@@ -64,7 +64,7 @@ summarize_group <- function(df, grp_var = NULL) {
       gather(key = "duvod", value = "upper", ucast_rs_kmen_procenta_lide:ucast_rs_kmen_procenta_neco_jineho)  
     sondy_n <- df %>% 
       summarize(n = n()) 
-    sondy_ucast2 <- sondy_mean %>% left_join(sondy_lower, by = c("duvod")) %>% left_join(sondy_upper, by = c("duvod")) %>% mutate(grp ="1")
+    sondy_ucast2 <- sondy_mean %>% left_join(sondy_lower, by = c("duvod")) %>% left_join(sondy_upper, by = c("duvod")) %>%  mutate(grp = "1", n = sondy_n$n)
     
     return(sondy_ucast2)
   } else {
@@ -106,7 +106,7 @@ summarize_group_neucast <- function(df, grp_var = NULL) {
       gather(key = "duvod", value = "upper", neucast_rs_kmen_procenta_prace_na_stredisku:neucast_rs_kmen_procenta_jine)  
     sondy_n <- df %>% 
       summarize(n = n()) 
-    sondy_ucast2 <- sondy_mean %>% left_join(sondy_lower,by = "duvod") %>% left_join(sondy_upper,by = "duvod")
+    sondy_ucast2 <- sondy_mean %>% left_join(sondy_lower,by = "duvod") %>% left_join(sondy_upper,by = "duvod")  %>%  mutate(grp = "1", n = sondy_n$n)
     return(sondy_ucast2)
   } else {
     df$grp <- as.factor(df[[grp_var]])
@@ -150,7 +150,7 @@ summarize_group_podil_prace <- function(df, grp_var = NULL) {
       gather(key = "duvod", value = "upper", !! v2)  
     sondy_n <- df %>% 
       summarize(n = n()) 
-    sondy_ucast2 <- sondy_mean %>% left_join(sondy_lower, by = c("duvod")) %>% left_join(sondy_upper, by = c("duvod")) %>% mutate(grp = "1")
+    sondy_ucast2 <- sondy_mean %>% left_join(sondy_lower, by = c("duvod")) %>% left_join(sondy_upper, by = c("duvod"))  %>% mutate(grp = "1", n = sondy_n$n)
     return(sondy_ucast2)
   } else {
     df$grp <- as.factor(df[[grp_var]])
@@ -194,7 +194,7 @@ summarize_group_typ_programu <- function(df, grp_var = NULL) {
       gather(key = "duvod", value = "upper", !! v2)  
     sondy_n <- df %>% 
       summarize(n = n()) 
-    sondy_ucast2 <- sondy_mean %>% left_join(sondy_lower, by = c("duvod")) %>% left_join(sondy_upper, by = c("duvod")) %>% mutate(grp = "1")
+    sondy_ucast2 <- sondy_mean %>% left_join(sondy_lower, by = c("duvod")) %>% left_join(sondy_upper, by = c("duvod")) %>% mutate(grp = "1", n = sondy_n$n)
     return(sondy_ucast2)
   } else {
     df$grp <- as.factor(df[[grp_var]])
@@ -267,7 +267,8 @@ plot_sondy_clusters <- function(df, lab = c("zavody", "expedice", "tabor", "prog
     #geom_text(x = 1, y = 60, aes(label = n)) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
     scale_x_discrete(labels = lab) +
-    ylim(ylim_min, ylim_max)
+    ylim(ylim_min, ylim_max) +
+    scale_color_discrete(labels = )
   
 }
 

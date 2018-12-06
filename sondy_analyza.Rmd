@@ -240,7 +240,7 @@ sondy_podil_casu <- sondy_podil_casu_tmp %>%
          skupina_k4 = kmeans(sondy_podil_casu_tmp %>% select(-id),4)$cluster,
          skupina_k5 = kmeans(sondy_podil_casu_tmp %>% select(-id),5)$cluster)
 
-sondy_podil_casu %>% summarize_group_podil_prace() %>% plot_sondy_podil_casu()
+sondy_podil_casu %>% summarize_group_podil_prace() %>% plot_sondy_clusters(lab = c("Jine", "Roverska cinnost", "U detskych oddilu", "Ucast/pomoc celostatni a vzdelavaci"), ylim_min = 0, ylim_max = 100)
 sondy_podil_casu %>% summarize_group_podil_prace("skupina_k2") %>% plot_sondy_podil_casu()
 sondy_podil_casu %>% summarize_group_podil_prace("skupina_k3") %>% plot_sondy_podil_casu()
 sondy_podil_casu %>% summarize_group_podil_prace("skupina_k4") %>% plot_sondy_podil_casu()
