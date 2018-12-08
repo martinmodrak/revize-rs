@@ -233,8 +233,7 @@ df <- df %>%
          souhlas_roveri_potrebuji_stezku = `RSq41[1]`,
          souhlas_roveri_potrebuji_plan_cinnosti = `RSq41[2]`,
          souhlas_roveri_potrebuji_vlastni_rs_akce = `RSq41[3]`,
-         souhlas_roveri_potrebuji_vlastni_rs_akce = `RSq41[4]`,
-         souhlas_roveri_potrebuji_letni_tabor_nebo_expedici = `RSq41[5]`,
+         souhlas_roveri_potrebuji_letni_tabor_nebo_expedici = `RSq41[4]`,
          souhlas_roveri_potrebuji_vedouciho_kmene = `RSq41[5]`,
          souhlas_roveri_potrebuji_zastoupeni_na_strediskovych_radach = `RSq41[6]`,
          dodatek_vychovny_zpravodaj = qZaver1,
@@ -245,4 +244,4 @@ df <- df %>%
 
 
 
-saveRDS(df, file = "private_data/sondy_181101.rds")
+saveRDS(df, file = "private_data/sondy_181206.rds")

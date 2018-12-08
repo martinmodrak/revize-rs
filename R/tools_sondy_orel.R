@@ -1,11 +1,11 @@
-nacti_sondy <- function() {
-  if(!file.exists("private_data/sondy_181101.rds")) {
-    stop("Nenalezena predzpracovana data ze sond. Spust sondy_prepare_data.R")
+nacti_sondy <- function(pouze_roveri = TRUE) {
+  sondy_file <- here::here("private_data", "sondy_181206.rds")
+  if(!file.exists(sondy_file)) {
+    stop(paste0("Nenalezena predzpracovana data ze sond (", sondy_file, "). Spust sondy_prepare_data.R"))
   }
-  sondy_raw <- readRDS("private_data/sondy_181101.rds")
+  sondy_raw <- readRDS(sondy_file)
 
   sondy <- sondy_raw %>%
-    filter(q0_clen_junaka == "Ano") %>%
     mutate(
       max_funkce = if_else(
         q0_vedouci_strediska == "Ano", "vudce_strediska", if_else(
@@ -30,6 +30,11 @@ nacti_sondy <- function() {
       kdo_pripravuje_program = fct_recode(vyrok_o_spolecenstvi, uzka_skupina = "Program připravuje úzká skupina lidí", vsichni =  "Na přípravě programu se podílí různí členové podle toho, o jakou činnost se jedná.", vudce =  "Program připravuje vůdce/vůdkyně kmene nebo roverského společenství"   ),
       studium_ve_meste_strediska = fct_recode(studium_ve_meste_strediska, Ne = "Ne, většinu roku trávím mimo místo, kde mám svoje středisko")
     )
+
+  if(pouze_roveri) {
+    sondy <- sondy %>% filter(q0_clen_junaka == "Ano")
+
+  }
 
   sondy
 }

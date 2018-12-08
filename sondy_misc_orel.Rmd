@@ -10,29 +10,36 @@ source(here::here("R","tools_sondy_orel.R"), encoding = "UTF-8")
 ```
 
 ```{r}
-sondy <- nacti_sondy()
+sondy <- nacti_sondy(pouze_roveri = FALSE)
+sondy_pouze_roveri <- nacti_sondy(pouze_roveri = TRUE)
 ```
 
 # Zániky kmenů
 
 ```{r}
-duvody <- unique(sondy$duvody_zaniku_kmene)
+duvody <- unique(sondy_pouze_roveri$duvody_zaniku_kmene)
 duvody <- duvody[!is.na(duvody)]
+
+#Debilne jsem tyto nejdriv vynechal a uz jsou kodovane, takze pridavam na konec
+duvody_neroveri <- sondy %>% filter(q0_clen_junaka != "Ano", !is.na(duvody_zaniku_kmene)) %>% pull(duvody_zaniku_kmene)
+duvody <- c(duvody, duvody_neroveri)
+
 duvody
+
 ```
 ```{r}
 id_nezajem = c(2,3,4, 17, 21, 23, 27, 30, 32, 33, 34, 35, 38, 39, 41, 45, 52)  
 id_malo_casu_oddil = c(7,16, 42, 43)
 id_malo_casu_jinak = c(13, 20, 28, 36)
 id_chybi_vudce = c(5,6, 17, 26, 31)
-id_odchody_pryc = c(1, 4, 16, 21, 41, 42, 47, 50, 51)
+id_odchody_pryc = c(1, 4, 16, 21, 41, 42, 47, 50, 51, 58, 59)
 id_mezilidske_vztahy_neshody = c(1,10,12, 13, 15, 33, 38, 39, 40, 44, 47, 52)
 id_transformace = c(8, 19, 32, 34, 38, 43, 48)
-id_nebyl_program = c(12, 14)
+id_nebyl_program = c(12, 14, 60)
 id_neschopnost = c(24, 25)
 id_vedeni_strediska = c(9, 18)
-id_jine = c(11, 22, 29, 46, 49, 52)
-
+id_jine = c(11, 22, 29, 46, 49, 52, 54, 55, 56, 57, 58)
+id_malo_informaci = c(53)
 ```
 
 
@@ -68,24 +75,119 @@ cred_int_formalne = qbeta(c(0.025, 0.975), sumar_formalne$pocet_registrovanych -
 Můžeme usuzovat, že `r round(cred_int_formalne[1] * 100)`% až `r round(cred_int_formalne[2] * 100)`% registrovaných roverských kmenů vykazuje činnost (nejsou registrované pouze formálně).
 
 # RS neformálně vedou oddíl
+```{r}
+summarise_by <- function(column) {
+  column <- enquo(column)
+  sondy %>% group_by(!!column) %>% summarise(pocet = length(id))
+  
+}
+```
+
 
 ```{r}
-sondy %>% group_by(vedeni_nekdo_z_rs_detsky_oddil_ale_realne_je_vedouci_nekdo_jiny) %>% summarise(pocet = length(id))
+summary_vedeni <- summarise_by(vedeni_nekdo_z_rs_detsky_oddil_ale_realne_je_vedouci_nekdo_jiny)
+summary_vedeni
 ```
 
 ```{r}
-cred_int_rs_neformalne_vede <- round(qbeta(c(0.025, 0.975), 4 + 1, 11 + 1) * 100)
+pocty_vedeni <- summary_vedeni$pocet
+names(pocty_vedeni) <- summary_vedeni$vedeni_nekdo_z_rs_detsky_oddil_ale_realne_je_vedouci_nekdo_jiny
+cred_int_rs_neformalne_vede <- round(qbeta(c(0.025, 0.975), pocty_vedeni["Ano, a je mu/jí méně než 18 let"] + pocty_vedeni["Ano, a je mu/jí více než 18 let"] + 1, pocty_vedeni["Ne"] + 1) * 100)
 ```
 
 Můžeme očekávat, že `r cred_int_rs_neformalne_vede[1]`% až `r cred_int_rs_neformalne_vede[2]`% roverských společenství má ve svém středu někoho, kdo neformálně vede oddíl.
 
-```{r}
-unique(sondy$odhad_zapojeni_ve_stredisku_do_detskych_oddilu_15_19)
-```
+# Další drobné věci
 
-# Další kvalitativní otázky
+Kolik lidí 15-19/19-26 je ve středisku zapojeno do vedení oddílů? Je těžké interpretovat, protože nikde není otázka na to, kolik celkem lidí v této výchovné kategorii ve středisku je. Můžeme pouze vztáhnout k celkovému počtu členů střediska... (to je graf pro podíl níže)
 
 ```{r}
-unique(sondy %>% drop_na(dodatek_rs) %>% pull(dodatek_rs))
+data_to_plot <- 
+  sondy %>% gather("vek", "odhad_poctu_zapojenych", odhad_zapojeni_ve_stredisku_do_detskych_oddilu_15_19, odhad_zapojeni_ve_stredisku_do_detskych_oddilu_20_26) %>%
+    mutate(vek = gsub("odhad_zapojeni_ve_stredisku_do_detskych_oddilu_", "", vek),
+           odhad_podil_zapojenych = odhad_poctu_zapojenych / pocet_clenu_strediska) %>%
+    drop_na(odhad_poctu_zapojenych)
+  
+data_to_plot %>% qplot(odhad_poctu_zapojenych, data = ., binwidth = 1) + facet_wrap(~vek)
+data_to_plot %>% qplot(odhad_podil_zapojenych, data = ., binwidth = 0.05) + facet_wrap(~vek)
+
+
+
 ```
+
+
+
+Jak je na tom čas strávený u dětských oddílů vs. čas na samostatný rovering.
+
+```{r}
+summarise_by(podil_casu_u_detskych_oddilu_junak_celkove)
+```
+
+
+```{r}
+summarise_by_souhlas <- function(column) {
+  column <- enquo(column)
+  col_name <- quo_name(column)
+  sondy %>% 
+    mutate(!!col_name := factor(!!column, levels = c("Určitě nesouhlasím","Spíše nesouhlasím","Spíše souhlasím","Určitě souhlasím"))) %>%
+    group_by(!!column) %>% summarise(pocet = n()) %>%
+    group_by(is.na(!!column)) %>%
+    mutate(celkem = sum(pocet), podil = round(pocet / celkem, digits = 2)) %>%
+    ungroup() %>%
+    select(!!column, pocet, podil)
+
+}
+
+summarise_by_souhlas(souhlas_pomoc_s_detskym_oddilem_je_forma_roveringu)
+summarise_by_souhlas(souhlas_rs_program_je_relaxace_od_vedeni_detskych_oddilu)
+summarise_by_souhlas(souhlas_hlavni_je_vlastni_rs_cinnost_pomoc_v_oddilech_az_druhorada)
+summarise_by_souhlas(souhlas_roveri_potrebuji_stezku)
+summarise_by_souhlas(souhlas_roveri_potrebuji_plan_cinnosti)
+summarise_by_souhlas(souhlas_roveri_potrebuji_vlastni_rs_akce)
+summarise_by_souhlas(souhlas_roveri_potrebuji_letni_tabor_nebo_expedici)
+summarise_by_souhlas(souhlas_roveri_potrebuji_vedouciho_kmene)
+summarise_by_souhlas(souhlas_roveri_potrebuji_zastoupeni_na_strediskovych_radach)
+```
+
+Jak se mění souhlas/nesouhlas s tím, že kmen potřebuje vůdce podle toho, jestli kmen vůdce skutečně má? 90%
+```{r}
+sondy %>% drop_na(souhlas_roveri_potrebuji_vedouciho_kmene) %>%
+  filter(rs_kmen_prvky_vudce != "N/A") %>%
+  group_by(rs_kmen_prvky_vudce, souhlas_roveri_potrebuji_vedouciho_kmene) %>% summarise(pocet = n()) %>% 
+  group_by(rs_kmen_prvky_vudce) %>% mutate(podil = pocet / sum(pocet)) %>%
+  mutate(druh = if_else(grepl("nesouhlasím", souhlas_roveri_potrebuji_vedouciho_kmene), "nesouhlasím", "souhlasím"),
+         sila = if_else(grepl("Určitě", souhlas_roveri_potrebuji_vedouciho_kmene), "určitě", "spíše") %>% factor(levels = c("určitě","spíše"))) %>%
+  ggplot(aes(x = rs_kmen_prvky_vudce, y = podil, color = druh, linetype = sila, group = souhlas_roveri_potrebuji_vedouciho_kmene)) + 
+  geom_point() + geom_line()
+```
+
+
+# Závěrečná doplňující poznámka k roveringu
+
+```{r}
+dodatky_rs <- unique(sondy %>% drop_na(dodatek_rs) %>% pull(dodatek_rs))
+
+zajimave <- c(6,8, 56, 59, 75, 85, 108, 121)
+
+vedeni_neni_rovering <- c(14, 18, 19, 31,  35, 42)
+vedeni_je_rovering <- c(23, 29, 30, 43, 58, 59, 69, 70, 72, 81) 
+
+
+spojeni_oddilova_rada_rovering <- c(23)
+
+```
+
+
+ Úvahy na téma, že rovering a vedení jsou oddělené věci se objevují `r length(vedeni_neni_rovering)` krát, úvahy, že vedení je rovering (nebo že by roveří měli v rámci činnosti s oddíly pomáhat) se objevují `r length(vedeni_je_rovering)`. Pohled, že oddílová rada vlastně je/může být roverský kmen je tam jen `r length(spojeni_oddilova_rada_rovering)`.
+
+Některé konrétní poznámky, které mi přišly zajímavé 
+```{r}
+dodatky_rs[zajimave]
+```
+
+Všechny kvalitativní odpovědi, pokud si to chcete projít:
+```{r}
+dodatky_rs
+```
+
 
