@@ -17,13 +17,13 @@ V datech z registrace za roky 2012-2018 lze v některých skupinách členů vid
 
 Jistou míru optimismu lze brát z toho, že v datech z let 2017-2018 již tento vzestup kolem 15tého roku není viditelný, jakkoliv nelze vyloučit, že to je pouze náhoda.
 
-V každém případě data nenaznačují, že by nárůst odchodů kolem přechodu do roverského věku byl zásadní problém. Zároveň lze očekávat, že data z registrace jsou v tomto ohledu spíše pesimistická - u členů do 15ti let je velmi nezvyklé, že by nebyli registrování, zatímcu u roverských kmenů lze registrační disciplínu očekávat nižší. 
+V každém případě data nenaznačují, že by nárůst odchodů kolem přechodu do roverského věku byl zásadní problém. Zároveň lze očekávat, že data z registrace jsou v tomto ohledu spíše pesimistická - u členů do 15ti let je velmi nezvyklé, že by nebyli registrování, zatímcu u roverských kmenů lze registrační disciplínu očekávat nižší. Na druhou stranu není v roverském věku neobvyklé, že je člen registrován, ale není aktivní - závěry z registrace nemohou bohužel mezi aktivními a neaktivními členy rozlišit.
 
-Nízký počet roverů je pravděpodobně více ovlivněn výrazným poklesem přílivu nováčků s rostoucím věkem a celkově vysokým "odpadem" nováčků (až 33% prvně registrovaných se neregistruje podruhé) i zkušenějších členů (až 18% z ročníku) napříč skautským věkem. I pokud bychom předpokládali, že při přechodu ze skautského věku do roverů dojde ke stejné míře odchodů jako během skautského věku, nedá se očekávat nárůst počtu roverů o víc jak jednotky procent.
+Nízký počet roverů je pravděpodobně více ovlivněn výrazným poklesem přílivu nováčků s rostoucím věkem a celkově vysokým "odpadem" nováčků (až 33% prvně registrovaných se neregistruje podruhé) i zkušenějších členů (až 18% z ročníku) napříč skautským věkem. I pokud bychom předpokládali, že při přechodu ze skautského věku do roverů dojde ke stejné míře odchodů jako během skautského věku, nedá se očekávat nárůst počtu registrovaných roverů o víc jak jednotky procent. Nelze vyloučit, že existuje velká skupina registrovaných ale neaktivních roverů a tedy že kolem 15tého roku dochází k velkému úbytku aktivních členů, který v registrace nevidíme. Z osobní zkušenosti to ale nepovažuji za příliš pravděpodobné.
 
 Zajímavým poznatkem je také to, že dívky odcházejí obecně ve stejné nebo menší míře než chlapci. 
 
-TODO: odchody dle velikosti mesta/kraje
+Bylo by zajímavé se podívat zvlášť na odchody dle velikosti města/kraje - lze očekávat, že v menších obcích dochází k větší míře odchodů v souvislosti s přechodem na střední nebo vysokou školu. To v datech, které máme nelze zjistit. Nicméně jelikož v průměru k nárůstu odchodů spíše nedochází, musel by být nárůst odchodů kolem 15ti let v menších městech kompenzován snížením množství takových odchodů ve větších městech, což bych považoval za spíše nepravděpodobné.
 
 # Hlavní kvantitativní výstupy
 

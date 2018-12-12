@@ -1,9 +1,15 @@
 ---
 title: "Explorace sond - Orel"
-output: html_notebook
+output: html_document
+author: "Martin 'Orel' Modrák"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
 ---
 
-```{r setup}
+Zde je zpracováno několik drobných věcí ze sond, trochu bez ladu a skladu, nejzajímavější je asi sumář ze zániků kmenů níže, ale velké závěry se z toho dělat nedají.
+
+```{r setup, message=FALSE, echo = FALSE}
+knitr::opts_chunk$set(echo=FALSE)
+library(knitr)
 library(tidyverse)
 source(here::here("R","tools_sondy_orel.R"), encoding = "UTF-8")
 
@@ -16,6 +22,8 @@ sondy_pouze_roveri <- nacti_sondy(pouze_roveri = TRUE)
 
 # Zániky kmenů
 
+Respondenti, kteří uvedli, že roverské společenství na středisku zaniklo dostali otevřenou otázku na důvod zániku. 
+
 ```{r}
 duvody <- unique(sondy_pouze_roveri$duvody_zaniku_kmene)
 duvody <- duvody[!is.na(duvody)]
@@ -24,7 +32,6 @@ duvody <- duvody[!is.na(duvody)]
 duvody_neroveri <- sondy %>% filter(q0_clen_junaka != "Ano", !is.na(duvody_zaniku_kmene)) %>% pull(duvody_zaniku_kmene)
 duvody <- c(duvody, duvody_neroveri)
 
-duvody
 
 ```
 ```{r}
@@ -57,6 +64,14 @@ Opakující se témata:
   * transformace v něco jiného, stárnutí - tedy v podstate "smrt z přirozených příčin" (`r length(id_transformace)`)
   
 
+Seznam všech důvodů:
+
+```{r}
+duvody
+
+```
+
+
 ```{r}
 sondy %>% drop_na(kolik_let_fungoval_zanikly_rs_kmen) %>%
   ggplot(aes(x = kolik_let_fungoval_zanikly_rs_kmen)) + geom_histogram(binwidth = 1)
@@ -65,7 +80,7 @@ sondy %>% drop_na(kolik_let_fungoval_zanikly_rs_kmen) %>%
 # Pouze formalne reg. kmeny
 ```{r}
 sumar_formalne <- sondy %>% filter(je_rs_kmen_registrovany == "Ano") %>% summarise(pocet_registrovanych = length(id), jen_formalne = sum(je_neaktivni_rs_kmen == "Ano", na.rm = TRUE), nevim_formalne = sum(je_neaktivni_rs_kmen == "Nevím", na.rm = TRUE) + sum(is.na(je_neaktivni_rs_kmen)))
-sumar_formalne
+sumar_formalne %>% kable()
 ```
 
 ```{r}
@@ -86,7 +101,7 @@ summarise_by <- function(column) {
 
 ```{r}
 summary_vedeni <- summarise_by(vedeni_nekdo_z_rs_detsky_oddil_ale_realne_je_vedouci_nekdo_jiny)
-summary_vedeni
+summary_vedeni %>% kable()
 ```
 
 ```{r}
@@ -120,9 +135,11 @@ data_to_plot %>% qplot(odhad_podil_zapojenych, data = ., binwidth = 0.05) + face
 Jak je na tom čas strávený u dětských oddílů vs. čas na samostatný rovering.
 
 ```{r}
-summarise_by(podil_casu_u_detskych_oddilu_junak_celkove)
+summarise_by(podil_casu_u_detskych_oddilu_junak_celkove) %>% kable()
 ```
 
+
+Sumář nějakých otázek na souhlas / nesouhlas s tvrzeními o roveringu.
 
 ```{r}
 summarise_by_souhlas <- function(column) {
@@ -138,15 +155,15 @@ summarise_by_souhlas <- function(column) {
 
 }
 
-summarise_by_souhlas(souhlas_pomoc_s_detskym_oddilem_je_forma_roveringu)
-summarise_by_souhlas(souhlas_rs_program_je_relaxace_od_vedeni_detskych_oddilu)
-summarise_by_souhlas(souhlas_hlavni_je_vlastni_rs_cinnost_pomoc_v_oddilech_az_druhorada)
-summarise_by_souhlas(souhlas_roveri_potrebuji_stezku)
-summarise_by_souhlas(souhlas_roveri_potrebuji_plan_cinnosti)
-summarise_by_souhlas(souhlas_roveri_potrebuji_vlastni_rs_akce)
-summarise_by_souhlas(souhlas_roveri_potrebuji_letni_tabor_nebo_expedici)
-summarise_by_souhlas(souhlas_roveri_potrebuji_vedouciho_kmene)
-summarise_by_souhlas(souhlas_roveri_potrebuji_zastoupeni_na_strediskovych_radach)
+summarise_by_souhlas(souhlas_pomoc_s_detskym_oddilem_je_forma_roveringu)  %>% kable()
+summarise_by_souhlas(souhlas_rs_program_je_relaxace_od_vedeni_detskych_oddilu)  %>% kable()
+summarise_by_souhlas(souhlas_hlavni_je_vlastni_rs_cinnost_pomoc_v_oddilech_az_druhorada)  %>% kable()
+summarise_by_souhlas(souhlas_roveri_potrebuji_stezku)  %>% kable()
+summarise_by_souhlas(souhlas_roveri_potrebuji_plan_cinnosti)  %>% kable()
+summarise_by_souhlas(souhlas_roveri_potrebuji_vlastni_rs_akce)  %>% kable()
+summarise_by_souhlas(souhlas_roveri_potrebuji_letni_tabor_nebo_expedici)  %>% kable()
+summarise_by_souhlas(souhlas_roveri_potrebuji_vedouciho_kmene)  %>% kable()
+summarise_by_souhlas(souhlas_roveri_potrebuji_zastoupeni_na_strediskovych_radach)  %>% kable()
 ```
 
 Jak se mění souhlas/nesouhlas s tím, že kmen potřebuje vůdce podle toho, jestli kmen vůdce skutečně má? 90%
@@ -161,6 +178,7 @@ sondy %>% drop_na(souhlas_roveri_potrebuji_vedouciho_kmene) %>%
   geom_point() + geom_line()
 ```
 
+Tj. kmeny, které vůdce mají jsou spíše nakloněny tomu, že to je dobrý nápad. Naopak téměř všichni, kteří nesouhlasí s tím, že kmen potřebuje vůdce jsou v kmeni, který vůdce nemá.
 
 # Závěrečná doplňující poznámka k roveringu
 
