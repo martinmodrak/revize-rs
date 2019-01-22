@@ -1,0 +1,38 @@
+---
+title: "Power analysis pro hlavní část"
+output: html_notebook
+---
+
+```{r setup}
+library(pwr)
+library(tidyverse)
+```
+
+A quick frequentist estimate
+
+```{r}
+power = 0.8
+alpha = 0.05
+power_vals <- tibble(n_predictors = c(10, 20, 30)) %>%
+  #crossing(tibble(f2 = c(0.02, 0.15, 0.35))) %>%
+  crossing(tibble(sample_size = seq(from = 100, to = 1500, length.out = 100) %>% round())) %>%
+  rowwise() %>%
+  mutate(f2 = pwr.f2.test(u = n_predictors, v = sample_size - n_predictors - 1, sig.level = alpha, power = power)$f2) %>%
+  ungroup()
+
+
+power_vals %>%
+  mutate(n_predictors = as.factor(n_predictors)) %>%
+  ggplot(aes(x = sample_size, y = f2, color = n_predictors, group = n_predictors )) +
+  geom_line() +
+  geom_hline(yintercept = 0.02) +
+  geom_hline(yintercept = 0.15) +
+  geom_hline(yintercept = 0.35) +
+  scale_y_log10()
+  
+```
+
+```{r}
+
+```
+
