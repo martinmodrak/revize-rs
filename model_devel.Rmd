@@ -1,0 +1,25 @@
+---
+title: "Developing Stan model"
+output: html_notebook
+---
+
+
+```{r}
+library(rstan)
+library(tidybayes)
+library(tidyverse)
+library(brms)
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+```
+
+```{r}
+test_data <- tibble(y = rbinom(100, size = 5, prob = 0.5) + 1, x = rnorm(100,0,1))
+
+make_stancode(y ~ x, data = test_data, family = cumulative("logit"))
+```
+```{r}
+make_standata(y ~ x, data = test_data, family = cumulative("logit"))
+test_data$y 
+```
+

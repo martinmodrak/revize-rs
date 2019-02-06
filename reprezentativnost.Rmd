@@ -19,13 +19,14 @@ V hlavních demografických měřítkách (věk, kraj, velikost města) byly son
 
 Níže je grafické zobrazení reprezentativnosti dat z ruznych zdroju. V každém obrázku je křivka "skautis", která reprezentuje podíl dané skupiny členstva v datech ze SkautISu (k roku 2017 pro data z kmene, k roku 2015 pro data ze sond o roveringu). Křivka je tam proto, že mi to přijde více názorné, ale samozřejmě důležité jsou konkrétní body, pořadí skupiny není dáno pevně. Tato křivka má kolem sebe pruh vyjadřující nejistotu - jak velký rozptyl bychom čekali, kdybychom vybrali ze skauta náhodně tolik lidí, kolik jich bylo v daném průzkumu. Druhá křivka vyjadřuje podíl dané skupiny, který jsme viděli v průzkumu. V zásadě lze říct, že když se křivka průzkumu vejde do pruhu kolem dat ze SkautISu je výzkum v tomto ohledu reprezentativní.
 
-```{r setup, message=FALSE, echo =FALSE, results='hide'}
+```{r setup, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
 knitr::opts_chunk$set(echo=FALSE)
 library(lubridate)
 library(tidyverse)
 library(kableExtra)
 library(here)
 library(readxl)
+library(bindrcpp)
 
 source(here::here("R","data_predvyzkum.R"), encoding = "UTF-8")
 source(here::here("R","data_csu_psc.R"), encoding = "UTF-8")
