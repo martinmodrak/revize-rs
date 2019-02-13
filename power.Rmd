@@ -5,6 +5,8 @@ output: html_notebook
 
 ```{r setup}
 library(pwr)
+library(here)
+library(brms)
 library(tidyverse)
 ```
 
@@ -33,6 +35,17 @@ power_vals %>%
 ```
 
 ```{r}
+mock_data <- readxl::read_excel(here("public_data","mock_hlavni_cast.xlsx"), sheet = "Respondenti") %>%
+  inner_join(readxl::read_excel(here("public_data","mock_hlavni_cast.xlsx"), sheet = "Kompetence"), by = c("respondent" = "respondent"))
+```
 
+
+```{r}
+
+formula_ideal <- brmsformula(potreba_rozvoje ~ (1|kompetence) + (0 + mo(zivotni_spokojenost)|kompetence) + (0 + funkce|kompetence) + (0 + vek|kompetence) , family = cumulative("logit"))
+get_prior(formula_ideal, data =  mock_data)
+
+fit <- brm(formula_ideal, data = mock_data, chains = 1, iter = 300)
+fit
 ```
 
