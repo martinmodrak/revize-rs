@@ -9,17 +9,32 @@ library(rstan)
 library(tidybayes)
 library(tidyverse)
 library(brms)
+library(here)
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
+source(here("R","simulator.R"))
+source(here("R","evaluation_tools.R"))
+source(here("R","sampling_multi.R"))
+source(here("R","sbc.R"))
+
 ```
 
 ```{r}
-test_data <- tibble(y = rbinom(100, size = 5, prob = 0.5) + 1, x = rnorm(100,0,1))
-
-make_stancode(y ~ x, data = test_data, family = cumulative("logit"))
+model <- stan_model(here("stan","main_model.stan"))
 ```
+
+
 ```{r}
-make_standata(y ~ x, data = test_data, family = cumulative("logit"))
-test_data$y 
+test_data <- simulate_data(N = 20, ncat = 3, N_monotonic = 1)
+fit <- sampling(model, data = test_data$observed)
+evaluation_summary(fit, test_data$true)
+```
+
+```{r}
+sbc_steps <- 500
+sbc_results <- sbc(model, function() { simulate_data(N = 50, ncat = 3, N_monotonic = 1)}, N_steps = sbc_steps)
+plot_sbc_params(sbc_results$params %>% filter(!grepl("zeta", param_name)))
+plot_sbc_params(sbc_results$params %>% filter(grepl("zeta", param_name)))
+
 ```
 

@@ -42,10 +42,11 @@ mock_data <- readxl::read_excel(here("public_data","mock_hlavni_cast.xlsx"), she
 
 ```{r}
 
-formula_ideal <- brmsformula(potreba_rozvoje ~ (1|kompetence) + (0 + mo(zivotni_spokojenost)|kompetence) + (0 + funkce|kompetence) + (0 + vek|kompetence) , family = cumulative("logit"))
+formula_ideal <- brmsformula(potreba_rozvoje ~ (1|kompetence) + mo(zivotni_spokojenost) + mo(funkcni_druzinovy_system) + (0 + mo(zivotni_spokojenost)|kompetence) + (0 + funkce|kompetence) + (0 + vek|kompetence) , family = cumulative("logit"))
 get_prior(formula_ideal, data =  mock_data)
 
-fit <- brm(formula_ideal, data = mock_data, chains = 1, iter = 300)
-fit
+#fit <- brm(formula_ideal, data = mock_data, chains = 1, iter = 300)
+#fit
+make_stancode(formula_ideal, mock_data)
 ```
 
