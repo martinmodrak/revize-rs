@@ -39,6 +39,7 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 
+/stan/*.rds
 
 /private_data/
 /local_data/
