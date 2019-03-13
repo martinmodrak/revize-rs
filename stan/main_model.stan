@@ -16,8 +16,9 @@ data {
   int<lower=2> ncat;  // number of categories
   int<lower=1, upper = ncat> Y[N]; //response
 
+  int<lower=0> N_fixed;
   //Fixed effects
-  vector[N] X;
+  matrix[N, N_fixed] X;
   real<lower=0> intercept_sigma;
 
   //Monotonic fixed effects
@@ -29,7 +30,7 @@ data {
   int<lower=0> N_random;
   int<lower=0> N_random_groups[N_random];
   int<lower=0, upper = max(N_random_groups)> X_random_groups[N, N_random];
-  matrix[N_random, N] X_random;
+  matrix[N, N_random] X_random;
   vector[N_random] random_hyper_sigma;
 }
 
@@ -57,7 +58,7 @@ transformed data {
 
 parameters {
   //Fixed effects
-  real b;
+  vector[N_fixed] b;
   ordered[ncat - 1] intercept;
 
   //Monotonic effects
@@ -66,7 +67,7 @@ parameters {
 
   //Random effects
   vector[sum(N_random_groups)] b_random_raw;
-  vector[N_random] sigma_random;
+  vector<lower=0>[N_random] sigma_random;
 }
 
 transformed parameters {
@@ -89,17 +90,20 @@ model {
     for(n_m in 1:N_monotonic) {
       mon[n_m] = b_monotonic_trans[X_monotonic[n, n_m], n_m];
     }
-    mu[n] = X[n] * b + sum(mon) +//sum(diagonal(b_monotonic_trans[X_monotonic[n,]])) +
-      sum(X_random[,n] .* b_random[b_random_index[n,]]);
+    mu[n] = X[n] * b + sum(mon) +
+      X_random[n,] * b_random[b_random_index[n,]];
   }
   // priors
-  //target += student_t_lpdf(intercept | 3, 0, 10);
   intercept ~ student_t(3, 0, intercept_sigma);
   b ~ normal(0, 1);
   b_monotonic ~ normal(0, 1);
 
   b_random_raw ~ normal(0, 1);
   sigma_random ~ normal(0, random_hyper_sigma);
+
+  for(n_m in 1:N_monotonic) {
+    zeta_monotonic[n_m] ~ dirichlet(rep_vector(1, N_monotonic_cat - 1));
+  }
 
   // likelihood
   //target += ordered_logistic_lpmf(Y[n] | mu[n], intercept);
