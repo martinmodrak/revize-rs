@@ -25,14 +25,21 @@ model <- stan_model(here("stan","main_model.stan"))
 
 
 ```{r}
-test_data <- simulate_data(N = 20, ncat = 3, N_monotonic = 1)
+ncat = 8
+repeat {
+  test_data <- simulate_data(N = 100, N_random_groups = c(3,6), ncat = ncat, N_monotonic = 1)
+  if(length(unique(test_data$observed$Y)) == ncat) {
+    break;
+  }
+  cat("Reject\n")
+}
 fit <- sampling(model, data = test_data$observed)
 evaluation_summary(fit, test_data$true)
 ```
 
 ```{r}
-sbc_steps <- 500
-sbc_results <- sbc(model, function() { simulate_data(N = 50, ncat = 3, N_monotonic = 1)}, N_steps = sbc_steps)
+sbc_steps <- 50
+sbc_results <- sbc(model, function() { simulate_data(N = 100, ncat = 8, N_random_groups = c(3,5),  N_monotonic = 1)}, N_steps = sbc_steps)
 plot_sbc_params(sbc_results$params %>% filter(!grepl("zeta", param_name)))
 plot_sbc_params(sbc_results$params %>% filter(grepl("zeta", param_name)))
 
