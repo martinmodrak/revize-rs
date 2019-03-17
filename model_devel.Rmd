@@ -8,7 +8,6 @@ output: html_notebook
 library(rstan)
 library(tidybayes)
 library(tidyverse)
-library(brms)
 library(here)
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
@@ -25,9 +24,9 @@ model <- stan_model(here("stan","main_model.stan"))
 
 
 ```{r}
-ncat = 8
+ncat = 4
 repeat {
-  test_data <- simulate_data(N = 100, N_random_groups = c(3,6), ncat = ncat, N_monotonic = 1)
+  test_data <- simulate_data(N = 100, N_fixed = 2, N_random_groups = c(2,4), ncat = ncat, N_monotonic = 1)
   if(length(unique(test_data$observed$Y)) == ncat) {
     break;
   }
@@ -38,8 +37,10 @@ evaluation_summary(fit, test_data$true)
 ```
 
 ```{r}
-sbc_steps <- 50
-sbc_results <- sbc(model, function() { simulate_data(N = 100, ncat = 8, N_random_groups = c(3,5),  N_monotonic = 1)}, N_steps = sbc_steps)
+set.seed(15673459)
+sbc_steps <- 500
+sbc_results <- sbc(model, function() { simulate_data(N = 100, N_fixed = 2, ncat = 4, N_random_groups = c(2,4),  N_monotonic = 1)}, N_steps = sbc_steps)
+saveRDS(sbc_results, "sbc_500.rds")
 plot_sbc_params(sbc_results$params %>% filter(!grepl("zeta", param_name)))
 plot_sbc_params(sbc_results$params %>% filter(grepl("zeta", param_name)))
 
