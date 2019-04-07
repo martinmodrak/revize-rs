@@ -4,7 +4,7 @@ output: html_notebook
 ---
 
 
-```{r}
+```{r setup}
 library(rstan)
 library(tidybayes)
 library(tidyverse)
@@ -22,11 +22,27 @@ source(here("R","sbc.R"))
 model <- stan_model(here("stan","main_model.stan"))
 ```
 
+```{r}
+N_questions = 4; N_fixed = 10000
+corr_matrix <- rlkjcorr(1, N_questions, eta = 0.1)
+corr_matrix_chol <- t(chol(corr_matrix)) #Transpose to lower triangular to match Stan
+#b_sd <- abs(rnorm(N_fixed, 0, 1))
+b_sd <- rep(1, N_fixed)
+mult_res <- (corr_matrix_chol %*% matrix(rnorm(N_fixed * N_questions, 0, 1), nrow = N_questions, ncol = N_fixed)) %*% diag(b_sd)
+corr_matrix - cor(t(mult_res))
+hist(diag(cov(mult_res)) - b_sd)
+mean(diag(cov(mult_res)) - b_sd)
+mvn_res <- t(rmvnorm(N_fixed, sigma = corr_matrix)) %*% diag(b_sd)
+mean(diag(cov(mvn_res)) - b_sd)
+corr_matrix - cor(t(mvn_res))
+tibble(mvn = as.numeric(mvn_res), mult = as.numeric(mult_res)) %>% ggplot(aes(mvn, mult)) + geom_point(alpha = 0.1) + geom_smooth(method = "lm")
+```
+
 
 ```{r}
 ncat = 4
 repeat {
-  test_data <- simulate_data(N = 100, N_fixed = 2, N_random_groups = c(2,4), ncat = ncat, N_monotonic = 1)
+  test_data <- simulate_data(N = 200, N_questions = 3, N_fixed = 5, N_random_groups = c(2,4), ncat = ncat, N_monotonic = 1)
   if(length(unique(test_data$observed$Y)) == ncat) {
     break;
   }
@@ -37,9 +53,9 @@ evaluation_summary(fit, test_data$true)
 ```
 
 ```{r}
-set.seed(15673459)
+set.seed(6847567)
 sbc_steps <- 500
-sbc_results <- sbc(model, function() { simulate_data(N = 100, N_fixed = 2, ncat = 4, N_random_groups = c(2,4),  N_monotonic = 1)}, N_steps = sbc_steps)
+sbc_results <- sbc(model, function() { simulate_data(N = 100, N_questions = 3, N_fixed = 2, ncat = 4, N_random_groups = c(2,4),  N_monotonic = 1)}, N_steps = sbc_steps, control = list(adapt_delta = 0.1))
 saveRDS(sbc_results, "sbc_500.rds")
 plot_sbc_params(sbc_results$params %>% filter(!grepl("zeta", param_name)))
 plot_sbc_params(sbc_results$params %>% filter(grepl("zeta", param_name)))

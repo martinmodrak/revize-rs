@@ -5,7 +5,7 @@ order_within_samples <- function(x, samples, n_samples = 99) {
   sum(thinned_samples < x) + 1
 }
 
-evaluate_single_param_indices <- function(samples, param_name, indices, true_value) {
+evaluate_single_param_indices <- function(samples, param_name, indices, true_value, q_probs = c(0.025,0.975)) {
   if(is.null(indices)) {
     param_samples = samples[[param_name]];
   }
@@ -23,13 +23,15 @@ evaluate_single_param_indices <- function(samples, param_name, indices, true_val
 
   mad_val = mad(param_samples, center = true_value)
   rmse_val = sqrt(mean((param_samples - true_value) ^ 2))
-  return(data.frame(
+  return(tibble(
     param_name = fullName,
     true_value = true_value,
     median = median(param_samples),
     IQR = IQR(param_samples),
     quantile = ecdf(param_samples)(true_value),
-    order_within = order_within_samples(true_value, param_samples)
+    order_within = order_within_samples(true_value, param_samples),
+    q_lower = quantile(param_samples, q_probs[1]),
+    q_upper = quantile(param_samples, q_probs[2])
     # mad = mad_val,
     # relative_mad = mad_val / true_value,
     # relative_rmse = rmse_val / true_value
@@ -61,7 +63,7 @@ evaluate_single_param <- function(samples, param_name, param_values)
   } else {
     stop("3+ dimensional parameters not supported yet");
   }
-  return(do.call(rbind.data.frame, result))
+  return(do.call(rbind, result))
 }
 
 evaluate_all_params <- function(samples, true_params) {
@@ -75,7 +77,7 @@ evaluate_all_params <- function(samples, true_params) {
     result[[next_element]] = evaluate_single_param(samples, param_name, param_values)
     next_element = next_element + 1
   }
-  return(do.call(rbind.data.frame, result));
+  return(do.call(rbind, result));
 }
 
 evaluation_summary <- function(fit, true_params, printParamsResults = TRUE) {
@@ -318,7 +320,7 @@ check_all_diagnostics <- function(fit) {
 partition_div <- function(fit) {
 	nom_params <- rstan::extract(fit, permuted=FALSE)
 	n_chains <- dim(nom_params)[2]
-	params <- as.data.frame(do.call(rbind, lapply(1:n_chains, function(n) nom_params[,n,])))
+	params <- as.tibble(do.call(rbind, lapply(1:n_chains, function(n) nom_params[,n,])))
 
 	sampler_params <- get_sampler_params(fit, inc_warmup=FALSE)
 	divergent <- do.call(rbind, sampler_params)[,'divergent__']

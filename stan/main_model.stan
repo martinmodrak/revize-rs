@@ -13,8 +13,11 @@ functions {
 //Heavily based on code from brms
 data {
   int<lower=1> N;
+  int<lower=1> N_questions;
   int<lower=2> ncat;  // number of categories
   int<lower=1, upper = ncat> Y[N]; //response
+
+  int<lower=1, upper=N_questions> questions[N];
 
   int<lower=0> N_fixed;
   //Fixed effects
@@ -57,8 +60,12 @@ transformed data {
 }
 
 parameters {
+  //Correlation across questions
+  cholesky_factor_corr[N_questions] q_corr_chol;
+
   //Fixed effects
-  vector[N_fixed] b;
+  matrix[N_questions, N_fixed] b_raw;
+  vector<lower=0>[N_fixed] b_sd;
   ordered[ncat - 1] intercept;
 
   //Monotonic effects
@@ -71,9 +78,12 @@ parameters {
 }
 
 transformed parameters {
+  matrix[N_questions, N_fixed] b;
   matrix[N_monotonic_cat, N_monotonic] b_monotonic_trans;
 
   vector[sum(N_random_groups)] b_random;
+
+  b = diag_post_multiply(q_corr_chol * b_raw, b_sd);
 
   for(n in 1:N_monotonic) {
     b_monotonic_trans[1, n] = 0;
@@ -90,12 +100,14 @@ model {
     for(n_m in 1:N_monotonic) {
       mon[n_m] = b_monotonic_trans[X_monotonic[n, n_m], n_m];
     }
-    mu[n] = X[n] * b + sum(mon) +
+    mu[n] = X[n] * to_vector(b[questions[n],]) + sum(mon) +
       X_random[n,] * b_random[b_random_index[n,]];
   }
   // priors
   intercept ~ student_t(3, 0, intercept_sigma);
-  b ~ normal(0, 1);
+  q_corr_chol ~ lkj_corr_cholesky(1);
+  b_sd ~ normal(0, 1);
+  to_vector(b_raw) ~ normal(0, 1);
   b_monotonic ~ normal(0, 1);
 
   b_random_raw ~ normal(0, 1);
@@ -108,4 +120,16 @@ model {
   // likelihood
   //target += ordered_logistic_lpmf(Y[n] | mu[n], intercept);
   Y ~ ordered_logistic_lpmf(mu, intercept);
+}
+
+generated quantities {
+  vector[(N_questions * (N_questions-1))/2] q_corr_vec;
+  matrix[N_questions, N_questions] q_corr = q_corr_chol * q_corr_chol';
+  int i = 1;
+  for(n1 in 1:(N_questions - 1)) {
+    for(n2 in (n1+1):N_questions) {
+      q_corr_vec[i] = q_corr[n1,n2];
+      i = i + 1;
+    }
+  }
 }
