@@ -23,26 +23,30 @@ model <- stan_model(here("stan","main_model.stan"))
 ```
 
 ```{r}
-N_questions = 4; N_fixed = 10000
+N_questions = 100; N_fixed = 10
 corr_matrix <- rlkjcorr(1, N_questions, eta = 0.1)
 corr_matrix_chol <- t(chol(corr_matrix)) #Transpose to lower triangular to match Stan
 #b_sd <- abs(rnorm(N_fixed, 0, 1))
-b_sd <- rep(1, N_fixed)
+b_sd <- rep(1, length.out = N_fixed)
 mult_res <- (corr_matrix_chol %*% matrix(rnorm(N_fixed * N_questions, 0, 1), nrow = N_questions, ncol = N_fixed)) %*% diag(b_sd)
-corr_matrix - cor(t(mult_res))
-hist(diag(cov(mult_res)) - b_sd)
-mean(diag(cov(mult_res)) - b_sd)
-mvn_res <- t(rmvnorm(N_fixed, sigma = corr_matrix)) %*% diag(b_sd)
-mean(diag(cov(mvn_res)) - b_sd)
-corr_matrix - cor(t(mvn_res))
-tibble(mvn = as.numeric(mvn_res), mult = as.numeric(mult_res)) %>% ggplot(aes(mvn, mult)) + geom_point(alpha = 0.1) + geom_smooth(method = "lm")
+#corr_matrix - cor(t(mult_res))
+mult_sd_diff <- b_sd - apply(mult_res, FUN = sd, MARGIN = 1)
+mean(mult_sd_diff)
+hist(mult_sd_diff)
+
+mvn_res <- t(rmvnorm(N_fixed, sigma = corr_matrix)) #%*% diag(b_sd)
+mvn_sd_diff <- b_sd - apply(mvn_res, FUN = sd, MARGIN = 1)
+mean(mvn_sd_diff)
+hist(mvn_sd_diff)
+#corr_matrix - cor(t(mvn_res))
+#tibble(mvn = as.numeric(mvn_res), mult = as.numeric(mult_res)) %>% ggplot(aes(mvn, mult)) + geom_point(alpha = 0.1) + geom_smooth(method = "lm")
 ```
 
 
 ```{r}
 ncat = 4
 repeat {
-  test_data <- simulate_data(N = 200, N_questions = 3, N_fixed = 5, N_random_groups = c(2,4), ncat = ncat, N_monotonic = 1)
+  test_data <- simulate_data(N = 200, N_questions = 2, N_fixed = 5, N_random_groups = c(2,4), ncat = ncat, N_monotonic = 0)
   if(length(unique(test_data$observed$Y)) == ncat) {
     break;
   }
@@ -53,12 +57,19 @@ evaluation_summary(fit, test_data$true)
 ```
 
 ```{r}
-set.seed(6847567)
-sbc_steps <- 500
-sbc_results <- sbc(model, function() { simulate_data(N = 100, N_questions = 3, N_fixed = 2, ncat = 4, N_random_groups = c(2,4),  N_monotonic = 1)}, N_steps = sbc_steps, control = list(adapt_delta = 0.1))
-saveRDS(sbc_results, "sbc_500.rds")
-plot_sbc_params(sbc_results$params %>% filter(!grepl("zeta", param_name)))
-plot_sbc_params(sbc_results$params %>% filter(grepl("zeta", param_name)))
+#set.seed(6847567)
+sbc_steps <- 100
+sbc_results <- sbc(model, function() { simulate_data(N = 100, N_questions = 2, N_fixed = 2, ncat = 4, N_random_groups = c(2,4),  N_monotonic = 0)}, N_steps = sbc_steps, control = list(adapt_delta = 0.1))
+#saveRDS(sbc_results, "sbc_500.rds")
+saveRDS(sbc_results, "sbc_alt2.rds")
+plot_sbc_params(sbc_results$params %>% filter(!grepl("zeta|q_corr", param_name)))
+plot_sbc_params(sbc_results$params %>% filter(grepl("zeta|q_corr", param_name)))
+
+```
+```{r}
+sbc_orig <- readRDS("sbc_500.rds")
+plot_sbc_params(sbc_orig$params %>% filter(!grepl("zeta|q_corr", param_name)))
+plot_sbc_params(sbc_orig$params %>% filter(grepl("zeta|q_corr", param_name)))
 
 ```
 

@@ -1,15 +1,7 @@
 library(rstan)
 library(mvtnorm)
 
-functions_to_expose <-
-  '
-functions {
-int ordered_logit_rng(real eta, vector c) {
-  return ordered_logistic_rng(eta, c);
-}
-}
-'
-functions_to_expose <- stanc(model_code = functions_to_expose, model_name = "functions_to_expose")
+functions_to_expose <- stanc(file = here("stan","ordered_logit_rng.stan"), model_name = "functions_to_expose")
 expose_stan_functions(functions_to_expose)
 
 # Taken from https://github.com/rmcelreath/rethinking/blob/master/R/distributions.r
@@ -79,13 +71,17 @@ simulate_data <- function(N, ncat, N_questions, N_fixed, N_random_groups, N_mono
   X_base <- matrix(rnorm(N * N_fixed, 0, 1), nrow = N, ncol = N_fixed)
   X <- rep(X_base, N_questions) %>% matrix(nrow = N*N_questions, ncol = N_fixed, byrow = TRUE)
 
-  X_monotonic_base <- array(sample(1:N_monotonic_cat, N * N_monotonic, replace = TRUE), c(N, N_monotonic))
   #Ensure full range of monotonic effects
-  for(n in 1:N_monotonic) {
-    X_monotonic_base[1:N_monotonic_cat, n] <- sample(1:N_monotonic_cat, size = N_monotonic_cat)
+  if(N_monotonic > 0) {
+    X_monotonic_base <- array(sample(1:N_monotonic_cat, N * N_monotonic, replace = TRUE), c(N, N_monotonic))
+    for(n in 1:N_monotonic) {
+      X_monotonic_base[1:N_monotonic_cat, n] <- sample(1:N_monotonic_cat, size = N_monotonic_cat)
+    }
+    X_monotonic <- rep(X_monotonic_base, N_questions) %>% matrix(nrow = N*N_questions, ncol = N_monotonic, byrow = TRUE)
+  } else {
+    X_monotonic <- matrix(0, nrow = N* N_questions, ncol = 0)
   }
 
-  X_monotonic <- rep(X_monotonic_base, N_questions) %>% matrix(nrow = N*N_questions, ncol = N_monotonic, byrow = TRUE)
 
   b_monotonic <- rnorm(N_monotonic, 0, 1)
   zeta_monotonic <- MCMCpack::rdirichlet(N_monotonic, rep(1, length.out = N_monotonic_cat - 1))
@@ -128,9 +124,11 @@ simulate_data <- function(N, ncat, N_questions, N_fixed, N_random_groups, N_mono
   mu <- array(NA_real_, N * N_questions)
   for(n in 1:(N * N_questions)) {
     mu[n] <- X[n,] %*% b[questions[n],]
-    for(N_m in 1:N_monotonic) {
-      if(X_monotonic[n, N_m] > 1) {
-        mu[n] <- mu[n] + b_monotonic[N_m] * sum(zeta_monotonic_trans[N_m, 1:X_monotonic[n,N_m]])
+    if(N_monotonic > 0) {
+      for(N_m in 1:N_monotonic) {
+        if(X_monotonic[n, N_m] > 1) {
+          mu[n] <- mu[n] + b_monotonic[N_m] * sum(zeta_monotonic_trans[N_m, 1:X_monotonic[n,N_m]])
+        }
       }
     }
     mu[n] <- mu[n] + sum(X_random[n, ] * b_random[b_random_index[n,]])
