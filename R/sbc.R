@@ -21,8 +21,10 @@ sbc <- function(model, generator, N_steps, ...) {
                  n_divergent = rstan::get_num_divergent(fit),
                  n_treedepth = rstan::get_num_max_treedepth(fit),
                  n_chains_low_bfmi = length(rstan::get_low_bfmi_chains(fit)),
-                 total_time = sum(rstan::get_elapsed_time(fit))
-                 )
+                 total_time = sum(rstan::get_elapsed_time(fit)),
+                 min_n_eff = min(summary(fit)$summary[,"n_eff"], na.rm = TRUE),
+                 max_Rhat = max(summary(fit)$summary[,"Rhat"], na.rm = TRUE)
+      )
     })
 
   return(list(params = param_stats, diagnostics = diagnostics, data = observed_list, true_values = true_list))
@@ -65,7 +67,9 @@ summarise_sbc_diagnostics <- function(sbc_results) {
       has_divergence = mean(n_divergent > 0),
       has_treedepth = mean(n_treedepth > 0),
       has_low_bfmi = mean(n_chains_low_bfmi > 0),
-      median_total_time = median(total_time)
+      median_total_time = median(total_time),
+      low_neff = mean(min_n_eff < 100),
+      high_Rhat = mean(max_Rhat > 1.1)
       )
 
 }

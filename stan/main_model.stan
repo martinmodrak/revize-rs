@@ -35,6 +35,9 @@ data {
   int<lower=0, upper = max(N_random_groups)> X_random_groups[N, N_random];
   matrix[N, N_random] X_random;
   vector[N_random] random_hyper_sigma;
+
+  //If true, coefficients for questions are correlated
+  int<lower=0, upper=1> questions_correlation;
 }
 
 transformed data {
@@ -43,25 +46,26 @@ transformed data {
   int<lower=0> b_random_to_group[sum(N_random_groups)];
   int<lower=0> b_random_index[N, N_random];
 
-  b_random_group_start[1] = 1;
-  for(i in 2:N_random) {
-    b_random_group_start[i] = b_random_group_start[i - 1] + N_random_groups[i - 1];
-  }
-  for(i in 1:N_random) {
-    for(k in b_random_group_start[i]:(b_random_group_start[i] + N_random_groups[i] - 1)) {
-      b_random_to_group[k] = i;
+  if(N_random > 0) {
+    b_random_group_start[1] = 1;
+    for(i in 2:N_random) {
+      b_random_group_start[i] = b_random_group_start[i - 1] + N_random_groups[i - 1];
     }
+    for(i in 1:N_random) {
+      for(k in b_random_group_start[i]:(b_random_group_start[i] + N_random_groups[i] - 1)) {
+        b_random_to_group[k] = i;
+      }
 
-    for(n in 1:N) {
-      b_random_index[n, i] = b_random_group_start[i] + X_random_groups[n, i] - 1;
+      for(n in 1:N) {
+        b_random_index[n, i] = b_random_group_start[i] + X_random_groups[n, i] - 1;
+      }
     }
-
   }
 }
 
 parameters {
   //Correlation across questions
-  cholesky_factor_corr[N_questions] q_corr_chol;
+  cholesky_factor_corr[questions_correlation ? N_questions : 1] q_corr_chol;
 
   //Fixed effects
   matrix[N_questions, N_fixed] b_raw;
@@ -74,35 +78,51 @@ parameters {
 
   //Random effects
   vector[sum(N_random_groups)] b_random_raw;
-  vector<lower=0>[N_random] sigma_random;
+  vector<lower=0>[N_random] b_random_sd;
 }
 
 transformed parameters {
   matrix[N_questions, N_fixed] b;
   matrix[N_monotonic_cat, N_monotonic] b_monotonic_trans;
+  vector[N] mu;
 
   vector[sum(N_random_groups)] b_random;
 
-  b = diag_post_multiply(q_corr_chol * b_raw, b_sd);
+  if(questions_correlation) {
+    b = diag_post_multiply(q_corr_chol * b_raw, b_sd);
+  } else {
+    for(f in 1:N_fixed) {
+      b[,f] = b_raw[,f] * b_sd[f];
+    }
+  }
 
   for(n in 1:N_monotonic) {
     b_monotonic_trans[1, n] = 0;
     b_monotonic_trans[2:N_monotonic_cat, n] = b_monotonic[n] * cumsum(zeta_monotonic[n]);
   }
 
-  b_random = b_random_raw .* sigma_random[b_random_to_group];
-}
+  b_random = b_random_raw .* b_random_sd[b_random_to_group];
 
-model {
-  vector[N] mu;
   for(n in 1:N) {
     vector[N_monotonic] mon;
+    real random = 0;
+    real fixed = 0;
     for(n_m in 1:N_monotonic) {
       mon[n_m] = b_monotonic_trans[X_monotonic[n, n_m], n_m];
     }
-    mu[n] = X[n] * to_vector(b[questions[n],]) + sum(mon) +
-      X_random[n,] * b_random[b_random_index[n,]];
+    if(N_random > 0) {
+      random = X_random[n,] * b_random[b_random_index[n,]];
+    }
+    if(N_fixed > 0) {
+      fixed = X[n] * to_vector(b[questions[n],]);
+    }
+    mu[n] = fixed + sum(mon) +
+      random;
   }
+
+}
+
+model {
   // priors
   intercept ~ student_t(3, 0, intercept_sigma);
   q_corr_chol ~ lkj_corr_cholesky(1);
@@ -111,7 +131,7 @@ model {
   b_monotonic ~ normal(0, 1);
 
   b_random_raw ~ normal(0, 1);
-  sigma_random ~ normal(0, random_hyper_sigma);
+  b_random_sd ~ normal(0, random_hyper_sigma);
 
   for(n_m in 1:N_monotonic) {
     zeta_monotonic[n_m] ~ dirichlet(rep_vector(1, N_monotonic_cat - 1));
@@ -123,13 +143,15 @@ model {
 }
 
 generated quantities {
-  vector[(N_questions * (N_questions-1))/2] q_corr_vec;
-  matrix[N_questions, N_questions] q_corr = q_corr_chol * q_corr_chol';
-  int i = 1;
-  for(n1 in 1:(N_questions - 1)) {
-    for(n2 in (n1+1):N_questions) {
-      q_corr_vec[i] = q_corr[n1,n2];
-      i = i + 1;
+  vector[questions_correlation ? (N_questions * (N_questions-1))/2 : 0] q_corr_vec;
+  if(questions_correlation) {
+    matrix[N_questions, N_questions] q_corr = q_corr_chol * q_corr_chol';
+    int i = 1;
+    for(n1 in 1:(N_questions - 1)) {
+      for(n2 in (n1+1):N_questions) {
+        q_corr_vec[i] = q_corr[n1,n2];
+        i = i + 1;
+      }
     }
   }
 }

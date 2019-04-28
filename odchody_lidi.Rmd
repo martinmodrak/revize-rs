@@ -161,8 +161,8 @@ Data mají mírně sestupný trend v čase (tj. poslední dobou méně lidí odc
 Pro jistotu se podíváme na ty samé grafy, ale s prvními odchody, tj. kdy poprvé měl člověk v pauzu v registraci. Ti, kteří se pak vrátili jsou počítáni pouze ke svému prvnímu odchodu.
 
 ```{r}
-plot_odchody(odchazeni_prvni) + ggtitle("Souhrný poddíl prvních odchodů")
-plot_odchody(odchazeni_prvni, "year") + ggtitle("Poddíl prvních odchodů po letech")
+plot_odchody(odchazeni_prvni) + ggtitle("Souhrný podíl prvních odchodů")
+plot_odchody(odchazeni_prvni, "year") + ggtitle("Podíl prvních odchodů po letech")
 
 ```
 
@@ -206,6 +206,8 @@ plot_prichody(odchazeni_posledni) + ggtitle("Podíl nováčků souhrně")
 plot_prichody(odchazeni_posledni, response = n_novych) + ggtitle("Počet nováčků souhrně")
 
 plot_prichody(odchazeni_posledni, by = "year") + ggtitle("Podíl nováčků po letech")
+plot_prichody(odchazeni_posledni, by = "year", response = n_novych) + ggtitle("Počet nováčků po letech")
+
 ```
 
 # Celkové počty členů

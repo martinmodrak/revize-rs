@@ -15,7 +15,7 @@ A quick frequentist estimate
 ```{r}
 power = 0.8
 alpha = 0.05
-power_vals <- tibble(n_predictors = c(10, 20, 30)) %>%
+power_vals <- tibble(n_predictors = c(10, 20, 30, 40)) %>%
   #crossing(tibble(f2 = c(0.02, 0.15, 0.35))) %>%
   crossing(tibble(sample_size = seq(from = 100, to = 1500, length.out = 100) %>% round())) %>%
   rowwise() %>%
@@ -34,19 +34,12 @@ power_vals %>%
   
 ```
 
-```{r}
-mock_data <- readxl::read_excel(here("public_data","mock_hlavni_cast.xlsx"), sheet = "Respondenti") %>%
-  inner_join(readxl::read_excel(here("public_data","mock_hlavni_cast.xlsx"), sheet = "Kompetence"), by = c("respondent" = "respondent"))
-```
-
+Using the SBC code and full simulations:
 
 ```{r}
+settings <- tibble(N = c(250, 500, 750, 1000)) %>% crossing(  
 
-formula_ideal <- brmsformula(potreba_rozvoje ~ (1|kompetence) + mo(zivotni_spokojenost) + mo(funkcni_druzinovy_system) + (0 + mo(zivotni_spokojenost)|kompetence) + (0 + funkce|kompetence) + (0 + vek|kompetence) , family = cumulative("logit"))
-get_prior(formula_ideal, data =  mock_data)
-
-#fit <- brm(formula_ideal, data = mock_data, chains = 1, iter = 300)
-#fit
-make_stancode(formula_ideal, mock_data)
+sbc_results <- sbc(model, function() { simulate_data(N = 100, N_questions = 2, N_fixed = 2, ncat = 4, N_random_groups = numeric(0),  N_monotonic = 0, questions_correlation = TRUE)}, N_steps = sbc_steps, control = list(adapt_delta = 0.99))
 ```
+
 

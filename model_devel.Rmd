@@ -46,7 +46,7 @@ hist(mvn_sd_diff)
 ```{r}
 ncat = 4
 repeat {
-  test_data <- simulate_data(N = 200, N_questions = 2, N_fixed = 5, N_random_groups = c(2,4), ncat = ncat, N_monotonic = 0)
+  test_data <- simulate_data(N = 200, N_questions = 4, N_fixed = 2, N_random_groups = numeric(0), ncat = ncat, N_monotonic = 0, questions_correlation = TRUE, subset_questions = 3)
   if(length(unique(test_data$observed$Y)) == ncat) {
     break;
   }
@@ -54,22 +54,59 @@ repeat {
 }
 fit <- sampling(model, data = test_data$observed)
 evaluation_summary(fit, test_data$true)
+#evaluation_summary(fit, test_data$computed)
 ```
 
 ```{r}
 #set.seed(6847567)
 sbc_steps <- 100
-sbc_results <- sbc(model, function() { simulate_data(N = 100, N_questions = 2, N_fixed = 2, ncat = 4, N_random_groups = c(2,4),  N_monotonic = 0)}, N_steps = sbc_steps, control = list(adapt_delta = 0.1))
+sbc_results <- sbc(model, function() { simulate_data(N = 200, N_questions = 4, N_fixed = 2, ncat = 4, N_random_groups = c(2,4),  N_monotonic = 2, questions_correlation = TRUE)}, N_steps = sbc_steps, control = list(adapt_delta = 0.95))
 #saveRDS(sbc_results, "sbc_500.rds")
-saveRDS(sbc_results, "sbc_alt2.rds")
-plot_sbc_params(sbc_results$params %>% filter(!grepl("zeta|q_corr", param_name)))
-plot_sbc_params(sbc_results$params %>% filter(grepl("zeta|q_corr", param_name)))
-
+#saveRDS(sbc_results, "sbc_no_mono_no_cor_no_random.rds")
+pattern <- "zeta|q_corr|b_sd"
+plot_sbc_params(sbc_results$params %>% filter(!grepl(pattern, param_name)), binwidth = 5)
+plot_sbc_params(sbc_results$params %>% filter(grepl(pattern, param_name)), binwidth = 5)
+summarise_sbc_diagnostics(sbc_results)
 ```
+```{r}
+sbc_power(sbc_results$params)
+```
+
+
 ```{r}
 sbc_orig <- readRDS("sbc_500.rds")
 plot_sbc_params(sbc_orig$params %>% filter(!grepl("zeta|q_corr", param_name)))
 plot_sbc_params(sbc_orig$params %>% filter(grepl("zeta|q_corr", param_name)))
+
+```
+
+
+```{r}
+model_code_order_test <- "
+data {
+  int N;
+  int sigma;
+}
+
+parameters {
+  ordered[N] x;
+}
+
+model {
+  x ~ student_t(3, 0, sigma);
+}
+"
+model_order_test <- stan_model(model_code = model_code_order_test)
+```
+
+```{r}
+N = 1
+sigma = 3
+sbc_order_results <- sbc(model, function() { list(observed = list(N = N, sigma = sigma), true = list(x = sort(rt(N, 3) * sigma)) }, N_steps = 1000)
+#saveRDS(sbc_results, "sbc_500.rds")
+saveRDS(sbc_results, "sbc_no_mono_no_cor_no_random.rds")
+pattern <- "zeta|q_corr|b_sd"
+plot_sbc_params(sbc_results$params %>% filter(!grepl(pattern, param_name)), binwidth = 5)
 
 ```
 
