@@ -45,8 +45,8 @@ rlkjcorr <- function ( n , K , eta = 1 ) {
 
 
 simulate_data <- function(N, ncat, N_questions, N_fixed, N_random_groups, N_monotonic, N_monotonic_cat = 4,
-                          questions_correlation = TRUE, subset_questions = N_questions)  {
-  intercept_sigma <- 1
+                          questions_correlation = TRUE, subset_questions = N_questions, intercept_sigma = 3,
+                          effect_hyper_sigma = 1)  {
   intercept <- sort(rt(ncat - 1, 3) * intercept_sigma)
 
   if(subset_questions == N_questions) {
@@ -58,9 +58,12 @@ simulate_data <- function(N, ncat, N_questions, N_fixed, N_random_groups, N_mono
     }
   }
 
-  b_sd <- abs(rnorm(N_fixed, 0, 1))
 
-  if(questions_correlation) {
+  b_sd <- abs(rnorm(N_fixed, 0, effect_hyper_sigma))
+
+  if(N_fixed == 0) {
+    b <- matrix(NA_real_, nrow = N_questions, ncol = 0)
+  } else if(questions_correlation) {
     #"Fixed" effects correlate across questions and there is an sd of how much the effect differs between questions
     corr_matrix <- rlkjcorr(1, N_questions, eta = 1)
     corr_matrix_chol <- t(chol(corr_matrix)) #Transpose to lower triangular to match Stan
@@ -84,7 +87,7 @@ simulate_data <- function(N, ncat, N_questions, N_fixed, N_random_groups, N_mono
     }
   }
 
-
+  #TODO correlate Xs
   X_base <- matrix(rnorm(N * N_fixed, 0, 1), nrow = N, ncol = N_fixed)
   X <- rep(X_base, subset_questions) %>% matrix(nrow = N*subset_questions, ncol = N_fixed, byrow = TRUE)
 
@@ -99,14 +102,30 @@ simulate_data <- function(N, ncat, N_questions, N_fixed, N_random_groups, N_mono
     X_monotonic <- matrix(0, nrow = N* subset_questions, ncol = 0)
   }
 
+  b_monotonic_sd <- abs(rnorm(N_monotonic, 0, effect_hyper_sigma))
 
-  b_monotonic <- rnorm(N_monotonic, 0, 1)
+  if(N_monotonic == 0) {
+    b_monotonic <- matrix(NA_real_, nrow = N_questions, ncol = 0)
+  } else if(questions_correlation) {
+    b_monotonic <- t(rmvnorm(N_monotonic, sigma = corr_matrix)) %*% diag(b_monotonic_sd)
+  } else {
+    b_monotonic_raw <- matrix(rnorm(N_monotonic * N_questions, 0, 1), nrow = N_questions, ncol = N_monotonic)
+    b_monotonic <- matrix(NA_real_, nrow = N_questions, ncol = N_monotonic)
+    if(N_monotonic > 0) {
+      for(f in 1:N_monotonic) {
+        b_monotonic[,f] <- b_monotonic_raw[,f] * b_monotonic_sd[f]
+      }
+    }
+  }
   zeta_monotonic <- MCMCpack::rdirichlet(N_monotonic, rep(1, length.out = N_monotonic_cat - 1))
   zeta_monotonic_trans <- cbind(rep(0, N_monotonic), zeta_monotonic)
 
   N_random <- length(N_random_groups)
   random_hyper_sigma <- rep(1, N_random)
-  b_random_sd <- abs(rnorm(N_random, 0, random_hyper_sigma))
+  b_random_sd <- matrix(NA_real_, nrow = N_questions, ncol = N_random)
+  for(q in 1:N_questions) {
+    b_random_sd[q,] <- abs(rnorm(N_random, 0, random_hyper_sigma))
+  }
 
   b_random_group_start <- cumsum(N_random_groups) - N_random_groups + 1
   b_random_to_group <- integer(sum(N_random_groups))
@@ -117,30 +136,54 @@ simulate_data <- function(N, ncat, N_questions, N_fixed, N_random_groups, N_mono
       }
     }
   }
-  b_random <- rnorm(sum(N_random_groups), 0, b_random_sd[b_random_to_group])
+
+  if(N_random == 0) {
+    b_random_correlated_unscaled <- matrix(NA_real_, nrow = N_questions, ncol = 0)
+  }else if(questions_correlation){
+    #TODO maybe used the same simplified logic in the Stan file
+    b_random_correlated_unscaled <- t(rmvnorm(sum(N_random_groups), sigma = corr_matrix))
+  } else {
+    b_random_correlated_unscaled <- matrix(rnorm(N_questions * sum(N_random_groups), 0 , 1),
+                                           nrow = N_questions, ncol = sum(N_random_groups))
+  }
+
+  b_random <- b_random_correlated_unscaled * b_random_sd[,b_random_to_group]
 
 
   X_random_groups_base <- array(NA_real_, c(N, N_random))
   if(N_random > 0) {
     for(i in 1:N_random) {
       X_random_groups_base[,i] <- sample(1:N_random_groups[i], N, replace = TRUE)
-    }
-    #Ensure full range of random groups
-    for(n in 1:N_random) {
-      X_random_groups_base[1:(N_random_groups[i]), n] <- sample(1:(N_random_groups[i]), size = N_random_groups[i])
+      #Ensure full range of random groups
+      X_random_groups_base[1:(N_random_groups[i]), i] <- sample(1:(N_random_groups[i]), size = N_random_groups[i], replace = FALSE)
     }
   }
 
+  for(n in 1:N) {
+    if(any(X_random_groups_base[n, ] > N_random_groups)) {
+      print(n, which(X_random_groups_base[n, ] > N_random_groups))
+      stop("Random groups inconsistent")
+    }
+  }
 
-  X_random_groups <- rep(X_random_groups_base, subset_questions) %>% matrix(nrow = N*subset_questions, ncol = N_random, byrow = TRUE)
+  X_random_groups <- array(NA_real_, c(N * subset_questions, N_random))
+  for(q in 1:subset_questions) {
+    X_random_groups[((q-1) * N + 1):(q * N),] <- X_random_groups_base
+  }
 
   X_random_base <- array(rbinom(N_random * N, 1, prob = 0.3), c(N, N_random))
   X_random <- rep(X_random_base, subset_questions) %>% matrix(nrow = N*subset_questions, ncol = N_random, byrow = TRUE)
 
   b_random_index <- array(-1, c(N * subset_questions, N_random))
   for(n in 1:(N * subset_questions)) {
+    if(any(X_random_groups[n, ] > N_random_groups)) {
+      print(X_random_groups[n,])
+      print(n)
+      stop("Bug")
+    }
     b_random_index[n, ] = b_random_group_start + X_random_groups[n, ] - 1;
   }
+
 
   mu <- array(NA_real_, N * subset_questions)
   for(n in 1:(N * subset_questions)) {
@@ -148,14 +191,14 @@ simulate_data <- function(N, ncat, N_questions, N_fixed, N_random_groups, N_mono
     if(N_monotonic > 0) {
       for(N_m in 1:N_monotonic) {
         if(X_monotonic[n, N_m] > 1) {
-          mu[n] <- mu[n] + b_monotonic[N_m] * sum(zeta_monotonic_trans[N_m, 1:X_monotonic[n,N_m]])
+          mu[n] <- mu[n] + b_monotonic[questions[n], N_m] * sum(zeta_monotonic_trans[N_m, 1:X_monotonic[n,N_m]])
         }
       }
     }
-    mu[n] <- mu[n] + sum(X_random[n, ] * b_random[b_random_index[n,]])
+
+    mu[n] <- mu[n] + sum(X_random[n, ] * b_random[questions[n], b_random_index[n,]])
   }
   Y <- purrr::map_dbl(mu, ordered_logit_rng, intercept)
-
 
   result = list(
     observed = list(
@@ -175,11 +218,13 @@ simulate_data <- function(N, ncat, N_questions, N_fixed, N_random_groups, N_mono
       random_hyper_sigma = random_hyper_sigma,
       Y = Y,
       intercept_sigma = intercept_sigma,
+      effect_hyper_sigma = effect_hyper_sigma,
       questions_correlation = questions_correlation
     ),
     true = list(
       b_sd = b_sd,
       b = b,
+      b_monotonic_sd = b_monotonic_sd,
       b_monotonic = b_monotonic,
       zeta_monotonic = zeta_monotonic,
       b_random = b_random,
@@ -195,4 +240,14 @@ simulate_data <- function(N, ncat, N_questions, N_fixed, N_random_groups, N_mono
   }
 
   result
+}
+
+simulate_data_reject <- function(N, ncat, ...) {
+  for(i in 1:50) {
+    res <- simulate_data(N, ncat, ...)
+    if(min(res$observed$Y) == 1 && max(res$observed$Y) == ncat) {
+      return(res)
+    }
+  }
+  stop("Couldn't draw full Y range")
 }

@@ -46,13 +46,14 @@ hist(mvn_sd_diff)
 ```{r}
 ncat = 4
 repeat {
-  test_data <- simulate_data(N = 200, N_questions = 4, N_fixed = 2, N_random_groups = numeric(0), ncat = ncat, N_monotonic = 0, questions_correlation = TRUE, subset_questions = 3)
+  test_data <- simulate_data(N = 200, N_questions = 4, N_fixed = 2, ncat = 4, N_random_groups = c(2,4),  N_monotonic = 2, questions_correlation = TRUE)
   if(length(unique(test_data$observed$Y)) == ncat) {
     break;
   }
   cat("Reject\n")
 }
-fit <- sampling(model, data = test_data$observed)
+fit <- sampling(model, data = test_data$observed, control = list(adapt_delta = 0.95))
+check_all_diagnostics(fit)
 evaluation_summary(fit, test_data$true)
 #evaluation_summary(fit, test_data$computed)
 ```
@@ -60,16 +61,18 @@ evaluation_summary(fit, test_data$true)
 ```{r}
 #set.seed(6847567)
 sbc_steps <- 100
-sbc_results <- sbc(model, function() { simulate_data(N = 200, N_questions = 4, N_fixed = 2, ncat = 4, N_random_groups = c(2,4),  N_monotonic = 2, questions_correlation = TRUE)}, N_steps = sbc_steps, control = list(adapt_delta = 0.95))
-#saveRDS(sbc_results, "sbc_500.rds")
+sbc_results <- sbc(model, function() { simulate_data(N = 200, N_questions = 4, N_fixed = 2, ncat = 4, N_random_groups = c(2,4),  N_monotonic = 2, questions_correlation = TRUE)}, N_steps = sbc_steps, control = list(adapt_delta = 0.9))
+saveRDS(sbc_results, "sbc_100.rds")
 #saveRDS(sbc_results, "sbc_no_mono_no_cor_no_random.rds")
 pattern <- "zeta|q_corr|b_sd"
-plot_sbc_params(sbc_results$params %>% filter(!grepl(pattern, param_name)), binwidth = 5)
-plot_sbc_params(sbc_results$params %>% filter(grepl(pattern, param_name)), binwidth = 5)
+plot_sbc_params(sbc_results$params %>% filter(!grepl(pattern, param_name)), binwidth = 10)
+plot_sbc_params(sbc_results$params %>% filter(grepl(pattern, param_name)), binwidth = 10)
 summarise_sbc_diagnostics(sbc_results)
 ```
 ```{r}
-sbc_power(sbc_results$params)
+sbc_results$params %>% filter(grepl("^b\\[", param_name)) %>% sbc_power()
+sbc_results$params %>% filter(grepl("b_monotonic", param_name)) %>% sbc_power()
+sbc_results$params %>% filter(grepl("b_random", param_name)) %>% sbc_power()
 ```
 
 

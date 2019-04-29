@@ -275,8 +275,8 @@ check_n_eff <- function(fit) {
 
 	no_warning <- TRUE
 	for (n in 1:N) {
-		ratio <- fit_summary[,5][n] / iter
-		if (ratio < 0.001) {
+		ratio <- fit_summary[,"n_eff"][n] / iter
+		if (!is.na(ratio) && ratio < 0.02) {
 			print(sprintf('n_eff / iter for parameter %s is %s!',
 										rownames(fit_summary)[n], ratio))
 			no_warning <- FALSE
@@ -296,7 +296,7 @@ check_rhat <- function(fit) {
 	no_warning <- TRUE
 	for (n in 1:N) {
 		rhat <- fit_summary[,6][n]
-		if (rhat > 1.1 || is.infinite(rhat) || is.nan(rhat)) {
+		if (!is.na(rhat) && (rhat > 1.1 || is.infinite(rhat))) {
 			print(sprintf('Rhat for parameter %s is %s!',
 										rownames(fit_summary)[n], rhat))
 			no_warning <- FALSE

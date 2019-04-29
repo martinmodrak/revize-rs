@@ -6,8 +6,15 @@ output: html_notebook
 ```{r setup}
 library(pwr)
 library(here)
-library(brms)
+library(rstan)
 library(tidyverse)
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+source(here("R","simulator.R"))
+source(here("R","evaluation_tools.R"))
+source(here("R","sampling_multi.R"))
+source(here("R","sbc.R"))
+
 ```
 
 A quick frequentist estimate
@@ -37,9 +44,31 @@ power_vals %>%
 Using the SBC code and full simulations:
 
 ```{r}
-settings <- tibble(N = c(250, 500, 750, 1000)) %>% crossing(  
-
-sbc_results <- sbc(model, function() { simulate_data(N = 100, N_questions = 2, N_fixed = 2, ncat = 4, N_random_groups = numeric(0),  N_monotonic = 0, questions_correlation = TRUE)}, N_steps = sbc_steps, control = list(adapt_delta = 0.99))
+model <- stan_model(here("stan","main_model.stan"))
 ```
 
+
+```{r}
+base_random_groups <- c(3,14,3,15,8,3,8,3,2,7,4,9,5,9,6)
+settings <- tibble(N = c(500, 750, 1000)) %>% crossing(subset_questions =  c(11, 22)) %>% 
+  crossing(N_fixed = c(4, 6), N_monotonic = c(4, 6), N_random_groups = I(list(base_random_groups, c(base_random_groups, 6, 6, 6, 5, 6, 8, 8, 6)))) %>%
+  mutate(N_monotonic_cat = 6, N_questions = 22, questions_correlation = TRUE, ID = 1:n())
+
+settings
+
+
+```
+
+```{r}
+sbc_steps = 1
+sbc_results <- list()
+for(i in 1:nrow(settings)) {
+  result_file <- paste0("power_",i,".rds")
+  if(file.exists(result_file)) {
+    sbc_results[[i]] <- results_file
+  } else {
+    sbc_results[[i]] <- sbc(model, function() { do.call(simulate_data, as.list(settings[, i]))}, N_steps = sbc_steps, control = list(adapt_delta = 0.9))
+  }
+}
+```
 
