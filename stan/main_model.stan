@@ -102,7 +102,6 @@ transformed parameters {
   matrix[N_questions, N_monotonic] b_monotonic;
   matrix[N_questions, sum(N_random_groups)] b_random;
   matrix[N_monotonic_cat, N_monotonic] b_monotonic_trans[N_questions];
-  vector[N] mu;
 
   b = b_raw_to_b(b_raw, b_sd, q_corr_chol, questions_correlation);
   b_monotonic = b_raw_to_b(b_monotonic_raw, b_monotonic_sd, q_corr_chol, questions_correlation);
@@ -132,6 +131,10 @@ transformed parameters {
   }
 
 
+}
+
+model {
+  vector[N] mu;
   for(n in 1:N) {
     vector[N_monotonic] mon;
     real random = 0;
@@ -149,9 +152,7 @@ transformed parameters {
       random;
   }
 
-}
 
-model {
   // priors
   intercept ~ student_t(3, 0, intercept_sigma);
   q_corr_chol ~ lkj_corr_cholesky(1);

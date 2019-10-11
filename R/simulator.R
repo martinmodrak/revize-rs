@@ -248,6 +248,7 @@ simulate_data_reject <- function(N, ncat, ...) {
     if(min(res$observed$Y) == 1 && max(res$observed$Y) == ncat) {
       return(res)
     }
+    cat("Reject\n")
   }
   stop("Couldn't draw full Y range")
 }
