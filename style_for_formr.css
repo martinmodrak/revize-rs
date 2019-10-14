@@ -1,0 +1,186 @@
+/*
+- rotace písma u velk0ho gridu
+- vše čtvereček přes celou šířku
+- text - zobrazit vždy veprostřed (ale vedlejší), ručičky mimo text, větší
+- text k odpovědi nad gridem
+- při otázkách nad gridem vycentrovat text
+*/
+
+@font-face {
+    font-family: 'themix';
+    src: url('https://cdn.skauting.cz/fonts/TheMix_LT_400.eot');
+    src: url('https://cdn.skauting.cz/fonts/TheMix_LT_400.eot? #iefix') format('embedded-opentype');
+    src: url('https://cdn.skauting.cz/fonts/TheMix_LT_400.woff') format('woff'),
+         url('https://cdn.skauting.cz/fonts/TheMix_LT_400.otf') format('opentype'),
+         url('https://cdn.skauting.cz/fonts/TheMix_LT_400.svg#themix') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'themix';
+    src: url('https://cdn.skauting.cz/fonts/TheMix_LT_700.eot');
+    src: url('https://cdn.skauting.cz/fonts/TheMix_LT_700.eot? #iefix') format('embedded-opentype');
+    src: url('https://cdn.skauting.cz/fonts/TheMix_LT_700.woff') format('woff'),
+         url('https://cdn.skauting.cz/fonts/TheMix_LT_700.otf') format('opentype'),
+         url('https://cdn.skauting.cz/fonts/TheMix_LT_700.svg#themix') format('svg');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'skautbold';
+    src: url('https://cdn.skauting.cz/fonts/skaut-bold-webfont.eot');
+    src: url('https://cdn.skauting.cz/fonts/skaut-bold-webfont.eot? #iefix') format('embedded-opentype');
+    src: url('https://cdn.skauting.cz/fonts/skaut-bold-webfont.woff') format('woff'),
+         url('https://cdn.skauting.cz/fonts/skaut-bold-webfont.otf') format('opentype'),
+         url('https://cdn.skauting.cz/fonts/skaut-bold-webfont.svg#skautbold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.h1, .h2, .h3, .h4, body, h1, h2, h3, h4, h5, h6 {
+    font-family: themix,Arial,sans-serif;
+}
+
+@media (min-width:992px) {
+ .container {
+  width:750px
+ }
+}
+
+@media (min-width:1200px) {
+ .container {
+  width:750px
+ }
+}
+
+
+form.form-horizontal div.form-row.mc-grid-row {
+    min-height:60px;
+}
+
+form.form-horizontal div.form-row.mc-grid-row div.controls div.mc-table {
+    position:relative;
+}
+
+form.form-horizontal div.form-row.mc-grid-row div.controls div.mc-table label.radio-inline {
+    width:13%;
+}
+
+@media (max-width: 768px) {
+    form.form-horizontal div.form-row.mc-grid-row div.controls div.mc-table:before,
+    form.form-horizontal div.form-row.mc-grid-row div.controls div.mc-table:after
+    {
+        width: 3.5%;
+        display: block;
+        float:left;
+        text-align:center;
+    }
+    
+    form.form-horizontal div.form-row.mc-grid-row div.controls div.mc-table:before {
+        /*content:"\1F44E";*/
+        content:"\1f592";
+        font-size:25px;
+    }
+    
+    form.form-horizontal div.form-row.mc-grid-row div.controls div.mc-table:after {
+/*        content:"\1F44D";*/
+        content:"\1f593";
+        font-size:25px;
+    }
+    
+    form.form-horizontal div.form-group.form-row.item-note.form-row.mc-grid-header {
+        display:none;
+    }
+    
+    .form-horizontal .controls {
+        margin-left:0;
+    }
+    
+    .run-container .form-horizontal .control-label {
+        float:none;
+    }
+    
+    form.form-horizontal div.form-row.mc-grid-row div.controls div.mc-table label.radio-inline {
+        display:block;
+        float:left;
+        width:12%;
+    }
+    
+    form.form-horizontal div.form-row.form-group .control-label {
+        margin-top: 16px;
+    }
+}
+
+
+form.form-horizontal div.form-row.mc-grid-row div.controls div.mc-table label.radio-inline span{
+/*    left:auto;*/
+}
+
+form.form-horizontal div.form-row.mc-grid-row div.controls div.mc-table label span.mc-span {
+    display:none;
+}
+
+form.form-horizontal div.form-row.mc-grid-row div.controls div.mc-table label input[type="radio"]:checked ~ span.mc-span {
+    display: block;
+    position: absolute;
+    top: 24px;
+    left: -200%;
+    right: -200%;
+    text-align: center; 
+    font-size:90%;
+    font-style:italic;
+    pointer-events:none;
+    touch-action:none;
+}
+
+form.form-horizontal div.form-row.mc-grid-row div.controls div.mc-table label:nth-child(2) input[type="radio"]:checked ~ span.mc-span {
+    left: 0;
+    text-align:left;
+}
+
+form.form-horizontal div.form-row.mc-grid-row div.controls div.mc-table label:nth-child(8) input[type="radio"]:checked ~ span.mc-span {
+    right: 0;
+    text-align: right;
+}
+
+
+@media (max-width: 400px) {
+form.form-horizontal div.form-row.mc-grid-row div.controls div.mc-table label input[type="radio"]:checked ~ span.mc-span {
+    left: -500%;
+    right: -500%;
+}
+
+}
+
+
+
+form.form-horizontal div.form-group.form-row.item-note.form-row.mc-grid-header {
+    margin-left:330px;
+}
+
+div.form-group.mc-grid-row, div.form-group.mc-grid-header {
+    margin-top:0;
+}
+
+form.form-horizontal div.form-group.form-row.item-note.form-row.mc-grid-header div.control-label {
+}
+
+form.form-horizontal div.form-row.mc-grid-header .control-label h3 {
+    float:left;
+    width:33%;
+    font-size:12px;
+}
+
+form.form-horizontal div.form-row.mc-grid-header .control-label h3:nth-child(1) {
+    text-align:left;
+}
+
+form.form-horizontal div.form-row.mc-grid-header .control-label h3:nth-child(2) {
+    text-align:center;
+}
+
+form.form-horizontal div.form-row.mc-grid-header .control-label h3:nth-child(3) {
+    text-align:right;
+}
