@@ -22,9 +22,9 @@ A quick frequentist estimate
 ```{r}
 power = 0.8
 alpha = 0.05
-power_vals <- tibble(n_predictors = c(10, 20, 30, 40)) %>%
+power_vals <- tibble(n_predictors = c(10, 20, 30, 40, 100)) %>%
   #crossing(tibble(f2 = c(0.02, 0.15, 0.35))) %>%
-  crossing(tibble(sample_size = seq(from = 100, to = 1500, length.out = 100) %>% round())) %>%
+  crossing(tibble(sample_size = seq(from = 200, to = 1500, length.out = 100) %>% round())) %>%
   rowwise() %>%
   mutate(f2 = pwr.f2.test(u = n_predictors, v = sample_size - n_predictors - 1, sig.level = alpha, power = power)$f2) %>%
   ungroup()
@@ -50,9 +50,21 @@ model <- stan_model(here("stan","main_model.stan"))
 
 ```{r}
 base_random_groups <- c(3,14,3,15,8,3,8,3,2,7,4,9,5,9,6)
-settings <- tibble(N = c(500, 750, 1000)) %>% crossing(subset_questions =  c(11, 22)) %>% 
-  crossing(N_fixed = c(4, 6), N_monotonic = c(4, 6), N_random_groups = list(base_random_groups, c(base_random_groups, 6, 6, 6, 5, 6, 8, 8, 6))) %>%
-  mutate(N_monotonic_cat = 6, N_questions = 22, questions_correlation = TRUE, ncat= 7)
+#settings <- tibble(N = c(50, 75, 100)) %>% crossing(subset_questions =  c(11)) %>% 
+settings <- tibble(N = c(500, 750, 1000)) %>% #crossing(subset_questions =  c(11, 22)) %>% 
+  crossing(tibble(N_fixed = c(4, 6), N_monotonic = c(4, 6), N_random_groups = list(base_random_groups, c(base_random_groups, 6, 6, 6, 5, 6, 8, 8, 6)))) %>%
+  mutate(N_monotonic_cat = 6, 
+         #N_questions = 22, questions_correlation = TRUE, 
+         N_questions = 1, questions_correlation = FALSE, 
+         ncat = 7)
+
+
+settings <- settings %>% rbind(tibble(N = c(250)) %>% 
+  crossing(tibble(N_fixed = c(4, 6), N_monotonic = c(4, 6), N_random_groups = list(base_random_groups, c(base_random_groups, 6, 6, 6, 5, 6, 8, 8, 6)))) %>%
+  mutate(N_monotonic_cat = 6, 
+         #N_questions = 22, questions_correlation = TRUE, 
+         N_questions = 1, questions_correlation = FALSE, 
+         ncat = 7))
 
 settings
 
@@ -60,18 +72,38 @@ settings
 ```
 
 ```{r}
-sbc_steps = 20
+sbc_steps = 50
 sbc_results <- list()
 #for(i in 1:nrow(settings)) {
 for(i in rev(1:nrow(settings))) {
   result_file <- paste0("power_",i,".rds")
   if(file.exists(result_file)) {
-    sbc_results[[i]] <- result_file
+    sbc_results[[i]] <- readRDS(result_file)
   } else {
-    params <- as.list(settings[i,])
+    params <- as.list(settings[i, ])
     params$N_random_groups <- settings$N_random_groups[[i]]
-    sbc_results[[i]] <- sbc(model, function() { do.call(simulate_data_reject, params)}, N_steps = sbc_steps, cores = 4, control = list(adapt_delta = 0.9))
+    sbc_results[[i]] <- sbc(model, function() { do.call(simulate_data_reject, params)}, N_steps = sbc_steps, control = list(adapt_delta = 0.9))
+    saveRDS(sbc_results[[i]], result_file)
   }
 }
+```
+
+```{r}
+all_params_power <- sbc_results %>% imap(function(x, i) { x$params %>% 
+    mutate(group = paste0("N = ",settings$N[i],", fixed=", settings$N_fixed[i])) }
+    ) %>% do.call(rbind, .) %>% sbc_power()
+```
+
+
+```{r}
+sbc_power_plot(all_params_power %>% filter(grepl("^b\\[", param_name)), group = group)
+```
+```{r}
+sbc_power_plot(all_params_power %>% filter(grepl("^b_random\\[", param_name)), group = group)
+```
+
+
+```{r}
+sbc_power_plot(all_params_power %>% filter(grepl("^b_monotonic\\[", param_name)), group = group)
 ```
 

@@ -246,6 +246,9 @@ simulate_data_reject <- function(N, ncat, ...) {
   for(i in 1:50) {
     res <- simulate_data(N, ncat, ...)
     if(min(res$observed$Y) == 1 && max(res$observed$Y) == ncat) {
+      if(i > 1) {
+        cat(i - 1, " rejections\n")
+      }
       return(res)
     }
     cat("Reject\n")

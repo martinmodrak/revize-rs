@@ -60,8 +60,8 @@ evaluation_summary(fit, test_data$true)
 
 ```{r}
 #set.seed(6847567)
-sbc_steps <- 100
-sbc_results <- sbc(model, function() { simulate_data(N = 200, N_questions = 4, N_fixed = 2, ncat = 4, N_random_groups = c(2,4),  N_monotonic = 2, questions_correlation = TRUE)}, N_steps = sbc_steps, control = list(adapt_delta = 0.9))
+sbc_steps <- 10
+sbc_results <- sbc(model, function() { simulate_data_reject(N = 200, N_questions = 4, N_fixed = 2, ncat = 4, N_random_groups = c(2,4),  N_monotonic = 2, questions_correlation = TRUE)}, N_steps = sbc_steps, control = list(adapt_delta = 0.9))
 saveRDS(sbc_results, "sbc_100.rds")
 #saveRDS(sbc_results, "sbc_no_mono_no_cor_no_random.rds")
 pattern <- "zeta|q_corr|b_sd"

@@ -76,12 +76,28 @@ summarise_sbc_diagnostics <- function(sbc_results) {
 
 sbc_power <- function(sbc_params, effect_threshold = 0.1) {
   sbc_params %>%
-    mutate(sign_determined = sign(q_lower * q_upper) == 1,
-           sign_determined_correct = sign_determined & sign(q_lower) == sign(true_value),
-           effect_above_threshold = sign_determined_correct & (q_lower > effect_threshold | q_upper < -effect_threshold)
-           ) %>%
-    gather("stat", "value", sign_determined, sign_determined_correct, effect_above_threshold) %>%
-    ggplot(aes(x = abs(true_value), y = value)) +
-      geom_jitter(width = 0,height = 0.1, alpha = 0.1) +
-      geom_smooth()
+    mutate(sign_determined = sign(q_upper) == sign(true_value) & sign(q_lower) == sign(true_value),
+           effect_above_threshold = sign_determined & (q_lower > effect_threshold | q_upper < -effect_threshold)
+    )
 }
+
+sbc_power_plot <- function(sbc_power_res, group = 1, size_of_interest = c(0.1,0.5,1)) {
+  group <- enquo(group)
+  # if(length(unique(sbc_power_res$run)) < 30) {
+  #   jitter_aes = aes(color = as.factor(run))
+  # } else {
+  #   jitter_aes = aes()
+  # }
+  point_alpha = max(0.01,1 / ((nrow(sbc_power_res) * 0.01) + 1))
+  sbc_power_res %>%
+    gather("stat", "value", sign_determined, effect_above_threshold) %>%
+    mutate(value = as.numeric(value)) %>%
+    ggplot(aes(x = abs(true_value), y = value, color = !!group, group = !!group)) +
+      geom_jitter(width = 0,height = 0.1, alpha = point_alpha) +
+      geom_smooth(method = 'gam', formula = y ~ s(x, bs = "cs"), se = FALSE) +
+      geom_vline(xintercept = size_of_interest) +
+      scale_x_log10() +
+      facet_wrap(~stat, ncol = 1)
+}
+
+sbc_power_summary
