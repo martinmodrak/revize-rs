@@ -58,8 +58,16 @@ TODO
 }
 
 /*Overall tweaks*/
-.run-container .btn {
+.run-container .btn-group .btn {
     background-color:#f8f8f8;
+    min-height: 45px;
+    width:100%;
+}
+
+@media (min-width:769px) {
+    .run-container .form-group .control-label, .run-container .form-group label {
+        padding-top: 7px !important;
+    }
 }
 
 .run-container button.btn.btn-checked {
@@ -73,6 +81,11 @@ TODO
 .btn-group {
     width:100%;
 }
+
+.run-container .form-group:not(.item-note) .control-label {
+    font-weight:bold;
+}
+
 
 
 /*Allow form-group background to leak to edges of screen*/
@@ -92,18 +105,31 @@ TODO
 }
 
 /*Checkboxes in mc_button_multiple*/
+.item-mc_multiple_button button.btn {
+    padding-left:40px;
+}
 
 .item-mc_multiple_button button.btn:before {
-  display:block;
-  float:left;
-  width:15px;
-  height:15px;
-  border:1px black solid;
-  content:"\00a0";
+    display: block;
+    width: 20px;
+    height: 20px;
+    border: 2px #333 solid;
+    border-radius: 2px;
+    content: "\00a0";
+    position: absolute;
+    top: 50%;
+    left:12px;
+    margin-top: -10px;
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 20px;
+    color:white;
 }
 
 .item-mc_multiple_button button.btn.btn-checked:before {
   content:"\1F5F8";
+  border-color:#009688;
+  background-color: #009688;
 }
 
 /*Likert grid via checkboxes*/
@@ -124,9 +150,6 @@ form.form-horizontal div.form-row.mc-grid-row div.controls div.btn-group button 
     width:14.2%;
 }
 
-.run-container .form-group.mc-grid-row .control-label {
-    font-weight:bold;
-}
 
 
 
@@ -153,7 +176,8 @@ form.form-horizontal div.form-row.mc-grid-row {
 }
 
 form.form-horizontal div.form-row.form-group.mc-grid-row:nth-child(odd) {
-    background-color:#d5d5d5;
+    /*background-color:#d5d5d5;*/
+    background-color:#eaeaea;
 }
 
 
