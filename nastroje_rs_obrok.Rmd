@@ -1,0 +1,68 @@
+---
+title: "Výzkum nástroje - Obrok"
+output: html_notebook
+---
+
+```{r setup}
+Sys.setlocale(locale = "Czech")
+library(readxl)
+library(tidyverse)
+library(here)
+
+```
+
+
+```{r}
+data <- read_excel(here("private_data", "ZV-nastroje-RP-Odpovedi.xlsx"))
+nastroje <- c("Výzvy", "Projekty","Roverské akce","Roverské kurzy", "Oddíl","Zahraničí","Roverský diář", "časopis Roverský kmen", "Roversk. začátek", "Roverští průvodci")
+
+```
+
+```{r}
+data %>% crossing(tibble(nastroj = nastroje)) %>% group_by(nastroj) %>% 
+  mutate(zna_nastroj = replace_na( grepl(unique(nastroj), `Které nástroje Roverského programu znáš?`), FALSE)) %>% 
+  summarise(zna = mean(zna_nastroj), 
+            zna_low = qbeta(0.025, sum(zna_nastroj) + 1, n() - sum(zna_nastroj) + 1),
+            zna_high = qbeta(0.975, sum(zna_nastroj) + 1, n() - sum(zna_nastroj) + 1)
+            ) %>%
+  ggplot(aes(x = nastroj, ymin = zna_low, ymax = zna_high, y = zna )) + geom_errorbar() + geom_point() +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+Ale vypadá to, že roverský začátek vyplnil někdo jako "Other", takže se na to asi ani neptali. Průvodci byli 3x, tak na to se asi ptali...
+
+Co dalšího bylo v "OTher?"
+
+```{r}
+data %>% pull(`Které nástroje Roverského programu znáš?`) %>% paste0(collapse = ",") %>% 
+  strsplit(",") %>%
+  unlist() %>%
+  gsub("^ ", "", .) %>%
+  unique() %>%
+  setdiff(nastroje)
+```
+
+
+```{r}
+data %>% mutate(zna_vyzvy = grepl("Výzvy", `Které nástroje Roverského programu znáš?`)) %>% 
+  group_by(zna_vyzvy) %>% summarise(vyuziti = mean(`Jak využíváš roverské výzvy?`, na.rm = TRUE), muzou_nebyt = mean(`Dokážeš si představit že by roverské výzvy nebyly?`, na.rm = TRUE))
+
+data %>% mutate(zna_projekty = grepl("Projekty", `Které nástroje Roverského programu znáš?`)) %>% 
+  group_by(zna_projekty) %>% summarise(vyuziti = mean(`Využíváte roverské projekty ve vašem programu?`, na.rm = TRUE), muzou_nebyt = mean(`Dokážeš si představit že by roverské projekty nebyly?`, na.rm = TRUE))
+```
+
+Takže vysoká hodnota asi znamená "hodně využívám" nebo nějaké "Ano" ??
+
+```{r}
+data %>% group_by(`Používáš Roverský diář?`) %>% summarise(n())
+```
+
+```{r}
+data %>% pull(`Co ti v roverském programu chybí? Přebývá tam něco?`) %>% unique()
+```
+
+```{r}
+data %>% pull(`Jak ti můžeme pomoct, co se týče vašeho roverského programu?`) %>% unique()
+
+```
+
