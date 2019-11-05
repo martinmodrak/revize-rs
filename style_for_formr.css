@@ -1,8 +1,5 @@
-/*
-TODO
-- vše čtvereček přes celou šířku
-- při otázkách nad gridem vycentrovat text (nakonec asi ne)
-*/
+/* Robot font */
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
 
 /*Skaut fonts*/
 
@@ -39,9 +36,14 @@ TODO
     font-style: normal;
 }
 
-.h1, .h2, .h3, .h4, body, h1, h2, h3, h4, h5, h6 {
-    font-family: themix,Arial,sans-serif;
+.h3, .h4, body, h3, h4, h5, h6 {
+    font-family: Roboto,themix,Arial,sans-serif;
 }
+
+.h1, .h2, h1, h2 {
+    font-family: skautbold,Arial,sans-serif;
+}
+
 
 /*Limit max width*/
 
@@ -58,6 +60,16 @@ TODO
 }
 
 /*Overall tweaks*/
+
+.h1, .h2, .h3, .h4, body, h1, h2, h3, h4, h5, h6 {
+    text-align:center;
+}
+
+form.form-horizontal div.form-group.form-row.item-note div.control-label {
+    text-align:center !important;
+}
+
+
 .run-container .btn-group .btn {
     background-color:#f8f8f8;
     min-height: 45px;
@@ -86,7 +98,22 @@ TODO
     font-weight:bold;
 }
 
+/* Rounded buttons with spaces */
+div.form-row.form-group:not(.mc_horizontal) .controls .btn-group > .btn,
+div.form-row.form-group:not(.mc_horizontal) .btn-group > .btn:not(:first-child):not(:last-child),
+div.form-row.form-group:not(.mc_horizontal) .btn-group > .btn:not(:first-child):not(:last-child),
+div.form-row.form-group:not(.mc_horizontal) .btn-group > .btn:last-child:not(:first-child) 
+div.form-row.form-group:not(.mc_horizontal) .btn-group > .btn:first-child:not(:last-child) {
+    border-radius: 12px !important; 
+    
+}
 
+div.form-row.form-group .btn-group>.btn-group+.btn,
+div.form-row.form-group:not(.mc_horizontal) .btn-group>.btn+.btn,
+div.form-row.form-group:not(.mc_horizontal) .btn-group>.btn+.btn-group,
+div.form-row.form-group:not(.mc_horizontal) .btn-group>.btn-group+.btn-group {
+    margin-top:6px;
+}
 
 /*Allow form-group background to leak to edges of screen*/
 .row {
@@ -158,6 +185,7 @@ form.form-horizontal div.form-row.mc-grid-row div.controls div.btn-group button 
     min-height:20px;
 }
 
+/*
 div.form-row.form-group:not(.mc_horizontal) .btn-group > .btn:first-child:not(:last-child) {
     border-top-right-radius:0;
 }
@@ -165,6 +193,7 @@ div.form-row.form-group:not(.mc_horizontal) .btn-group > .btn:first-child:not(:l
 div.form-row.form-group:not(.mc_horizontal) .btn-group > .btn:last-child:not(:first-child) {
     border-bottom-left-radius:0;   
 }
+*/
 
 form.form-horizontal div.form-row.mc-grid-row div.controls div.btn-group {
     width:100%;
@@ -181,10 +210,10 @@ form.form-horizontal div.form-row.form-group.mc-grid-row:nth-child(odd) {
 }
 
 
-div.form-row.form-group .btn-group>.btn-group+.btn,
-div.form-row.form-group:not(.mc_horizontal) .btn-group>.btn+.btn,
-div.form-row.form-group:not(.mc_horizontal) .btn-group>.btn+.btn-group,
-div.form-row.form-group:not(.mc_horizontal) .btn-group>.btn-group+.btn-group {
+div.form-row.form-group.mc-grid-row .btn-group>.btn-group+.btn,
+div.form-row.form-group.mc-grid-row:not(.mc_horizontal) .btn-group>.btn+.btn,
+div.form-row.form-group.mc-grid-row:not(.mc_horizontal) .btn-group>.btn+.btn-group,
+div.form-row.form-group.mc-grid-row:not(.mc_horizontal) .btn-group>.btn-group+.btn-group {
     margin-top:0;
 }
 
