@@ -61,19 +61,75 @@
 
 /*Overall tweaks*/
 
-.h1, .h2, .h3, .h4, body, h1, h2, h3, h4, h5, h6 {
-    text-align:center;
+/* Colors */
+.run-container {
+    background-color:rgb(160,255,160);
 }
 
-form.form-horizontal div.form-group.form-row.item-note div.control-label {
-    text-align:center !important;
+
+.h1, .h2, .h3, .h4, body, h1, h2, h3, h4, h5, h6 {
+    text-align:center;
+    color:rgb(0, 65, 155);
+}
+
+.run-container .form-group .control-label,
+.form-group.is-focused label,
+.form-group.is-focused label.control-label {
+    color:rgb(0, 65, 155);
+}
+
+.run-container .btn-group button.btn.btn-checked {
+    background-color: #d3d3d3 !important;
+}
+
+.run-container .btn-group button.btn:not(.btn-checked):hover { 
+    background-color:#f8f8f8 !important;
+}
+
+.run-container a.btn.btn-checked, .run-container button.btn.btn-checked, .run-container label.btn.btn-checked {
+    border-color:transparent;
 }
 
 
 .run-container .btn-group .btn {
-    background-color:#f8f8f8;
+    background-color:white;
+    border-color:transparent;
+    color:rgb(0, 65, 155);
     min-height: 45px;
     width:100%;
+}
+
+.form-group.is-focused .form-control { 
+    background-image: -webkit-gradient(linear,left top,left bottom,from(#00419B),to(#00419B)),-webkit-gradient(linear,left top,left bottom,from(#D2D2D2),to(#D2D2D2));
+    background-image: -webkit-linear-gradient(#00419B,#00419B),-webkit-linear-gradient(#D2D2D2,#D2D2D2);
+    background-image: -o-linear-gradient(#00419B,#00419B),-o-linear-gradient(#D2D2D2,#D2D2D2);
+    background-image: linear-gradient(#00419B,#00419B),linear-gradient(#D2D2D2,#D2D2D2);
+}
+
+.run-container .btn-info {
+    color:white;
+    background-color:rgb(0, 65, 155);
+    border-color:transparent;
+    border-radius: 12px !important;
+}
+
+.btn:not(.btn-raised).btn-info, .input-group-btn .btn:not(.btn-raised).btn-info {
+    color:white;
+    font-weight:bold;
+}
+
+.run-container .btn-info:active, .run-container .btn-info:focus, .run-container .btn-info:hover {
+    background-color:rgb(0, 99, 232) !important;
+    border-color:transparent !important;
+}
+
+form.form-horizontal div.form-row.form-group.mc-grid-row:nth-child(odd) {
+    background-color: /*#eaeaea*/ #ccffcc;
+}
+
+
+form.form-horizontal div.form-group.form-row.item-note div.control-label {
+    text-align:center !important;
 }
 
 @media (min-width:769px) {
@@ -82,13 +138,6 @@ form.form-horizontal div.form-group.form-row.item-note div.control-label {
     }
 }
 
-.run-container button.btn.btn-checked {
-    background-color: #b3b3b3 !important;
-}
-
-.run-container button.btn:not(.btn-checked):hover { 
-    background-color:#d8d8d8 !important;
-}
 
 .btn-group {
     width:100%;
@@ -204,10 +253,7 @@ form.form-horizontal div.form-row.mc-grid-row {
     padding-top:16px;
 }
 
-form.form-horizontal div.form-row.form-group.mc-grid-row:nth-child(odd) {
-    /*background-color:#d5d5d5;*/
-    background-color:#eaeaea;
-}
+
 
 
 div.form-row.form-group.mc-grid-row .btn-group>.btn-group+.btn,
@@ -217,9 +263,21 @@ div.form-row.form-group.mc-grid-row:not(.mc_horizontal) .btn-group>.btn-group+.b
     margin-top:0;
 }
 
-.bs-material div.form-row.mc-grid-row .btn {
+.bs-material div.form-row.form-group.mc-grid-row .controls .btn-group .btn {
     padding:0;
+    border-radius:0 !important;
 }
+
+.bs-material div.form-row.form-group.mc-grid-row .controls .btn-group button.btn:nth-child(1)  {
+    border-top-left-radius:12px !important;
+    border-bottom-left-radius:12px !important;
+}
+
+.bs-material div.form-row.form-group.mc-grid-row .controls .btn-group button.btn:nth-child(7)  {
+    border-top-right-radius:12px !important;
+    border-bottom-right-radius:12px !important;
+}
+
 
 div.form-row.mc-grid-row div.controls div.btn-group button:before {
     height:100%;
