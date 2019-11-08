@@ -1,0 +1,35 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r setup, message=FALSE, echo=FALSE, results='hide', warning=FALSE}
+knitr::opts_chunk$set(echo=FALSE)
+library(lubridate)
+library(tidyverse)
+library(here)
+library(readxl)
+library(bindrcpp)
+
+source(here::here("R","data_predvyzkum.R"), encoding = "UTF-8")
+source(here::here("R","data_registrace_jednotlivci.R"), encoding = "UTF-8")
+
+```
+
+
+```{r}
+data_strediska <- jednotky_oddily_kmeny_predvyzkum() %>% filter(typ_jednotky == "stredisko")
+
+```
+```{r}
+data_strediska %>% ggplot(aes(x = clenove_celkem)) + geom_histogram(binwidth = 20)
+```
+
+```{r}
+pocty <- data_strediska$clenove_celkem
+quantile(pocty, c(0.25,0.5,0.75))
+quantile(pocty, c(0.2,0.4,0.6,0.8))
+mean(pocty < 50)
+```
+
