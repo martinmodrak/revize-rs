@@ -1,6 +1,7 @@
 /*
+Ignorovano - ctverecek pro vybrani mc_multiple_button (komplikovane, fajfka musi stacit)
+
 TODO
-- Uzsi sloupec textu
 
 - Specifické barvy ruší kontaktní link (ale to asi neva)
 
@@ -75,6 +76,84 @@ body {
     background-image:none;
     background-color:white;
 }
+
+.progress .progress-bar {
+    background-color:rgb(0, 65, 155);
+}
+
+.h1, .h2, .h3, .h4, body, h1, h2, h3, h4, h5, h6 {
+    text-align:center;
+    color:rgb(0, 65, 155);
+}
+
+.run-container .form-group .control-label,
+.form-group.is-focused label,
+.form-group.is-focused label.control-label {
+    color:rgb(0, 65, 155);
+}
+
+.run-container .btn-group button.btn.btn-checked {
+    background-color: #d3d3d3 !important;
+}
+
+.run-container .btn-group button.btn:not(.btn-checked):hover { 
+    background-color:#f8f8f8 !important;
+}
+
+.run-container a.btn.btn-checked, .run-container button.btn.btn-checked, .run-container label.btn.btn-checked {
+    border-color:transparent;
+}
+
+
+.run-container .btn-group .btn {
+    background-color:white;
+    border-color:transparent;
+    color:rgb(0, 65, 155);
+    min-height: 45px;
+    width:100%;
+}
+
+.run-container div.controls input[type="number"], .run-container div.controls input[type="text"] {
+    background-color:white;
+    border-radius: 12px;
+    padding-right: 11px;
+    background-position: center bottom,center calc(100% - 3px); 
+    background-size: 0 3px,92% 3px;
+    padding-left: 16px;
+}
+
+.run-container div.controls input[type="number"]:focus, .run-container div.controls input[type="text"]:focus {
+    background-image: linear-gradient(#00419B,#00419B),linear-gradient(#00419B,#00419B);
+    transition:none;
+}
+
+.form-group.is-focused .form-control { 
+    background-image: -webkit-gradient(linear,left top,left bottom,from(#00419B),to(#00419B)),-webkit-gradient(linear,left top,left bottom,from(#D2D2D2),to(#D2D2D2));
+    background-image: -webkit-linear-gradient(#00419B,#00419B),-webkit-linear-gradient(#D2D2D2,#D2D2D2);
+    background-image: -o-linear-gradient(#00419B,#00419B),-o-linear-gradient(#D2D2D2,#D2D2D2);
+    background-image: linear-gradient(#00419B,#00419B),linear-gradient(#D2D2D2,#D2D2D2);
+}
+
+.run-container .btn-info {
+    color:white;
+    background-color:#00419B;
+    border-color:transparent;
+    border-radius: 12px !important;
+}
+
+.btn:not(.btn-raised).btn-info, .input-group-btn .btn:not(.btn-raised).btn-info {
+    color:white;
+    font-weight:bold;
+    padding-top:12px;
+    padding-bottom:12px;
+}
+
+.run-container .btn:not(.btn-raised).btn-info:active, .run-container .btn:not(.btn-raised).btn-info:focus, .run-container .btn:not(.btn-raised).btn-info:hover {
+    background-color:white !important;
+    color:#00419B !important;
+    border-color:transparent !important;
+}
+
 
 /*Hack hidden items with class .background to cover all background and use them
 to give different backgrounds to different sections*/
@@ -192,67 +271,13 @@ form.form-horizontal div.form-row.form-group.background_magenta.mc-grid-row:nth-
 }
 
 
-
-
-/* Global colors*/
-
-.h1, .h2, .h3, .h4, body, h1, h2, h3, h4, h5, h6 {
-    text-align:center;
-    color:rgb(0, 65, 155);
-}
-
-.run-container .form-group .control-label,
-.form-group.is-focused label,
-.form-group.is-focused label.control-label {
-    color:rgb(0, 65, 155);
-}
-
-.run-container .btn-group button.btn.btn-checked {
-    background-color: #d3d3d3 !important;
-}
-
-.run-container .btn-group button.btn:not(.btn-checked):hover { 
-    background-color:#f8f8f8 !important;
-}
-
-.run-container a.btn.btn-checked, .run-container button.btn.btn-checked, .run-container label.btn.btn-checked {
-    border-color:transparent;
+/* Font sizes */
+.btn {
+    font-size:16px;
 }
 
 
-.run-container .btn-group .btn {
-    background-color:white;
-    border-color:transparent;
-    color:rgb(0, 65, 155);
-    min-height: 45px;
-    width:100%;
-}
-
-.form-group.is-focused .form-control { 
-    background-image: -webkit-gradient(linear,left top,left bottom,from(#00419B),to(#00419B)),-webkit-gradient(linear,left top,left bottom,from(#D2D2D2),to(#D2D2D2));
-    background-image: -webkit-linear-gradient(#00419B,#00419B),-webkit-linear-gradient(#D2D2D2,#D2D2D2);
-    background-image: -o-linear-gradient(#00419B,#00419B),-o-linear-gradient(#D2D2D2,#D2D2D2);
-    background-image: linear-gradient(#00419B,#00419B),linear-gradient(#D2D2D2,#D2D2D2);
-}
-
-.run-container .btn-info {
-    color:white;
-    background-color:rgb(0, 65, 155);
-    border-color:transparent;
-    border-radius: 12px !important;
-}
-
-.btn:not(.btn-raised).btn-info, .input-group-btn .btn:not(.btn-raised).btn-info {
-    color:white;
-    font-weight:bold;
-}
-
-.run-container .btn-info:active, .run-container .btn-info:focus, .run-container .btn-info:hover {
-    background-color:rgb(0, 99, 232) !important;
-    border-color:transparent !important;
-}
-
-
+/* Other */
 
 form.form-horizontal div.form-group.form-row.item-note div.control-label {
     text-align:center !important;
@@ -261,6 +286,14 @@ form.form-horizontal div.form-group.form-row.item-note div.control-label {
 @media (min-width:769px) {
     .run-container .form-group .control-label, .run-container .form-group label {
         padding-top: 7px !important;
+    }
+    
+}
+
+@media (min-width:620px) {
+    .run-container .form-horizontal .form-group.item-note {
+    width: 600px;
+    margin: auto;
     }
 }
 
@@ -287,7 +320,7 @@ div.form-row.form-group .btn-group>.btn-group+.btn,
 div.form-row.form-group:not(.mc_horizontal) .btn-group>.btn+.btn,
 div.form-row.form-group:not(.mc_horizontal) .btn-group>.btn+.btn-group,
 div.form-row.form-group:not(.mc_horizontal) .btn-group>.btn-group+.btn-group {
-    margin-top:6px;
+    margin-top:9px;
 }
 
 /*Allow form-group background to leak to edges of screen*/
@@ -317,15 +350,15 @@ div.form-row.form-group:not(.mc_horizontal) .btn-group>.btn-group+.btn-group {
 
 .item-mc_multiple_button button.btn:before {
     display: block;
-    width: 20px;
-    height: 20px;
-    border: 2px #333 solid;
+    width: 24px;
+    height: 24px;
+    border: 3px #00419B solid;
     border-radius: 2px;
     content: "\00a0";
     position: absolute;
     top: 50%;
     left:12px;
-    margin-top: -10px;
+    margin-top: -12px;
     font-size: 20px;
     font-weight: bold;
     line-height: 20px;
@@ -334,8 +367,8 @@ div.form-row.form-group:not(.mc_horizontal) .btn-group>.btn-group+.btn-group {
 
 .item-mc_multiple_button button.btn.btn-checked:before {
   content:"\1F5F8";
-  border-color:#009688;
-  background-color: #009688;
+  border-color:#00419B;
+  background-color: #00419B;
 }
 
 /*Likert grid via checkboxes*/
