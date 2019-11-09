@@ -1,11 +1,5 @@
 /*
 Ignorovano - ctverecek pro vybrani mc_multiple_button (komplikovane, fajfka musi stacit)
-
-TODO
-
-- Specifické barvy ruší kontaktní link (ale to asi neva)
-
-- Otestovat v Opeře mini
 */
 
 /* Robot font */
@@ -449,29 +443,32 @@ div.form-row.mc-grid-row div.controls div.btn-group button:before {
     text-align:center;
     width:100%;
     display:block;
-    content:".";
+    content:"\00a0";
+    background-size: 69%;
+    background-position: center;
+    background-repeat: no-repeat;    
 }
 
 div.form-row.mc-grid-row div.controls div.btn-group button:nth-child(1):before {
-content:"\1f621";
+    background-image: url("https://formr.org/assets/tmp/admin/MTocVWBVimaAQWJ8ojxHxvrqsFmrW4pclc0obo1TNfJG.png?v1573305399");
 }
 div.form-row.mc-grid-row div.controls div.btn-group button:nth-child(2):before {
-content:"\1F61E";
+    background-image: url("https://formr.org/assets/tmp/admin/SgbpeJv69Vg3_etutVtmskOfpaYpzByrvzQPPMYgolzh.png?v1573305399");
 }
 div.form-row.mc-grid-row div.controls div.btn-group button:nth-child(3):before {
-content:"\1F641";
+    background-image: url("https://formr.org/assets/tmp/admin/5BLtPeV9DdZK2POhK8ygaGAlJ1nu54TeJbVOUIkTzQxW.png?v1573305399");
 }
 div.form-row.mc-grid-row div.controls div.btn-group button:nth-child(4):before {
-content:"\1f610";
+    background-image: url("https://formr.org/assets/tmp/admin/pMbMQmp7jAp7bjY2A84r55riwH5eHGEZmkkfKVhQ2VN8.png?v1573305399");
 }
 div.form-row.mc-grid-row div.controls div.btn-group button:nth-child(5):before {
-content:"\1F642";
+    background-image: url("https://formr.org/assets/tmp/admin/FeX6JRS1lWB0WNjoS4mvEv8XkLvJwAhiWXf4BsqBMDdl.png?v1573305399");
 }
 div.form-row.mc-grid-row div.controls div.btn-group button:nth-child(6):before {
-content:"\1f60a";
+    background-image: url("https://formr.org/assets/tmp/admin/62sxsxjNwnyfZX3Izh-sbAk1Do_eRD_5yeJ5TeDIntq_.png?v1573305399");
 }
 div.form-row.mc-grid-row div.controls div.btn-group button:nth-child(7):before {
-content:"\1f60d";
+    background-image: url("https://formr.org/assets/tmp/admin/8Ygd3oaHbHAvGh0EwnBBwIoKQ_G0mUESzO1PwdjTea0Q.png?v1573305399");
 }
  
 
