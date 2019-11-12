@@ -91,7 +91,7 @@ body {
 }
 
 .run-container .btn-group button.btn:not(.btn-checked):hover { 
-    background-color:#f8f8f8 !important;
+    background-color:#f0f0f0 !important;
 }
 
 .run-container a.btn.btn-checked, .run-container button.btn.btn-checked, .run-container label.btn.btn-checked {
@@ -183,20 +183,32 @@ to give different backgrounds to different sections*/
 
 
 .background_green {
-    background-color: #82FF82;
+    background-color: #84fc97;
 }
 
 .background_wide.background_green {
-    background-color: #54d45a;
+    background-color: #5dfb76;
 }
 
+/*Lighter shade for some rows in grid */
+form.form-horizontal div.form-row.form-group.background_green.mc-grid-row:nth-child(odd) {
+    background-color: #abfdb8;
+}
+
+
 .background_blue {
-    background-color: #aaffff;
+    background-color: #BEE6F0;
 }
 
 .background_wide.background_blue {
-    background-color: #80d4d4;   
+    background-color: #9ed9e8;   
 }
+
+/*Lighter shade for some rows in grid */
+form.form-horizontal div.form-row.form-group.background_blue.mc-grid-row:nth-child(odd) {
+    background-color: #dff2f7;
+}
+
 
 .background_gray {
     background-color: #e9e9e9/*#c8c8c8;*/
@@ -206,26 +218,38 @@ to give different backgrounds to different sections*/
     background-color: #bfbfbf/*#c8c8c8;*/
 }
 
+/*Lighter shade for some rows in grid */
+form.form-horizontal div.form-row.form-group.background_gray.mc-grid-row:nth-child(odd) {
+    background-color: #f3f3f3;
+}
+
+
 .background_orange {
-    background-color: #ffc81e;
+    background-color: #ffe36F;
 }
 
 .background_wide.background_orange {
-    background-color: #d19f00;
+    background-color: #ffdb47;
 }
 
-/*Darker shade for some rows in grid */
+/*Lighter shade for some rows in grid */
 form.form-horizontal div.form-row.form-group.background_orange.mc-grid-row:nth-child(odd) {
-    background-color: /*#eaeaea*/ /*#ccffcc*/ #ffe443;
+    background-color: /*#eaeaea*/ /*#ccffcc*/ #ffeb97;
 }
 
 .background_salmon {
-    background-color: #ffb1c4;
+    background-color: #ffc3d1;
 }
 
 .background_wide.background_salmon {
-    background-color: #d3889b;
+    background-color: #ff9bb2;
 }
+
+/*Darker shade for some rows in grid */
+form.form-horizontal div.form-row.form-group.background_salmon.mc-grid-row:nth-child(odd) {
+    background-color: /*#eaeaea*/ /*#ccffcc*/ #ffebf0;
+}
+
 
 .background_lime {
     background-color: #dcf014;
@@ -243,21 +267,6 @@ form.form-horizontal div.form-row.form-group.background_orange.mc-grid-row:nth-c
     background-color: #d4b382;
 }
 
-.background_blue_2 {
-    background-color: #bee6f0;
-}
-
-.background_wide.background_blue_2 {
-    background-color: #95bcc6;
-}
-
-.background_magenta {
-    background-color: #ffaaff;
-}
-
-.background_wide.background_magenta {
-    background-color: #d382d4;
-}
 
 /*Darker shade for some rows in grid */
 form.form-horizontal div.form-row.form-group.background_magenta.mc-grid-row:nth-child(odd) {
@@ -335,6 +344,76 @@ div.form-row.form-group:not(.mc_horizontal) .btn-group>.btn-group+.btn-group {
 .col-lg-1, .col-lg-10, .col-lg-11, .col-lg-12, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9, .col-md-1, .col-md-10, .col-md-11, .col-md-12, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-sm-1, .col-sm-10, .col-sm-11, .col-sm-12, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-xs-1, .col-xs-10, .col-xs-11, .col-xs-12, .col-xs-2, .col-xs-3, .col-xs-4, .col-xs-5, .col-xs-6, .col-xs-7, .col-xs-8, .col-xs-9 {
     padding-left: 0px;
     padding-right: 0px;
+}
+
+/* Checkboxes */
+.checkbox .checkbox-material {
+    position:static;
+    padding-top:40px;
+}
+
+.checkbox .checkbox-material .check {
+    background-color:white;
+}
+
+.checkbox input[type="checkbox"] + .checkbox-material .check, label.checkbox-inline input[type="checkbox"] + .checkbox-material .check {
+    display: block;
+    width: 24px;
+    height: 24px;
+    border: 3px #00419B solid;
+    border-radius: 2px;
+    content: "";
+    position: absolute;
+    top: 50%;
+    left:12px;
+    margin-top: -12px;
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 20px;
+    color:white;    
+}
+
+.checkbox .checkbox-material .check::before {
+   transform:none; 
+   display: block;
+   position:absolute;
+    top: 0;
+    left:0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 20px;
+}
+
+/*
+.checkbox input[type="checkbox"]:checked + .checkbox-material .check::before, label.checkbox-inline input[type="checkbox"]:checked + .checkbox-material .check::before {
+    content: "\00a0";
+    
+}*/
+
+.checkbox input[type="checkbox"]:checked + .checkbox-material .check, label.checkbox-inline input[type="checkbox"]:checked + .checkbox-material .check {
+    display: block;
+    width: 24px;
+    height: 24px;
+    border: 3px #00419B solid;
+    border-radius: 2px;
+    position: absolute;
+    top: 50%;
+    left:12px;
+    margin-top: -12px;
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 20px;
+    color:white; 
+    content:"\1F5F8";
+    background-color: #00419B;
+}
+
+.checkbox input[type="checkbox"]:checked + .checkbox-material .check::before, label.checkbox-inline input[type="checkbox"]:checked + .checkbox-material .check::before {
+    content:"\1F5F8";
+    color:white; 
 }
 
 /*Checkboxes in mc_button_multiple*/
@@ -534,6 +613,19 @@ form.form-horizontal div.form-row.mc-grid-row div.controls div.mc-table label in
     
     .run-container .form-horizontal .control-label {
         float:none;
+    }
+    
+    /* Except for checkboxes */
+    .run-container form.form-horizontal div.form-row.form-group.item-check .control-label {
+        width:70%;
+        float:left;
+        text-align:right;
+    }
+    
+    .run-container form.form-horizontal div.form-row.form-group.item-check .controls {
+        clear: none;
+        width: 29%;
+        float: right;
     }
     
     /*Grid-related tweaks*/
