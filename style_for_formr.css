@@ -1,5 +1,9 @@
 /*
 Ignorovano - ctverecek pro vybrani mc_multiple_button (komplikovane, fajfka musi stacit)
+
+item-check nejde zakliknout, kdyz se mi objevi výzva ho vyplnit
+
+Submit po kliknuti "zmizi"
 */
 
 /* Robot font */
@@ -206,7 +210,7 @@ form.form-horizontal div.form-row.form-group.background_green.mc-grid-row:nth-ch
 
 /*Lighter shade for some rows in grid */
 form.form-horizontal div.form-row.form-group.background_blue.mc-grid-row:nth-child(odd) {
-    background-color: #dff2f7;
+  /*  background-color: #dff2f7;*/
 }
 
 
@@ -220,7 +224,7 @@ form.form-horizontal div.form-row.form-group.background_blue.mc-grid-row:nth-chi
 
 /*Lighter shade for some rows in grid */
 form.form-horizontal div.form-row.form-group.background_gray.mc-grid-row:nth-child(odd) {
-    background-color: #f3f3f3;
+  /*  background-color: #f3f3f3;*/
 }
 
 
@@ -234,7 +238,7 @@ form.form-horizontal div.form-row.form-group.background_gray.mc-grid-row:nth-chi
 
 /*Lighter shade for some rows in grid */
 form.form-horizontal div.form-row.form-group.background_orange.mc-grid-row:nth-child(odd) {
-    background-color: /*#eaeaea*/ /*#ccffcc*/ #ffeb97;
+    /*background-color: #ffeb97;*/
 }
 
 .background_salmon {
@@ -247,7 +251,7 @@ form.form-horizontal div.form-row.form-group.background_orange.mc-grid-row:nth-c
 
 /*Darker shade for some rows in grid */
 form.form-horizontal div.form-row.form-group.background_salmon.mc-grid-row:nth-child(odd) {
-    background-color: /*#eaeaea*/ /*#ccffcc*/ #ffebf0;
+    /* background-color: #ffebf0; */
 }
 
 
@@ -270,7 +274,7 @@ form.form-horizontal div.form-row.form-group.background_salmon.mc-grid-row:nth-c
 
 /*Darker shade for some rows in grid */
 form.form-horizontal div.form-row.form-group.background_magenta.mc-grid-row:nth-child(odd) {
-    background-color: /*#eaeaea*/ /*#ccffcc*/ #ffcdff;
+    /* background-color: #ffcdff; */
 }
 
 
@@ -281,6 +285,11 @@ form.form-horizontal div.form-row.form-group.background_magenta.mc-grid-row:nth-
 
 
 /* Other */
+
+.ws-popover {
+    padding-top: 22px;
+    margin-left: -14px;
+}
 
 form.form-horizontal div.form-group.form-row.item-note div.control-label {
     text-align:center !important;
@@ -466,6 +475,12 @@ form.form-horizontal div.form-row.mc-grid-row div.controls div.btn-group button 
 
 
 /*Likert grid via buttons*/
+.run-container .form-horizontal .form-group.item-note.nazev_kompetence {
+    margin-top: 55px;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
 .btn-group .btn {
     min-height:20px;
 }
@@ -486,7 +501,7 @@ form.form-horizontal div.form-row.mc-grid-row div.controls div.btn-group {
 
 form.form-horizontal div.form-row.mc-grid-row {
     padding-bottom:0px;
-    padding-top:16px;
+    padding-top:32px;
 }
 
 
@@ -524,30 +539,31 @@ div.form-row.mc-grid-row div.controls div.btn-group button:before {
     display:block;
     content:"\00a0";
     background-size: 69%;
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;    
 }
 
 div.form-row.mc-grid-row div.controls div.btn-group button:nth-child(1):before {
-    background-image: url("https://formr.org/assets/tmp/admin/MTocVWBVimaAQWJ8ojxHxvrqsFmrW4pclc0obo1TNfJG.png?v1573305399");
+    background-image: url("https://formr.org/assets/tmp/admin/NklqSuGz8lLs5UBvq0scTQymGqNO_YP2s6kd_AiNk14e.png?v1573741271");
 }
 div.form-row.mc-grid-row div.controls div.btn-group button:nth-child(2):before {
-    background-image: url("https://formr.org/assets/tmp/admin/SgbpeJv69Vg3_etutVtmskOfpaYpzByrvzQPPMYgolzh.png?v1573305399");
+    background-image: url("https://formr.org/assets/tmp/admin/ewPQI_B_Sz8USoOG6np35jlZmbr7e-SdpH4-19J0e-v1.png?v1573741271");
 }
 div.form-row.mc-grid-row div.controls div.btn-group button:nth-child(3):before {
-    background-image: url("https://formr.org/assets/tmp/admin/5BLtPeV9DdZK2POhK8ygaGAlJ1nu54TeJbVOUIkTzQxW.png?v1573305399");
+    background-image: url("https://formr.org/assets/tmp/admin/8UWi45XjnFhwQGe_m2JPCJqr116WoizwP_5dTNP1cMIc.png?v1573741271");
 }
 div.form-row.mc-grid-row div.controls div.btn-group button:nth-child(4):before {
-    background-image: url("https://formr.org/assets/tmp/admin/pMbMQmp7jAp7bjY2A84r55riwH5eHGEZmkkfKVhQ2VN8.png?v1573305399");
+    background-image: url("https://formr.org/assets/tmp/admin/grphJ08NNLw1kIJSXEfeOn4wrthCrNBzzHCWcHNiC_Cq.png?v1573741271");
 }
 div.form-row.mc-grid-row div.controls div.btn-group button:nth-child(5):before {
-    background-image: url("https://formr.org/assets/tmp/admin/FeX6JRS1lWB0WNjoS4mvEv8XkLvJwAhiWXf4BsqBMDdl.png?v1573305399");
+    background-image: url("https://formr.org/assets/tmp/admin/SfMIGsXcxYascWDfydrTSLH9Sk7l0dv5rO_RfTELvGGZ.png?v1573741271");
 }
 div.form-row.mc-grid-row div.controls div.btn-group button:nth-child(6):before {
-    background-image: url("https://formr.org/assets/tmp/admin/62sxsxjNwnyfZX3Izh-sbAk1Do_eRD_5yeJ5TeDIntq_.png?v1573305399");
+    background-image: url("https://formr.org/assets/tmp/admin/KdNfp3R_qN-RcEYToRnnJzPseIWcjEPCQj3gHyL33dgg.png?v1573741271");
 }
 div.form-row.mc-grid-row div.controls div.btn-group button:nth-child(7):before {
-    background-image: url("https://formr.org/assets/tmp/admin/8Ygd3oaHbHAvGh0EwnBBwIoKQ_G0mUESzO1PwdjTea0Q.png?v1573305399");
+    background-image: url("https://formr.org/assets/tmp/admin/lR5XP0oBddXza-0A0F2KigZe15lUjm6TjSI06xO61h7C.png?v1573741271");
 }
  
 
