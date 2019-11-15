@@ -314,9 +314,11 @@ form.form-horizontal div.form-group.form-row.item-note div.control-label {
     width:100%;
 }
 
+/*
 .run-container .form-group:not(.item-note) .control-label {
     font-weight:bold;
 }
+*/
 
 /* Rounded buttons with spaces */
 div.form-row.form-group:not(.mc_horizontal) .controls .btn-group > .btn,
