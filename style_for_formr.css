@@ -1,9 +1,11 @@
 /*
 Ignorovano - ctverecek pro vybrani mc_multiple_button (komplikovane, fajfka musi stacit)
 
-Fajfka checkboxu na mobilu neni videt.
+Stale sedivi touch
+PS+C
+Mozna obtahnout modre vybrana tlacitka?
 
-Submit po kliknuti "zmizi"
+Otázky ptající se na víc věcí najednou doplnit o komentář, že chceme obojí
 */
 
 /* Robot font */
@@ -98,11 +100,18 @@ body {
 
 .run-container .btn-group button.btn.btn-checked {
     background-color: #d3d3d3 !important;
+    border-color:#00419BD0;
 }
 
 .run-container .btn-group button.btn:not(.btn-checked):hover { 
     background-color:#f0f0f0 !important;
 }
+
+/*
+.run-container .btn:active, .run-container .btn:focus {
+    background-color:white !important;
+}
+*/
 
 .run-container a.btn.btn-checked, .run-container button.btn.btn-checked, .run-container label.btn.btn-checked {
     border-color:transparent;
@@ -157,6 +166,12 @@ body {
     color:#00419B !important;
     border-color:transparent !important;
 }
+
+.run-container .btn:not(.btn-raised).btn-info[disabled] {
+    background-color:#ffffffd0 !important;
+    color:#00419Bd0 !important;
+}
+
 
 
 /*Hack hidden items with class .background to cover all background and use them
@@ -412,11 +427,6 @@ div.form-row.form-group:not(.mc_horizontal) .btn-group>.btn-group+.btn-group {
     line-height: 20px;
 }
 
-/*
-.checkbox input[type="checkbox"]:checked + .checkbox-material .check::before, label.checkbox-inline input[type="checkbox"]:checked + .checkbox-material .check::before {
-    content: "\00a0";
-    
-}*/
 
 .checkbox input[type="checkbox"]:checked + .checkbox-material .check, label.checkbox-inline input[type="checkbox"]:checked + .checkbox-material .check {
     display: block;
@@ -431,13 +441,11 @@ div.form-row.form-group:not(.mc_horizontal) .btn-group>.btn-group+.btn-group {
     font-size: 20px;
     font-weight: bold;
     line-height: 20px;
-    color:white; 
-    content:"\1F5F8";
     background-color: #00419B;
 }
 
 .checkbox input[type="checkbox"]:checked + .checkbox-material .check::before, label.checkbox-inline input[type="checkbox"]:checked + .checkbox-material .check::before {
-    content:"\1F5F8";
+    content:"\2713";
     color:white; 
 }
 
@@ -476,7 +484,7 @@ div.form-row.form-group:not(.mc_horizontal) .btn-group>.btn-group+.btn-group {
 }
 
 .item-mc_multiple_button button.btn.btn-checked:before {
-  content:"\1F5F8";
+  content:"\2713";
   border-color:#00419B;
   background-color: #00419B;
 }
