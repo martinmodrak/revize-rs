@@ -1,7 +1,7 @@
 /*
 Ignorovano - ctverecek pro vybrani mc_multiple_button (komplikovane, fajfka musi stacit)
 
-item-check nejde zakliknout, kdyz se mi objevi výzva ho vyplnit
+Fajfka checkboxu na mobilu neni videt.
 
 Submit po kliknuti "zmizi"
 */
@@ -69,11 +69,17 @@ Submit po kliknuti "zmizi"
 
 /*Overall tweaks*/
 
-/* Colors */
+/* Colors - default to blue, this will be visible in the final confirmation*/
 body {
     background-image:none;
-    background-color:white;
+    background-color:#9ed9e8;
 }
+
+.run-container {
+    background-color:#BEE6F0;
+    border-color:#BEE6F0;
+}
+
 
 .progress .progress-bar {
     background-color:rgb(0, 65, 155);
@@ -287,8 +293,7 @@ form.form-horizontal div.form-row.form-group.background_magenta.mc-grid-row:nth-
 /* Other */
 
 .ws-popover {
-    padding-top: 22px;
-    margin-left: -14px;
+    margin-left: -28px;
 }
 
 form.form-horizontal div.form-group.form-row.item-note div.control-label {
@@ -313,6 +318,7 @@ form.form-horizontal div.form-group.form-row.item-note div.control-label {
 .btn-group {
     width:100%;
 }
+
 
 /*
 .run-container .form-group:not(.item-note) .control-label {
@@ -367,6 +373,14 @@ div.form-row.form-group:not(.mc_horizontal) .btn-group>.btn-group+.btn-group {
     background-color:white;
 }
 
+.checkbox input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+    top: 50%;
+    left: 12px;
+    margin-top: -12px;
+}
+
 .checkbox input[type="checkbox"] + .checkbox-material .check, label.checkbox-inline input[type="checkbox"] + .checkbox-material .check {
     display: block;
     width: 24px;
@@ -385,8 +399,8 @@ div.form-row.form-group:not(.mc_horizontal) .btn-group>.btn-group+.btn-group {
 }
 
 .checkbox .checkbox-material .check::before {
-   transform:none; 
    display: block;
+   transform:none; 
    position:absolute;
     top: 0;
     left:0;
@@ -425,6 +439,18 @@ div.form-row.form-group:not(.mc_horizontal) .btn-group>.btn-group+.btn-group {
 .checkbox input[type="checkbox"]:checked + .checkbox-material .check::before, label.checkbox-inline input[type="checkbox"]:checked + .checkbox-material .check::before {
     content:"\1F5F8";
     color:white; 
+}
+
+/* Make item check labels wider on wide screens */
+@media (min-width:769px) {
+.run-container .form-horizontal .form-row.item-check .control-label {
+    width:540px;
+}
+
+.run-container .form-horizontal .form-row.item-check .controls {
+    margin-left:560px;
+}
+
 }
 
 /*Checkboxes in mc_button_multiple*/
