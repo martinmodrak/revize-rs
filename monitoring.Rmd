@@ -1,0 +1,28 @@
+---
+title: "Monitoring pruzkumu"
+output: html_notebook
+---
+
+```{r setup}
+library(tidyverse)
+library(formr)
+library(here)
+
+api_secret <- read_csv(here("private_data","api_secret.csv"), col_types = cols(
+  `Client ID` = col_character(),
+  `Client Secret` = col_character()
+))
+formr_api_access_token(client_id = api_secret$id, client_secret = api_secret$secret)
+```
+
+
+```{r}
+request <-
+        list(
+                "run[name]" = 'roverskypruzkum',
+                "surveys[seberozvoj_rozcestnik]" = "kolik_casu"
+)
+
+odpovedi_kolik_casu <- formr_api_results(request)
+#get_raw_results("hlavni_dotaznik_doplnek")
+```
