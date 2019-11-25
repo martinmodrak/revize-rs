@@ -8,7 +8,7 @@ if(isset($_GET["zdroj"])) {
 }
 
 if(isset($_GET["code"])) {
-	$code_raw = "&amp;code=".urlencode($_GET["code"]);
+	$code_raw = "&code=".urlencode($_GET["code"]);
 } else {
 	$code_raw = "";
 }
@@ -50,6 +50,9 @@ if( $zdroj == "fb_share") {
 body {
 	margin:0;
 	padding:0;
+	background-color:#84fc97;
+	color:rgb(0, 65, 155);
+	text-align:center;
 }
 
 iframe {
@@ -64,6 +67,10 @@ iframe {
 </style>
 </head>
 <body>
-<iframe src="https://roverskypruzkum.formr.org/?zdroj=<?php echo($zdroj.$code_raw); ?>"></iframe>
+<script>
+window.location = "https://roverskypruzkum.formr.org/?zdroj=<?php echo($zdroj.$code_raw); ?>";
+</script>
+<h2>Spouštím průzkum...</h2>
+<noscript>Roverský průzkum bohužel potřebuje zapnutý Javascript.</noscript>
 </body>
 
