@@ -33,7 +33,7 @@ if( $zdroj == "fb_share") {
 <meta property="og:url" content="https://roverskypruzkum.skaut.cz<?php echo($zdroj_raw)?>"/>
 <meta property="og:site_name" content="skaut.cz"/>
 <meta property="og:type" content="website"/>
-<meta property="og:description" content="Průzkum mezi rovery"/>
+<meta property="og:description" content="Společně za lepší rovering. Končí 8. prosince 2019"/>
 
 <meta property="fb:app_id" content="746547445843369"/>
 
@@ -42,7 +42,7 @@ if( $zdroj == "fb_share") {
 <meta name="twitter:image" content="<?php echo($image)?>" />
 <meta name="twitter:image:alt" content="Logo průzkumu" />
 <meta name="twitter:url" content="https://roverskypruzkum.skaut.cz<?php echo($zdroj_raw)?>" />
-<meta name="twitter:description" content="Průzkum mezi rovery, o skautingu i věcech mimo něj" />
+<meta name="twitter:description" content="Společně za lepší rovering. Končí 8. prosince 2019" />
 
 <link rel="icon" type="image/png" sizes="32x32" href="https://www.skaut.cz/wp-content/uploads/fbrfg/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="https://www.skaut.cz/wp-content/uploads/fbrfg/favicon-16x16.png">
