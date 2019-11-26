@@ -8,21 +8,75 @@ library(tidyverse)
 library(formr)
 library(here)
 
-api_secret <- read_csv(here("private_data","api_secret.csv"), col_types = cols(
-  `Client ID` = col_character(),
-  `Client Secret` = col_character()
-))
-formr_api_access_token(client_id = api_secret$id, client_secret = api_secret$secret)
+credentials <- read_csv(here("private_data","pass.csv"), col_types = cols(.defualt = col_character()))
+
+credentials
+formr_connect(email = credentials$email, password = credentials$pass)
 ```
 
 
 ```{r}
-request <-
-        list(
-                "run[name]" = 'roverskypruzkum',
-                "surveys[seberozvoj_rozcestnik]" = "kolik_casu"
-)
-
-odpovedi_kolik_casu <- formr_api_results(request)
-#get_raw_results("hlavni_dotaznik_doplnek")
+rozcestnik <- formr_raw_results("seberozvoj_rozcestnik")
+hlavni <- formr_raw_results("hlavni_dotaznik")
+doplnek <- formr_raw_results("hlavni_dotaznik_doplnek")
 ```
+
+
+```{r}
+formr_disconnect()
+```
+
+```{r}
+cela_data <- rozcestnik %>% 
+  inner_join(hlavni, by = c("session" = "session"), suffix = c("",".hlavni")) %>%
+  left_join(doplnek, by = c("session" = "session"), suffix = c("",".doplnek")) %>%
+  rename(ended.rozcestnik = ended)
+```
+
+
+```{r}
+dokonceno_dlouhy <- sum(cela_data$kolik_casu == 2 & !is.na(cela_data$ended.hlavni), na.rm = TRUE)
+dokonceno_kratky <- sum(cela_data$kolik_casu == 1 & !is.na(cela_data$ended.hlavni) , na.rm = TRUE)
+prodlouzeno_kratky <- sum(cela_data$jeste_pokracovat == 1 & !is.na(cela_data$ended.doplnek), na.rm = TRUE)
+
+cat(paste0(dokonceno_dlouhy + dokonceno_kratky, " dokončených dotazníků.\n", dokonceno_dlouhy + prodlouzeno_kratky, " vyplnilo delší verzi nebo si to pak prodloužilo."))
+```
+
+```{r}
+cela_data %>% group_by(zdroj) %>% summarise(pocet = n())
+```
+
+
+Extrémní věk může prozradit robota/nekvalitní odpovědi.
+
+```{r}
+hist(hlavni$age)
+sum(hlavni$age < 15, na.rm = TRUE)
+sum(hlavni$age < 10, na.rm = TRUE)
+sum(hlavni$age > 50, na.rm = TRUE)
+mean(hlavni$age < 10 | hlavni$age > 50, na.rm = TRUE)
+```
+
+```{r}
+unique(hlavni$reg_c_strediska)
+```
+
+```{r}
+unique(hlavni$nazev_strediska)
+```
+
+
+```{r}
+for(i in 1:5) {
+  print(mean(hlavni$s_cim_spokojen %contains_word% i & hlavni$s_cim_nespokojen %contains_word% i, na.rm = TRUE))
+}
+
+mean(hlavni$s_cim_spokojen == "", na.rm = TRUE)
+mean(hlavni$s_cim_nespokojen == "", na.rm = TRUE)
+```
+
+
+```{r}
+unique(hlavni$otevrena)
+```
+
