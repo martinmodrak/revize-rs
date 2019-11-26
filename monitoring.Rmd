@@ -7,6 +7,14 @@ output: html_notebook
 library(tidyverse)
 library(formr)
 library(here)
+library(RCzechia)
+library(sf)
+library(cowplot)
+library(showtext)
+theme_set(theme_cowplot())
+
+sysfonts::font_add(family = "Skaut Bold", "C:/Users/Martin/AppData/Local/Microsoft/Windows/Fonts/skaut-bold-webfont.otf")
+showtext_auto()
 
 credentials <- read_csv(here("private_data","pass.csv"), col_types = cols(.defualt = col_character()))
 
@@ -19,6 +27,8 @@ formr_connect(email = credentials$email, password = credentials$pass)
 rozcestnik <- formr_raw_results("seberozvoj_rozcestnik")
 hlavni <- formr_raw_results("hlavni_dotaznik")
 doplnek <- formr_raw_results("hlavni_dotaznik_doplnek")
+
+hlavni_items <- formr_items("hlavni_dotaznik")
 ```
 
 
@@ -51,6 +61,75 @@ cat(paste0(dokonceno_dlouhy + dokonceno_kratky, " dokončených dotazníků.\n",
 ```{r}
 cela_data %>% group_by(zdroj) %>% summarise(pocet = n())
 rozcestnik %>% group_by(zdroj) %>% summarise(pocet = n())
+```
+
+```{r}
+VOJfile <- here("local_data","pocet-clenu-VOJ.csv")
+if(!file.exists(VOJfile)) {
+  download.file("https://is.skaut.cz/opendata/data/unit/pocet-clenu-VOJ.csv", VOJfile)
+}
+roveri_v_krajich <- read_csv2(VOJfile, na = "NULL", locale = locale(encoding = "windows-1250"), col_types = cols(
+  Year = col_double(),
+  ID_Unit = col_double(),
+  ID_UnitType = col_character(),
+  RegistrationNumber = col_character(),
+  UnitName = col_character(),
+  Location = col_character(),
+  RegularMembersTo6 = col_double(),
+  RegularMembersTo15 = col_double(),
+  RegularMembersTo18 = col_double(),
+  RegularMembersTo26 = col_double(),
+  RegularMembersFrom26 = col_double(),
+  RegularMembers = col_double(),
+  MembersTo6 = col_double(),
+  MembersTo15 = col_double(),
+  MembersTo18 = col_double(),
+  MembersTo26 = col_double(),
+  MembersFrom26 = col_double(),
+  Members = col_double()
+)) %>% filter(ID_UnitType == "kraj", Year == 2019) %>%
+  mutate(pocet_roveru = RegularMembersTo18 + RegularMembersTo26) %>%
+  select(ID_Unit, UnitName, pocet_roveru) 
+
+
+roveri_v_krajich <- roveri_v_krajich %>% mutate(UnitName = case_when(
+  UnitName == "kraj Praha" ~ "Hlavní město Praha",
+  UnitName == "kraj Vysočina" ~ "Kraj Vysočina",
+  UnitName == "Jihomoravský kraj TGM" ~ "Jihomoravský kraj",
+  TRUE ~ UnitName
+))
+roveri_v_krajich 
+
+sum(roveri_v_krajich$pocet_roveru)
+
+```
+
+
+```{r}
+kraje_dle_id <- hlavni_items$kraj$choices %>% unlist()
+cela_data <- cela_data %>% mutate(kraj = if_else(is.na(kraj), kraj.doplnek, kraj),
+                                  kraj_nazev = kraje_dle_id[kraj]) 
+extend_coef =  nrow(cela_data) / sum(!is.na(cela_data$kraj) & cela_data$kraj != 15)
+odpovedi_v_krajich <- cela_data %>% filter(!is.na(kraj), kraj != 15, age >= 15, age <= 26, !is.na(ended.hlavni)) %>%
+  group_by(kraj, kraj_nazev) %>% summarise(pocet = n(), pocet_extend = pocet * extend_coef)
+
+odpovedi_v_krajich <- odpovedi_v_krajich %>% left_join(roveri_v_krajich, by = c("kraj_nazev" = "UnitName")) %>% 
+  mutate(ucast = pocet_extend/pocet_roveru)
+```
+
+```{r}
+odpovedi_v_krajich %>% 
+  inner_join(RCzechia::kraje(resolution = "low"), by = c("kraj_nazev" = "NAZ_CZNUTS3")) %>%
+  mutate(ucast = round(pocet_extend * 100 / pocet_roveru), ucast_text = paste0(ucast, "%")) %>%
+  ggplot(aes(fill = ucast, geometry = geometry)) + geom_sf() +
+  geom_sf_text(aes(label = ucast_text), fill, size = 5, family = "Skaut Bold" ) +
+  expand_limits(fill = c(17)) +
+  scale_fill_distiller("% Průzkum vyplnilo", palette = 7, guide = FALSE, direction = 1)  + 
+  theme(axis.text = element_blank(), axis.ticks = element_blank(), axis.line = element_blank(),
+        axis.title = element_blank(), text = element_text(family = "Skaut Bold"),
+        plot.title = element_text(hjust = 0.5)
+                                                                                  ) + 
+  ggtitle("Podíl roverů, kteří dokončili dotazník")
 ```
 
 
