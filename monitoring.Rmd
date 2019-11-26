@@ -27,6 +27,10 @@ formr_disconnect()
 ```
 
 ```{r}
+rozcestnik <- rozcestnik %>% mutate(zdroj = case_when(zdroj == "neuvedeno_redirect" ~  "nezname",
+                                                      zdroj == "" ~ "primo formr.org",
+                                                      TRUE ~ zdroj))
+
 cela_data <- rozcestnik %>% 
   inner_join(hlavni, by = c("session" = "session"), suffix = c("",".hlavni")) %>%
   left_join(doplnek, by = c("session" = "session"), suffix = c("",".doplnek")) %>%
@@ -38,12 +42,15 @@ cela_data <- rozcestnik %>%
 dokonceno_dlouhy <- sum(cela_data$kolik_casu == 2 & !is.na(cela_data$ended.hlavni), na.rm = TRUE)
 dokonceno_kratky <- sum(cela_data$kolik_casu == 1 & !is.na(cela_data$ended.hlavni) , na.rm = TRUE)
 prodlouzeno_kratky <- sum(cela_data$jeste_pokracovat == 1 & !is.na(cela_data$ended.doplnek), na.rm = TRUE)
+jen_prvni_stranka <- sum(is.na(rozcestnik$ended))
+rozpracovano <- sum(!is.na(cela_data$ended.rozcestnik) & is.na(cela_data$ended.hlavni))
 
-cat(paste0(dokonceno_dlouhy + dokonceno_kratky, " dokončených dotazníků.\n", dokonceno_dlouhy + prodlouzeno_kratky, " vyplnilo delší verzi nebo si to pak prodloužilo."))
+cat(paste0(dokonceno_dlouhy + dokonceno_kratky, " dokončených dotazníků.\n", dokonceno_dlouhy + prodlouzeno_kratky, " vyplnilo delší verzi nebo si to pak prodloužilo.\n", rozpracovano, " se prokliklo přes první stránku, ale dotazník zatím nedokončili\n", jen_prvni_stranka, " otevření a načtení první stránky bez dalšího pokračování (určitě obsahuje roboty)"))
 ```
 
 ```{r}
 cela_data %>% group_by(zdroj) %>% summarise(pocet = n())
+rozcestnik %>% group_by(zdroj) %>% summarise(pocet = n())
 ```
 
 
