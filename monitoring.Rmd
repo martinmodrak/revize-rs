@@ -4,6 +4,10 @@ output: html_notebook
 ---
 
 ```{r setup}
+if(!grepl("cz|utf", Sys.getlocale(), ignore.case = TRUE)) {
+  Sys.setlocale(locale= 'English_United States.1250')
+}
+library(lubridate)
 library(tidyverse)
 library(formr)
 library(here)
@@ -11,30 +15,36 @@ library(RCzechia)
 library(sf)
 library(cowplot)
 library(showtext)
-theme_set(theme_cowplot())
 
-sysfonts::font_add(family = "Skaut Bold", "C:/Users/Martin/AppData/Local/Microsoft/Windows/Fonts/skaut-bold-webfont.otf")
+
+theme_set(theme_cowplot())
+dark_blue_color <- "#0040ae"
+darkest_fill <- "#668cce"
+theme_update(text = element_text(family = "Skaut Bold", color = "white"), plot.background = element_rect(fill = dark_blue_color), line = element_line(color = "white"), rect = element_rect(color = "white"), axis.text = element_text(color = "white"), axis.title = element_text(color = "white"),axis.line = element_line(color = "white"), axis.ticks = element_line(color = "white"))
+
+
+
+sysfonts::font_add(family = "Skaut Bold", paste0(Sys.getenv("APPDATA"),"../Local/Microsoft/Windows/Fonts/skaut-bold-webfont.otf"))
 showtext_auto()
 
-credentials <- read_csv(here("private_data","pass.csv"), col_types = cols(.defualt = col_character()))
+source(here::here("R","data_registrace_jednotlivci.R"), encoding = "UTF-8")
 
-credentials
-formr_connect(email = credentials$email, password = credentials$pass)
 ```
 
 
 ```{r}
+credentials <- read_csv(here("private_data","pass.csv"), col_types = cols(.defualt = col_character()))
+
+formr_connect(email = credentials$email, password = credentials$pass)
 rozcestnik <- formr_raw_results("seberozvoj_rozcestnik")
 hlavni <- formr_raw_results("hlavni_dotaznik")
 doplnek <- formr_raw_results("hlavni_dotaznik_doplnek")
 
 hlavni_items <- formr_items("hlavni_dotaznik")
-```
-
-
-```{r}
 formr_disconnect()
 ```
+
+
 
 ```{r}
 rozcestnik <- rozcestnik %>% mutate(zdroj = case_when(zdroj == "neuvedeno_redirect" ~  "nezname",
@@ -109,7 +119,7 @@ sum(roveri_v_krajich$pocet_roveru)
 kraje_dle_id <- hlavni_items$kraj$choices %>% unlist()
 cela_data <- cela_data %>% mutate(kraj = if_else(is.na(kraj), kraj.doplnek, kraj),
                                   kraj_nazev = kraje_dle_id[kraj]) 
-extend_coef =  nrow(cela_data) / sum(!is.na(cela_data$kraj) & cela_data$kraj != 15)
+extend_coef =  sum(!is.na(cela_data$ended.hlavni)) / sum(!is.na(cela_data$ended.hlavni) & !is.na(cela_data$kraj) & cela_data$kraj != 15)
 odpovedi_v_krajich <- cela_data %>% filter(!is.na(kraj), kraj != 15, age >= 15, age <= 26, !is.na(ended.hlavni)) %>%
   group_by(kraj, kraj_nazev) %>% summarise(pocet = n(), pocet_extend = pocet * extend_coef)
 
@@ -118,20 +128,75 @@ odpovedi_v_krajich <- odpovedi_v_krajich %>% left_join(roveri_v_krajich, by = c(
 ```
 
 ```{r}
-odpovedi_v_krajich %>% 
+plot_kraje <- odpovedi_v_krajich %>% 
   inner_join(RCzechia::kraje(resolution = "low"), by = c("kraj_nazev" = "NAZ_CZNUTS3")) %>%
   mutate(ucast = round(pocet_extend * 100 / pocet_roveru), ucast_text = paste0(ucast, "%")) %>%
-  ggplot(aes(fill = ucast, geometry = geometry)) + geom_sf() +
-  geom_sf_text(aes(label = ucast_text), fill, size = 5, family = "Skaut Bold" ) +
-  expand_limits(fill = c(17)) +
-  scale_fill_distiller("% Průzkum vyplnilo", palette = 7, guide = FALSE, direction = 1)  + 
+  ggplot(aes(fill = ucast, geometry = geometry)) + geom_sf(color = dark_blue_color, size = 1) + coord_sf(crs = st_crs(4156)) +
+  geom_sf_text(aes(label = ucast_text, color = ucast > 12), fill, size = 4, family = "Skaut Bold" ) +
+  scale_color_manual(values = c(dark_blue_color, "white"), guide = FALSE) +
+  scale_fill_gradient("% Průzkum vyplnilo", guide = FALSE, low = "white", high = darkest_fill)  + 
   theme(axis.text = element_blank(), axis.ticks = element_blank(), axis.line = element_blank(),
         axis.title = element_blank(), text = element_text(family = "Skaut Bold"),
         plot.title = element_text(hjust = 0.5)
                                                                                   ) + 
   ggtitle("Podíl roverů, kteří dokončili dotazník")
+
+ggsave(here("local_data","plot_kraje.svg"), plot_kraje)
+plot_kraje
 ```
 
+# Statistika dle věku
+
+```{r}
+registrace <- registrace_jednotlivci() %>% rename(Sex = ID_Sex) %>% filter(Year == max(Year))
+```
+
+
+```{r}
+
+roveri_dle_veku_v_registraci <- registrace %>% 
+  filter(vek >= 15, vek <= 26) %>%
+  group_by(vek) %>%
+  summarise(pocet_v_registraci = n())
+
+sum(roveri_dle_veku_v_registraci$pocet_v_registraci)
+```
+
+
+```{r}
+
+age_breaks <- c(3,6,9)
+
+cela_data %>% summarise(mimo_rozsah = sum(!is.na(ended.hlavni) & (age < 15 | age > 26)))
+
+cela_data %>% filter(!is.na(ended.hlavni), age >= 15, age <= 26) %>%
+  ggplot(aes(x = age)) + geom_histogram(binwidth = 1, fill = "white", color = dark_blue_color)
+
+
+cela_data %>% filter(!is.na(ended.hlavni), age >= 15, age <= 26) %>%
+  group_by(age) %>%
+  summarise(pocet_v_dotazniku = n()) %>%
+  inner_join(roveri_dle_veku_v_registraci, by = c("age" = "vek")) %>%
+  ggplot(aes(x = factor(age), y = 100 * pocet_v_dotazniku / pocet_v_registraci)) + geom_bar(color = darkest_fill, fill = "white", stat = "identity") +
+  scale_x_discrete("Věk") +
+  scale_y_continuous("Podíl zúčastněných", breaks = age_breaks, labels = paste0(age_breaks, "%"))
+```
+
+```{r}
+cela_data %>% 
+  filter(!is.na(ended.rozcestnik)) %>%
+  mutate(dokonceno = !is.na(ended.hlavni)) %>%
+  group_by(age, dokonceno) %>%
+  summarise(pocet = n()) %>%
+  inner_join(vsichni_dle_veku_v_registraci, by = c("age" = "vek")) %>%
+  pivot_wider(id_cols = age, names_from = dokonceno, names_prefix = "pocet_", values_from = pocet) %>%
+  filter(pocet_TRUE > 10) %>%
+  mutate(podil = pocet_FALSE / pocet_TRUE) %>%
+  ggplot(aes(x = age, y = podil)) + geom_line(color = "white") + scale_y_log10("Nedokončeno/dokončeno") + scale_x_continuous("Věk")
+```
+
+
+# Hledáme roboty
 
 Extrémní věk může prozradit robota/nekvalitní odpovědi.
 
