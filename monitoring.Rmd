@@ -24,7 +24,7 @@ theme_update(text = element_text(family = "Skaut Bold", color = "white"), plot.b
 
 
 
-sysfonts::font_add(family = "Skaut Bold", paste0(Sys.getenv("APPDATA"),"../Local/Microsoft/Windows/Fonts/skaut-bold-webfont.otf"))
+sysfonts::font_add(family = "Skaut Bold", paste0(Sys.getenv("APPDATA"),"/../Local/Microsoft/Windows/Fonts/skaut-bold-webfont.otf"))
 showtext_auto()
 
 source(here::here("R","data_registrace_jednotlivci.R"), encoding = "UTF-8")
@@ -33,7 +33,7 @@ source(here::here("R","data_registrace_jednotlivci.R"), encoding = "UTF-8")
 
 
 ```{r}
-credentials <- read_csv(here("private_data","pass.csv"), col_types = cols(.defualt = col_character()))
+credentials <- read_csv(here("private_data","pass.csv"), col_types = cols(.default = col_character()))
 
 formr_connect(email = credentials$email, password = credentials$pass)
 rozcestnik <- formr_raw_results("seberozvoj_rozcestnik")
@@ -144,6 +144,33 @@ plot_kraje <- odpovedi_v_krajich %>%
 ggsave(here("local_data","plot_kraje.svg"), plot_kraje)
 plot_kraje
 ```
+
+
+
+
+```{r}
+plot_kraje2 <- odpovedi_v_krajich %>% 
+  inner_join(RCzechia::kraje(resolution = "low"), by = c("kraj_nazev" = "NAZ_CZNUTS3")) %>%
+  ggplot(aes(fill = pocet_extend, geometry = geometry)) + geom_sf(color = dark_blue_color, size = 1) + coord_sf(crs = st_crs(4156)) +
+  geom_sf_text(aes(label = round(pocet_extend), color = pocet_extend > 150), fill, size = 4, family = "Skaut Bold" ) +
+  scale_color_manual(values = c(dark_blue_color, "white"), guide = FALSE) +
+  scale_fill_gradient(guide = FALSE, low = "white", high = darkest_fill)  + 
+  theme(axis.text = element_blank(), axis.ticks = element_blank(), axis.line = element_blank(),
+        axis.title = element_blank(), text = element_text(family = "Skaut Bold"),
+        plot.title = element_text(hjust = 0.5)
+                                                                                  ) + 
+  ggtitle("Počet, kteří dokončili dotazník")
+
+#ggsave(here("local_data","plot_kraje.svg"), plot_kraje)
+plot_kraje2
+```
+
+
+```{r}
+cela_data %>% filter(!is.na(ended.hlavni)) %>% 
+  mutate(ended.hlavni = as_datetime(ended.hlavni), ended.rozcestnik = as_datetime(ended.rozcestnik), trvani = as.numeric(ended.hlavni - ended.rozcestnik)) %>% ggplot(aes(x = trvani)) + geom_histogram(fill = "white") + facet_wrap(~kolik_casu) + scale_x_log10()
+```
+
 
 # Statistika dle věku
 
