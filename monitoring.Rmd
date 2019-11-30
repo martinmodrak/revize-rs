@@ -196,17 +196,24 @@ age_breaks <- c(3,6,9)
 
 cela_data %>% summarise(mimo_rozsah = sum(!is.na(ended.hlavni) & (age < 15 | age > 26)))
 
-cela_data %>% filter(!is.na(ended.hlavni), age >= 15, age <= 26) %>%
-  ggplot(aes(x = age)) + geom_histogram(binwidth = 1, fill = "white", color = dark_blue_color)
+hist_vek <- cela_data %>% filter(!is.na(ended.hlavni), age >= 15, age <= 26) %>%
+  ggplot(aes(x = age)) + geom_histogram(binwidth = 1, fill = "white", color = dark_blue_color) +
+  scale_x_continuous("Věk") + scale_y_continuous("Počet")
+hist_vek
 
+ggsave(here("local_data", "hist_vek.svg"), hist_vek)
 
-cela_data %>% filter(!is.na(ended.hlavni), age >= 15, age <= 26) %>%
+hist_vek_podil <- cela_data %>% filter(!is.na(ended.hlavni), age >= 15, age <= 26) %>%
   group_by(age) %>%
   summarise(pocet_v_dotazniku = n()) %>%
   inner_join(roveri_dle_veku_v_registraci, by = c("age" = "vek")) %>%
   ggplot(aes(x = factor(age), y = 100 * pocet_v_dotazniku / pocet_v_registraci)) + geom_bar(color = darkest_fill, fill = "white", stat = "identity") +
   scale_x_discrete("Věk") +
-  scale_y_continuous("Podíl zúčastněných", breaks = age_breaks, labels = paste0(age_breaks, "%"))
+  scale_y_continuous("Podíl zúčastnění/registrovaní", breaks = age_breaks, labels = paste0(age_breaks, "%"))
+
+hist_vek_podil
+ggsave(here("local_data","hist_vek_podil.svg"))
+
 ```
 
 ```{r}
