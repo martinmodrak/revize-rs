@@ -33,7 +33,7 @@ source(here::here("R","data_registrace_jednotlivci.R"), encoding = "UTF-8")
 
 
 ```{r}
-credentials <- read_csv(here("private_data","pass.csv"), col_types = cols(.defualt = col_character()))
+credentials <- read_csv(here("private_data","pass.csv"), col_types = cols(.default = col_character()))
 
 formr_connect(email = credentials$email, password = credentials$pass)
 rozcestnik <- formr_raw_results("seberozvoj_rozcestnik")
