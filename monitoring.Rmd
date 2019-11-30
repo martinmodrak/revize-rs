@@ -1,6 +1,8 @@
 ---
 title: "Monitoring pruzkumu"
 output: html_notebook
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r setup}
@@ -229,6 +231,35 @@ cela_data %>%
   ggplot(aes(x = age, y = podil)) + geom_line(color = "white") + scale_y_log10("Nedokončeno/dokončeno") + scale_x_continuous("Věk")
 ```
 
+```{r}
+df_sex <-cela_data %>% 
+  filter(!is.na(ended.rozcestnik)) %>%
+  mutate(dokonceno = !is.na(ended.hlavni)) %>% 
+  group_by(sex,dokonceno) %>% summarize(n=n())
+
+cat(paste0(df_sex %>% filter(dokonceno,sex == 1) %>% pull(n), " mužů dokončilo.\n", df_sex %>% filter(dokonceno,sex == 2) %>% pull(n), " žen dokončilo.\n",df_sex %>% filter(!dokonceno,sex == 1) %>% pull(n), " mužů nedokončilo.\n", df_sex %>% filter(!dokonceno,sex == 2) %>% pull(n), " žen dokončilo.\n", ((df_sex %>% filter(dokonceno,sex == 1) %>% pull(n))/(df_sex %>% filter(!dokonceno,sex == 1) %>% pull(n))) %>% round(2), " poměr dokončených mužů vůči nedokončeným \n", ((df_sex %>% filter(dokonceno,sex == 2) %>% pull(n))/(df_sex %>% filter(!dokonceno,sex == 2) %>% pull(n))) %>% round(2), " poměr dokončených žen vůči nedokončeným "))
+```
+
+```{r}
+df_poradi <- readxl::read_excel("private_data/Hlavní dotazník - FormR.xlsx") %>% 
+  select(name) %>% mutate(id_order = 1:n())
+
+n_missing <- cela_data %>% 
+  filter(!is.na(ended.rozcestnik)) %>%
+  filter(is.na(ended.hlavni)) %>% 
+  select(-starts_with("background")) %>% 
+  select(-ends_with(".doplnek")) %>% 
+  summarise_all(list(~(sum(is.na(.))))) %>% gather("name")
+
+df_poradi <- df_poradi %>% 
+  left_join(n_missing, by = "name") %>% 
+  filter(!is.na(value)) %>% 
+  mutate(id_order = 1:n(), value = max(value)-value) 
+df_poradi %>% 
+  ggplot(aes(x = id_order, y = value)) + 
+  geom_bar(stat = "identity")
+
+```
 
 # Hledáme roboty
 
