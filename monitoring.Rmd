@@ -124,15 +124,18 @@ kraje_dle_id <- hlavni_items$kraj$choices %>% unlist()
 cela_data <- cela_data %>% mutate(kraj = if_else(is.na(kraj), kraj.doplnek, kraj),
                                   kraj_nazev = kraje_dle_id[kraj]) 
 extend_coef =  sum(!is.na(cela_data$ended.hlavni)) / sum(!is.na(cela_data$ended.hlavni) & !is.na(cela_data$kraj) & cela_data$kraj != 15)
-odpovedi_v_krajich <- cela_data %>% filter(!is.na(kraj), kraj != 15, age >= 15, age <= 26) %>%
+odpovedi_v_krajich <- cela_data %>% filter(!is.na(kraj), kraj != 15) %>%
   group_by(kraj, kraj_nazev) %>% summarise(pocet_dokonceno = sum(!is.na(ended.hlavni)), pocet_dokonceno_extend = pocet_dokonceno * extend_coef, pocet_castecne = sum(!is.na(kategorie_respondenta)), pocet_castecne_extend = pocet_castecne * extend_coef)
 
-odpovedi_v_krajich <- odpovedi_v_krajich %>% left_join(roveri_v_krajich, by = c("kraj_nazev" = "UnitName")) %>% 
+odpovedi_v_krajich_jen_roveri <- cela_data %>% filter(!is.na(kraj), kraj != 15, age >= 15, age <= 26) %>%
+  group_by(kraj, kraj_nazev) %>% summarise(pocet_dokonceno = sum(!is.na(ended.hlavni)), pocet_dokonceno_extend = pocet_dokonceno * extend_coef, pocet_castecne = sum(!is.na(kategorie_respondenta)), pocet_castecne_extend = pocet_castecne * extend_coef)
+
+odpovedi_v_krajich_jen_roveri <- odpovedi_v_krajich  %>% left_join(roveri_v_krajich, by = c("kraj_nazev" = "UnitName")) %>% 
   mutate(ucast_dokonceno = pocet_dokonceno_extend/pocet_roveru, ucast_castecne = pocet_castecne_extend/pocet_roveru)
 ```
 
 ```{r}
-plot_kraje <- odpovedi_v_krajich %>% 
+plot_kraje <- odpovedi_v_krajich_jen_roveri %>% 
   inner_join(RCzechia::kraje(resolution = "low"), by = c("kraj_nazev" = "NAZ_CZNUTS3")) %>%
   mutate(ucast = round(ucast_castecne * 100), ucast_text = paste0(ucast, "%")) %>%
   ggplot(aes(fill = ucast, geometry = geometry)) + geom_sf(color = dark_blue_color, size = 1) + coord_sf(crs = st_crs(4156)) +
