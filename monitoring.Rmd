@@ -161,7 +161,7 @@ plot_kraje2 <- odpovedi_v_krajich %>%
                                                                                   ) + 
   ggtitle("Počet, kteří dokončili dotazník")
 
-#ggsave(here("local_data","plot_kraje.svg"), plot_kraje)
+ggsave(here("local_data","plot_kraje2.svg"), plot_kraje2)
 plot_kraje2
 ```
 
