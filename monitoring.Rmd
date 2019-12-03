@@ -72,6 +72,20 @@ rozpracovano <- sum(!is.na(cela_data$ended.rozcestnik) & is.na(cela_data$ended.h
 cat(paste0(dokonceno_dlouhy + dokonceno_kratky, " dokončených dotazníků.\n", dokonceno_dlouhy + prodlouzeno_kratky, " vyplnilo delší verzi nebo si to pak prodloužilo.\n", rozpracovano, " se prokliklo přes první stránku, ale dotazník zatím nedokončili\n", jen_prvni_stranka, " otevření a načtení první stránky bez dalšího pokračování (určitě obsahuje roboty)"))
 ```
 
+```{r pocet dotazniku v case}
+dates <- cela_data$ended.hlavni %>% ymd_hms()
+dotaznik_start <- ymd_hms("2019-11-23 00:00:00")
+
+dd <- dates-dotaznik_start
+cela_data$pocet_hodin_od_startu <- as.numeric(dd)
+
+plot_pocet_dotazniku_v_case <- cela_data %>% 
+  ggplot(aes(x = pocet_hodin_od_startu)) + 
+  geom_histogram() + geom_density()
+plot_pocet_dotazniku_v_case                                                           
+
+```
+
 ```{r}
 cela_data %>% group_by(zdroj) %>% summarise(pocet = n())
 rozcestnik %>% group_by(zdroj) %>% summarise(pocet = n())
