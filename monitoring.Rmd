@@ -330,3 +330,25 @@ mean(hlavni$s_cim_nespokojen == "", na.rm = TRUE)
 unique(hlavni$otevrena)
 ```
 
+```{r zivotni spokojenost}
+swls_normy <- readxl::read_excel("public_data/swls_german_norms.xlsx")
+cela_data <- cela_data %>% mutate(swls = mc_lss1 + mc_lss2 + mc_lss3 + mc_lss4 + mc_lss5) %>% 
+  left_join(swls_normy, by = c("swls"="HS"))
+cela_data %>% 
+  mutate(dokonceno = !is.na(ended.hlavni)) %>% 
+  summarize(m = mean(swls_norms, na.rm = T),n = n())
+cela_data %>% 
+  mutate(dokonceno = !is.na(ended.hlavni)) %>% 
+group_by(kraj_nazev,dokonceno) %>% 
+  summarize(m = mean(swls_norms, na.rm = T),n = n())
+
+x <- cela_data %>% 
+  mutate(dokonceno = !is.na(ended.hlavni)) %>% 
+  filter(dokonceno == T) %>% 
+  pull(swls_norms) %>% 
+  t.test(.,mu = 50)
+
+cela_data %>% 
+  mutate(dokonceno = !is.na(ended.hlavni)) %>% 
+  lm(swls_norms~kraj_nazev*dokonceno,.) %>% car::Anova()
+```
