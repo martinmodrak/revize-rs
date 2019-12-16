@@ -1,0 +1,62 @@
+---
+title: "První výsledky"
+output: html_notebook
+---
+
+```{r setup}
+if(!grepl("cz|utf", Sys.getlocale(), ignore.case = TRUE)) {
+  Sys.setlocale(locale= 'English_United States.1250')
+}
+library(lubridate)
+library(tidyverse)
+library(formr)
+library(here)
+library(RCzechia)
+library(sf)
+library(cowplot)
+library(showtext)
+
+save_format <- ".svg"
+
+theme_set(theme_cowplot())
+dark_blue_color <- "#0040ae"
+darkest_fill <- "#668cce"
+midd_fill <- "#b2c5e6"
+theme_update(text = element_text(family = "Roboto", color = "white"), plot.background = element_rect(fill = dark_blue_color), line = element_line(color = "white"), rect = element_rect(color = "white"), axis.text = element_text(color = "white", face = "bold"), axis.title = element_text(color = "white"),axis.line = element_line(color = "white"), axis.ticks = element_line(color = "white"))
+
+
+sysfonts::font_add_google("Roboto")
+sysfonts::font_add(family = "Skaut Bold", paste0(Sys.getenv("APPDATA"),"/../Local/Microsoft/Windows/Fonts/skaut-bold-webfont.otf"))
+showtext_auto()
+
+source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
+
+```
+
+```{r}
+cela_data <- nacti_dotaznik() %>% vyfiltruj_pouzitelne()
+check_vysledky(cela_data)
+```
+
+
+```{r}
+dokonceno <- sum(!is.na(cela_data$ended.hlavni), na.rm = TRUE)
+rozpracovano <- sum(!is.na(cela_data$kategorie_respondenta) & is.na(cela_data$ended.hlavni))
+```
+
+Dotazník dokončilo neuvěřitelných `r dokonceno` roverů a dalších `r rozpracovano` ho vyplnilo alespoň zčásti.
+
+```{r}
+cela_data %>% pull(problemy_roveringu) %>% head()
+sum(cela_data$problemy_roveringu == "", na.rm = TRUE)
+sum(is.na(cela_data$problemy_roveringu), na.rm = TRUE)
+rozpracovano
+```
+
+
+```{r}
+cela_data %>% filter(!is.na(problemy_roveringu)) %>% 
+  group_by(problemy_roveringu) %>%
+  summarise(pocet = n())
+```
+

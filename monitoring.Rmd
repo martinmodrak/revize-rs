@@ -66,10 +66,12 @@ cela_data <- rozcestnik %>%
 dokonceno_dlouhy <- sum(cela_data$kolik_casu == 2 & !is.na(cela_data$ended.hlavni), na.rm = TRUE)
 dokonceno_kratky <- sum(cela_data$kolik_casu == 1 & !is.na(cela_data$ended.hlavni) , na.rm = TRUE)
 prodlouzeno_kratky <- sum(cela_data$jeste_pokracovat == 1 & !is.na(cela_data$ended.doplnek), na.rm = TRUE)
+dokonceno_15_26 <- sum(!is.na(cela_data$ended.hlavni) & cela_data$age <= 26 & cela_data$age >= 15, na.rm = TRUE)
+
 jen_prvni_stranka <- sum(is.na(rozcestnik$ended))
 rozpracovano <- sum(!is.na(cela_data$ended.rozcestnik) & is.na(cela_data$ended.hlavni))
 
-cat(paste0(dokonceno_dlouhy + dokonceno_kratky, " dokončených dotazníků.\n", dokonceno_dlouhy + prodlouzeno_kratky, " vyplnilo delší verzi nebo si to pak prodloužilo.\n", rozpracovano, " se prokliklo přes první stránku, ale dotazník zatím nedokončili\n", jen_prvni_stranka, " otevření a načtení první stránky bez dalšího pokračování (určitě obsahuje roboty)"))
+cat(paste0(dokonceno_dlouhy + dokonceno_kratky, " dokončených dotazníků (z toho ",dokonceno_15_26," ve věku 15 - 26 let).\n", dokonceno_dlouhy + prodlouzeno_kratky, " vyplnilo delší verzi nebo si to pak prodloužilo.\n", rozpracovano, " se prokliklo přes první stránku, ale dotazník zatím nedokončili\n", jen_prvni_stranka, " otevření a načtení první stránky bez dalšího pokračování (určitě obsahuje roboty)"))
 ```
 
 ```{r pocet dotazniku v case}
@@ -129,7 +131,11 @@ roveri_v_krajich <- roveri_v_krajich %>% mutate(UnitName = case_when(
 roveri_v_krajich 
 
 sum(roveri_v_krajich$pocet_roveru)
+(dokonceno_dlouhy + dokonceno_kratky)/ sum(roveri_v_krajich$pocet_roveru)
+dokonceno_15_26 / sum(roveri_v_krajich$pocet_roveru)
 
+castecne_15_26 <- sum(!is.na(cela_data$kategorie_respondenta) & cela_data$age <= 26 & cela_data$age >= 15, na.rm = TRUE)
+castecne_15_26 / sum(roveri_v_krajich$pocet_roveru)
 ```
 
 
