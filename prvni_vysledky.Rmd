@@ -47,16 +47,42 @@ rozpracovano <- sum(!is.na(cela_data$kategorie_respondenta) & is.na(cela_data$en
 Dotazník dokončilo neuvěřitelných `r dokonceno` roverů a dalších `r rozpracovano` ho vyplnilo alespoň zčásti.
 
 ```{r}
-cela_data %>% pull(problemy_roveringu) %>% head()
-sum(cela_data$problemy_roveringu == "", na.rm = TRUE)
-sum(is.na(cela_data$problemy_roveringu), na.rm = TRUE)
-rozpracovano
+items_hlavni <- nacti_formr_items("hlavni_dotaznik")
+
+```
+
+```{r}
+summarise_multiple_choice(cela_data, items_hlavni, problemy_roveringu) %>% arrange(desc(podil_ano))
+```
+
+```{r}
+summarise_multiple_choice(cela_data, items_hlavni, problemy_roveringu_stredisko) %>% arrange(desc(podil_ano))
+```
+
+```{r}
+summarise_multiple_choice(cela_data, items_hlavni, co_zazil) %>% arrange(desc(podil_ano))
+```
+
+```{r}
+summarise_multiple_choice(cela_data, items_hlavni, s_cim_spokojen) %>% arrange(desc(podil_ano))
+summarise_multiple_choice(cela_data, items_hlavni, s_cim_nespokojen) %>% arrange(desc(podil_ano))
+
+```
+
+```{r}
+summarise_multiple_choice(cela_data, items_hlavni, sluzba) %>% arrange(desc(podil_ano))
+
 ```
 
 
 ```{r}
-cela_data %>% filter(!is.na(problemy_roveringu)) %>% 
-  group_by(problemy_roveringu) %>%
-  summarise(pocet = n())
+summarise_multiple_choice(cela_data, items_hlavni, organizace_spolecenstvi) %>% arrange(desc(podil_ano))
+
+```
+
+```{r}
+summarise_multiple_choice(cela_data, items_hlavni, vyroky_o_roveringu_zazil) %>% arrange(desc(podil_ano))
+summarise_multiple_choice(cela_data, items_hlavni, vyroky_o_roveringu_zazil_2) %>% arrange(desc(podil_ano))
+
 ```
 

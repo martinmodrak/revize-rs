@@ -67,3 +67,14 @@ check_vysledky <- function(cela_data) {
     stop("Nejaka session se opakuje")
   }
 }
+
+summarise_multiple_choice <- function(cela_data, items, sloupec) {
+  nazev_sloupce <- rlang::as_name(enquo(sloupec))
+  volby_df <- items[[nazev_sloupce]]$choices %>% unlist() %>% data.frame(nazev_volby = .) %>% rownames_to_column("id_volby")
+
+  volby_df %>% crossing(cela_data %>% filter(!is.na({{sloupec}}))) %>%
+    group_by(id_volby, nazev_volby) %>%
+    mutate(volba_ano = {{sloupec}} %contains_word% id_volby) %>%
+    summarise(pocet_ano = sum(volba_ano), podil_ano = mean(volba_ano))
+
+}
