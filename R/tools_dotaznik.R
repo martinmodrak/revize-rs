@@ -154,9 +154,10 @@ check_vysledky <- function(cela_data) {
   }
 }
 
-summarise_multiple_choice <- function(cela_data, items, sloupec) {
+summarise_multiple_choice <- function(cela_data, sloupec) {
   nazev_sloupce <- rlang::as_name(enquo(sloupec))
-  volby_df <- items[[nazev_sloupce]]$choices %>% unlist() %>% data.frame(nazev_volby = .) %>% rownames_to_column("id_volby")
+  volby_vec <- attributes(cela_data[[nazev_sloupce]])$labels
+  volby_df <- data.frame(id_volby = volby_vec, nazev_volby = names(volby_vec))
 
   volby_df %>% crossing(cela_data %>% filter(!is.na({{sloupec}}))) %>%
     group_by(id_volby, nazev_volby) %>%

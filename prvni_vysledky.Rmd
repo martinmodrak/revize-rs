@@ -47,31 +47,27 @@ rozpracovano <- sum(!is.na(cela_data$kategorie_respondenta) & is.na(cela_data$en
 
 Dotazník dokončilo neuvěřitelných `r dokonceno` roverů a dalších `r rozpracovano` ho vyplnilo alespoň zčásti.
 
+
 ```{r}
-items_hlavni <- nacti_formr_items("hlavni_dotaznik")
+summarise_multiple_choice(cela_data, problemy_roveringu) %>% arrange(desc(podil_ano))
+```
+
+```{r}
+summarise_multiple_choice(cela_data, problemy_roveringu_stredisko) %>% arrange(desc(podil_ano))
+```
+
+```{r}
+summarise_multiple_choice(cela_data, co_zazil) %>% arrange(desc(podil_ano))
+```
+
+```{r}
+summarise_multiple_choice(cela_data, s_cim_spokojen) %>% arrange(desc(podil_ano))
+summarise_multiple_choice(cela_data, s_cim_nespokojen) %>% arrange(desc(podil_ano))
 
 ```
 
 ```{r}
-summarise_multiple_choice(cela_data, items_hlavni, problemy_roveringu) %>% arrange(desc(podil_ano))
-```
-
-```{r}
-summarise_multiple_choice(cela_data, items_hlavni, problemy_roveringu_stredisko) %>% arrange(desc(podil_ano))
-```
-
-```{r}
-summarise_multiple_choice(cela_data, items_hlavni, co_zazil) %>% arrange(desc(podil_ano))
-```
-
-```{r}
-summarise_multiple_choice(cela_data, items_hlavni, s_cim_spokojen) %>% arrange(desc(podil_ano))
-summarise_multiple_choice(cela_data, items_hlavni, s_cim_nespokojen) %>% arrange(desc(podil_ano))
-
-```
-
-```{r}
-summarise_multiple_choice(cela_data, items_hlavni, sluzba) %>% arrange(desc(podil_ano))
+summarise_multiple_choice(cela_data, sluzba) %>% arrange(desc(podil_ano))
 
 ```
 
