@@ -34,7 +34,8 @@ source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
 ```
 
 ```{r}
-cela_data <- nacti_dotaznik() %>% vyfiltruj_pouzitelne()
+cela_data_raw <- nacti_dotaznik()
+cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE)  
 check_vysledky(cela_data)
 ```
 
