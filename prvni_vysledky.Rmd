@@ -117,7 +117,7 @@ expanded %>% filter(kategorie_kompetence == "dulezite", !is.na(kompetence_odpove
 expanded %>% filter(kategorie_kompetence == "zvladam") %>%
   group_by(kompetence) %>%
   summarise(prumer = mean(kompetence_odpoved, na.rm = TRUE), pocet = sum(!is.na(kompetence_odpoved))) %>%
-  arrange(desc(prumer))
+  arrange(prumer)
 
 ```
 
@@ -127,5 +127,60 @@ expanded %>% filter(kategorie_kompetence == "zvladam", !is.na(kompetence_odpoved
     geom_histogram(binwidth = 1, fill = "white") + facet_wrap(~kompetence) +
     theme(strip.text = element_text(size = 8))
 
+```
+
+
+```{r}
+expanded %>% filter(kategorie_kompetence == "rozvijim") %>%
+  group_by(kompetence) %>%
+  summarise(prumer = mean(kompetence_odpoved, na.rm = TRUE), pocet = sum(!is.na(kompetence_odpoved))) %>%
+  arrange(desc(prumer))
+
+```
+
+```{r}
+expanded %>% filter(kategorie_kompetence == "rozvijim", !is.na(kompetence_odpoved)) %>%
+  ggplot(aes(kompetence_odpoved)) +
+    geom_histogram(binwidth = 1, fill = "white") + facet_wrap(~kompetence) +
+    theme(strip.text = element_text(size = 8))
+
+```
+
+```{r}
+expanded %>% filter(kategorie_kompetence == "skauting") %>%
+  group_by(kompetence) %>%
+  summarise(prumer = mean(kompetence_odpoved, na.rm = TRUE), pocet = sum(!is.na(kompetence_odpoved))) %>%
+  arrange(desc(prumer))
+
+```
+
+```{r}
+expanded %>% filter(kategorie_kompetence == "skauting", !is.na(kompetence_odpoved)) %>%
+  ggplot(aes(kompetence_odpoved)) +
+    geom_histogram(binwidth = 1, fill = "white") + facet_wrap(~kompetence) +
+    theme(strip.text = element_text(size = 8))
+
+```
+
+
+```{r}
+rozdil_rozvijim_skauting <- expanded %>% select(session, kategorie_kompetence, kompetence_odpoved, kompetence) %>% filter(kategorie_kompetence %in% c("rozvijim","skauting")) %>%
+  pivot_wider(id_cols = c("session", "kompetence"), names_from = kategorie_kompetence, values_from = kompetence_odpoved) %>%
+  mutate(rozdil_rozvijim_skauting = rozvijim - skauting)
+
+rozdil_rozvijim_skauting %>%
+  group_by(kompetence) %>%
+  summarise(prumer_rozdil = mean(rozdil_rozvijim_skauting, na.rm = TRUE), pocet = sum(!is.na(rozdil_rozvijim_skauting))) %>%
+  arrange(desc(prumer_rozdil))
+
+
+```
+
+```{r}
+rozdil_rozvijim_skauting %>%
+  ggplot(aes(rozdil_rozvijim_skauting)) +
+    geom_histogram(binwidth = 1, fill = "white") + facet_wrap(~kompetence) +
+    geom_vline(xintercept = 0, color = "gray") +
+    theme(strip.text = element_text(size = 8))
 ```
 

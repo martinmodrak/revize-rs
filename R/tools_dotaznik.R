@@ -213,5 +213,9 @@ expand_kompetence <- function(cela_data) {
     }
   }
 
+  if(nrow(expanded) != nrow(cela_data_backup) * nrow(kompetence_vse)) {
+    stop("Spatny pocet radku")
+  }
+
   expanded
 }
