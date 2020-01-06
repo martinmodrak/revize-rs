@@ -22,7 +22,14 @@ theme_set(theme_cowplot())
 dark_blue_color <- "#0040ae"
 darkest_fill <- "#668cce"
 midd_fill <- "#b2c5e6"
-theme_update(text = element_text(family = "Roboto", color = "white"), plot.background = element_rect(fill = dark_blue_color), line = element_line(color = "white"), rect = element_rect(color = "white"), axis.text = element_text(color = "white", face = "bold"), axis.title = element_text(color = "white"),axis.line = element_line(color = "white"), axis.ticks = element_line(color = "white"))
+theme_update(text = element_text(family = "Roboto", color = "white"), 
+             plot.background = element_rect(fill = dark_blue_color), 
+             line = element_line(color = "white"), 
+             rect = element_rect(color = "white"), 
+             axis.text = element_text(color = "white", face = "bold"), 
+             axis.title = element_text(color = "white"),
+             axis.line = element_line(color = "white"), axis.ticks = element_line(color = "white"),
+             strip.background = element_rect(color = "white", fill = darkest_fill))
 
 
 sysfonts::font_add_google("Roboto")
@@ -73,13 +80,52 @@ summarise_multiple_choice(cela_data, sluzba) %>% arrange(desc(podil_ano))
 
 
 ```{r}
-summarise_multiple_choice(cela_data, items_hlavni, organizace_spolecenstvi) %>% arrange(desc(podil_ano))
+summarise_multiple_choice(cela_data, organizace_spolecenstvi) %>% arrange(desc(podil_ano))
 
 ```
 
 ```{r}
-summarise_multiple_choice(cela_data, items_hlavni, vyroky_o_roveringu_zazil) %>% arrange(desc(podil_ano))
-summarise_multiple_choice(cela_data, items_hlavni, vyroky_o_roveringu_zazil_2) %>% arrange(desc(podil_ano))
+summarise_multiple_choice(cela_data, vyroky_o_roveringu_zazil) %>% arrange(desc(podil_ano))
+summarise_multiple_choice(cela_data, vyroky_o_roveringu_zazil_2) %>% arrange(desc(podil_ano))
+
+```
+
+
+```{r}
+expanded <- cela_data %>% expand_kompetence()
+```
+
+```{r}
+expanded %>% filter(kategorie_kompetence == "dulezite") %>%
+  group_by(kompetence) %>%
+  summarise(prumer = mean(kompetence_odpoved, na.rm = TRUE), pocet = sum(!is.na(kompetence_odpoved))) %>%
+  arrange(desc(prumer))
+```
+
+```{r}
+expanded %>% filter(kategorie_kompetence == "dulezite", !is.na(kompetence_odpoved)) %>%
+  ggplot(aes(kompetence_odpoved)) +
+    geom_histogram(binwidth = 1, fill = "white") + facet_wrap(~kompetence) +
+    theme(strip.text = element_text(size = 8))
+                      
+```
+
+
+
+
+```{r}
+expanded %>% filter(kategorie_kompetence == "zvladam") %>%
+  group_by(kompetence) %>%
+  summarise(prumer = mean(kompetence_odpoved, na.rm = TRUE), pocet = sum(!is.na(kompetence_odpoved))) %>%
+  arrange(desc(prumer))
+
+```
+
+```{r}
+expanded %>% filter(kategorie_kompetence == "zvladam", !is.na(kompetence_odpoved)) %>%
+  ggplot(aes(kompetence_odpoved)) +
+    geom_histogram(binwidth = 1, fill = "white") + facet_wrap(~kompetence) +
+    theme(strip.text = element_text(size = 8))
 
 ```
 

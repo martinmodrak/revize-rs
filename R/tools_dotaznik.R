@@ -1,3 +1,6 @@
+kompetence <- c("samostatny", "fyzicky_zdatny", "pripraven_krize", "pripraven_bezny_zivot","resit_problemy","taboreni_tym","tvorivost_zrucnost","sebepoznani","duchovni_zivot","slib_zakon","svedomi","rozvoj_osobnosti","vztahy","komunikace","pomaham","rodina","skautsky_zit","clen_tymu","aktivni_obcan","propojenost_sveta","tolerantni","pobyt_v_prirode","vztah_k_prirode_krajine","setrnost")
+kategorie_kompetence <- c("zvladam","dulezite","rozvijim", "skauting")
+
 nacti_formr_dotaznik <- function(nazev) {
   as.data.frame(jsonlite::fromJSON((here("private_data",paste0(nazev, ".json")))))
 }
@@ -164,4 +167,51 @@ summarise_multiple_choice <- function(cela_data, sloupec) {
     mutate(volba_ano = {{sloupec}} %contains_word% id_volby) %>%
     summarise(pocet_ano = sum(volba_ano), podil_ano = mean(volba_ano))
 
+}
+
+expand_kompetence <- function(cela_data) {
+  cela_data_backup <- cela_data
+
+  kompetence_vse <- data.frame(kompetence) %>%
+    crossing(data.frame(kategorie_kompetence)) %>%
+    mutate(nazev = paste(kompetence, kategorie_kompetence, sep = "_"),
+           nazev_new = paste(kompetence, kategorie_kompetence, sep = "."))
+
+  for(i in 1:nrow(kompetence_vse)) {
+    cela_data[[kompetence_vse$nazev_new[i]]] <- as.integer(cela_data[[kompetence_vse$nazev[i]]])
+  }
+  cela_data <- cela_data %>% select(- one_of(kompetence_vse$nazev))
+
+  kompetence_vybrane <- cela_data %>%
+    select(one_of(kompetence_vse$nazev_new)) %>%
+    names()
+
+  nevybrane <- setdiff(kompetence_vse$nazev_new, kompetence_vybrane)
+  if(length(nevybrane) > 0) {
+    stop(paste0("Nevybrane kompetence: ", paste0(nevybrane, collapse = ", ")))
+  }
+
+  neexistujici <- setdiff(kompetence_vybrane, kompetence_vse$nazev_new)
+  if(length(nevybrane) > 0) {
+    stop(paste0("Neexistujici kompetence: ", paste0(neexistujici, collapse = ", ")))
+  }
+
+  expanded <- cela_data %>%
+    pivot_longer(cols = one_of(kompetence_vse$nazev_new),
+                 names_sep = "\\.",
+                 names_to = c("kompetence","kategorie_kompetence"),
+                 values_to = "kompetence_odpoved")
+
+
+  for(i in 1:nrow(kompetence_vse)) {
+    expanded_values <- expanded %>%
+      filter(kompetence == kompetence_vse$kompetence[[i]], kategorie_kompetence == kompetence_vse$kategorie_kompetence[[i]]) %>%
+      pull(kompetence_odpoved)
+
+    if(!identical(as.integer(cela_data_backup[[kompetence_vse$nazev[i]]]), as.integer(expanded_values)) ) {
+      stop(paste0("Spatny expand pro ", kompetence_vse$nazev[i]))
+    }
+  }
+
+  expanded
 }
