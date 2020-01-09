@@ -22,14 +22,14 @@ theme_set(theme_cowplot())
 dark_blue_color <- "#0040ae"
 darkest_fill <- "#668cce"
 midd_fill <- "#b2c5e6"
-theme_update(text = element_text(family = "Roboto", color = "white"), 
-             plot.background = element_rect(fill = dark_blue_color), 
-             line = element_line(color = "white"), 
-             rect = element_rect(color = "white"), 
-             axis.text = element_text(color = "white", face = "bold"), 
-             axis.title = element_text(color = "white"),
-             axis.line = element_line(color = "white"), axis.ticks = element_line(color = "white"),
-             strip.background = element_rect(color = "white", fill = darkest_fill))
+# theme_update(text = element_text(family = "Roboto", color = "white"), 
+#              plot.background = element_rect(fill = dark_blue_color), 
+#              line = element_line(color = "white"), 
+#              rect = element_rect(color = "white"), 
+#              axis.text = element_text(color = "white", face = "bold"), 
+#              axis.title = element_text(color = "white"),
+#              axis.line = element_line(color = "white"), axis.ticks = element_line(color = "white"),
+#              strip.background = element_rect(color = "white", fill = darkest_fill))
 
 
 sysfonts::font_add_google("Roboto")
@@ -95,78 +95,116 @@ summarise_multiple_choice(cela_data, vyroky_o_roveringu_zazil_2) %>% arrange(des
 expanded <- cela_data %>% expand_kompetence()
 ```
 
+## Je to pro mě důležité
+
 ```{r}
-expanded %>% filter(kategorie_kompetence == "dulezite") %>%
-  group_by(kompetence) %>%
-  summarise(prumer = mean(kompetence_odpoved, na.rm = TRUE), pocet = sum(!is.na(kompetence_odpoved))) %>%
-  arrange(desc(prumer))
+tabulka_kompetence <- function(expanded, kategorie) {
+  expanded %>% filter(kategorie_kompetence == kategorie) %>%
+    group_by(kompetence) %>%
+    summarise(prumer = mean(kompetence_odpoved, na.rm = TRUE), pocet = sum(!is.na(kompetence_odpoved))) %>%
+    arrange(desc(prumer))
+}
+
+tabulka_kompetence(expanded, "dulezite")
 ```
 
 ```{r}
-expanded %>% filter(kategorie_kompetence == "dulezite", !is.na(kompetence_odpoved)) %>%
-  ggplot(aes(kompetence_odpoved)) +
-    geom_histogram(binwidth = 1, fill = "white") + facet_wrap(~kompetence) +
-    theme(strip.text = element_text(size = 8))
-                      
-```
+histogram_kompetence <- function(expanded, kategorie) {
+  expanded %>% filter(kategorie_kompetence == kategorie, !is.na(kompetence_odpoved)) %>%
+    ggplot(aes(kompetence_odpoved)) +
+      geom_histogram(binwidth = 1) + facet_wrap(~kompetence) +
+      theme(strip.text = element_text(size = 8))
+}
 
-
-
-
-```{r}
-expanded %>% filter(kategorie_kompetence == "zvladam") %>%
-  group_by(kompetence) %>%
-  summarise(prumer = mean(kompetence_odpoved, na.rm = TRUE), pocet = sum(!is.na(kompetence_odpoved))) %>%
-  arrange(prumer)
-
+histogram_kompetence(expanded, "dulezite")
 ```
 
 ```{r}
-expanded %>% filter(kategorie_kompetence == "zvladam", !is.na(kompetence_odpoved)) %>%
-  ggplot(aes(kompetence_odpoved)) +
-    geom_histogram(binwidth = 1, fill = "white") + facet_wrap(~kompetence) +
-    theme(strip.text = element_text(size = 8))
+plot_kompetence_by_age <- function(expanded, kategorie) {
+  expanded %>% filter(kategorie_kompetence == kategorie, !is.na(kompetence_odpoved), age >= 15, age <= 26) %>%
+    group_by(age, kompetence) %>%
+    summarise(prumer = mean(kompetence_odpoved) ,
+              sem = sd(kompetence_odpoved) / sqrt(n())
+              ) %>%
+    group_by(kompetence) %>%
+    mutate(od_prumeru = prumer - mean(prumer), low = od_prumeru - 1.96 * sem, high = od_prumeru + 1.96 * sem) %>%
+    ungroup() %>%
+    ggplot(aes(x = age, y = od_prumeru, ymin = low, ymax = high)) +
+      geom_ribbon(fill = midd_fill) +
+      geom_line() + facet_wrap(~kompetence) +
+      theme(strip.text = element_text(size = 8))
+}
 
+plot_kompetence_by_age_smooth <- function(expanded, kategorie) {
+  expanded %>% filter(kategorie_kompetence == kategorie, !is.na(kompetence_odpoved), age >= 15, age <= 26) %>%
+    group_by(kompetence) %>%
+    mutate(od_prumeru = kompetence_odpoved - mean(kompetence_odpoved)) %>%
+    ggplot(aes(x = age, y = od_prumeru)) +
+      geom_smooth() + facet_wrap(~kompetence) +
+      theme(strip.text = element_text(size = 8)) 
+}
+
+
+plot_kompetence_by_age(expanded, "dulezite")
+plot_kompetence_by_age_smooth(expanded, "dulezite")
+```
+
+## Zvládám to
+
+```{r}
+tabulka_kompetence(expanded, "zvladam")
+```
+
+```{r}
+histogram_kompetence(expanded, "zvladam")
 ```
 
 
 ```{r}
-expanded %>% filter(kategorie_kompetence == "rozvijim") %>%
-  group_by(kompetence) %>%
-  summarise(prumer = mean(kompetence_odpoved, na.rm = TRUE), pocet = sum(!is.na(kompetence_odpoved))) %>%
-  arrange(desc(prumer))
+plot_kompetence_by_age(expanded, "zvladam")
+plot_kompetence_by_age_smooth(expanded, "zvladam")
+```
 
+## Rozvijim se v tom
+
+```{r}
+tabulka_kompetence(expanded, "rozvijim")
 ```
 
 ```{r}
-expanded %>% filter(kategorie_kompetence == "rozvijim", !is.na(kompetence_odpoved)) %>%
-  ggplot(aes(kompetence_odpoved)) +
-    geom_histogram(binwidth = 1, fill = "white") + facet_wrap(~kompetence) +
-    theme(strip.text = element_text(size = 8))
-
+histogram_kompetence(expanded, "rozvijim")
 ```
 
 ```{r}
-expanded %>% filter(kategorie_kompetence == "skauting") %>%
-  group_by(kompetence) %>%
-  summarise(prumer = mean(kompetence_odpoved, na.rm = TRUE), pocet = sum(!is.na(kompetence_odpoved))) %>%
-  arrange(desc(prumer))
+plot_kompetence_by_age(expanded, "rozvijim")
+plot_kompetence_by_age_smooth(expanded, "rozvijim")
+```
 
+## Skauting me rozviji
+
+```{r}
+tabulka_kompetence(expanded, "skauting")
 ```
 
 ```{r}
-expanded %>% filter(kategorie_kompetence == "skauting", !is.na(kompetence_odpoved)) %>%
-  ggplot(aes(kompetence_odpoved)) +
-    geom_histogram(binwidth = 1, fill = "white") + facet_wrap(~kompetence) +
-    theme(strip.text = element_text(size = 8))
-
+histogram_kompetence(expanded, "skauting")
 ```
 
+```{r}
+plot_kompetence_by_age(expanded, "skauting")
+plot_kompetence_by_age_smooth(expanded, "skauting")
+```
+
+## Rozvijim se vs. skauting me rozviji
+
+Všude číslo větší než 0 znamená, že "rozvíjím se" mělo vyšší hodnocení než "skauting mě v tom rozvíjí"
 
 ```{r}
 rozdil_rozvijim_skauting <- expanded %>% select(session, kategorie_kompetence, kompetence_odpoved, kompetence) %>% filter(kategorie_kompetence %in% c("rozvijim","skauting")) %>%
   pivot_wider(id_cols = c("session", "kompetence"), names_from = kategorie_kompetence, values_from = kompetence_odpoved) %>%
-  mutate(rozdil_rozvijim_skauting = rozvijim - skauting)
+  mutate(rozdil_rozvijim_skauting = rozvijim - skauting) %>%
+  filter(!is.na(rozdil_rozvijim_skauting))
+
 
 rozdil_rozvijim_skauting %>%
   group_by(kompetence) %>%
@@ -179,8 +217,12 @@ rozdil_rozvijim_skauting %>%
 ```{r}
 rozdil_rozvijim_skauting %>%
   ggplot(aes(rozdil_rozvijim_skauting)) +
-    geom_histogram(binwidth = 1, fill = "white") + facet_wrap(~kompetence) +
+    geom_histogram(binwidth = 1) + facet_wrap(~kompetence) +
     geom_vline(xintercept = 0, color = "gray") +
     theme(strip.text = element_text(size = 8))
+```
+
+```{r}
+
 ```
 
