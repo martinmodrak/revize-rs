@@ -1,0 +1,124 @@
+---
+title: "Zivotni spokojenost"
+output: html_document
+---
+
+```{r setup}
+if(!grepl("cz|utf", Sys.getlocale(), ignore.case = TRUE)) {
+  Sys.setlocale(locale= 'English_United States.1250')
+}
+library(lubridate)
+library(tidyverse)
+library(formr)
+library(here)
+library(RCzechia)
+library(sf)
+library(cowplot)
+library(showtext)
+
+save_format <- ".svg"
+
+theme_set(theme_cowplot())
+dark_blue_color <- "#0040ae"
+darkest_fill <- "#668cce"
+midd_fill <- "#b2c5e6"
+# theme_update(text = element_text(family = "Roboto", color = "white"), 
+#              plot.background = element_rect(fill = dark_blue_color), 
+#              line = element_line(color = "white"), 
+#              rect = element_rect(color = "white"), 
+#              axis.text = element_text(color = "white", face = "bold"), 
+#              axis.title = element_text(color = "white"),
+#              axis.line = element_line(color = "white"), axis.ticks = element_line(color = "white"),
+#              strip.background = element_rect(color = "white", fill = darkest_fill))
+
+
+sysfonts::font_add_google("Roboto")
+sysfonts::font_add(family = "Skaut Bold", paste0(Sys.getenv("APPDATA"),"/../Local/Microsoft/Windows/Fonts/skaut-bold-webfont.otf"))
+showtext_auto()
+
+source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
+
+```
+
+```{r}
+cela_data_raw <- nacti_dotaznik()
+cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE)  
+check_vysledky(cela_data)
+```
+
+```{r zakladni lss analyzy}
+cela_data <- cela_data %>% mutate(lss = mc_lss1 + mc_lss2 + mc_lss3 + mc_lss4 + mc_lss5)
+
+cor.test(~let_v_junaku+lss,cela_data)
+cor.test(~pocet_clenu_spolecenstvi+lss,cela_data)
+cor.test(~frekvence_kratkych_akci+lss,cela_data)
+cor.test(~frekvence_vicedennich_akci+lss,cela_data)
+cor.test(~frekvence_velkych_akci+lss,cela_data)
+cor.test(~spokojenost_s_roverskym_programem+lss,cela_data)
+
+lss_pro_kategorie <- function(var) {
+  cela_data %>% 
+    group_by(!!var) %>% 
+    summarize(m_lss = mean(lss, na.rm = T),sd_lss = sd(lss, na.rm = T), n = sum(!is.na(lss)) ,n_NA = sum(is.na(lss)))
+}
+lss_pro_kategorie(quo(kategorie_respondenta))
+
+lss_pro_kategorie(quo(role_skauting))
+
+lss_pro_kategorie(quo(zivotni_faze))
+lss_pro_kategorie(quo(kraj))
+lss_pro_kategorie(quo(sex))
+
+```
+
+```{r rozdelejless pro mc}
+rozsir_mc <- function(df, var) {
+  # dodelat
+  #col_names <- df[[as_label(var)]] %>% split_by()unique()
+  #attr(df %>% pull(role_skauting))
+  #df %>% separate(role_skauting,into=paste0("role",1:1NA)
+}
+cela_data %>% rozsir_mc(quo(role_skauting))
+```
+
+```{r rozdil kompetencni a lss}
+expanded <- cela_data %>% expand_kompetence()
+
+rozdil_dulezite_zvladam <- expanded %>% select(session, lss, kategorie_kompetence, kompetence_odpoved, kompetence) %>% filter(kategorie_kompetence %in% c("dulezite","zvladam")) %>%
+  pivot_wider(id_cols = c("session", "kompetence", "lss"), names_from = kategorie_kompetence, values_from = kompetence_odpoved) %>%
+  mutate(rozdil_dulezite_zvladam = dulezite - zvladam) %>%
+  filter(!is.na(rozdil_dulezite_zvladam))
+
+rozdil_dul_zvl_agg <- rozdil_dulezite_zvladam %>% 
+  group_by(session) %>% 
+  summarize(lss = mean(lss), rozdil_dulezite_zvladam = mean(rozdil_dulezite_zvladam)) 
+rozdil_dul_zvl_agg %>% ggplot(aes(x = rozdil_dulezite_zvladam)) + geom_histogram()
+rozdil_dul_zvl_agg %>% 
+  cor.test(~lss+rozdil_dulezite_zvladam,.)
+
+lss_cor <- expanded %>% select(session, lss, kategorie_kompetence, kompetence_odpoved, kompetence) %>% filter(kategorie_kompetence %in% c("dulezite","zvladam","rozvijim","skauting")) %>%
+  pivot_wider(id_cols = c("session", "kompetence", "lss"), names_from = kategorie_kompetence, values_from = kompetence_odpoved) %>% 
+  group_by(session) %>% 
+  summarize(lss = mean(lss), 
+            dulezite = mean(dulezite),
+            zvladam = mean(zvladam),
+            rozvijim = mean(rozvijim),
+            skauting = mean(skauting),
+            )
+lss_cor %>% 
+  select(lss, dulezite, zvladam, rozvijim, skauting) %>% 
+  as.matrix() %>% 
+  cor(use = "complete.obs") %>% knitr::kable(digits = 2)
+
+cela_data %>% select(lss,ends_with("zvladam")) %>% as.matrix() %>% cor(use = "complete.obs") %>% round(2) %>% as_tibble(rownames = "var") %>% 
+  select(var, lss) %>% arrange(-lss)
+
+cela_data %>% select(lss,ends_with("rozvijim")) %>% as.matrix() %>% cor(use = "complete.obs") %>% round(2) %>% as_tibble(rownames = "var") %>% 
+  select(var, lss) %>% arrange(-lss)
+
+cela_data %>% select(lss,ends_with("dulezite")) %>% as.matrix() %>% cor(use = "complete.obs") %>% round(2) %>% as_tibble(rownames = "var") %>% 
+  select(var, lss) %>% arrange(-lss)
+
+
+
+```
