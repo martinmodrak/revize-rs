@@ -72,13 +72,50 @@ lss_pro_kategorie(quo(sex))
 ```
 
 ```{r rozdelejless pro mc}
-rozsir_mc <- function(df, var) {
-  # dodelat
-  #col_names <- df[[as_label(var)]] %>% split_by()unique()
-  #attr(df %>% pull(role_skauting))
-  #df %>% separate(role_skauting,into=paste0("role",1:1NA)
-}
-cela_data %>% rozsir_mc(quo(role_skauting))
+
+cela_data_role <- cela_data %>% rozsir_mc(quo(role_skauting))
+cela_data_role %>% select(starts_with("role_skauting_"),lss) %>% cor(use = "complete.obs") %>% knitr::kable(digits = 2)
+
+n_roli <- rowSums(cela_data_role %>% select(starts_with("role_skauting_")) %>% as.matrix())
+
+cela_data_role <- cela_data_role %>% 
+  mutate(n_roli = n_roli)
+cela_data_role %>% 
+  group_by(n_roli) %>% 
+  summarize(lss = mean(lss, na.rm = T), n =n()) %>% 
+ggplot(aes(x=n_roli, y = lss, size = n)) + geom_point()
+
+cela_data_role %>% 
+  group_by(role_skauting_vedouci_roveru) %>% 
+  summarize(m_lss = mean(lss, na.rm =T),
+            sd_lss = sd(lss, na.rm =T),
+            n = n())
+
+
+cela_data_role %>% 
+  group_by(role_skauting_vedouci_roveru) %>% 
+  summarize(m_spoko = mean(spokojenost_s_roverskym_programem, na.rm =T),
+            sd_spoko = sd(spokojenost_s_roverskym_programem, na.rm =T),
+            n = n())
+
+cela_data_role %>% 
+  group_by(role_skauting_tahoun_roveru) %>% 
+  summarize(m_spoko = mean(spokojenost_s_roverskym_programem, na.rm =T),
+            sd_spoko = sd(spokojenost_s_roverskym_programem, na.rm =T),
+            n = n())
+
+cela_data_role %>% 
+  group_by(role_skauting_tahoun_roveru) %>% 
+  summarize(m_lss = mean(lss, na.rm =T),
+            sd_lss = sd(lss, na.rm =T),
+            n = n())
+
+cela_data_role %>% select(starts_with("role_skauting_")) %>% cor(use = "complete.obs") %>% round(2) %>% knitr::kable(digits = 2)
+
+t.test(spokojenost_s_roverskym_programem~role_skauting_vedouci_roveru,cela_data_role)
+t.test(lss~role_skauting_vedouci_roveru,cela_data_role)
+
+
 ```
 
 ```{r rozdil kompetencni a lss}
