@@ -219,3 +219,21 @@ expand_kompetence <- function(cela_data) {
 
   expanded
 }
+
+# umozni rozsekat mc odpovedi ulozene ve strngo do n sloupcu (true/false)
+rozsir_mc <- function(df, var) {
+  mc_obsahuje <- function(v,polozka) {
+    return(any(v %in% polozka))
+  }
+  col_names <- df[[as_label(var)]] %>% attributes() 
+  col_names <- col_names$labels %>% as.character()
+  polozky <- df[[as_label(var)]] %>% str_split(", ")
+  
+  
+  for (i in 1:length(col_names)) {
+    nazev_sloupce <- paste0(as_label(var),"_",col_names[i])
+    df <- df %>% mutate(!!nazev_sloupce:=map_lgl(polozky,mc_obsahuje,col_names[i]))    
+  }
+  
+  df
+}
