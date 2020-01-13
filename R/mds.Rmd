@@ -1,0 +1,57 @@
+---
+title: "NMDS"
+output: html_notebook
+---
+
+```{r setup}
+if(!grepl("cz|utf", Sys.getlocale(), ignore.case = TRUE)) {
+  Sys.setlocale(locale= 'English_United States.1250')
+}
+
+library(lubridate)
+library(tidyverse)
+library(formr)
+library(here)
+library(vegan)
+library(cowplot)
+
+theme_set(theme_cowplot())
+
+source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
+source(here::here("R","plot_mds.R"), encoding = "UTF-8")
+
+```
+
+```{r}
+cela_data_raw <- nacti_dotaznik()
+cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE)  
+```
+
+
+```{r}
+kompetence_vse <- data.frame(kompetence) %>%
+  crossing(data.frame(kategorie_kompetence)) %>%
+  mutate(nazev = paste(kompetence, kategorie_kompetence, sep = "_")) %>% 
+  pull(nazev)
+
+tabulka_kompetence <- cela_data %>%
+  select(one_of(kompetence_vse)) %>% as.matrix()
+
+any_na <- is.na(rowSums(tabulka_kompetence))
+
+tabulka_kompetence <- tabulka_kompetence[!any_na,]
+mapping_kompetence <- cela_data[!any_na,]
+
+kompetence_dist <- vegdist(tabulka_kompetence, method = "euclidean")
+mds_res <- metaMDS(kompetence_dist, parallel = parallel::detectCores(), trymax = 100)
+```
+
+```{r}
+plot_mds(mds_res)
+```
+
+```{r}
+pca_res <- cmdscale(kompetence_dist)
+plot_mds(list(points = pca_res))
+```
+

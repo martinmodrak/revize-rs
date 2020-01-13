@@ -32,9 +32,9 @@ midd_fill <- "#b2c5e6"
 #              strip.background = element_rect(color = "white", fill = darkest_fill))
 
 
-sysfonts::font_add_google("Roboto")
-sysfonts::font_add(family = "Skaut Bold", paste0(Sys.getenv("APPDATA"),"/../Local/Microsoft/Windows/Fonts/skaut-bold-webfont.otf"))
-showtext_auto()
+# sysfonts::font_add_google("Roboto")
+# sysfonts::font_add(family = "Skaut Bold", paste0(Sys.getenv("APPDATA"),"/../Local/Microsoft/Windows/Fonts/skaut-bold-webfont.otf"))
+# showtext_auto()
 
 source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
 
