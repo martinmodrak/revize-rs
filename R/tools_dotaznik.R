@@ -2,11 +2,11 @@ kompetence <- c("samostatny", "fyzicky_zdatny", "pripraven_krize", "pripraven_be
 kategorie_kompetence <- c("zvladam","dulezite","rozvijim", "skauting")
 
 nacti_formr_dotaznik <- function(nazev) {
-  as.data.frame(jsonlite::fromJSON((here("private_data",paste0(nazev, ".json")))))
+  as.data.frame(jsonlite::fromJSON(txt = here::here("private_data",paste0(nazev, ".json"))))
 }
 
 nacti_formr_items <- function(nazev) {
-  formr::formr_items(path = here("public_data",paste0("items_", nazev, ".json")))
+  formr::formr_items(path = here::here("public_data",paste0("items_", nazev, ".json")))
 }
 
 nacti_dotaznik <- function() {
@@ -225,15 +225,15 @@ rozsir_mc <- function(df, var) {
   mc_obsahuje <- function(v,polozka) {
     return(any(v %in% polozka))
   }
-  col_names <- df[[as_label(var)]] %>% attributes() 
+  col_names <- df[[as_label(var)]] %>% attributes()
   col_names <- col_names$labels %>% as.character()
   polozky <- df[[as_label(var)]] %>% str_split(", ")
-  
-  
+
+
   for (i in 1:length(col_names)) {
     nazev_sloupce <- paste0(as_label(var),"_",col_names[i])
-    df <- df %>% mutate(!!nazev_sloupce:=map_lgl(polozky,mc_obsahuje,col_names[i]))    
+    df <- df %>% mutate(!!nazev_sloupce:=map_lgl(polozky,mc_obsahuje,col_names[i]))
   }
-  
+
   df
 }
