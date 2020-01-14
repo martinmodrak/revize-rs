@@ -15,6 +15,7 @@ library(RCzechia)
 library(sf)
 library(cowplot)
 library(showtext)
+library(polycor)
 
 save_format <- ".svg"
 
@@ -158,4 +159,15 @@ cela_data %>% select(lss,ends_with("dulezite")) %>% as.matrix() %>% cor(use = "c
 
 
 
+```
+
+
+```{r factor analysis}
+role_fa <- cela_data_role %>% select(starts_with("role_skauting_")) 
+role_fa <- sapply(role_fa, as.character)
+het.mat <- hetcor(role_fa)$cor
+
+psych::fa.parallel(het.mat, n.obs = nrow(role_fa))
+
+role_fa_res <- psych::fa(het.mat, n.obs = nrow(role_fa), nfactors = 5, rotate = "varimax")
 ```
