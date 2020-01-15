@@ -30,7 +30,8 @@ nacti_dotaznik <- function() {
     inner_join(hlavni, by = c("session" = "session"), suffix = c("",".hlavni")) %>%
     left_join(doplnek, by = c("session" = "session"), suffix = c("",".doplnek")) %>%
     rename(ended.rozcestnik = ended)
-
+  
+  
   cela_data %>% as_tibble()
 }
 
@@ -129,8 +130,29 @@ preprocess_dat <- function(cela_data, verbose = TRUE) {
   #Kraje
   cela_data <- cela_data %>% mutate(
     kraj_nazev = as.factor(kraj))
-
-  cela_data
+  
+  # nektera data maji spatne reg.cislo (vyplnili ICO namisto toho), provedeme upravu
+  
+  ico_reg_cislo_pth <- here::here("public_data/ico_reg_cislo.csv")
+  if(!file.exists(ico_reg_cislo_pth)) {
+    stop("Chybí překladní tabulka IČO na reg.číslo")
+  }
+  ico_reg_cislo <- read_csv(ico_reg_cislo_pth, col_types = cols(
+    ic = col_character(),
+    ev_c = col_character()
+  ))
+  
+  cela_data <- 
+    cela_data %>% 
+    mutate(reg_c_strediska = str_trim(reg_c_strediska)) %>% 
+    left_join(ico_reg_cislo, by =c("reg_c_strediska"="ic")) %>% 
+    mutate(reg_c_strediska = if_else(!is.na(ev_c), ev_c,reg_c_strediska)) %>% 
+    select(-ev_c)
+  # spocitej lss
+  cela_data <- cela_data %>%
+    mutate(lss = mc_lss1 + mc_lss2 + mc_lss3 + mc_lss4 + mc_lss5)
+  
+  cela_data %>% as_tibble()
 }
 
 # Pouzitelne == nejsou zjevne roboti ci nesmysly a prosli aspon pres prvni stranku

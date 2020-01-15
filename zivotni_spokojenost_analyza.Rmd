@@ -7,6 +7,7 @@ output: html_document
 if(!grepl("cz|utf", Sys.getlocale(), ignore.case = TRUE)) {
   Sys.setlocale(locale= 'English_United States.1250')
 }
+library(rlang)
 library(lubridate)
 library(tidyverse)
 library(formr)
@@ -43,12 +44,12 @@ source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
 
 ```{r}
 cela_data_raw <- nacti_dotaznik()
-cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE)  
+cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE) %>% 
+  mutate()  
 check_vysledky(cela_data)
 ```
 
 ```{r zakladni lss analyzy}
-cela_data <- cela_data %>% mutate(lss = mc_lss1 + mc_lss2 + mc_lss3 + mc_lss4 + mc_lss5)
 
 cor.test(~let_v_junaku+lss,cela_data)
 cor.test(~pocet_clenu_spolecenstvi+lss,cela_data)
@@ -170,4 +171,31 @@ het.mat <- hetcor(role_fa)$cor
 psych::fa.parallel(het.mat, n.obs = nrow(role_fa))
 
 role_fa_res <- psych::fa(het.mat, n.obs = nrow(role_fa), nfactors = 5, rotate = "varimax")
+```
+
+
+```{r psc}
+cela_data <- 
+  cela_data %>% 
+  mutate(reg_c_strediska = str_trim(reg_c_strediska)) %>% 
+  mutate(reg_c_strediska_typ = 
+           case_when(
+             nchar(reg_c_strediska) == 8 ~ "ICO",
+             str_detect(reg_c_strediska, "[:digit:]{3}\\.[:digit:]{2}") ~ "valid_reg_cis",
+             str_detect(reg_c_strediska, "[:digit:]{5}") ~ "cislo_bez_tecky_PSC",
+             TRUE ~ NA_character_))
+                       
+xtabs(~reg_c_strediska_typ,cela_data)
+
+eko_data <- readxl::read_excel(here::here("private_data/strediska_ico_ev_cislo.xlsx"))
+
+ico_n_doplneni <- intersect(eko_data$IC %>% as.character() %>% unique(), cela_data$reg_c_strediska)
+
+ico_reg_cislo <- eko_data %>% select(IC, RegistrationNumber) %>% 
+  distinct() %>% 
+  mutate(ic = as.character(IC)) %>% 
+  filter(ic %in% ico_n_doplneni) %>% 
+  filter(!is.na(ic))
+
+write_csv(ico_reg_cislo,path = "public_data/ico_reg_cislo.csv")
 ```
