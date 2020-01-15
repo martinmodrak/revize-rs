@@ -15,6 +15,11 @@ library(RCzechia)
 library(sf)
 library(cowplot)
 library(showtext)
+library(brms)
+
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+Sys.setenv(LOCAL_CPPFLAGS = '-march=native')
 
 save_format <- ".svg"
 
@@ -23,5 +28,37 @@ theme_set(theme_cowplot())
 source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
 source(here::here("R","tools_plots.R"), encoding = "UTF-8")
 
+```
+
+
+```{r}
+cela_data_raw <- nacti_dotaznik()
+cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE)  
+check_vysledky(cela_data)
+expanded <- cela_data %>% expand_kompetence()
+```
+
+```{r}
+fit_dir <- here::here("local_data","fits")
+if(!dir.exists(fit_dir)) {
+  dir.create(fit_dir)
+}
+```
+
+
+```{r}
+names(expanded)
+```
+
+```{r}
+expanded_no_NA <- expanded %>% filter(!is.na(kompetence_odpoved))
+set.seed(20201501)
+users_to_use <- expanded_no_NA %>% select(session) %>% distinct() %>% sample_n(100) %>% pull(session) 
+expanded_no_NA_small <- expanded_no_NA %>% filter(session %in% users_to_use)
+```
+
+
+```{r}
+fit_jen_id <- brm(kompetence_odpoved ~ (1| session*kategorie_kompetence), data = expanded_no_NA_small, family = cumulative(), file = paste0(fit_dir, "jen_id.rds"))
 ```
 
