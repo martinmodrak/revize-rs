@@ -19,24 +19,9 @@ library(showtext)
 save_format <- ".svg"
 
 theme_set(theme_cowplot())
-dark_blue_color <- "#0040ae"
-darkest_fill <- "#668cce"
-midd_fill <- "#b2c5e6"
-# theme_update(text = element_text(family = "Roboto", color = "white"), 
-#              plot.background = element_rect(fill = dark_blue_color), 
-#              line = element_line(color = "white"), 
-#              rect = element_rect(color = "white"), 
-#              axis.text = element_text(color = "white", face = "bold"), 
-#              axis.title = element_text(color = "white"),
-#              axis.line = element_line(color = "white"), axis.ticks = element_line(color = "white"),
-#              strip.background = element_rect(color = "white", fill = darkest_fill))
-
-
-# sysfonts::font_add_google("Roboto")
-# sysfonts::font_add(family = "Skaut Bold", paste0(Sys.getenv("APPDATA"),"/../Local/Microsoft/Windows/Fonts/skaut-bold-webfont.otf"))
-# showtext_auto()
 
 source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
+source(here::here("R","tools_plots.R"), encoding = "UTF-8")
 
 ```
 
@@ -44,6 +29,12 @@ source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
 cela_data_raw <- nacti_dotaznik()
 cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE)  
 check_vysledky(cela_data)
+```
+
+
+```{r}
+test <- cela_data %>% rozsir_mc(quo(role_skauting))
+test <- rozsir_vsechna_mc(cela_data)
 ```
 
 

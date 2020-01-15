@@ -242,20 +242,47 @@ expand_kompetence <- function(cela_data) {
   expanded
 }
 
+manual_codings <- list(
+  co_zazil = c("radce_podradce","radcovsky_kurz","cekatelky","vudcovky","roversky_kurz","jiny_kurz")
+  )
+
 # umozni rozsekat mc odpovedi ulozene ve strngo do n sloupcu (true/false)
 rozsir_mc <- function(df, var) {
   mc_obsahuje <- function(v,polozka) {
     return(any(v %in% polozka))
   }
-  col_names <- df[[as_label(var)]] %>% attributes()
-  col_names <- col_names$labels %>% as.character()
+  labels_formr <- df[[as_label(var)]] %>% attributes()
+  labels_formr <- labels_formr$labels %>% as.character()
   polozky <- df[[as_label(var)]] %>% str_split(", ")
 
+  manual_code <- manual_codings[[as_label(var)]]
+  if(is.null(manual_code)) {
+    col_names <- labels_formr
+  } else {
+    col_names <- manual_code
+  }
 
-  for (i in 1:length(col_names)) {
+  for (i in 1:length(labels_formr)) {
     nazev_sloupce <- paste0(as_label(var),"_",col_names[i])
-    df <- df %>% mutate(!!nazev_sloupce:=map_lgl(polozky,mc_obsahuje,col_names[i]))
+    df <- df %>% mutate(!!nazev_sloupce:=map_lgl(polozky,mc_obsahuje,labels_formr[i]))
   }
 
   df
+}
+
+
+rozsir_vsechna_mc <- function(data) {
+  mc_sloupce <- c(quo(role_skauting), quo(co_zazil), quo(fungovani_skautskeho_oddilu),
+                  quo(spolecenstvi_registrace), quo(s_cim_spokojen), quo(s_cim_nespokojen),
+                  quo(organizace_spolecenstvi), quo(vyroky_o_roveringu_zazil),
+                  quo(vyroky_o_roveringu_zazil_2), quo(vychovne_nastroje), quo(problemy_roveringu),
+                  quo(co_pomaha_roveringu), quo(komunikacni_kanaly_existujici),
+                  quo(komunikacni_kanaly_hypoteticke), quo(proc_neni_rover),
+                  quo(bez_zkuesnosti_velke_akce), quo(sluzba), quo(proc_nebyl_rover),
+                  quo(vyroky_o_roveringu_stredisko), quo(problemy_roveringu_stredisko))
+
+  for(sloupec in mc_sloupce) {
+    data <- rozsir_mc(data, sloupec)
+  }
+  data
 }
