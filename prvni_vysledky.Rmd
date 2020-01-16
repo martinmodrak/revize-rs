@@ -81,6 +81,10 @@ summarise_multiple_choice(cela_data, vyroky_o_roveringu_zazil_2) %>% arrange(des
 
 ```
 
+```{r}
+summarise_multiple_choice(cela_data, fungovani_skautskeho_oddilu) %>% arrange(desc(podil_ano))
+```
+
 
 ```{r}
 expanded <- cela_data %>% expand_kompetence()
