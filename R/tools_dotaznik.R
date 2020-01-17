@@ -148,6 +148,25 @@ preprocess_dat <- function(cela_data, verbose = TRUE) {
     left_join(ico_reg_cislo, by =c("reg_c_strediska"="ic")) %>% 
     mutate(reg_c_strediska = if_else(!is.na(ev_c), ev_c,reg_c_strediska)) %>% 
     select(-ev_c)
+  
+  # jina data maji  u reg.cisla chybejici tecku. Kontroloval jsem to oproti psc a u techto neexistuje psc, takze muzeme predpokladat, ze jen chybela tecka
+  
+  psc_reg_cislo_pth <- here::here("public_data/psc_reg_cislo.csv")
+  if(!file.exists(psc_reg_cislo_pth)) {
+    stop("Chybí překladní tabulka chybějící tečky na reg.číslo")
+  }
+  psc_reg_cislo <- read_csv2(psc_reg_cislo_pth, col_types = cols(
+    reg_c_strediska = col_character(),
+    reg_c_spravne = col_character()
+  ))
+  
+  # nekde tam je bug, nevim kde zatim, ale musmi pracovat
+  #cela_data <- 
+  #  cela_data %>% 
+  #  left_join(psc_reg_cislo, by =c("reg_c_strediska")) %>% 
+  #  mutate(reg_c_strediska = if_else(!is.na(reg_c_spravne), reg_c_spravne,reg_c_strediska)) %>% 
+  #  select(-reg_c_spravne)
+  
   # spocitej lss
   cela_data <- cela_data %>%
     mutate(lss = mc_lss1 + mc_lss2 + mc_lss3 + mc_lss4 + mc_lss5)
@@ -285,4 +304,10 @@ rozsir_vsechna_mc <- function(data) {
     data <- rozsir_mc(data, sloupec)
   }
   data
+}
+
+psc_na_reg_cislo <- function(x) {
+  psc_jako_vektor <- str_split(x,pattern="") %>% unlist()
+  
+  c(psc_jako_vektor[1:3],".",psc_jako_vektor[4:5]) %>% paste0(collapse = "")
 }

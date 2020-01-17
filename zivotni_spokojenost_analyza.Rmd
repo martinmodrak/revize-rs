@@ -142,7 +142,7 @@ lss_cor <- expanded %>% select(session, lss, kategorie_kompetence, kompetence_od
             dulezite = mean(dulezite),
             zvladam = mean(zvladam),
             rozvijim = mean(rozvijim),
-            skauting = mean(skauting),
+            skauting = mean(skauting)
             )
 lss_cor %>% 
   select(lss, dulezite, zvladam, rozvijim, skauting) %>% 
@@ -181,14 +181,26 @@ cela_data <-
   mutate(reg_c_strediska_typ = 
            case_when(
              nchar(reg_c_strediska) == 8 ~ "ICO",
+             str_detect(reg_c_strediska, "[:digit:]{2}[:alnum:]{1}\\.[:digit:]{2}") ~ "valid_reg_cis",
              str_detect(reg_c_strediska, "[:digit:]{3}\\.[:digit:]{2}") ~ "valid_reg_cis",
-             str_detect(reg_c_strediska, "[:digit:]{5}") ~ "cislo_bez_tecky_PSC",
+             str_detect(reg_c_strediska, "^[:digit:]{5}") ~ "cislo_bez_tecky_PSC",
              TRUE ~ NA_character_))
                        
 xtabs(~reg_c_strediska_typ,cela_data)
 
-eko_data <- readxl::read_excel(here::here("private_data/strediska_ico_ev_cislo.xlsx"))
+psc_cr <- read_csv2(here::here("public_data/psc_okres_posta_utf8.csv")) %>% mutate(PSC = as.character(PSC))
 
+psc_korektura <- cela_data %>% filter(reg_c_strediska_typ == "cislo_bez_tecky_PSC") %>% 
+  mutate(regcislo_je_psc = reg_c_strediska %in% psc_cr$PSC) %>% 
+  filter(!regcislo_je_psc) %>% 
+  select(reg_c_strediska) %>% 
+  rowwise() %>% 
+  mutate(reg_c_spravne = psc_na_reg_cislo(reg_c_strediska))
+
+write_csv2(psc_korektura,path = "public_data/psc_reg_cislo.csv")
+
+eko_data <- readxl::read_excel(here::here("private_data/strediska_ico_ev_cislo.xlsx"))
+eko_data$RegistrationNumber
 ico_n_doplneni <- intersect(eko_data$IC %>% as.character() %>% unique(), cela_data$reg_c_strediska)
 
 ico_reg_cislo <- eko_data %>% select(IC, RegistrationNumber) %>% 
