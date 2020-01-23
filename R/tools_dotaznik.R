@@ -30,8 +30,8 @@ nacti_dotaznik <- function() {
     inner_join(hlavni, by = c("session" = "session"), suffix = c("",".hlavni")) %>%
     left_join(doplnek, by = c("session" = "session"), suffix = c("",".doplnek")) %>%
     rename(ended.rozcestnik = ended)
-  
-  
+
+
   cela_data %>% as_tibble()
 }
 
@@ -130,9 +130,9 @@ preprocess_dat <- function(cela_data, verbose = TRUE) {
   #Kraje
   cela_data <- cela_data %>% mutate(
     kraj_nazev = as.factor(kraj))
-  
+
   # nektera data maji spatne reg.cislo (vyplnili ICO namisto toho), provedeme upravu
-  
+
   ico_reg_cislo_pth <- here::here("public_data/ico_reg_cislo.csv")
   if(!file.exists(ico_reg_cislo_pth)) {
     stop("Chybí překladní tabulka IČO na reg.číslo")
@@ -141,16 +141,16 @@ preprocess_dat <- function(cela_data, verbose = TRUE) {
     ic = col_character(),
     ev_c = col_character()
   ))
-  
-  cela_data <- 
-    cela_data %>% 
-    mutate(reg_c_strediska = str_trim(reg_c_strediska)) %>% 
-    left_join(ico_reg_cislo, by =c("reg_c_strediska"="ic")) %>% 
-    mutate(reg_c_strediska = if_else(!is.na(ev_c), ev_c,reg_c_strediska)) %>% 
+
+  cela_data <-
+    cela_data %>%
+    mutate(reg_c_strediska = str_trim(reg_c_strediska)) %>%
+    left_join(ico_reg_cislo, by =c("reg_c_strediska"="ic")) %>%
+    mutate(reg_c_strediska = if_else(!is.na(ev_c), ev_c,reg_c_strediska)) %>%
     select(-ev_c)
-  
+
   # jina data maji  u reg.cisla chybejici tecku. Kontroloval jsem to oproti psc a u techto neexistuje psc, takze muzeme predpokladat, ze jen chybela tecka
-  
+
   psc_reg_cislo_pth <- here::here("public_data/psc_reg_cislo.csv")
   if(!file.exists(psc_reg_cislo_pth)) {
     stop("Chybí překladní tabulka chybějící tečky na reg.číslo")
@@ -159,18 +159,18 @@ preprocess_dat <- function(cela_data, verbose = TRUE) {
     reg_c_strediska = col_character(),
     reg_c_spravne = col_character()
   ))
-  
+
   # nekde tam je bug, nevim kde zatim, ale musmi pracovat
-  #cela_data <- 
-  #  cela_data %>% 
-  #  left_join(psc_reg_cislo, by =c("reg_c_strediska")) %>% 
-  #  mutate(reg_c_strediska = if_else(!is.na(reg_c_spravne), reg_c_spravne,reg_c_strediska)) %>% 
+  #cela_data <-
+  #  cela_data %>%
+  #  left_join(psc_reg_cislo, by =c("reg_c_strediska")) %>%
+  #  mutate(reg_c_strediska = if_else(!is.na(reg_c_spravne), reg_c_spravne,reg_c_strediska)) %>%
   #  select(-reg_c_spravne)
-  
+
   # spocitej lss
   cela_data <- cela_data %>%
     mutate(lss = mc_lss1 + mc_lss2 + mc_lss3 + mc_lss4 + mc_lss5)
-  
+
   cela_data %>% as_tibble()
 }
 
@@ -262,8 +262,33 @@ expand_kompetence <- function(cela_data) {
 }
 
 manual_codings <- list(
-  co_zazil = c("radce_podradce","radcovsky_kurz","cekatelky","vudcovky","roversky_kurz","jiny_kurz")
-  )
+  co_zazil = c("radce_podradce","radcovsky_kurz","cekatelky","vudcovky","roversky_kurz","jiny_kurz"),
+  fungovani_skautskeho_oddilu = c("radci_program_schuzky","radci_vedli_schuzky",	"clenove_tvorili_program",
+    "samostatne_schuzky", "samostatne_vypravy", "minimalni_dozor", "nebyl_clenem_druziny", "radcove_16let"),
+  spolecenstvi_registrace = c("ruzna_strediska","kmen","klub_dospelych","clenove_kmen","clenove_u_oddilu",
+                              "clenove_nereg", "nevim", "jine"),
+  s_cim_spokojen = c("vztahy","program","cetnost_akci","kontakty","postoj_strediska"),
+  s_cim_nespokojen = c("vztahy","program","cetnost_akci","kontakty","postoj_strediska"),
+  organizace_spolecenstvi = c("formalni_vudce_zhury", "formalni_vudce_demokraticky", "formalni_rada_zhury",
+                              "formalni_rada_demokraticky", "neformalni_tahoun", "neformalni_rada", "vsichni",
+                              "nikdo", "neaktivni"),
+  vyroky_o_roveringu_zazil = c("pro_jednu_gen", "podpora_strediska", "rovering_na_SR", "vedeni_je_rovering",
+                               "koedukovany", "spoluprace_mimo_stredisko", "kurzy_akce"),
+  vyroky_o_roveringu_zazil_2 = c("rover_automaticky", "vstupni_ritual", "snadny_prechod", "pri_prechodu_schopny",
+                                 "mladsi_starsi", "prechodovy_ritual", "roversky_slib", "jasne_ukonceni",
+                                 "jak_dlouho_chci"),
+  problemy_roveringu = c("vytizeni_oddily", "odstehovani", "vytizeni_mimo", "nevidi_smysl", "bez_podpory_strediska",
+                         "bez_vedeni", "spatne_vztahy", "bez_kvalitniho_programu", "pracovni_ceta",
+                         "soupereni_mezi_skupinami", "nevime_jak"),
+  bez_zkuesnosti_velke_akce = c("obrok","mixem","roverska_porada", "kurz_tabor", "regionalni_setkani",
+                                "institut", "nic"),
+  sluzba = c("stredisku", "skauting_mimo", "rodina","lidem", "prirode", "dobrovolnictvi", "aktivni_obcan",
+             "sobe", "nic"),
+  proc_nebyl_rover = c("nelakalo", "bez_spolecenstvi", "vedeni", "program", "vztahy", "smysl")
+
+  #TODO: komunikacni_kanaly_existujici, komunikacni_kanaly_hypoteticke, vyroky_o_roveringu_stredisko
+  # problemy_roveringu_stredisko
+)
 
 # umozni rozsekat mc odpovedi ulozene ve strngo do n sloupcu (true/false)
 rozsir_mc <- function(df, var) {
@@ -308,6 +333,6 @@ rozsir_vsechna_mc <- function(data) {
 
 psc_na_reg_cislo <- function(x) {
   psc_jako_vektor <- str_split(x,pattern="") %>% unlist()
-  
+
   c(psc_jako_vektor[1:3],".",psc_jako_vektor[4:5]) %>% paste0(collapse = "")
 }

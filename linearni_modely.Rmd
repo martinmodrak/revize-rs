@@ -18,6 +18,7 @@ library(showtext)
 library(brms)
 library(rstan)
 library(lme4)
+library(ordinal)
 
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
@@ -37,7 +38,7 @@ source(here::here("R","tools_plots.R"), encoding = "UTF-8")
 cela_data_raw <- nacti_dotaznik()
 cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE)  
 #check_vysledky(cela_data)
-expanded <- cela_data %>% expand_kompetence()
+expanded <- cela_data %>% rozsir_vsechna_mc() %>% expand_kompetence()
 ```
 
 ```{r}
@@ -57,24 +58,46 @@ expanded_no_NA <- expanded %>% filter(!is.na(kompetence_odpoved))
 set.seed(20201501)
 users_to_use <- expanded_no_NA %>% select(session) %>% distinct() %>% sample_n(100) %>% pull(session) 
 expanded_no_NA_small <- expanded_no_NA %>% filter(session %in% users_to_use)
+ formula_jen_id <- kompetence_odpoved ~ (1| session*kategorie_kompetence)
+
 ```
 
 
 ```{r}
-priors <- c(#prior(normal(0,1), class = "b"),
-            prior(normal(0,1), class = "sd"))
-
-formula_jen_id <- kompetence_odpoved ~ (1| session*kategorie_kompetence)
-get_prior(formula_jen_id, data = expanded_no_NA_small, family = cumulative())
-#make_stancode(formula_jen_id, data = expanded_no_NA_small, family = "cumulative")
-fit_jen_id <- brm(formula_jen_id, data = expanded_no_NA_small, family = cumulative(), prior = priors, file = paste0(fit_dir, "jen_id.rds"))
+# priors <- c(#prior(normal(0,1), class = "b"),
+#             prior(normal(0,1), class = "sd"))
+# 
+# formula_jen_id <- kompetence_odpoved ~ (1| session*kategorie_kompetence)
+# get_prior(formula_jen_id, data = expanded_no_NA_small, family = cumulative())
+# #make_stancode(formula_jen_id, data = expanded_no_NA_small, family = "cumulative")
+# fit_jen_id <- brm(formula_jen_id, data = expanded_no_NA_small, family = cumulative(), prior = priors, file = paste0(fit_dir, "jen_id.rds"))
 ```
 
 ```{r}
-fit_jen_id_big <- brm(formula_jen_id, data = expanded_no_NA, family = cumulative(), prior = priors, file = paste0(fit_dir, "jen_id_big.rds"))
+# fit_jen_id_big <- brm(formula_jen_id, data = expanded_no_NA, family = cumulative(), prior = priors, file = paste0(fit_dir, "jen_id_big.rds"))
 ```
 
 ```{r}
-lmer(formula = formula_jen_id, data = expanded_no_NA_small)
+#lmer(formula = formula_jen_id, data = expanded_no_NA_small)
+```
+
+
+```{r}
+data_for_clm <- expanded_no_NA_small %>% mutate(kompetence_odpoved = factor(kompetence_odpoved, ordered = TRUE), session = factor(session), kategorie_kompetence = factor(kategorie_kompetence), kategorie_respondenta = factor(kategorie_respondenta))
+#fit_clm <- clmm(kompetence_odpoved ~ 1 + (1| session) + (1|kategorie_kompetence) + (1 | kategorie_kompetence:session), data = data_for_clm)
+#fit_clm
+
+```
+
+```{r}
+fits_clm <- list()
+```
+
+
+```{r}
+for(kategorie in unique(data_for_clm$kategorie_kompetence)) {
+  #fits_clm[[kategorie]] <- clmm(kompetence_odpoved ~ 1 + age + kategorie_respondenta * kompetence + (1| session), data = data_for_clm %>% filter(kategorie_kompetence == kategorie))
+  fits_clm[[kategorie]] %>% print()
+}
 ```
 
