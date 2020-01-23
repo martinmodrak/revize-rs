@@ -16,6 +16,8 @@ library(sf)
 library(cowplot)
 library(showtext)
 library(brms)
+library(rstan)
+library(lme4)
 
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
@@ -34,7 +36,7 @@ source(here::here("R","tools_plots.R"), encoding = "UTF-8")
 ```{r}
 cela_data_raw <- nacti_dotaznik()
 cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE)  
-check_vysledky(cela_data)
+#check_vysledky(cela_data)
 expanded <- cela_data %>% expand_kompetence()
 ```
 
@@ -59,6 +61,20 @@ expanded_no_NA_small <- expanded_no_NA %>% filter(session %in% users_to_use)
 
 
 ```{r}
-fit_jen_id <- brm(kompetence_odpoved ~ (1| session*kategorie_kompetence), data = expanded_no_NA_small, family = cumulative(), file = paste0(fit_dir, "jen_id.rds"))
+priors <- c(#prior(normal(0,1), class = "b"),
+            prior(normal(0,1), class = "sd"))
+
+formula_jen_id <- kompetence_odpoved ~ (1| session*kategorie_kompetence)
+get_prior(formula_jen_id, data = expanded_no_NA_small, family = cumulative())
+#make_stancode(formula_jen_id, data = expanded_no_NA_small, family = "cumulative")
+fit_jen_id <- brm(formula_jen_id, data = expanded_no_NA_small, family = cumulative(), prior = priors, file = paste0(fit_dir, "jen_id.rds"))
+```
+
+```{r}
+fit_jen_id_big <- brm(formula_jen_id, data = expanded_no_NA, family = cumulative(), prior = priors, file = paste0(fit_dir, "jen_id_big.rds"))
+```
+
+```{r}
+lmer(formula = formula_jen_id, data = expanded_no_NA_small)
 ```
 
