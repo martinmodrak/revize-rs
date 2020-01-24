@@ -1,0 +1,76 @@
+---
+title: "Seskupeni roli"
+output: html_document
+---
+
+```{r setup}
+if(!grepl("cz|utf", Sys.getlocale(), ignore.case = TRUE)) {
+  Sys.setlocale(locale= 'English_United States.1250')
+}
+library(rlang)
+library(lubridate)
+library(tidyverse)
+library(formr)
+library(here)
+library(RCzechia)
+library(sf)
+library(cowplot)
+library(showtext)
+library(polycor)
+
+save_format <- ".svg"
+
+theme_set(theme_cowplot())
+dark_blue_color <- "#0040ae"
+darkest_fill <- "#668cce"
+midd_fill <- "#b2c5e6"
+# theme_update(text = element_text(family = "Roboto", color = "white"), 
+#              plot.background = element_rect(fill = dark_blue_color), 
+#              line = element_line(color = "white"), 
+#              rect = element_rect(color = "white"), 
+#              axis.text = element_text(color = "white", face = "bold"), 
+#              axis.title = element_text(color = "white"),
+#              axis.line = element_line(color = "white"), axis.ticks = element_line(color = "white"),
+#              strip.background = element_rect(color = "white", fill = darkest_fill))
+
+
+#sysfonts::font_add_google("Roboto")
+#sysfonts::font_add(family = "Skaut Bold", #paste0(Sys.getenv("APPDATA"),"/../Local/Microsoft/Windows/Fonts/skaut-bold-webfont.otf"))
+#showtext_auto()
+
+source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
+
+```
+
+```{r}
+cela_data_raw <- nacti_dotaznik()
+cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE) %>% rozsir_vsechna_mc()
+check_vysledky(cela_data)
+```
+
+## Rozdeleni roli
+
+```{r}
+role_fa <- cela_data %>% select(starts_with("role_skauting_")) 
+role_fa <- sapply(role_fa, as.character)
+het.mat <- hetcor(role_fa)$cor
+
+psych::fa.parallel(het.mat, n.obs = nrow(role_fa))
+
+role_fa_res <- psych::fa(het.mat, n.obs = nrow(role_fa), nfactors = 5, rotate = "varimax")
+
+m <- matrix(role_fa_res$loadings,ncol = 5)
+row_names_fa <- rownames(role_fa_res$loadings)
+m[m<0.3] <- NA
+
+m <- tibble(m,) 
+m %>% mutate(role = str_remove(row_names_fa,"role_skauting_")) %>% select(role,everything())
+
+
+mds_df <- cela_data %>% 
+  dist(method = "binary") %>% 
+  cmdscale() 
+plot(mds_df)
+
+
+```
