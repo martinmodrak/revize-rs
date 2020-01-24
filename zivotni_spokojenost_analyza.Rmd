@@ -34,9 +34,9 @@ midd_fill <- "#b2c5e6"
 #              strip.background = element_rect(color = "white", fill = darkest_fill))
 
 
-sysfonts::font_add_google("Roboto")
-sysfonts::font_add(family = "Skaut Bold", paste0(Sys.getenv("APPDATA"),"/../Local/Microsoft/Windows/Fonts/skaut-bold-webfont.otf"))
-showtext_auto()
+#sysfonts::font_add_google("Roboto")
+#sysfonts::font_add(family = "Skaut Bold", #paste0(Sys.getenv("APPDATA"),"/../Local/Microsoft/Windows/Fonts/skaut-bold-webfont.otf"))
+#showtext_auto()
 
 source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
 
@@ -75,7 +75,7 @@ lss_pro_kategorie(quo(sex))
 
 ```{r rozdelejless pro mc}
 
-cela_data_role <- cela_data %>% rozsir_mc(quo(role_skauting))
+cela_data_role <- cela_data %>% rozsir_vsechna_mc()
 cela_data_role %>% select(starts_with("role_skauting_"),lss) %>% cor(use = "complete.obs") %>% knitr::kable(digits = 2)
 
 n_roli <- rowSums(cela_data_role %>% select(starts_with("role_skauting_")) %>% as.matrix())
@@ -210,4 +210,24 @@ ico_reg_cislo <- eko_data %>% select(IC, RegistrationNumber) %>%
   filter(!is.na(ic))
 
 write_csv(ico_reg_cislo,path = "public_data/ico_reg_cislo.csv")
+```
+
+## Roverske nastroje
+
+```{r roverske nastroje faktorova analyza}
+role_fa <- cela_data_role %>% select(starts_with("vychovne_nastroje_"))
+role_fa <- sapply(role_fa, as.character)
+het.mat <- hetcor(role_fa)$cor
+het.mat %>% knitr::kable(digits = 2)
+
+psych::fa.parallel(het.mat, n.obs = nrow(role_fa))
+
+nastroje_fa_res <- psych::fa(het.mat, n.obs = nrow(role_fa), nfactors = 3, rotate = "varimax")
+nastroje_fa_res
+```
+
+```{r roverske nastroje a spokojenost}
+
+cr <- cela_data_role %>% select(starts_with("vychovne_nastroje_"),lss, spokojenost_s_roverskym_programem, spokojenost_s_fungovanim_v_junaku) %>% as.matrix() %>% Hmisc::rcorr() 
+cr$r %>%   knitr::kable(digits = 2)
 ```
