@@ -261,7 +261,9 @@ expand_kompetence <- function(cela_data) {
   expanded
 }
 
-manual_codings <- list(
+
+
+manual_codings_multiple <- list(
   co_zazil = c("radce_podradce","radcovsky_kurz","cekatelky","vudcovky","roversky_kurz","jiny_kurz"),
   fungovani_skautskeho_oddilu = c("radci_program_schuzky","radci_vedli_schuzky",	"clenove_tvorili_program",
     "samostatne_schuzky", "samostatne_vypravy", "minimalni_dozor", "nebyl_clenem_druziny", "radcove_16let"),
@@ -290,13 +292,74 @@ manual_codings <- list(
   # problemy_roveringu_stredisko
 )
 
+replace_coding <- function(x, new_values) {
+  if(class(x) != "haven_labelled") {
+    stop("Neni labelled")
+  }
+  all_attributes <- attributes(x)
+  old_values <- all_attributes$labels %>% as.character()
+  if(!identical(old_values, as.character(1:length(old_values)))) {
+    stop("Objekt uz ma neciselne kodovani.")
+  }
+  if(length(old_values) != length(new_values)) {
+    stop("Nespravny pocet hodnot pro ")
+  }
+
+  new_labels <- new_values
+  names(new_labels) <- names(all_attributes$labels)
+
+  if(is.numeric(x) || is.integer(x)) {
+    ret <- haven::labelled(new_values[as.integer(x)], labels = new_labels, label = all_attributes$label)
+    for(v in 1:length(new_values)) {
+      sedi <- (ret == new_values[v]) == (x == v)
+      if(!all(sedi, na.rm = TRUE)) {
+        stop(paste0("Nesedi ",v, " == ", new_values[v]))
+      }
+    }
+  } else if(is.character(x) && any(grepl(",", x, fixed = TRUE))) {
+    split_val <- as.character(x) %>% str_split(", ")
+    ret_val <- split_val %>% purrr::map_chr(
+      function(x) {
+        if(length(x) == 1 && is.na(x)) {
+          NA_character_
+        } else {
+          new_values[as.integer(x)] %>% paste(collapse = ", ")
+        }
+      })
+    ret <- haven::labelled(ret_val, labels = new_labels, label = all_attributes$label)
+
+    for(v in 1:length(new_values)) {
+      sedi <- (ret %contains_word% new_values[v]) == (x %contains_word% v)
+      if(!all(sedi, na.rm = TRUE)) {
+        priklad <- which(!sedi)[1]
+        print(ret[priklad])
+        print(x[priklad])
+        stop(paste0("Nesedi ",v, " == ", new_values[v]))
+      }
+    }
+  }
+  else {
+    stop("Neplatny typ")
+  }
+
+  sedi_na <- is.na(ret) == is.na(x)
+  if(!all(sedi_na)) {
+    priklad <- which(!sedi_na)[1]
+    print(priklad)
+    print(ret[priklad])
+    print(x[priklad])
+    stop("Nesedi NA")
+  }
+  ret
+}
+
 # umozni rozsekat mc odpovedi ulozene ve strngo do n sloupcu (true/false)
 rozsir_mc <- function(df, var) {
   mc_obsahuje <- function(v,polozka) {
     return(any(v %in% polozka))
   }
-  labels_formr <- df[[as_label(var)]] %>% attributes()
-  labels_formr <- labels_formr$labels %>% as.character()
+  all_attributes <- df[[as_label(var)]] %>% attributes()
+  labels_formr <- all_attributes$labels %>% as.character()
   polozky <- df[[as_label(var)]] %>% str_split(", ")
 
   manual_code <- manual_codings[[as_label(var)]]
