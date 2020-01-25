@@ -3,7 +3,7 @@ title: "Seskupeni roli"
 output: html_document
 ---
 
-```{r setup}
+```{r setup, warning=F,message=F}
 if(!grepl("cz|utf", Sys.getlocale(), ignore.case = TRUE)) {
   Sys.setlocale(locale= 'English_United States.1250')
 }
@@ -16,7 +16,7 @@ library(RCzechia)
 library(sf)
 library(cowplot)
 library(showtext)
-library(polycor)
+
 library(vegan)
 
 save_format <- ".svg"
@@ -46,7 +46,7 @@ source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
 ```{r}
 cela_data_raw <- nacti_dotaznik()
 cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE) %>% rozsir_vsechna_mc()
-check_vysledky(cela_data)
+
 ```
 
 ## Rozdeleni roli
@@ -58,26 +58,7 @@ role_fa <- cela_data %>% select(starts_with("role_skauting_"))
 
 ```
 
-## Spocitame MDS
 
-```{r}
-
-mds_df <- cela_data %>% 
-  dist(method = "binary") %>% 
-  cmdscale() 
-plot(mds_df)
-
-role_dist <- vegdist(role_fa, method = "euclidean")
-mds_res <- metaMDS(role_dist, parallel = parallel::detectCores(), trymax = 100)
-
-
-cela_data$souradnice_x <- mds_df[,1]
-cela_data$souradnice_y <- mds_df[,2]
-
-cela_data$souradnice_x_nonmetric <- mds_df[,1]
-cela_data$souradnice_y_nonmetric <- mds_df[,2]
-
-```
 ### Pocet faktoru
 Nejprve prozkoumame pocet faktoru
 
@@ -99,22 +80,22 @@ role_fa_res <- psych::fa(role_fa, nfactors = nfac, rotate = "varimax")
 
 zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "role_skauting_")
 
-vytvor_promenne_dle_fa(cela_data,role_fa_res)
+#cela_data2 <- vytvor_promenne_dle_fa(cela_data,role_fa,role_fa_res, var_name = "roleFA")
 
-vytvor_promenne_dle_fa <- function(cela_data,role_fa_res, var_name = "role") {
-  for (i in ncol(role_fa_res$loadings)) {
-  xx <- (role_fa %>% as.matrix()) %*% role_fa_res$loadings[,i]
-  cela_data
-}  
-}
+#cela_data2$skupina_role <- (cela_data2 %>% select(starts_with("roleFA")) %>% kmeans(centers = 4))$cluster
 
-
+#cela_data2 %>% 
+#  select(skupina_role,starts_with("roleFA")) %>% 
+#  group_by(skupina_role) %>% 
+#  summarize_each(mean) %>% 
+#  pivot_longer(cols = starts_with("roleFA"),names_to = "role",values_to = "perc") %>% 
+#  ggplot(aes(x = role, y=perc)) + geom_col() +
+#  facet_grid(skupina_role~.)
+#  theme(aspect.ratio = 1)
 
 ```
 
 ### 5 faktoru
-
-#### loadingy
 
 ```{r role 5 faktoru}
 
@@ -126,26 +107,7 @@ zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "role_skauting_")
 
 ```
 
-### vizualizace
 
-```{r role 5 faktoru vizualizace}
-
-cela_data$skupina_role <- as.factor(kmeans(role_fa,centers = 5)$cluster)
-
-cela_data %>% ggplot(aes(x = souradnice_x,y=souradnice_y,col = skupina_role)) + geom_point() +
-  theme(aspect.ratio = 1)
-
-cela_data %>% 
-  select(skupina_role,starts_with("role_skauting_")) %>% 
-  group_by(skupina_role) %>% 
-  summarize_each(mean) %>% 
-  pivot_longer(cols = starts_with("role_skauting_"),names_to = "role",values_to = "perc") %>% 
-  mutate(role = str_remove(role, "role_skauting_")) %>% 
-  ggplot(aes(x = role, y=perc)) + geom_col() +
-  facet_grid(skupina_role~.)
-  theme(aspect.ratio = 1)
-
-```
 
 ### 6 faktoru
 
@@ -162,3 +124,133 @@ zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "role_skauting_")
 
 Osobne se mi libi rozdeleni na 6 roli
 
+## Fungovani oddilu
+
+```{r}
+fung_odd_fa <- cela_data %>% select(starts_with("fungovani_skautskeho_oddilu_")) 
+```
+
+### Pocet faktoru
+Nejprve prozkoumame pocet faktoru
+
+```{r}
+psych::fa.parallel(fung_odd_fa)
+psych::vss(fung_odd_fa)
+
+```
+
+Vypada to neco mezi 2-4 faktory
+
+### 2 faktory
+```{r}
+
+nfac <- 2
+
+role_fa_res <- psych::fa(fung_odd_fa, nfactors = nfac, rotate = "varimax")
+
+zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "fungovani_skautskeho_oddilu_")
+
+```
+
+### 3 faktory
+```{r}
+
+nfac <- 3
+
+role_fa_res <- psych::fa(fung_odd_fa, nfactors = nfac, rotate = "varimax")
+
+zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "fungovani_skautskeho_oddilu_") %>% 
+  knitr::kable()
+
+```
+
+### 4 faktory
+```{r}
+
+nfac <- 4
+
+role_fa_res <- psych::fa(fung_odd_fa, nfactors = nfac, rotate = "varimax")
+
+zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "fungovani_skautskeho_oddilu_") %>% 
+  knitr::kable()
+
+```
+
+### 5 faktory
+```{r}
+
+nfac <- 5
+
+role_fa_res <- psych::fa(fung_odd_fa, nfactors = nfac, rotate = "varimax")
+
+zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "fungovani_skautskeho_oddilu_") %>% 
+  knitr::kable()
+
+```
+
+Nic moc
+
+## Vychovne nastroje
+
+```{r}
+vychovne_nastroje_fa <- cela_data %>% select(starts_with("vychovne_nastroje_")) 
+
+```
+
+### Pocet faktoru
+Nejprve prozkoumame pocet faktoru
+
+```{r}
+psych::fa.parallel(vychovne_nastroje_fa)
+psych::vss(vychovne_nastroje_fa)
+
+```
+Tedy 3-6 faktoru
+
+### 3 faktory
+```{r}
+
+nfac <- 3
+
+vych_nastroje_fa_res <- psych::fa(vychovne_nastroje_fa, nfactors = nfac, rotate = "varimax")
+
+zobraz_fa(vych_nastroje_fa_res, nfac = nfac, str_to_remove = "vychovne_nastroje_") %>% 
+  knitr::kable(digits = 2)
+
+```
+
+### 4 faktory
+```{r}
+
+nfac <- 4
+
+vych_nastroje_fa_res <- psych::fa(vychovne_nastroje_fa, nfactors = nfac, rotate = "varimax")
+
+zobraz_fa(vych_nastroje_fa_res, nfac = nfac, str_to_remove = "vychovne_nastroje_") %>% 
+  knitr::kable(digits = 2)
+
+```
+
+### 5 faktory
+```{r}
+
+nfac <- 5
+
+vych_nastroje_fa_res <- psych::fa(vychovne_nastroje_fa, nfactors = nfac, rotate = "varimax")
+
+zobraz_fa(vych_nastroje_fa_res, nfac = nfac, str_to_remove = "vychovne_nastroje_") %>% 
+  knitr::kable(digits = 2)
+
+```
+
+### 6 faktory
+```{r}
+
+nfac <- 6
+
+vych_nastroje_fa_res <- psych::fa(vychovne_nastroje_fa, nfactors = nfac, rotate = "varimax")
+
+zobraz_fa(vych_nastroje_fa_res, nfac = nfac, str_to_remove = "vychovne_nastroje_") %>% 
+  knitr::kable(digits = 2)
+
+```
