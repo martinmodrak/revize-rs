@@ -30,6 +30,7 @@ theme_set(theme_cowplot())
 
 source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
 source(here::here("R","tools_plots.R"), encoding = "UTF-8")
+source(here::here("R","tools_clmm.R"), encoding = "UTF-8")
 
 ```
 
@@ -90,14 +91,30 @@ data_for_clm <- expanded_no_NA_small %>% mutate(kompetence_odpoved = factor(komp
 ```
 
 ```{r}
-fits_clm <- list()
+library(doParallel)
+library(foreach)
+registerDoParallel(makeCluster(parallel::detectCores()))
 ```
 
 
 ```{r}
-for(kategorie in unique(data_for_clm$kategorie_kompetence)) {
-  #fits_clm[[kategorie]] <- clmm(kompetence_odpoved ~ 1 + age + kategorie_respondenta * kompetence + (1| session), data = data_for_clm %>% filter(kategorie_kompetence == kategorie))
-  fits_clm[[kategorie]] %>% print()
+vsechny_kategorie <- unique(data_for_clm$kategorie_kompetence)
+fits_clm <-  foreach (kategorie = vsechny_kategorie) %dopar% {
+  library(ordinal)
+  library(tidyverse)
+  clmm(kompetence_odpoved ~ 1 + age + kategorie_respondenta * kompetence + (1| session), data = data_for_clm %>% filter(kategorie_kompetence == kategorie))
 }
+names(fits_clm) <- vsechny_kategorie
 ```
+
+for(kategorie in vsechny_kategorie) {
+  plot <- data_for_clm %>% 
+    filter(kategorie_kompetence == k```{r}
+ategorie) %>%
+    residual_clmm(fits_clm[[kategorie]], factor(kompetence)) + ggtitle(kategorie) #+ facet_wrap(~kompetence)
+  print(plot)
+}
+
+```
+
 

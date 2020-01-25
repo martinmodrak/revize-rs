@@ -1,0 +1,32 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup}
+if(!grepl("cz|utf", Sys.getlocale(), ignore.case = TRUE)) {
+  Sys.setlocale(locale= 'English_United States.1250')
+}
+library(lubridate)
+library(tidyverse)
+library(formr)
+library(here)
+library(RCzechia)
+library(sf)
+library(cowplot)
+library(showtext)
+
+save_format <- ".svg"
+
+theme_set(theme_cowplot())
+
+source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
+source(here::here("R","tools_plots.R"), encoding = "UTF-8")
+
+```
+
+
+```{r}
+cela_data %>% summarise_multiple_choice(spolecenstvi_registrace)
+```
+

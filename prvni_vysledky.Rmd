@@ -29,12 +29,12 @@ source(here::here("R","tools_plots.R"), encoding = "UTF-8")
 cela_data_raw <- nacti_dotaznik()
 cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE)  
 check_vysledky(cela_data)
+#TODO sluzba ztraci label level
 ```
 
 
 ```{r}
-test <- cela_data %>% rozsir_mc(quo(role_skauting))
-test <- rozsir_vsechna_mc(cela_data)
+
 ```
 
 
