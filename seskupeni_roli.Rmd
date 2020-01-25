@@ -17,6 +17,7 @@ library(sf)
 library(cowplot)
 library(showtext)
 library(polycor)
+library(vegan)
 
 save_format <- ".svg"
 
@@ -50,27 +51,114 @@ check_vysledky(cela_data)
 
 ## Rozdeleni roli
 
-```{r}
+```{r role - priprava}
+
 role_fa <- cela_data %>% select(starts_with("role_skauting_")) 
-role_fa <- sapply(role_fa, as.character)
-het.mat <- hetcor(role_fa)$cor
 
-psych::fa.parallel(het.mat, n.obs = nrow(role_fa))
 
-role_fa_res <- psych::fa(het.mat, n.obs = nrow(role_fa), nfactors = 5, rotate = "varimax")
+```
 
-m <- matrix(role_fa_res$loadings,ncol = 5)
-row_names_fa <- rownames(role_fa_res$loadings)
-m[m<0.3] <- NA
+## Spocitame MDS
 
-m <- tibble(m,) 
-m %>% mutate(role = str_remove(row_names_fa,"role_skauting_")) %>% select(role,everything())
-
+```{r}
 
 mds_df <- cela_data %>% 
   dist(method = "binary") %>% 
   cmdscale() 
 plot(mds_df)
 
+role_dist <- vegdist(role_fa, method = "euclidean")
+mds_res <- metaMDS(role_dist, parallel = parallel::detectCores(), trymax = 100)
+
+
+cela_data$souradnice_x <- mds_df[,1]
+cela_data$souradnice_y <- mds_df[,2]
+
+cela_data$souradnice_x_nonmetric <- mds_df[,1]
+cela_data$souradnice_y_nonmetric <- mds_df[,2]
 
 ```
+### Pocet faktoru
+Nejprve prozkoumame pocet faktoru
+
+```{r}
+psych::fa.parallel(role_fa)
+psych::vss(role_fa)
+
+```
+
+Vypada to neco mezi 4-6 faktory
+
+### 4 faktoru
+
+```{r role 4 faktoru}
+
+nfac <- 4 
+
+role_fa_res <- psych::fa(role_fa, nfactors = nfac, rotate = "varimax")
+
+zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "role_skauting_")
+
+vytvor_promenne_dle_fa(cela_data,role_fa_res)
+
+vytvor_promenne_dle_fa <- function(cela_data,role_fa_res, var_name = "role") {
+  for (i in ncol(role_fa_res$loadings)) {
+  xx <- (role_fa %>% as.matrix()) %*% role_fa_res$loadings[,i]
+  cela_data
+}  
+}
+
+
+
+```
+
+### 5 faktoru
+
+#### loadingy
+
+```{r role 5 faktoru}
+
+nfac <- 5 
+
+role_fa_res <- psych::fa(role_fa, nfactors = nfac, rotate = "varimax")
+
+zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "role_skauting_")
+
+```
+
+### vizualizace
+
+```{r role 5 faktoru vizualizace}
+
+cela_data$skupina_role <- as.factor(kmeans(role_fa,centers = 5)$cluster)
+
+cela_data %>% ggplot(aes(x = souradnice_x,y=souradnice_y,col = skupina_role)) + geom_point() +
+  theme(aspect.ratio = 1)
+
+cela_data %>% 
+  select(skupina_role,starts_with("role_skauting_")) %>% 
+  group_by(skupina_role) %>% 
+  summarize_each(mean) %>% 
+  pivot_longer(cols = starts_with("role_skauting_"),names_to = "role",values_to = "perc") %>% 
+  mutate(role = str_remove(role, "role_skauting_")) %>% 
+  ggplot(aes(x = role, y=perc)) + geom_col() +
+  facet_grid(skupina_role~.)
+  theme(aspect.ratio = 1)
+
+```
+
+### 6 faktoru
+
+```{r role 6 faktoru}
+
+nfac <- 6 
+
+role_fa_res <- psych::fa(role_fa, nfactors = nfac, rotate = "varimax")
+
+zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "role_skauting_")
+
+```
+
+
+Osobne se mi libi rozdeleni na 6 roli
+

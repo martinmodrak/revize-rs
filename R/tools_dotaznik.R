@@ -336,3 +336,12 @@ psc_na_reg_cislo <- function(x) {
 
   c(psc_jako_vektor[1:3],".",psc_jako_vektor[4:5]) %>% paste0(collapse = "")
 }
+
+zobraz_fa <- function(fa_res, nfac,cutoff = 0.3,str_to_remove) {
+  m <- matrix(fa_res$loadings,ncol = nfac)
+  row_names_fa <- rownames(fa_res$loadings)
+  m[m<cutoff] <- NA
+
+  m <- as_tibble(m, .name_repair = ~paste0("skupina",1:nfac)) %>% mutate(role = str_remove(row_names_fa,str_to_remove)) %>% select(role,everything())
+  m
+}
