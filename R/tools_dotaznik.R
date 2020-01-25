@@ -42,7 +42,6 @@ preprocess_dat <- function(cela_data, verbose = TRUE) {
   # Odstranit background
   for(sloupec in names(cela_data)) {
     if(grepl("^background", sloupec)) {
-      #cela_data <- cela_data %>% mutate(select(- !!sloupec))
       if(verbose) {
         cat("Odstranuji ", sloupec, "\n")
       }
@@ -53,6 +52,8 @@ preprocess_dat <- function(cela_data, verbose = TRUE) {
 
   neslucovane_sloupce <- c("created", "modified", "ended","expired", "kompetence_k_zobrazeni")
   kopirovane_sloupce <- c("kolik_casu", "kategorie_respondenta", "bez_zkusenosti_mladsi")
+  ruzne_atributy_resolution <- list(co_zazil = "doplnek", sluzba = "puvodni")
+
 
   # Sloucit .doplnek a puvodni sloupec
   cela_data_backup <- cela_data
@@ -82,7 +83,33 @@ preprocess_dat <- function(cela_data, verbose = TRUE) {
           cat("Slucuji", sloupec, "a", sloupec_doplnek, "\n")
         }
 
+        # Odignorovat item_order pro check atributu
+        attributes_puvodni <- attributes(cela_data[[sloupec]])
+        attributes_doplnek <- attributes(cela_data[[sloupec_doplnek]])
+        # Odignorovat item_order show_if pro check atributu
+        if(!is.null(attributes_puvodni$item)) {
+          attributes_doplnek$item$item_order <- attributes_puvodni$item$item_order
+          attributes_doplnek$item$showif <- attributes_puvodni$item$showif
+        }
+
+
         cela_data[[sloupec]] <- if_else(is.na(cela_data[[sloupec]]), cela_data[[sloupec_doplnek]], cela_data[[sloupec]])
+
+        if(!identical(attributes_puvodni, attributes_doplnek)) {
+          if(is.null(ruzne_atributy_resolution[[sloupec]])) {
+            attributes(cela_data[[sloupec]]) <- attributes_puvodni
+            warning(paste0(sloupec, " a ", sloupec_doplnek, " maji ruzne atributy\n"))
+          } else if(ruzne_atributy_resolution[[sloupec]] == "puvodni") {
+            attributes(cela_data[[sloupec]]) <- attributes_puvodni
+          } else if(ruzne_atributy_resolution[[sloupec]] == "doplnek") {
+            attributes(cela_data[[sloupec]]) <- attributes_doplnek
+          } else {
+            stop("Neplatne ruzne_atributy_resolution")
+          }
+        } else {
+          attributes(cela_data[[sloupec]]) <- attributes_puvodni
+        }
+
 
         cela_data <- within(cela_data, rm(list = sloupec_doplnek))
       }
@@ -120,6 +147,13 @@ preprocess_dat <- function(cela_data, verbose = TRUE) {
     stop("Tesovací kód nefunguje")
   }
 
+  #Prejmenovat multiple choice
+  for(sloupec in names(manual_codings)) {
+    if(verbose) {
+      cat("Prejmenovavam hodnoty v ", sloupec, "\n")
+    }
+    cela_data[[sloupec]] <- replace_coding(cela_data[[sloupec]], manual_codings[[sloupec]])
+  }
 
   #Delka vyplneni
   dates <- cela_data$ended.hlavni %>% ymd_hms()
@@ -263,10 +297,21 @@ expand_kompetence <- function(cela_data) {
 
 
 
-manual_codings_multiple <- list(
+manual_codings <- list(
+  kategorie_respondenta = c("nyni_spolecenstvi", "drive_spolecenstvi", "nikdy_spolecenstvi"),
+  bez_zkusenosti_mladsi = c("ano","ne"),
+  pocet_clenu_spolecenstvi = c("5_a_mene","6_10","11_20","21_30","31_a_vice"),
+  frekvence_kratkych_akci = c("nikdy","rocne","nekolik_rocne","mesicne","nekolik_mesicne","tydne","nekolik_tydne"),
+  frekvence_vicedennich_akci= c("nikdy","mene_nez_rocne","rocne","nekolik_rocne","mesicne","nekolik_mesicne"),
+  frekvence_velkych_akci= c("nikdy","mene_nez_rocne","rocne","nekolik_rocne"),
+
+  bez_zkusenosti_setkavam_se_s_vrstevniky = c("vubec","rocne","nekolik_rocne","casteji"),
+  bez_zkusenosti_seberozvojovy_program = c("vubec","rocne","nekolik_rocne","casteji"),
+
   co_zazil = c("radce_podradce","radcovsky_kurz","cekatelky","vudcovky","roversky_kurz","jiny_kurz"),
-  fungovani_skautskeho_oddilu = c("radci_program_schuzky","radci_vedli_schuzky",	"clenove_tvorili_program",
-    "samostatne_schuzky", "samostatne_vypravy", "minimalni_dozor", "nebyl_clenem_druziny", "radcove_16let"),
+  fungovani_skautskeho_oddilu = c("druzinovy_system", "radci_program_schuzky","radci_vedli_schuzky",
+                                  "clenove_tvorili_program", "samostatne_schuzky", "samostatne_vypravy",
+                                  "minimalni_dozor", "nebyl_clenem_druziny", "radcove_16let"),
   spolecenstvi_registrace = c("ruzna_strediska","kmen","klub_dospelych","clenove_kmen","clenove_u_oddilu",
                               "clenove_nereg", "nevim", "jine"),
   s_cim_spokojen = c("vztahy","program","cetnost_akci","kontakty","postoj_strediska"),
@@ -286,11 +331,17 @@ manual_codings_multiple <- list(
                                 "institut", "nic"),
   sluzba = c("stredisku", "skauting_mimo", "rodina","lidem", "prirode", "dobrovolnictvi", "aktivni_obcan",
              "sobe", "nic"),
-  proc_nebyl_rover = c("nelakalo", "bez_spolecenstvi", "vedeni", "program", "vztahy", "smysl")
+  proc_nebyl_rover = c("nelakalo", "bez_spolecenstvi", "vedeni", "program", "vztahy", "smysl", "jine"),
 
-  #TODO: komunikacni_kanaly_existujici, komunikacni_kanaly_hypoteticke, vyroky_o_roveringu_stredisko
-  # problemy_roveringu_stredisko
+  vyroky_o_roveringu_stredisko = c("je_spolecenstvi", "pravidelne", "vlastni_akce", "akce_pro_druhe",
+                                   "rozviji_se","roverske_heslo", "vedou", "pomocna_sila","bez_ulohy",
+                                   "nejsou", "nevim"),
+
+  komunikacni_kanaly_existujici = c("email","facebook","instagram","krizovatka","SI", "vedouci", "diar",
+                                    "knihy", "casopis_kmen", "rovernet")
 )
+
+manual_codings$problemy_roveringu_stredisko = manual_codings$problemy_roveringu
 
 replace_coding <- function(x, new_values) {
   if(class(x) != "haven_labelled") {
@@ -322,6 +373,8 @@ replace_coding <- function(x, new_values) {
       function(x) {
         if(length(x) == 1 && is.na(x)) {
           NA_character_
+        } else if (length(x) == 1 && x[1] == "") {
+          ""
         } else {
           new_values[as.integer(x)] %>% paste(collapse = ", ")
         }
@@ -336,6 +389,13 @@ replace_coding <- function(x, new_values) {
         print(x[priklad])
         stop(paste0("Nesedi ",v, " == ", new_values[v]))
       }
+    }
+    ma_na_string <- grepl("NA", ret, fixed = TRUE, ignore.case = FALSE)
+    if(any(ma_na_string)) {
+      priklad <- which(ma_na_string)[1]
+      print(ret[priklad])
+      print(x[priklad])
+      stop(paste0("Radek ", priklad, " obsahuje NA moznost."))
     }
   }
   else {
@@ -353,25 +413,18 @@ replace_coding <- function(x, new_values) {
   ret
 }
 
-# umozni rozsekat mc odpovedi ulozene ve strngo do n sloupcu (true/false)
+# umozni rozsekat mc odpovedi ulozene ve stringu do n sloupcu (true/false)
 rozsir_mc <- function(df, var) {
   mc_obsahuje <- function(v,polozka) {
     return(any(v %in% polozka))
   }
   all_attributes <- df[[as_label(var)]] %>% attributes()
-  labels_formr <- all_attributes$labels %>% as.character()
+  col_names <- all_attributes$labels %>% as.character()
   polozky <- df[[as_label(var)]] %>% str_split(", ")
 
-  manual_code <- manual_codings[[as_label(var)]]
-  if(is.null(manual_code)) {
-    col_names <- labels_formr
-  } else {
-    col_names <- manual_code
-  }
-
-  for (i in 1:length(labels_formr)) {
+  for (i in 1:length(col_names)) {
     nazev_sloupce <- paste0(as_label(var),"_",col_names[i])
-    df <- df %>% mutate(!!nazev_sloupce:=map_lgl(polozky,mc_obsahuje,labels_formr[i]))
+    df <- df %>% mutate(!!nazev_sloupce:=map_lgl(polozky,mc_obsahuje,col_names[i]))
   }
 
   df

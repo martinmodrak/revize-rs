@@ -35,8 +35,6 @@ check_vysledky(cela_data)
 
 ```{r}
 
-test <- cela_data %>% rozsir_mc(quo(role_skauting))
-test <- rozsir_vsechna_mc(cela_data)
 ```
 
 
