@@ -18,23 +18,19 @@ library(showtext)
 
 save_format <- ".svg"
 
-theme_set(theme_cowplot())
+#theme_set(theme_cowplot())
 
 source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
 source(here::here("R","tools_plots.R"), encoding = "UTF-8")
+
+set_theme_revizers()
 
 ```
 
 ```{r}
 cela_data_raw <- nacti_dotaznik()
 cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE)  
-check_vysledky(cela_data)
-#TODO sluzba ztraci label level
-```
-
-
-```{r}
-
+#check_vysledky(cela_data)
 ```
 
 
@@ -45,45 +41,146 @@ rozpracovano <- sum(!is.na(cela_data$kategorie_respondenta) & is.na(cela_data$en
 
 Dotazník dokončilo neuvěřitelných `r dokonceno` roverů a dalších `r rozpracovano` ho vyplnilo alespoň zčásti.
 
-
 ```{r}
-summarise_multiple_choice(cela_data, problemy_roveringu) %>% arrange(desc(podil_ano))
-```
-
-```{r}
-summarise_multiple_choice(cela_data, problemy_roveringu_stredisko) %>% arrange(desc(podil_ano))
-```
-
-```{r}
-summarise_multiple_choice(cela_data, co_zazil) %>% arrange(desc(podil_ano))
-```
-
-```{r}
-summarise_multiple_choice(cela_data, s_cim_spokojen) %>% arrange(desc(podil_ano))
-summarise_multiple_choice(cela_data, s_cim_nespokojen) %>% arrange(desc(podil_ano))
-
-```
-
-```{r}
-summarise_multiple_choice(cela_data, sluzba) %>% arrange(desc(podil_ano))
-
+plots <- list() 
 ```
 
 
 ```{r}
-summarise_multiple_choice(cela_data, organizace_spolecenstvi) %>% arrange(desc(podil_ano))
+
+plots$problemy_cleni <- cela_data %>% plot_summary_mc(problemy_roveringu, "Hlavní problémy roveringu - jen členi společenství", title_hjust = 1)
+
+plots$problemy_cleni
 
 ```
 
 ```{r}
-summarise_multiple_choice(cela_data, vyroky_o_roveringu_zazil) %>% arrange(desc(podil_ano))
-summarise_multiple_choice(cela_data, vyroky_o_roveringu_zazil_2) %>% arrange(desc(podil_ano))
+plots$problemy_necleni <- cela_data %>% plot_summary_mc(problemy_roveringu_stredisko, "Hlavní problémy roveringu - jen bez společenství", title_hjust = 1)
+
+plots$problemy_necleni
+```
+
+
+```{r}
+if(any(!is.na(cela_data$problemy_roveringu) && !is.na(cela_data$problemy_roveringu_stredisko))) {
+  stop("Problemy nejsou unikatni")
+}
+plots$problemy_all <- cela_data %>% mutate(problemy_roveringu_all = if_else(!is.na(problemy_roveringu), problemy_roveringu, 
+                                                  problemy_roveringu_stredisko)) %>%
+  plot_summary_mc(problemy_roveringu_all, "Hlavní problémy roveringu", title_hjust = 1.5)
+
+plots$problemy_all
+```
+
+
+```{r}
+plots$co_zazil <- plot_summary_mc(cela_data, co_zazil)
+plots$co_zazil
+```
+
+```{r}
+plots$s_cim_spokojen <- plot_summary_mc(cela_data, s_cim_spokojen, title = "S čím jsi ve společenství spokojen")
+plots$s_cim_spokojen
+
+
+
+plots$s_cim_nespokojen <- plot_summary_mc(cela_data, s_cim_nespokojen, title = "S čím jsi ve společenství NEspokojen") 
+plots$s_cim_nespokojen
 
 ```
 
 ```{r}
-summarise_multiple_choice(cela_data, fungovani_skautskeho_oddilu) %>% arrange(desc(podil_ano))
+plots$sluzba <- plot_summary_mc(cela_data, sluzba, title = "Služba za poslední měsíc") 
+plots$sluzba
 ```
+
+
+```{r}
+plots$oranizace_spolecenstvi <- plot_summary_mc(cela_data, organizace_spolecenstvi, title = "Organizace kmene")
+plots$oranizace_spolecenstvi
+```
+
+```{r}
+plots$vyroky_o_roveringu_zazil <- plot_summary_mc(cela_data, vyroky_o_roveringu_zazil) 
+plots$vyroky_o_roveringu_zazil
+
+plots$vyroky_o_roveringu_zazil_2 <- plot_summary_mc(cela_data, vyroky_o_roveringu_zazil_2) 
+plots$vyroky_o_roveringu_zazil_2
+```
+
+```{r}
+plots$vyroky_o_roveringu_stredisko <- plot_summary_mc(cela_data, vyroky_o_roveringu_stredisko)
+plots$vyroky_o_roveringu_stredisko
+```
+
+
+```{r}
+plots$fungovani_skautskeho_oddilu <- plot_summary_mc(cela_data, fungovani_skautskeho_oddilu, "Moje družina ve skautském věku") 
+plots$fungovani_skautskeho_oddilu
+```
+
+```{r}
+plots$vychovne_nastroje <- plot_summary_mc(cela_data, vychovne_nastroje, "Používáme tyto výchovné nástroje")
+plots$vychovne_nastroje
+```
+
+```{r}
+plots$co_pomaha_roveringu <- plot_summary_mc(cela_data, co_pomaha_roveringu)
+plots$co_pomaha_roveringu
+
+```
+
+```{r}
+plots$proc_neni_rover <- plot_summary_mc(cela_data, proc_neni_rover, "Proč jsem už nejsem v roverském společenství")
+plots$proc_neni_rover
+
+```
+
+```{r}
+plots$proc_nebyl_rover <- plot_summary_mc(cela_data, proc_nebyl_rover)
+plots$proc_nebyl_rover
+
+```
+
+```{r}
+plots$bez_zkuesnosti_velke_akce <- plot_summary_mc(cela_data, bez_zkuesnosti_velke_akce, "Účast na akcích (jen bez roverské zkušenosti)")
+plots$bez_zkuesnosti_velke_akce
+
+
+```
+
+```{r}
+plots$spolecenstvi_registrace <- plot_summary_mc(cela_data, spolecenstvi_registrace)
+plots$spolecenstvi_registrace
+
+
+```
+
+```{r}
+cela_data <- cela_data %>% mutate(kategorie_respondenta_full = if_else(kategorie_respondenta != "bez_zkusenosti", kategorie_respondenta,
+                                  if_else(bez_zkusenosti_mladsi == "ano", "bez_zkusenosti_mladsi", "bez_zkusenosti_starsi")))
+
+#TODO: prelabelovat
+
+plots$kategorie_respondenta <- plot_summary_mc(cela_data, kategorie_respondenta_full, "Roverská zkušenost")
+plots$kategorie_respondenta
+
+
+```
+
+
+```{r}
+plot_dir <- here::here("local_data","plots_basic")
+if(!dir.exists(plot_dir)) {
+  dir.create(plot_dir, recursive = TRUE)
+}
+for(plot_name in names(plots)) {
+  for(format in c(".svg",".wmf")) {
+    ggsave(paste0(plot_dir, "/", plot_name, format), plots[[plot_name]])
+  }
+}
+```
+
 
 
 ```{r}
