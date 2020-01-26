@@ -49,6 +49,16 @@ preprocess_dat <- function(cela_data, verbose = TRUE) {
     }
   }
 
+  # Opravit fuckup: prohozeny popisky "zvladam" a "dulezite"
+  for(k in kompetence) {
+    zvladam <- cela_data[[paste0(k,"_zvladam")]]
+    cela_data[[paste0(k,"_zvladam")]] <- cela_data[[paste0(k,"_dulezite")]]
+    cela_data[[paste0(k,"_dulezite")]] <- zvladam
+
+    zvladam_doplnek <- cela_data[[paste0(k,"_zvladam.doplnek")]]
+    cela_data[[paste0(k,"_zvladam.doplnek")]] <- cela_data[[paste0(k,"_dulezite.doplnek")]]
+    cela_data[[paste0(k,"_dulezite.doplnek")]] <- zvladam_doplnek
+  }
 
   neslucovane_sloupce <- c("created", "modified", "ended","expired", "kompetence_k_zobrazeni")
   kopirovane_sloupce <- c("kolik_casu", "kategorie_respondenta", "bez_zkusenosti_mladsi")
@@ -164,6 +174,16 @@ preprocess_dat <- function(cela_data, verbose = TRUE) {
   #Kraje
   cela_data <- cela_data %>% mutate(
     kraj_nazev = as.factor(kraj))
+
+  # Kategorie respondenta
+  cela_data <- cela_data %>% mutate(kategorie_respondenta_full = if_else(kategorie_respondenta != "nikdy_spolecenstvi", kategorie_respondenta,
+                                                                         if_else(bez_zkusenosti_mladsi == "ano", "nikdy_spolecenstvi_mladsi", "nikdy_spolecenstvi_starsi")))
+
+  attributes(cela_data$kategorie_respondenta_full)$labels <-
+    c(attributes(cela_data$kategorie_respondenta_full)$labels[c(1,2)],
+      `Nikdy jsem nebyla součástí roverského společenství (mladší členi)` = "nikdy_spolecenstvi_mladsi",
+      `Nikdy jsem nebyla součástí roverského společenství (starší členi)` = "nikdy_spolecenstvi_starsi")
+
 
   # nektera data maji spatne reg.cislo (vyplnili ICO namisto toho), provedeme upravu
 

@@ -18,11 +18,11 @@ library(showtext)
 
 save_format <- ".svg"
 
-#theme_set(theme_cowplot())
 
 source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
 source(here::here("R","tools_plots.R"), encoding = "UTF-8")
 
+#theme_set(theme_cowplot())
 set_theme_revizers()
 
 ```
@@ -31,6 +31,9 @@ set_theme_revizers()
 cela_data_raw <- nacti_dotaznik()
 cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE)  
 #check_vysledky(cela_data)
+```
+```{r}
+expanded <- cela_data %>% expand_kompetence()
 ```
 
 
@@ -101,10 +104,10 @@ plots$oranizace_spolecenstvi
 ```
 
 ```{r}
-plots$vyroky_o_roveringu_zazil <- plot_summary_mc(cela_data, vyroky_o_roveringu_zazil) 
+plots$vyroky_o_roveringu_zazil <- plot_summary_mc(cela_data, vyroky_o_roveringu_zazil, "Rovering, který jsem zažil 1") 
 plots$vyroky_o_roveringu_zazil
 
-plots$vyroky_o_roveringu_zazil_2 <- plot_summary_mc(cela_data, vyroky_o_roveringu_zazil_2) 
+plots$vyroky_o_roveringu_zazil_2 <- plot_summary_mc(cela_data, vyroky_o_roveringu_zazil_2, "Rovering, který jsem zažil 2") 
 plots$vyroky_o_roveringu_zazil_2
 ```
 
@@ -157,11 +160,6 @@ plots$spolecenstvi_registrace
 ```
 
 ```{r}
-cela_data <- cela_data %>% mutate(kategorie_respondenta_full = if_else(kategorie_respondenta != "bez_zkusenosti", kategorie_respondenta,
-                                  if_else(bez_zkusenosti_mladsi == "ano", "bez_zkusenosti_mladsi", "bez_zkusenosti_starsi")))
-
-#TODO: prelabelovat
-
 plots$kategorie_respondenta <- plot_summary_mc(cela_data, kategorie_respondenta_full, "Roverská zkušenost")
 plots$kategorie_respondenta
 
@@ -169,13 +167,93 @@ plots$kategorie_respondenta
 ```
 
 
+
+
+```{r}
+plots$pocet_clenu_spolecenstvi <- plot_summary_mc(cela_data, pocet_clenu_spolecenstvi, order_by_podil = FALSE, invert_color_threshold =  0.03)
+plots$pocet_clenu_spolecenstvi
+
+```
+
+```{r}
+plots$frekvence_kratkych_akci <- plot_summary_mc(cela_data, frekvence_kratkych_akci, "Frekvence kratších akcí", order_by_podil = FALSE)
+plots$frekvence_kratkych_akci
+
+```
+```{r}
+plots$frekvence_vicedennich_akci <- plot_summary_mc(cela_data, frekvence_vicedennich_akci, "Frekvence vícedenních akcí", order_by_podil = FALSE)
+plots$frekvence_vicedennich_akci
+
+```
+```{r}
+plots$frekvence_velkych_akci <- plot_summary_mc(cela_data, frekvence_velkych_akci, "Frekvence velkých akcí", order_by_podil = FALSE)
+plots$frekvence_velkych_akci
+
+```
+```{r}
+plots$bez_zkusenosti_setkavam_se_s_vrstevniky <- plot_summary_mc(cela_data, bez_zkusenosti_setkavam_se_s_vrstevniky, "Setkávání s vrstevníky -  roveři mimo společenství", order_by_podil = FALSE, invert_color_threshold = 0.02)
+plots$bez_zkusenosti_setkavam_se_s_vrstevniky
+
+```
+
+```{r}
+plots$bez_zkusenosti_seberozvojovy_program <- plot_summary_mc(cela_data, bez_zkusenosti_seberozvojovy_program, "Seberozvojový program -  roveři mimo společenství", order_by_podil = FALSE, invert_color_threshold = 0.02)
+plots$bez_zkusenosti_seberozvojovy_program
+
+```
+
+## Obrazky ke kompetencim
+
+```{r}
+plots$zvladam_celkem <- expanded %>% 
+  filter(kategorie_kompetence == "zvladam", !is.na(kompetence_odpoved)) %>% ggplot(aes(x = kompetence_odpoved)) +
+    geom_histogram(bins = 7) +
+    scale_x_continuous(breaks = c(1,7), labels = c("Zcela nesouhlasím", "Zcela souhlasím")) +
+    theme(axis.title = element_blank(), axis.line.y = element_blank(), axis.title.y = element_blank(), axis.ticks.y = element_blank(), axis.text.y = element_blank()) + ggtitle('Celkové rozložení odpovědí "Zvládám to velmi dobře"')
+
+plots$zvladam_celkem
+```
+
+```{r}
+plot_kategorie_kompetence <- function(expanded, kategorie, kategorie_popis) {
+  expanded %>% 
+    filter(kategorie_kompetence == kategorie, !is.na(kompetence_odpoved)) %>% ggplot(aes(x = kompetence_odpoved)) +
+      geom_histogram(bins = 7) +
+      scale_x_continuous(breaks = c(1,7), labels = c("Zcela nesouhlasím", "Zcela souhlasím")) +
+      theme(axis.title = element_blank(), axis.line.y = element_blank(), axis.title.y = element_blank(), axis.ticks.y = element_blank(), axis.text.y = element_blank()) + ggtitle(paste0('Celkové rozložení odpovědí "', kategorie_popis,'"'))
+}
+
+plots$dulezite_celkem <- plot_kategorie_kompetence(expanded, "dulezite", popis_pro_plot(cela_data, "duchovni_zivot_dulezite"))
+plots$dulezite_celkem
+```
+
+```{r}
+plots$zvladam_celkem <- plot_kategorie_kompetence(expanded, "zvladam", popis_pro_plot(cela_data, "duchovni_zivot_zvladam"))
+plots$zvladam_celkem
+
+```
+
+```{r}
+plots$rozvijim_celkem <- plot_kategorie_kompetence(expanded, "rozvijim", popis_pro_plot(cela_data, "duchovni_zivot_rozvijim"))
+plots$rozvijim_celkem
+
+```
+
+```{r}
+plots$skauting_celkem <- plot_kategorie_kompetence(expanded, "skauting", popis_pro_plot(cela_data, "duchovni_zivot_skauting"))
+plots$skauting_celkem
+
+```
+
+## Ulozit obrazky
+
 ```{r}
 plot_dir <- here::here("local_data","plots_basic")
 if(!dir.exists(plot_dir)) {
   dir.create(plot_dir, recursive = TRUE)
 }
 for(plot_name in names(plots)) {
-  for(format in c(".svg",".wmf")) {
+  for(format in c(".svg",".wmf",".png")) {
     ggsave(paste0(plot_dir, "/", plot_name, format), plots[[plot_name]])
   }
 }
@@ -183,9 +261,6 @@ for(plot_name in names(plots)) {
 
 
 
-```{r}
-expanded <- cela_data %>% expand_kompetence()
-```
 
 ## Je to pro mě důležité
 
