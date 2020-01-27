@@ -78,7 +78,8 @@ nfac <- 4
 
 role_fa_res <- psych::fa(role_fa, nfactors = nfac, rotate = "varimax")
 
-zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "role_skauting_")
+zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "role_skauting_") %>% 
+  knitr::kable(digits = 2)
 
 #cela_data2 <- vytvor_promenne_dle_fa(cela_data,role_fa,role_fa_res, var_name = "roleFA")
 
@@ -103,7 +104,8 @@ nfac <- 5
 
 role_fa_res <- psych::fa(role_fa, nfactors = nfac, rotate = "varimax")
 
-zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "role_skauting_")
+zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "role_skauting_") %>% 
+  knitr::kable(digits = 2)
 
 ```
 
@@ -117,7 +119,8 @@ nfac <- 6
 
 role_fa_res <- psych::fa(role_fa, nfactors = nfac, rotate = "varimax")
 
-zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "role_skauting_")
+zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "role_skauting_") %>% 
+  knitr::kable(digits = 2)
 
 ```
 
@@ -148,7 +151,8 @@ nfac <- 2
 
 role_fa_res <- psych::fa(fung_odd_fa, nfactors = nfac, rotate = "varimax")
 
-zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "fungovani_skautskeho_oddilu_")
+zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "fungovani_skautskeho_oddilu_") %>% 
+  knitr::kable(digits = 2)
 
 ```
 
@@ -160,7 +164,7 @@ nfac <- 3
 role_fa_res <- psych::fa(fung_odd_fa, nfactors = nfac, rotate = "varimax")
 
 zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "fungovani_skautskeho_oddilu_") %>% 
-  knitr::kable()
+  knitr::kable(digits = 2)
 
 ```
 
@@ -172,7 +176,7 @@ nfac <- 4
 role_fa_res <- psych::fa(fung_odd_fa, nfactors = nfac, rotate = "varimax")
 
 zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "fungovani_skautskeho_oddilu_") %>% 
-  knitr::kable()
+  knitr::kable(digits = 2)
 
 ```
 
@@ -184,7 +188,7 @@ nfac <- 5
 role_fa_res <- psych::fa(fung_odd_fa, nfactors = nfac, rotate = "varimax")
 
 zobraz_fa(role_fa_res, nfac = nfac, str_to_remove = "fungovani_skautskeho_oddilu_") %>% 
-  knitr::kable()
+  knitr::kable(digits = 2)
 
 ```
 
