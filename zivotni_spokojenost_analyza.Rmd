@@ -44,8 +44,7 @@ source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
 
 ```{r}
 cela_data_raw <- nacti_dotaznik()
-cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE) %>% 
-  mutate()  
+cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE) 
 check_vysledky(cela_data)
 ```
 
@@ -75,8 +74,8 @@ lss_pro_kategorie(quo(sex))
 
 ```{r rozdelejless pro mc}
 
-cela_data_role <- cela_data %>% rozsir_vsechna_mc()
-cela_data_role %>% select(starts_with("role_skauting_"),lss) %>% cor(use = "complete.obs") %>% knitr::kable(digits = 2)
+cela_data <- cela_data %>% rozsir_vsechna_mc()
+cela_data %>% select(starts_with("roleFA_"),lss) %>% cor(use = "complete.obs") %>% knitr::kable(digits = 2)
 
 n_roli <- rowSums(cela_data_role %>% select(starts_with("role_skauting_")) %>% as.matrix())
 

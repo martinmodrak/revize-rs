@@ -183,8 +183,18 @@ preprocess_dat <- function(cela_data, verbose = TRUE) {
     c(attributes(cela_data$kategorie_respondenta_full)$labels[c(1,2)],
       `Nikdy jsem nebyla součástí roverského společenství (mladší členi)` = "nikdy_spolecenstvi_mladsi",
       `Nikdy jsem nebyla součástí roverského společenství (starší členi)` = "nikdy_spolecenstvi_starsi")
-
-
+  
+  # Vytvor nove promenne z FA analyzy pro role
+  role_fa <- cela_data %>% rozsir_mc(quo(role_skauting)) %>% select(starts_with("role_skauting_")) 
+  role_fa_res <- psych::fa(role_fa , nfactors = 6, rotate = "varimax")
+  
+  cela_data <- vytvor_promenne_dle_fa(cela_data,role_fa,role_fa_res, var_name = "roleFA")
+  cela_data <- cela_data %>% rename(roleFA_roverSam=roleFA6,
+                       roleFA_technickoOrganizacni = roleFA5,
+                       roleFA_tymAkci = roleFA4,
+                       roleFA_rover = roleFA3,
+                       roleFA_vedouci = roleFA2,
+                       roleFA_rover_radce = roleFA1)
   # nektera data maji spatne reg.cislo (vyplnili ICO namisto toho), provedeme upravu
 
   ico_reg_cislo_pth <- here::here("public_data/ico_reg_cislo.csv")
