@@ -264,4 +264,19 @@ pomaha_skodi <- cela_data %>% select(starts_with("problemy_roveringu_"),-starts_
 psych::fa.parallel(pomaha_skodi)
 fa_pomahaskodi <- psych::fa(pomaha_skodi,nfactors = 6, rotate = "varimax")
 zobraz_fa(fa_pomahaskodi,nfac = 6,str_to_remove = "problemy_roveringu_") %>% knitr::kable()
+cela_data <- vytvor_promenne_dle_fa(cela_data,pomaha_skodi,fa_pomahaskodi,var_name = "pomahaskodi") %>% 
+  rename(ps_spatny_program = pomahaskodi1,
+         ps_akcickari = pomahaskodi2,
+         ps_podpora_zvenku = pomahaskodi3,
+         ps_vytizeni_a_mimo = pomahaskodi4,
+         ps_pokecat_s_kamosi = pomahaskodi5,
+         ps_spatne_vztahy = pomahaskodi6)
+
+cr <- cela_data %>% select(starts_with("ps_"),starts_with("roleFA_"),lss,spokojenost_s_roverskym_programem) %>% as.matrix() %>% Hmisc::rcorr()
+ggcorrplot::ggcorrplot(cr$r,hc.order = T, type = "lower", lab =T)
+
+km <- pomaha_skodi %>% kmeans(centers = 6)
+cela_data$pomaha_skodi_skupina <- km$cluster
+
+#cela_data %>% group_by(pomaha_skodi_skupina) %>% summarize_each(vars(co_pomaha_roveringu = mean(co_pomaha_roveringu))
 ```
