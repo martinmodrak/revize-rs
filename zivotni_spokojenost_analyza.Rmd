@@ -111,7 +111,7 @@ cela_data_role %>%
             sd_lss = sd(lss, na.rm =T),
             n = n())
 
-cela_data_role %>% select(starts_with("role_skauting_")) %>% cor(use = "complete.obs") %>% round(2) %>% knitr::kable(digits = 2)
+cela_data %>% select(starts_with("roleFA_"), lss) %>% cor(use = "complete.obs") %>% ggcorrplot::ggcorrplot(hc.order = T, type = "lower", lab =T)
 
 t.test(spokojenost_s_roverskym_programem~role_skauting_vedouci_roveru,cela_data_role)
 t.test(lss~role_skauting_vedouci_roveru,cela_data_role)
@@ -159,17 +159,6 @@ cela_data %>% select(lss,ends_with("dulezite")) %>% as.matrix() %>% cor(use = "c
 
 
 
-```
-
-
-```{r factor analysis}
-role_fa <- cela_data_role %>% select(starts_with("role_skauting_")) 
-role_fa <- sapply(role_fa, as.character)
-het.mat <- hetcor(role_fa)$cor
-
-psych::fa.parallel(het.mat, n.obs = nrow(role_fa))
-
-role_fa_res <- psych::fa(het.mat, n.obs = nrow(role_fa), nfactors = 5, rotate = "varimax")
 ```
 
 
@@ -227,6 +216,52 @@ nastroje_fa_res
 
 ```{r roverske nastroje a spokojenost}
 
-cr <- cela_data_role %>% select(starts_with("vychovne_nastroje_"),lss, spokojenost_s_roverskym_programem, spokojenost_s_fungovanim_v_junaku) %>% as.matrix() %>% Hmisc::rcorr() 
+cr <- cela_data %>% select(starts_with("vychovne_nastroje_"),lss, spokojenost_s_roverskym_programem) %>% as.matrix() %>% Hmisc::rcorr() 
 cr$r %>%   knitr::kable(digits = 2)
+ggcorrplot::ggcorrplot(cr$r,hc.order = T, type = "lower", lab =T)
+```
+
+
+## Co pomaha roveringu
+
+```{r}
+cela_data %>% select(starts_with("co_pomaha")) %>% colnames()
+xtabs(~co_pomaha_roveringu_financni_podpora+kategorie_respondenta, cela_data) %>% prop.table(margin = 2) %>% round(2)
+xtabs(~co_pomaha_roveringu_zpravodal+kategorie_respondenta, cela_data) %>% prop.table(margin = 2) %>% round(2)
+xtabs(~co_pomaha_roveringu_vyssi_mista+kategorie_respondenta, cela_data) %>% prop.table(margin = 2) %>% round(2)
+xtabs(~co_pomaha_roveringu_roversky_program+kategorie_respondenta, cela_data) %>% prop.table(margin = 2) %>% round(2)
+xtabs(~co_pomaha_roveringu_SI+kategorie_respondenta, cela_data) %>% prop.table(margin = 2) %>% round(2)
+xtabs(~co_pomaha_roveringu_akce_kratke+kategorie_respondenta, cela_data) %>% prop.table(margin = 2) %>% round(2)
+xtabs(~co_pomaha_roveringu_akce_dlouhe+kategorie_respondenta, cela_data) %>% prop.table(margin = 2) %>% round(2)
+xtabs(~co_pomaha_roveringu_neformalni_setkani+kategorie_respondenta, cela_data) %>% prop.table(margin = 2) %>% round(2)
+xtabs(~co_pomaha_roveringu_socialni_site+kategorie_respondenta, cela_data) %>% prop.table(margin = 2) %>% round(2)
+
+```
+
+Obecne lidem, co maji zkusenost s roveringem prijde, ze pomahaji neformalni setkani oproti tem, co nikdy ve spolecentstvi nebyli (ti veri na program). Je to tedy dost o vztazizch a neformalnich setkavani
+
+## Problemy roveringu
+
+```{r}
+cela_data %>% select(starts_with("problemy")) %>% colnames()
+xtabs(~problemy_roveringu_stredisko+kategorie_respondenta, cela_data) %>% prop.table(margin = 2) %>% round(2)
+xtabs(~problemy_roveringu_odstehovani+kategorie_respondenta, cela_data) %>% prop.table(margin = 2) %>% round(2)
+xtabs(~problemy_roveringu_nevidi_smysl+kategorie_respondenta, cela_data) %>% prop.table(margin = 2) %>% round(2)
+xtabs(~problemy_roveringu_spatne_vztahy+kategorie_respondenta, cela_data) %>% prop.table(margin = 2) %>% round(2)
+xtabs(~problemy_roveringu_bez_kvalitniho_programu+kategorie_respondenta, cela_data) %>% prop.table(margin = 2) %>% round(2)
+xtabs(~problemy_roveringu_bez_vedeni+kategorie_respondenta, cela_data) %>% prop.table(margin = 2) %>% round(2)
+xtabs(~problemy_roveringu_nevime_jak+kategorie_respondenta, cela_data) %>% prop.table(margin = 2) %>% round(2)
+xtabs(~problemy_roveringu_vytizeni_oddily+kategorie_respondenta, cela_data) %>% prop.table(margin = 2) %>% round(2)
+xtabs(~problemy_roveringu_vytizeni_mimo+kategorie_respondenta, cela_data) %>% prop.table(margin = 2) %>% round(2)
+xtabs(~problemy_roveringu_pracovni_ceta+kategorie_respondenta, cela_data) %>% prop.table(margin = 2) %>% round(2)
+
+```
+
+## Faktorovka - co pomaha a co ne
+
+```{r}
+pomaha_skodi <- cela_data %>% select(starts_with("problemy_roveringu_"),-starts_with("problemy_roveringu_stredisko"),starts_with("co_pomaha_"),-co_pomaha_roveringu,-problemy_roveringu_stredisko)
+psych::fa.parallel(pomaha_skodi)
+fa_pomahaskodi <- psych::fa(pomaha_skodi,nfactors = 6, rotate = "varimax")
+zobraz_fa(fa_pomahaskodi,nfac = 6,str_to_remove = "problemy_roveringu_") %>% knitr::kable()
 ```
