@@ -290,5 +290,10 @@ visualizuj_skupinu <- function(var, which_visualize) {
 }
 
 visualizuj_skupinu(quo(pomaha_skodi_skupina), colnames(pomaha_skodi))
+
+library("dbscan")
+
+cl <- hdbscan(pomaha_skodi, minPts = 5)
+  cl
 #cela_data %>% group_by(pomaha_skodi_skupina) %>% summarize_each(vars(co_pomaha_roveringu = mean(co_pomaha_roveringu))
 ```
