@@ -47,8 +47,8 @@ mds_res <- metaMDS(kompetence_dist, parallel = parallel::detectCores(), trymax =
 ```
 
 ```{r}
-plot_mds(mds_res)
-```
+plot_mds(mds_res, mapping = mapping_kompetence, color_aes = log(age), shape_aes = as.factor(zivotni_faze))
+  ```
 
 ```{r}
 pca_res <- cmdscale(kompetence_dist)

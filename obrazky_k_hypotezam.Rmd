@@ -1,0 +1,71 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup}
+if(!grepl("cz|utf", Sys.getlocale(), ignore.case = TRUE)) {
+  Sys.setlocale(locale= 'English_United States.1250')
+}
+library(lubridate)
+library(tidyverse)
+library(formr)
+library(here)
+library(RCzechia)
+library(sf)
+library(cowplot)
+
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+Sys.setenv(LOCAL_CPPFLAGS = '-march=native')
+
+save_format <- ".svg"
+
+theme_set(theme_cowplot())
+
+source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
+source(here::here("R","tools_plots.R"), encoding = "UTF-8")
+source(here::here("R","tools_clmm.R"), encoding = "UTF-8")
+
+```
+
+```{r}
+cela_data_raw <- nacti_dotaznik()
+cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE)  
+#check_vysledky(cela_data)
+expanded <- cela_data %>% rozsir_vsechna_mc() %>% expand_kompetence()
+
+```
+
+Budeme pracovat jen s temi, co vyplnili alespon 5 kompetenci.
+
+```{r}
+expanded_pro_plot <- expanded %>% 
+  filter(!is.na(kompetence_odpoved)) %>% 
+  group_by(session, kategorie_kompetence) %>% 
+  filter(n() >= 5) %>%
+  mutate(nad_median = kompetence_odpoved > median(kompetence_odpoved), nejvyse = kompetence_odpoved == max(kompetence_odpoved)) %>%
+  ungroup() %>%
+  pivot_longer(c("nad_median", "nejvyse"), names_to = "meritko", values_to = "meritko_ano") 
+  
+if(any(is.na(expanded_pro_plot$meritko_ano))) {
+  stop("NA")
+}
+```
+
+```{r, fig.height=8}
+expanded_pro_plot %>% 
+  filter(kategorie_kompetence == "zvladam", meritko == "nejvyse") %>%
+  filter(age >= 15, age <= 26) %>%
+  group_by(kompetence, age) %>%
+  summarise(prumer = mean(meritko_ano, na.rm = TRUE), 
+            pocet = sum(!is.na(meritko_ano)),
+            dolni = qbeta(0.025, sum(meritko_ano) + 1, sum(!meritko_ano) + 1),
+            horni = qbeta(0.975, sum(meritko_ano) + 1, sum(!meritko_ano) + 1),
+            ) %>%
+  ungroup() %>%
+  ggplot(aes(x = age, y = prumer, ymin = dolni, ymax = horni, group = kompetence)) +
+     geom_ribbon(alpha = 0.5) + geom_line() + facet_wrap(~ kompetence) #+ theme(axis.text.x = element_text(angle = 90))
+
+```
+
