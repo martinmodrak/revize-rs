@@ -446,8 +446,11 @@ replace_coding <- function(x, new_values) {
 }
 
 # umozni rozsekat mc odpovedi ulozene ve stringu do n sloupcu (true/false)
-rozsir_mc <- function(df, var) {
+rozsir_mc <- function(df, var, zachovat_NA = FALSE) {
   mc_obsahuje <- function(v,polozka) {
+    if(zachovat_NA && is.na(v)) {
+      return(NA)
+    }
     return(any(v %in% polozka))
   }
   all_attributes <- df[[as_label(var)]] %>% attributes()
@@ -456,14 +459,34 @@ rozsir_mc <- function(df, var) {
 
   for (i in 1:length(col_names)) {
     nazev_sloupce <- paste0(as_label(var),"_",col_names[i])
-    df <- df %>% mutate(!!nazev_sloupce:=map_lgl(polozky,mc_obsahuje,col_names[i]))
+    obsah_sloupce <- map_lgl(polozky,mc_obsahuje,col_names[i])
+    df <- df %>% mutate(!!nazev_sloupce:=obsah_sloupce)
+
+    # Check
+    obsah_contains_word <- df[[as_label(var)]] %contains_word% col_names[i]
+    if(!all(obsah_sloupce == obsah_contains_word, na.rm = TRUE)) {
+      stop(paste0("rozsir_mc:Not equal - ", nazev_sloupce))
+    }
+
+    if(zachovat_NA) {
+      if(!all(is.na(obsah_sloupce) == is.na(obsah_contains_word))) {
+        stop(paste0("rozsir_mc:NA mismatch - ", nazev_sloupce))
+      }
+    } else {
+      if(any(is.na(obsah_sloupce)) || any(is.na(obsah_contains_word) & obsah_sloupce)) {
+        stop(paste0("rozsir_mc:NA spatne prelozeno - ", nazev_sloupce))
+      }
+    }
+
   }
+
+
 
   df
 }
 
 
-rozsir_vsechna_mc <- function(data) {
+rozsir_vsechna_mc <- function(data, zachovat_NA = FALSE) {
   mc_sloupce <- c(quo(role_skauting), quo(co_zazil), quo(fungovani_skautskeho_oddilu),
                   quo(spolecenstvi_registrace), quo(s_cim_spokojen), quo(s_cim_nespokojen),
                   quo(organizace_spolecenstvi), quo(vyroky_o_roveringu_zazil),
@@ -474,7 +497,7 @@ rozsir_vsechna_mc <- function(data) {
                   quo(vyroky_o_roveringu_stredisko), quo(problemy_roveringu_stredisko))
 
   for(sloupec in mc_sloupce) {
-    data <- rozsir_mc(data, sloupec)
+    data <- rozsir_mc(data, sloupec, zachovat_NA = zachovat_NA)
   }
   data
 }

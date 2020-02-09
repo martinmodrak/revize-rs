@@ -14,15 +14,9 @@ library(here)
 library(RCzechia)
 library(sf)
 library(cowplot)
-library(brms)
-library(rstan)
-library(lme4)
-library(ordinal)
 library(INLA) #Install via install.packages("INLA", repos=c(getOption("repos"), INLA="https://inla.r-inla-download.org/R/stable"), dep=TRUE)
 
 options(mc.cores = parallel::detectCores())
-rstan_options(auto_write = TRUE)
-Sys.setenv(LOCAL_CPPFLAGS = '-march=native')
 
 save_format <- ".svg"
 
@@ -40,14 +34,7 @@ source(here::here("R","tools_kompetence.R"), encoding = "UTF-8")
 cela_data_raw <- nacti_dotaznik()
 cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE)  
 #check_vysledky(cela_data)
-expanded <- cela_data %>% rozsir_vsechna_mc() %>% expand_kompetence()
-```
-
-```{r}
-fit_dir <- here::here("local_data","fits")
-if(!dir.exists(fit_dir)) {
-  dir.create(fit_dir)
-}
+expanded <- cela_data %>% rozsir_vsechna_mc(zachovat_NA = TRUE) %>% expand_kompetence()
 ```
 
 
@@ -70,87 +57,71 @@ expanded_no_NA_small <- expanded_no_NA %>% filter(session %in% users_to_use)
 
 
 
+```{r}
+#Hromadny vypocet
+base_for_inla <- expanded_no_NA
+for(kategorie in kategorie_kompetence) {
+  for(meritko in names(meritka_kompetence)) {
+    inla_formula <- bbb ~ 1 + age_norm + f(age_ar, model = "iid") 
+    lhs(inla_formula) <- meritko
+
+    inla_pipeline(base_for_inla, kategorie, inla_formula)
+  }
+}
+
+```
+
 
 ```{r}
+kategorie = "rozvijim"
+inla_formula <- kompetence_relativne_k_populaci ~ 1 + age_norm + f(age_ar, model = "iid") 
 base_for_inla <- expanded_no_NA
 
-expanded_no_NA %>% group_by(kategorie_kompetence, session) %>% summarise(med = median(kompetence_odpoved), all_7 = all(kompetence_odpoved == 7)) %>% group_by(kategorie_kompetence) %>% summarise(pocet_median_7 = sum(med == 7), pocet_all_7 = sum(all_7))
 
-data_for_inla <- base_for_inla %>% 
-  filter(kategorie_kompetence =="zvladam") %>% 
-  group_by(session) %>%
-  odvozena_meritka_kompetenci() %>%
-  ungroup() %>%
-  mutate(age_norm = (age - 20.5) / 2.75,
-         age_ar = age - min(age) + 1)
-
-```
-
-```{r}
-inla_formula <- kompetence_relativne_k_populaci ~ 1 + age_norm + f(age_ar, model = "iid") 
-#inla_formula <- kompetence_odpoved ~ 1 + age_norm + f(age_ar, model = "iid") + f(session, model="iid")
-
-inla_formula
-
-inla_fits <- list()
-regression_inputs <- list()
-for(k in kompetence) {
-  regression_inputs[[k]] <- data_for_inla %>% filter(kompetence == k) %>% mutate(row_id = 1:n())
-  inla_fits[[k]] <- my_inla_fit(inla_formula, data = regression_inputs[[k]])
-}
-
-n_samples <- 200
-pp_samples_matrices <- matrix_samples_from_fits(inla_fits, n_samples)
-
-predicted_pp_checks <- list()
-for(k in kompetence) {
-  predicted_pp_checks[[k]] <- pp_samples_from_matrix(inla_formula, pp_samples_matrices[[k]], regression_inputs[[k]])
-}
-
+pipeline_result <- inla_pipeline(base_for_inla, kategorie, inla_formula)
 ```
 
 
 
 ```{r}
-my_pp_check(inla_formula, regression_inputs, predicted_pp_checks, age)
-my_pp_check(inla_formula, regression_inputs, predicted_pp_checks, age, stat = sd)
-my_pp_check(inla_formula, regression_inputs, predicted_pp_checks, kategorie_respondenta_full)
+my_pp_check(pipeline_result, age)
+my_pp_check(pipeline_result, age, stat = sd)
+my_pp_check(pipeline_result, kategorie_respondenta_full)
 
 ```
 
 ```{r}
-my_pp_check(inla_formula, regression_inputs %>% purrr::map( ~ mutate(., byl_na_kurzu = co_zazil %contains_word% "roversky_kurz")), predicted_pp_checks, byl_na_kurzu)
-
+my_pp_check(pipeline_result, co_zazil_roversky_kurz)
+any(is.na(expanded_no_NA$co_zazil_roversky_kurz))
+any(is.na(expanded_no_NA$co_zazil))
 ```
 
 ```{r}
-my_pp_check(inla_formula, regression_inputs %>% purrr::map( ~ mutate(.,  role_rover = role_skauting %contains_word% "clen_rady_roveru" | 
-                               role_skauting %contains_word% "tahoun_roveru" |
-                               role_skauting %contains_word% "clen_roveru" |
-                               role_skauting %contains_word% "clen_rady_roveru")), predicted_pp_checks, role_rover)
+my_pp_check(pipeline_result,  role_skauting_clen_rady_roveru | 
+                               role_skauting_tahoun_roveru |
+                               role_skauting_clen_roveru |
+                               role_skauting_clen_rady_roveru, label = "role_rover")
 
-my_pp_check(inla_formula, regression_inputs %>% 
-              purrr::map( ~ mutate(.,  
-                            role_vedeni = role_skauting %contains_word% "druzinovy_radce" | 
-                               role_skauting %contains_word% "oddilovy_radce" |
-                               role_skauting %contains_word% "vedouci_zastupce_oddilu" |
-                               role_skauting %contains_word% "clen_vedeni_oddilu" |
-                               role_skauting %contains_word% "technicka" |
-                               role_skauting %contains_word% "organizacni" |
-                               role_skauting %contains_word% "volena_funkce" |
-                               role_skauting %contains_word% "administrativa"
-                               , 
-                            role_rover = role_skauting %contains_word% "clen_rady_roveru" | 
-                               role_skauting %contains_word% "tahoun_roveru" |
-                               role_skauting %contains_word% "clen_roveru" |
-                               role_skauting %contains_word% "clen_rady_roveru",
-                               druh_role = case_when(is.na(role_vedeni) | is.na(role_rover) ~ NA_character_,
-                                                role_vedeni & role_rover ~ "r_v",
-                                                role_vedeni ~ "v",
-                                                role_rover ~ "r",
-                                                TRUE ~ "n")
-                               )
-                               ), predicted_pp_checks, druh_role)
+my_pp_check(pipeline_result, 
+                              interaction(factor(
+                                 role_skauting %contains_word% "druzinovy_radce" | 
+                                 role_skauting %contains_word% "oddilovy_radce" |
+                                 role_skauting %contains_word% "vedouci_zastupce_oddilu" |
+                                 role_skauting %contains_word% "clen_vedeni_oddilu" |
+                                 role_skauting %contains_word% "technicka" |
+                                 role_skauting %contains_word% "organizacni" |
+                                 role_skauting %contains_word% "volena_funkce" |
+                                 role_skauting %contains_word% "administrativa",
+                                 levels = c(TRUE, FALSE), labels = c("v","_"))
+                              
+                               ,  factor(
+                                 role_skauting %contains_word% "clen_rady_roveru" | 
+                                 role_skauting %contains_word% "tahoun_roveru" |
+                                 role_skauting %contains_word% "clen_roveru" |
+                                 role_skauting %contains_word% "clen_rady_roveru",
+                                 levels = c(TRUE, FALSE), labels = c("r","_"))
+                              )
+                               , label = "druh_role")
 
 
 ```

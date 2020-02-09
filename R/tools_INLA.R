@@ -1,5 +1,85 @@
 library(formula.tools)
 
+inla_pipeline <- function(base_data, kategorie, formula, n_samples = 200) {
+  data_for_inla <- base_data %>%
+    filter(kategorie_kompetence == kategorie) %>%
+    group_by(session) %>%
+    odvozena_meritka_kompetenci() %>%
+    ungroup() %>%
+    mutate(age_norm = (age - 20.5) / 2.75,
+           age_ar = age - min(age) + 1)
+
+  regression_inputs <- list()
+  for(k in kompetence) {
+    regression_inputs[[k]] <- data_for_inla %>% filter(kompetence == k) %>% mutate(row_id = 1:n())
+  }
+
+  fit_dir <- here::here("local_data","inla_fits")
+  if(!dir.exists(fit_dir)) {
+    dir.create(fit_dir)
+  }
+
+  cache_filename <- paste0(fit_dir,"/fit_", kategorie, "_", openssl::md5(as.character(formula)),".rds")
+
+
+  result <- NULL
+  if(file.exists(cache_filename)) {
+    message("Cache file exists")
+    cache_contents <- readRDS(cache_filename)
+    if(identical(cache_contents$kategorie, kategorie) &&
+       identical(cache_contents$formula, formula) &&
+       isTRUE(all.equal(cache_contents$regression_inputs, regression_inputs, check.attributes = FALSE))) {
+      if(cache_contents$n_samples < n_samples) {
+        message("N_samples larger, computing more samples")
+        cache_contents$n_samples = n_samples
+        cache_contents$pp_samples_matrices <- matrix_samples_from_fits(cache_contents$inla_fits, n_samples)
+        saveRDS(cache_contents, cache_filename)
+      }
+      result <- cache_contents
+    } else {
+      warning("Cache file is not compatible, recomputing")
+    }
+  }
+
+  # Potrebuju spocitat
+  if(is.null(result)) {
+
+    # cl <- parallel::makeCluster(parallel::detectCores(), useXDR = FALSE)
+    #
+    # parallel::clusterExport(cl, c("meritka_kompetence", "formula", "my_inla_fit"), envir = environment())
+    # parallel::clusterEvalQ(cl, { library(INLA) })
+    # inla_fits <- parallel::parLapplyLB(cl, regression_inputs, function(input) {
+    #   my_inla_fit(formula, input, num.threads = 1)
+    # })
+    # stopCluster(cl)
+    inla_fits <- list()
+    for(k in kompetence) {
+      inla_fits[[k]] <- my_inla_fit(formula, regression_inputs[[k]])
+    }
+
+    pp_samples_matrices <- matrix_samples_from_fits(inla_fits, n_samples)
+
+    result <- list(kategorie = kategorie,
+         formula = formula,
+         regression_inputs = regression_inputs,
+         n_samples = n_samples,
+         inla_fits = inla_fits,
+         pp_samples_matrices = pp_samples_matrices)
+
+    saveRDS(result, cache_filename)
+  }
+
+  # Samply pocitam vzdy, nevyplati se ukladat
+  result$predicted_pp_checks <- list()
+  for(k in kompetence) {
+    result$predicted_pp_checks[[k]] <-
+      pp_samples_from_matrix(formula, result$pp_samples_matrices[[k]], regression_inputs[[k]])
+  }
+
+  result
+}
+
+
 inla_samples_to_matrix <- function(samples) {
   names <- c(names(samples[[1]]$hyperpar), rownames(samples[[1]]$latent), "logdens.hyperpar","logdens.latent","logdens.joint")
   data <- matrix(NA, nrow = length(samples), ncol = length(names))
@@ -18,8 +98,8 @@ samples_colnames <- function(base, ids) {
   sprintf(pattern, ids)
 }
 
-my_inla_fit <- function(model_formula, data) {
-  meritko_nazev <- as.character(lhs(model_formula))
+my_inla_fit <- function(model_formula, data, num.threads = inla.getOption("num.threads")) {
+  meritko_nazev <- as.character(formula.tools::lhs(model_formula))
   meritko_info <- meritka_kompetence[[meritko_nazev]]
   if(is.null(meritko_info)) {
     stop("Nezname meritko")
@@ -38,19 +118,23 @@ my_inla_fit <- function(model_formula, data) {
   }
 
   all_args <- c(list(formula = model_formula, data = data, control.compute = list(config=TRUE)),
-                additional.args)
+                additional.args, num.threads = num.threads)
 
   do.call(inla, all_args)
 }
 
 matrix_samples_from_fits <- function(fits, n_samples) {
-  cl <- parallel::makeCluster(parallel::detectCores(), useXDR = FALSE)
-  parallel::clusterExport(cl, c("inla_samples_to_matrix", "n_samples"))
-  parallel::clusterEvalQ(cl, { library(INLA) })
-  ret <- parallel::parLapply(cl, fits, function(fit) {
-    inla_samples_to_matrix(inla.posterior.sample(n_samples, fit))
-  })
-  stopCluster(cl)
+  # cl <- parallel::makeCluster(parallel::detectCores(), useXDR = FALSE)
+  # parallel::clusterExport(cl, c("inla_samples_to_matrix", "n_samples"), envir = environment())
+  # parallel::clusterEvalQ(cl, { library(INLA) })
+  # ret <- parallel::parLapplyLB(cl, fits, function(fit) {
+  #   inla_samples_to_matrix(inla.posterior.sample(n_samples, fit))
+  # })
+  # stopCluster(cl)
+  ret <- list()
+  for(k in kompetence) {
+    ret[[k]] <- inla_samples_to_matrix(inla.posterior.sample(n_samples, fits[[k]]))
+  }
   ret
 }
 
@@ -94,42 +178,44 @@ pp_samples_from_matrix <- function(model_formula, pp_samples_matrix, regression_
   res
 }
 
-my_pp_check <- function(model_formula, regression_inputs, predicted_pp_checks, group, stat = mean) {
-  meritko_nazev <- as.character(lhs(model_formula))
+my_pp_check <- function(pipeline_result, group, stat = mean, label = as_label({{ group }})) {
+  meritko_nazev <- as.character(lhs(pipeline_result$formula))
   meritko_info <- meritka_kompetence[[meritko_nazev]]
   if(is.null(meritko_info)) {
     stop("Nezname meritko")
   }
 
+  group <- enquo(group)
+
+  regression_inputs <- pipeline_result$regression_inputs
+  predicted_pp_checks <-  pipeline_result$predicted_pp_checks
 
   data_predicted <- list()
   data_observed <- list()
   for(k in kompetence) {
     # Odstranit otravny warning
-    if(regression_inputs[[k]] %>% pull({{group}}) %>% inherits("haven_labelled")) {
-      regression_inputs[[k]] <- regression_inputs[[k]] %>% mutate({{group}} := as.character({{group}}))
-    }
+    regression_inputs[[k]] <- regression_inputs[[k]] %>% mutate(group_char = !!group)
 
     data_predicted[[k]] <- predicted_pp_checks[[k]] %>%
-      inner_join(regression_inputs[[k]] %>% select(row_id, kompetence, {{group}}), by = c("row_id" = "row_id")) %>%
-      group_by(sample_id, kompetence,  {{group}}) %>%
+      inner_join(regression_inputs[[k]] %>% select(row_id, kompetence, group_char), by = c("row_id" = "row_id")) %>%
+      group_by(sample_id, kompetence,  group_char) %>%
       summarise(response_agg = stat(response)) %>%
-      group_by(kompetence, {{group}}) %>%
+      group_by(kompetence, group_char) %>%
       summarise(mid = mean(response_agg), low = quantile(response_agg, 0.025), high = quantile(response_agg, 0.975))
 
     regression_inputs[[k]]$meritko <- regression_inputs[[k]][[meritko_nazev]]
-    data_observed[[k]] <- regression_inputs[[k]] %>% group_by(kompetence, {{group}})  %>%
+    data_observed[[k]] <- regression_inputs[[k]] %>% group_by(kompetence, group_char)  %>%
       summarise(mid = stat(meritko))
   }
 
   data_predicted_all <- do.call(rbind, data_predicted)
   data_observed_all <- do.call(rbind, data_observed)
 
-  data_predicted_all %>% ggplot(aes(x = {{group}}, y = mid)) +
+  data_predicted_all %>% ggplot(aes(x = group_char, y = mid)) +
     geom_linerange(aes(ymin = low, ymax = high)) +
     geom_point() +
     geom_line(aes(y = mid, group = kompetence), color = "lightblue", data = data_observed_all) +
-    scale_x_discrete() +
+    scale_x_discrete(label) +
     facet_wrap(~kompetence)
 
 }
