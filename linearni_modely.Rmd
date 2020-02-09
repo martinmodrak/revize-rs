@@ -61,7 +61,7 @@ expanded_no_NA <- expanded %>% filter(!is.na(kompetence_odpoved))  %>% group_by(
   ungroup()
 
 set.seed(20201501)
-users_to_use <- expanded_no_NA %>% select(session) %>% distinct() %>% sample_n(100) %>% pull(session) 
+users_to_use <- expanded_no_NA %>% select(session) %>% distinct() %>% sample_n(800) %>% pull(session) 
 expanded_no_NA_small <- expanded_no_NA %>% filter(session %in% users_to_use)
  formula_jen_id <- kompetence_odpoved ~ (1| session*kategorie_kompetence)
 
@@ -71,23 +71,31 @@ expanded_no_NA_small <- expanded_no_NA %>% filter(session %in% users_to_use)
 
 
 ```{r}
+base_for_inla <- expanded_no_NA_small
 
 expanded_no_NA %>% group_by(kategorie_kompetence, session) %>% summarise(med = median(kompetence_odpoved), all_7 = all(kompetence_odpoved == 7)) %>% group_by(kategorie_kompetence) %>% summarise(pocet_median_7 = sum(med == 7), pocet_all_7 = sum(all_7))
 
-data_for_inla <- expanded_no_NA %>% 
+data_for_inla <- expanded_no_NA_small %>% 
   filter(kategorie_kompetence =="zvladam") %>% 
   group_by(session) %>%
   mutate(nad_median = kompetence_odpoved > min(6, median(kompetence_odpoved)), nejvyse = kompetence_odpoved == max(kompetence_odpoved)) %>%
   ungroup() %>%
-  mutate(nad_median = as.integer(nad_median), nejvyse = as.integer(nejvyse))
+  mutate(nad_median = as.integer(nad_median), nejvyse = as.integer(nejvyse),
+         age_norm = (age - 20.5) / 2.75,
+         age_ar = age - min(age) + 1)
 
-inla_formula <- nad_median ~ 1 + kompetence #+ f(session, model="iid")
+inla_formula <- nad_median ~ 1 + age_norm + f(age_ar, model = "iid") #+ f(session, model="iid")
 
 inla_formula
 
-inla_fit <- inla(inla_formula, family = "binomial", Ntrials = 1,
-       data = data_for_inla,
+inla_fits <- list()
+regression_inputs <- list()
+for(k in kompetence) {
+  regression_inputs[[k]] <- data_for_inla %>% filter(kompetence == k) %>% mutate(row_id = 1:n())
+  inla_fits[[k]] <- inla(inla_formula, family = "binomial", Ntrials = 1,
+       data = regression_inputs[[k]],
        control.compute = list(config=TRUE))
+}
 
 ```
 ```{r}
@@ -113,47 +121,101 @@ samples_colnames <- function(base, ids) {
 
 
 ```{r}
-n_samples <- 100
-pp_samples_matrix <- inla.posterior.sample(n_samples, inla_fit) %>% inla_samples_to_matrix()
+n_samples <- 200
+pp_samples_matrices <- list()
+for(k in kompetence) {
+  pp_samples_matrices[[k]] <- inla.posterior.sample(n_samples, inla_fits[[k]]) %>% inla_samples_to_matrix()
+}
 ```
 
 ```{r}
-regression_input <- data_for_inla
-regression_input$row_id <- 1:nrow(data_for_inla)
-
-
-predicted_pp_check <- pp_samples_matrix[, samples_colnames("Predictor", regression_input$row_id)] %>% as.tibble() %>% mutate(sample_id = 1:n_samples) %>%
-  pivot_longer(-sample_id, names_to = "row_id", names_prefix = "Predictor:", values_to = "linpred") %>%
-  mutate(row_id = as.integer(row_id),
-         response_prob = 1/(1 + exp(-linpred)),
-         response = rbinom(n(), size = 1, prob = response_prob)
-  ) 
-
-
-
-
-```
-
-```{r}
-my_pp_check <- function(regression_input, predicted_pp_check, group) {
-data_predicted <- predicted_pp_check %>%
-  inner_join(regression_input %>% select(row_id, kompetence, {{group}}), by = c("row_id" = "row_id")) %>%
-  group_by(sample_id, kompetence,  {{group}}) %>% 
-  summarise(mean_response = mean(response)) %>%
-  group_by(kompetence, {{group}}) %>%
-  summarise(mid = mean(mean_response), low = quantile(mean_response, 0.1), high = quantile(mean_response, 0.9)) 
-
-data_observed <- observed_pp_check %>% group_by(kompetence, {{group}})  %>% 
-  summarise(mid = mean(nad_median)) 
-
-data_predicted %>% ggplot(aes(x = {{group}}, y = mid)) + 
-  geom_bar(aes(y = mid), stat = "identity", fill = "lightblue") + scale_x_discrete() +
-  geom_linerange(aes(ymin = low, ymax = high)) +
-  geom_point() + facet_wrap(~kompetence)
+predicted_pp_checks <- list()
+for(k in kompetence) {
+  predicted_pp_checks[[k]] <- pp_samples_matrices[[k]][, samples_colnames("Predictor", regression_inputs[[k]]$row_id)] %>% as_tibble() %>% mutate(sample_id = 1:n_samples) %>%
+    pivot_longer(-sample_id, names_to = "row_id", names_prefix = "Predictor:", values_to = "linpred") %>%
+    mutate(row_id = as.integer(row_id),
+           response_prob = 1/(1 + exp(-linpred)),
+           response = rbinom(n(), size = 1, prob = response_prob)
+    ) 
 }
 
-my_pp_check(regression_input, predicted_pp_check, age)
 
+
+```
+
+```{r}
+my_pp_check <- function(regression_inputs, predicted_pp_checks, group) {
+  data_predicted <- list()
+  data_observed <- list()
+  for(k in kompetence) {
+    data_predicted[[k]] <- predicted_pp_checks[[k]] %>%
+      inner_join(regression_inputs[[k]] %>% select(row_id, kompetence, {{group}}), by = c("row_id" = "row_id")) %>%
+      group_by(sample_id, kompetence,  {{group}}) %>% 
+      summarise(mean_response = mean(response)) %>%
+      group_by(kompetence, {{group}}) %>%
+      summarise(mid = mean(mean_response), low = quantile(mean_response, 0.025), high = quantile(mean_response, 0.975)) 
+  
+    data_observed[[k]] <- regression_inputs[[k]] %>% group_by(kompetence, {{group}})  %>% 
+      summarise(mid = mean(nad_median)) 
+  }
+  
+  data_predicted_all <- do.call(rbind, data_predicted)
+  data_observed_all <- do.call(rbind, data_observed)
+  
+  data_predicted_all %>% ggplot(aes(x = {{group}}, y = mid)) + 
+    geom_bar(aes(y = mid), stat = "identity", fill = "lightblue", data = data_observed_all) + scale_x_discrete() +
+    geom_linerange(aes(ymin = low, ymax = high)) +
+    geom_point() + facet_wrap(~kompetence)
+}
+```
+
+```{r}
+my_pp_check(regression_inputs, predicted_pp_checks, age)
+my_pp_check(regression_inputs, predicted_pp_checks, kategorie_respondenta_full)
+
+```
+
+```{r}
+my_pp_check(regression_inputs %>% purrr::map( ~ mutate(., byl_na_kurzu = co_zazil %contains_word% "roversky_kurz")), predicted_pp_checks, byl_na_kurzu)
+
+```
+
+```{r}
+my_pp_check(regression_inputs %>% purrr::map( ~ mutate(.,  role_rover = role_skauting %contains_word% "clen_rady_roveru" | 
+                               role_skauting %contains_word% "tahoun_roveru" |
+                               role_skauting %contains_word% "clen_roveru" |
+                               role_skauting %contains_word% "clen_rady_roveru")), predicted_pp_checks, role_rover)
+
+my_pp_check(regression_inputs %>% 
+              purrr::map( ~ mutate(.,  
+                            role_vedeni = role_skauting %contains_word% "druzinovy_radce" | 
+                               role_skauting %contains_word% "oddilovy_radce" |
+                               role_skauting %contains_word% "vedouci_zastupce_oddilu" |
+                               role_skauting %contains_word% "clen_vedeni_oddilu" |
+                               role_skauting %contains_word% "technicka" |
+                               role_skauting %contains_word% "organizacni" |
+                               role_skauting %contains_word% "volena_funkce" |
+                               role_skauting %contains_word% "administrativa"
+                               , 
+                            role_rover = role_skauting %contains_word% "clen_rady_roveru" | 
+                               role_skauting %contains_word% "tahoun_roveru" |
+                               role_skauting %contains_word% "clen_roveru" |
+                               role_skauting %contains_word% "clen_rady_roveru",
+                               druh_role = case_when(is.na(role_vedeni) | is.na(role_rover) ~ NA_character_,
+                                                role_vedeni & role_rover ~ "r_v",
+                                                role_vedeni ~ "v",
+                                                role_rover ~ "r",
+                                                TRUE ~ "n")
+                               )
+                               ), predicted_pp_checks, druh_role)
+
+attributes(cela_data$role_skauting)
+
+```
+
+
+```{r}
+summary(inla_fits[["svedomi"]])
 ```
 
 
@@ -248,27 +310,27 @@ my_pp_check(regression_input, predicted_pp_check, age)
 
 
 ```{r}
-data_for_clm <- expanded_no_NA_small %>% mutate(kompetence_odpoved = factor(kompetence_odpoved, ordered = TRUE), session = factor(session), kategorie_kompetence = factor(kategorie_kompetence), kategorie_respondenta = factor(kategorie_respondenta))
+# data_for_clm <- expanded_no_NA_small %>% mutate(kompetence_odpoved = factor(kompetence_odpoved, ordered = TRUE), session = factor(session), kategorie_kompetence = factor(kategorie_kompetence), kategorie_respondenta = factor(kategorie_respondenta))
 #fit_clm <- clmm(kompetence_odpoved ~ 1 + (1| session) + (1|kategorie_kompetence) + (1 | kategorie_kompetence:session), data = data_for_clm)
 #fit_clm
 
 ```
 
 ```{r}
-library(doParallel)
-library(foreach)
-registerDoParallel(makeCluster(parallel::detectCores()))
+# library(doParallel)
+# library(foreach)
+# registerDoParallel(makeCluster(parallel::detectCores()))
 ```
 
 
 ```{r}
-vsechny_kategorie <- unique(data_for_clm$kategorie_kompetence)
-fits_clm <-  foreach (kategorie = vsechny_kategorie) %dopar% {
-  library(ordinal)
-  library(tidyverse)
-  clmm(kompetence_odpoved ~ 1 + age + kategorie_respondenta * kompetence + (1| session), data = data_for_clm %>% filter(kategorie_kompetence == kategorie))
-}
-names(fits_clm) <- vsechny_kategorie
+# vsechny_kategorie <- unique(data_for_clm$kategorie_kompetence)
+# fits_clm <-  foreach (kategorie = vsechny_kategorie) %dopar% {
+#   library(ordinal)
+#   library(tidyverse)
+#   clmm(kompetence_odpoved ~ 1 + age + kategorie_respondenta * kompetence + (1| session), data = data_for_clm %>% filter(kategorie_kompetence == kategorie))
+# }
+# names(fits_clm) <- vsechny_kategorie
 ```
 
 for(kategorie in vsechny_kategorie) {
@@ -279,6 +341,5 @@ ategorie) %>%
   print(plot)
 }
 
-```
 
 

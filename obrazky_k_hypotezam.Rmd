@@ -43,7 +43,7 @@ expanded_pro_plot <- expanded %>%
   group_by(session, kategorie_kompetence) %>% 
   filter(n() >= 5) %>%
   filter(age >= 15, age <= 26) %>%
-  mutate(nad_median = kompetence_odpoved > median(kompetence_odpoved), nejvyse = kompetence_odpoved == max(kompetence_odpoved)) %>%
+  mutate(nad_median = kompetence_odpoved > min(6,median(kompetence_odpoved)), nejvyse = kompetence_odpoved == max(kompetence_odpoved)) %>%
   group_by(kategorie_kompetence, kompetence) %>%
   mutate(nad_prumer_populace = kompetence_odpoved > mean(kompetence_odpoved)) %>%
   ungroup() %>%
@@ -80,6 +80,12 @@ plot_kompetence_by <- function(data, kategorie, group, meritko = "nejvyse") {
       geom_ribbon(alpha = 0.4) + geom_line() + facet_wrap(~ kompetence) + 
       my_scale_x + my_theme
 }
+```
+
+```{r, fig.height=8}
+expanded_pro_plot %>% plot_kompetence_by("zvladam", age, "nad_median")
+
+
 ```
 
 
