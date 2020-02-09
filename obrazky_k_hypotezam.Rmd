@@ -43,11 +43,9 @@ expanded_pro_plot <- expanded %>%
   group_by(session, kategorie_kompetence) %>% 
   filter(n() >= 5) %>%
   filter(age >= 15, age <= 26) %>%
-  mutate(nad_median = kompetence_odpoved > min(6,median(kompetence_odpoved)), nejvyse = kompetence_odpoved == max(kompetence_odpoved)) %>%
-  group_by(kategorie_kompetence, kompetence) %>%
-  mutate(nad_prumer_populace = kompetence_odpoved > mean(kompetence_odpoved)) %>%
-  ungroup() %>%
-  pivot_longer(c("nad_median", "nejvyse", "nad_prumer_populace"), names_to = "meritko", values_to = "meritko_ano") 
+  odvozena_meritka_kompetenci() %>%
+  pivot_longer(meritka_kompetence_nazvy, names_to = "meritko", values_to = "meritko_ano", 
+                 names_prefix = "kompetence_") 
   
 if(any(is.na(expanded_pro_plot$meritko_ano))) {
   stop("NA")

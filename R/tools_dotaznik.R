@@ -183,11 +183,11 @@ preprocess_dat <- function(cela_data, verbose = TRUE) {
     c(attributes(cela_data$kategorie_respondenta_full)$labels[c(1,2)],
       `Nikdy jsem nebyla součástí roverského společenství (mladší členi)` = "nikdy_spolecenstvi_mladsi",
       `Nikdy jsem nebyla součástí roverského společenství (starší členi)` = "nikdy_spolecenstvi_starsi")
-  
+
   # Vytvor nove promenne z FA analyzy pro role
-  role_fa <- cela_data %>% rozsir_mc(quo(role_skauting)) %>% select(starts_with("role_skauting_")) 
+  role_fa <- cela_data %>% rozsir_mc(quo(role_skauting)) %>% select(starts_with("role_skauting_"))
   role_fa_res <- psych::fa(role_fa , nfactors = 6, rotate = "varimax")
-  
+
   cela_data <- vytvor_promenne_dle_fa(cela_data,role_fa,role_fa_res, var_name = "roleFA")
   cela_data <- cela_data %>% rename(roleFA_roverSam=roleFA6,
                        roleFA_technickoOrganizacni = roleFA5,
