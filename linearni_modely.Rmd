@@ -18,6 +18,7 @@ library(brms)
 library(rstan)
 library(lme4)
 library(ordinal)
+library(INLA) #Install via install.packages("INLA", repos=c(getOption("repos"), INLA="https://inla.r-inla-download.org/R/stable"), dep=TRUE)
 
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
@@ -54,13 +55,177 @@ names(expanded)
 ```
 
 ```{r}
-expanded_no_NA <- expanded %>% filter(!is.na(kompetence_odpoved))
+expanded_no_NA <- expanded %>% filter(!is.na(kompetence_odpoved))  %>% group_by(session, kategorie_kompetence) %>% 
+  filter(n() >= 5) %>%
+  filter(age >= 15, age <= 26) %>%
+  ungroup()
+
 set.seed(20201501)
 users_to_use <- expanded_no_NA %>% select(session) %>% distinct() %>% sample_n(100) %>% pull(session) 
 expanded_no_NA_small <- expanded_no_NA %>% filter(session %in% users_to_use)
  formula_jen_id <- kompetence_odpoved ~ (1| session*kategorie_kompetence)
 
 ```
+
+
+
+
+```{r}
+
+expanded_no_NA %>% group_by(kategorie_kompetence, session) %>% summarise(med = median(kompetence_odpoved), all_7 = all(kompetence_odpoved == 7)) %>% group_by(kategorie_kompetence) %>% summarise(pocet_median_7 = sum(med == 7), pocet_all_7 = sum(all_7))
+
+data_for_inla <- expanded_no_NA %>% 
+  filter(kategorie_kompetence =="zvladam") %>% 
+  group_by(session) %>%
+  mutate(nad_median = kompetence_odpoved > min(6, median(kompetence_odpoved)), nejvyse = kompetence_odpoved == max(kompetence_odpoved)) %>%
+  ungroup() %>%
+  mutate(nad_median = as.integer(nad_median), nejvyse = as.integer(nejvyse))
+
+inla_formula <- nad_median ~ 1 + kompetence #+ f(session, model="iid")
+
+inla_formula
+
+inla_fit <- inla(inla_formula, family = "binomial", Ntrials = 1,
+       data = data_for_inla,
+       control.compute = list(config=TRUE))
+
+```
+```{r}
+inla_samples_to_matrix <- function(samples) {
+  names <- c(names(samples[[1]]$hyperpar), rownames(samples[[1]]$latent), "logdens.hyperpar","logdens.latent","logdens.joint")
+  data <- matrix(NA, nrow = length(samples), ncol = length(names))
+  colnames(data) <- names
+  for(i in 1:length(samples)) {
+    data[i,] <- c(samples[[i]]$hyperpar, samples[[i]]$latent, 
+                  ifelse(is.null(samples[[i]]$logdens$hyperpar), -Inf, samples[[i]]$logdens$hyperpar), 
+                  samples[[i]]$logdens$latent, samples[[i]]$logdens$joint)
+  }
+  
+  data
+}
+
+samples_colnames <- function(base, ids) {
+  pattern <- paste0(base,":%d")
+  sprintf(pattern, ids)
+}
+
+```
+
+
+```{r}
+n_samples <- 100
+pp_samples_matrix <- inla.posterior.sample(n_samples, inla_fit) %>% inla_samples_to_matrix()
+```
+
+```{r}
+regression_input <- data_for_inla
+regression_input$row_id <- 1:nrow(data_for_inla)
+
+
+predicted_pp_check <- pp_samples_matrix[, samples_colnames("Predictor", regression_input$row_id)] %>% as.tibble() %>% mutate(sample_id = 1:n_samples) %>%
+  pivot_longer(-sample_id, names_to = "row_id", names_prefix = "Predictor:", values_to = "linpred") %>%
+  mutate(row_id = as.integer(row_id),
+         response_prob = 1/(1 + exp(-linpred)),
+         response = rbinom(n(), size = 1, prob = response_prob)
+  ) 
+
+
+
+
+```
+
+```{r}
+my_pp_check <- function(regression_input, predicted_pp_check, group) {
+data_predicted <- predicted_pp_check %>%
+  inner_join(regression_input %>% select(row_id, kompetence, {{group}}), by = c("row_id" = "row_id")) %>%
+  group_by(sample_id, kompetence,  {{group}}) %>% 
+  summarise(mean_response = mean(response)) %>%
+  group_by(kompetence, {{group}}) %>%
+  summarise(mid = mean(mean_response), low = quantile(mean_response, 0.1), high = quantile(mean_response, 0.9)) 
+
+data_observed <- observed_pp_check %>% group_by(kompetence, {{group}})  %>% 
+  summarise(mid = mean(nad_median)) 
+
+data_predicted %>% ggplot(aes(x = {{group}}, y = mid)) + 
+  geom_bar(aes(y = mid), stat = "identity", fill = "lightblue") + scale_x_discrete() +
+  geom_linerange(aes(ymin = low, ymax = high)) +
+  geom_point() + facet_wrap(~kompetence)
+}
+
+my_pp_check(regression_input, predicted_pp_check, age)
+
+```
+
+
+```{r}
+# pivot_threshold <- 5
+# threshold_data <- tibble(threshold = c(1:6))
+# for(t in 1:6) {
+#   threshold_name = paste0("c",t)
+#   if(t < pivot_threshold) {
+#     threshold_data <- threshold_data %>% mutate(!!threshold_name := if_else(threshold <= t, -1, 0))
+#   } else if(t > pivot_threshold) {
+#     threshold_data <- threshold_data %>% mutate(!!threshold_name := if_else(threshold >= t, 1, 0))
+#   }
+# }
+# threshold_data
+```
+
+```{r}
+# 
+# data_for_inla <- expanded_no_NA_small %>% filter(kategorie_kompetence =="zvladam") %>% 
+#   crossing(threshold_data) %>%
+#   mutate(over_threshold = as.integer(kompetence_odpoved > threshold))
+#   # mutate(nad_median = kompetence_odpoved > median(kompetence_odpoved), nejvyse = kompetence_odpoved == max(kompetence_odpoved)) %>%
+#   # mutate(nad_median = as.integer(nad_median))
+# 
+# inla_formula <- over_threshold ~ 1 + kompetence + f(session, model="iid")
+# 
+# for(t in 1:6) {
+#   if(t != pivot_threshold) {
+#     threshold_name <- paste0("c",t)
+#     inla_formula <- update.formula(inla_formula, as.formula(paste0('. ~ . + f(', threshold_name, ', model = "clinear", range = c(0, Inf))')))
+#   }
+# }
+# 
+# inla_formula
+# 
+# inla_fit <- inla(inla_formula, family = "binomial", Ntrials = 1,
+#        data = data_for_inla,
+#        control.compute = list(config=TRUE))
+
+```
+
+
+```{r}
+# regression_input <- data_for_inla
+# regression_input$row_id <- 1:nrow(data_for_inla)
+# 
+# observed_pp_check <- regression_input %>% select(session, row_id, kompetence, threshold)
+# 
+# predictor_tibble <- pp_samples_matrix[, samples_colnames("Predictor", observed_pp_check$row_id)] %>% as.tibble() %>% mutate(sample_id = 1:n_samples) %>%
+#   pivot_longer(-sample_id, names_to = "row_id", names_prefix = "Predictor:", values_to = "linpred") %>%
+#   mutate(row_id = as.integer(row_id))
+# 
+# predictor_tibble <- predictor_tibble %>% filter(sample_id < 5)
+# 
+# predicted_pp_check_bool <- observed_pp_check %>% 
+#   inner_join(predictor_tibble, by = c("row_id" = "row_id")) %>%
+#   group_by(session, sample_id, kompetence) %>%
+#       mutate(response_cumulative = 1/(1 + exp(-linpred)),
+#              response_prob = c(response_cumulative[threshold == 1], diff(response_cumulative[threshold]))[threshold]
+#            ) %>%
+#   ungroup()
+#   
+# 
+# predicted_pp_check <- predicted_pp_check_bool %>%
+#   group_by(session, sample_id, kompetence) %>% 
+#   summarise(prediction = sample(1:7, size = 1, prob = c(response_prob[threshold], 1 - response_cumulative[threshold == 6])))
+# 
+# hist(predicted_pp_check$prediction)
+# hist(data_for_inla$kompetence_odpoved)
+```
+
 
 
 ```{r}
