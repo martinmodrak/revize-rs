@@ -488,7 +488,7 @@ rozsir_mc_matrix <- function(df, var, zachovat_NA = FALSE) {
 
 # umozni rozsekat mc odpovedi ulozene ve stringu do n sloupcu (true/false)
 rozsir_mc <- function(df, var, zachovat_NA = FALSE) {
-  df <- cbind(df, as_tibble(mc_to_matrix(df, var, zachovat_NA = FALSE)))
+  df <- cbind(df, as_tibble(rozsir_mc_matrix(df, var, zachovat_NA = FALSE)))
 }
 
 mc_sloupce <- c(quo(role_skauting), quo(co_zazil), quo(fungovani_skautskeho_oddilu),

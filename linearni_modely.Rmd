@@ -34,7 +34,7 @@ source(here::here("R","tools_kompetence.R"), encoding = "UTF-8")
 cela_data_raw <- nacti_dotaznik()
 cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE)  
 #check_vysledky(cela_data)
-expanded <- cela_data %>% rozsir_vsechna_mc(zachovat_NA = TRUE) %>% expand_kompetence()
+expanded <- cela_data %>% expand_kompetence()
 ```
 
 
@@ -53,13 +53,13 @@ users_to_use <- expanded_no_NA %>% select(session) %>% distinct() %>% sample_n(8
 expanded_no_NA_small <- expanded_no_NA %>% filter(session %in% users_to_use)
  formula_jen_id <- kompetence_odpoved ~ (1| session*kategorie_kompetence)
 
+base_for_inla <- expanded_no_NA
 ```
 
 
 
 ```{r}
 #Hromadny vypocet
-# base_for_inla <- expanded_no_NA
 # for(kategorie in kategorie_kompetence) {
 #   for(meritko in names(meritka_kompetence)) {
 #     inla_formula <- bbb ~ 1 + age_norm + f(age_ar, model = "iid") 
@@ -72,38 +72,76 @@ expanded_no_NA_small <- expanded_no_NA %>% filter(session %in% users_to_use)
 ```
 
 
+
 ```{r}
+
 kategorie = "rozvijim"
-inla_formula <- kompetence_relativne_k_populaci ~ 1 + age_norm + f(age_ar, model = "iid")
-#inla_formula <- kompetence_relativne_k_populaci ~ 1 + age_norm + f(age_ar, model = "iid") + f(factor(kategorie_respondenta_full, model = "iid")) + f(mc_matrices$role_skauting, model = "z")
-base_for_inla <- expanded_no_NA
+#inla_formula <- kompetence_relativne_k_populaci ~ 1 + age_norm + f(age_ar, model = "iid")
+inla_formula_base <- kompetence_odpoved ~ 1 + age_norm + f(age_ar, model = "iid") + f(kategorie_respondenta_full, model = "iid", hyper = list(theta = list(prior = log_inv_hn_sqrt(1)))) + f(row_id, model = "iid")
 
 
-pipeline_result <- inla_pipeline(base_for_inla, kategorie, inla_formula, kompetence_to_run = c("skautsky_zit"), save_cache = FALSE)
-# pipeline_result <- inla_pipeline(base_for_inla, kategorie, inla_formula, kompetence_to_run = c("skautsky_zit"), save_cache = FALSE)
+pipeline_result <- inla_pipeline(base_for_inla, kategorie, inla_formula_base, list(quo(role_skauting), quo(co_zazil), quo(fungovani_skautskeho_oddilu), quo(organizace_spolecenstvi)))
+
+pipeline_result$processed_fits %>% map(~ .$cache_result)
 ```
 
 TODO: je nezvladani dany tim, ze nekdo nezvlada nic nebo tim, ze kazdy nezvlada neco
 
+```
+# kategorie = "rozvijim"
+# 
+# data_for_inla <- make_data_for_inla(base_for_inla, kategorie, list(quo(role_skauting)))
+# 
+# 
+# inla_formula_base <- kompetence_relativne_k_populaci ~ 1 + age_norm + f(age_ar, model = "iid") + kategorie_respondenta_full
+# 
+# inla_formula <- update(inla_formula_base, as.formula(paste0(". ~ . ", data_for_inla$mc_formula_str)))
+# inla_formula
+# 
+# fit <- my_inla_fit(inla_formula, data_for_inla$data_for_inla)
+# # 
+# 
+# marginals_summary_from_fit(fit) %>% select(marginal, index, q0.025, q0.975) %>% filter(!grepl("id.role_skauting_", marginal ))
 
-```{r}
+```
+
+
+
+```
+pipeline_result$processed_fits[["skautsky_zit"]]$marginals_summary %>% select(marginal, index, q0.025, q0.975) %>% filter(!grepl("id.role_skauting_", marginal ), marginal != "row_id")
+
+pipeline_result$processed_fits[["skautsky_zit"]]$summary.hyperpar
+
+```
+
+
+```{r, fig.width=8, fig.height = 8}
 my_pp_check(pipeline_result, age)
 my_pp_check(pipeline_result, age, stat = sd)
-my_pp_check(pipeline_result, kategorie_respondenta_full)
+my_pp_check(pipeline_result, kategorie_respondenta_full) + theme(axis.text.x = element_text(angle = 90, vjust = 0.3, hjust = 1))
 
 ```
 
 ```{r}
-my_pp_check(pipeline_result, co_zazil_roversky_kurz)
-any(is.na(expanded_no_NA$co_zazil_roversky_kurz))
-any(is.na(expanded_no_NA$co_zazil))
+my_pp_check(pipeline_result, co_zazil %contains_word% "roversky_kurz")
 ```
 
 ```{r}
-my_pp_check(pipeline_result,  role_skauting_clen_rady_roveru | 
-                               role_skauting_tahoun_roveru |
-                               role_skauting_clen_roveru |
-                              role_skauting_vedouci_roveru, label = "role_rover")
+my_pp_check(pipeline_result,     role_skauting %contains_word% "druzinovy_radce" 
+                                 )
+my_pp_check(pipeline_result,     role_skauting %contains_word% "clen_roveru" 
+                                 )
+my_pp_check(pipeline_result,     role_skauting %contains_word% "tahoun_roveru" 
+                                 )
+my_pp_check(pipeline_result,     role_skauting %contains_word% "vedouci_roveru" 
+                                 )
+
+
+my_pp_check(pipeline_result,     role_skauting %contains_word% "clen_rady_roveru" | 
+                                 role_skauting %contains_word% "tahoun_roveru" |
+                                 role_skauting %contains_word% "clen_roveru" |
+                                 role_skauting %contains_word% "vedouci_roveru",
+                  label = "role_rover")
 
 my_pp_check(pipeline_result, 
                               interaction(factor(
@@ -131,7 +169,7 @@ my_pp_check(pipeline_result,
 
 
 ```{r}
-summary(inla_fits[["svedomi"]])
+pipeline_result$processed_fits[["duchovni_zivot"]]$marginals_summary %>% select(marginal, index, q0.025, q0.975) %>% filter(!grepl("id.role_skauting_", marginal ), marginal != "row_id")
 ```
 
 
@@ -257,5 +295,18 @@ ategorie) %>%
   print(plot)
 }
 
+```{r}
+tt <- function(log_x, sigma) {  -1/(2 * sigma * log_x) - 0.5 * (log(2) + log(3.1415926535)) - log(sigma) - 1.5 * log_x }
+
+
+limit <- 30
+vals <- 1/(rnorm(1e3, sd = 100)^2)
+curve(exp(tt(x, 1) + x), log(min(vals)),log(max(vals)))
+dd <- density(log(vals))
+plot(dd)
+
+
+
+```
 
 

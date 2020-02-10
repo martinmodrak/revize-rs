@@ -1,25 +1,14 @@
 library(formula.tools)
 
-inla_pipeline <- function(base_data, kategorie, formula, n_samples = 200, kompetence_to_run = kompetence, save_cache = TRUE) {
-  data_for_inla <- base_data %>%
-    filter(kategorie_kompetence == kategorie) %>%
-    group_by(session) %>%
-    odvozena_meritka_kompetenci() %>%
-    ungroup() %>%
-    mutate(age_norm = (age - 20.5) / 2.75,
-           age_ar = age - min(age) + 1)
+inla_pipeline <- function(base_data, kategorie, formula_base, uzite_mc_sloupce, n_samples = 200, kompetence_to_run = kompetence) {
+  data_for_inla <- make_data_for_inla(base_data, kategorie, uzite_mc_sloupce)
 
-  mc_matrices <- list()
-  for(sloupec in mc_sloupce) {
-    na_matrix <- matrix(data = is.na(data_for_inla %>% pull(!!sloupec)), ncol = 1, nrow = nrow(data_for_inla))
-    colnames(na_matrix) <- paste0(as_label(sloupec),"_NA")
-    mc_matrix <- cbind(mc_to_matrix(data_for_inla, sloupec), na_matrix)
-    mc_matrices[[as_label(sloupec)]] <- mc_matrix
-  }
+  formula <- update(formula_base, as.formula(paste0(". ~ . ", data_for_inla$mc_formula_str)))
 
   regression_inputs <- list()
   for(k in kompetence_to_run) {
-    regression_inputs[[k]] <- data_for_inla %>% filter(kompetence == k) %>% mutate(row_id = 1:n())
+    regression_inputs[[k]] <- data_for_inla$data_for_inla %>%
+      filter(kompetence == k) %>% mutate(row_id = 1:n())
   }
 
   fit_dir <- here::here("local_data","inla_fits")
@@ -27,7 +16,7 @@ inla_pipeline <- function(base_data, kategorie, formula, n_samples = 200, kompet
     dir.create(fit_dir)
   }
 
-  cache_filename <- paste0(fit_dir,"/fit_", kategorie, "_", openssl::md5(as.character(formula)),".rds")
+  cache_filename <- paste0(fit_dir,"/results_", kategorie, "_", formula_to_cache_name(formula),".rds")
 
 
   result <- NULL
@@ -38,14 +27,10 @@ inla_pipeline <- function(base_data, kategorie, formula, n_samples = 200, kompet
        identical(cache_contents$formula, formula) &&
        isTRUE(all.equal(cache_contents$regression_inputs, regression_inputs, check.attributes = FALSE))) {
       if(cache_contents$n_samples < n_samples) {
-        message("N_samples larger, computing more samples")
-        cache_contents$n_samples = n_samples
-        cache_contents$pp_samples_matrices <- matrix_samples_from_fits(cache_contents$inla_fits, n_samples)
-        if(save_cache)  {
-          saveRDS(cache_contents, cache_filename)
-        }
+        warning("N_samples larger, recomputing")
+      } else {
+        result <- cache_contents
       }
-      result <- cache_contents
     } else {
       warning("Cache file is not compatible, recomputing")
     }
@@ -54,42 +39,155 @@ inla_pipeline <- function(base_data, kategorie, formula, n_samples = 200, kompet
   # Potrebuju spocitat
   if(is.null(result)) {
 
-    # cl <- parallel::makeCluster(parallel::detectCores(), useXDR = FALSE)
-    #
-    # parallel::clusterExport(cl, c("meritka_kompetence", "formula", "my_inla_fit"), envir = environment())
-    # parallel::clusterEvalQ(cl, { library(INLA) })
-    # inla_fits <- parallel::parLapplyLB(cl, regression_inputs, function(input) {
-    #   my_inla_fit(formula, input, num.threads = 1)
-    # })
-    # stopCluster(cl)
-    inla_fits <- list()
-    for(k in kompetence_to_run) {
-      inla_fits[[k]] <- my_inla_fit(formula, regression_inputs[[k]])
-    }
+    cl <- parallel::makeCluster(min(parallel::detectCores(), length(kompetence_to_run)))
 
-    pp_samples_matrices <- matrix_samples_from_fits(inla_fits, n_samples)
+    r_basedir <- here::here("R")
+    parallel::clusterExport(cl,
+                            c("formula", "fit_dir", "kategorie","r_basedir"),
+                            envir = environment())
+    parallel::clusterEvalQ(cl, {
+      library(INLA); library(tidyverse); library(purrr); library(formula.tools);
+      source(paste0(r_basedir,"/tools_INLA.R"), encoding = "UTF-8")
+      source(paste0(r_basedir,"/tools_kompetence.R"), encoding = "UTF-8")
+
+    })
+
+    inputs_and_names <- regression_inputs %>% imap( ~ list(name = .y, input = .x))
+
+    processed_fits <- parallel::parLapplyLB(cl, inputs_and_names, function(x) {
+    #processed_fits <- lapply(inputs_and_names, function(x) {
+      fit_cache_filename <- paste0(fit_dir, "/fit_", kategorie,"_",x$name,"_", formula_to_cache_name(formula), ".rds")
+      fit <- NULL
+      if(file.exists(fit_cache_filename)) {
+        cache_contents <- readRDS(fit_cache_filename)
+        if(identical(cache_contents$formula, formula) &&
+           isTRUE(all.equal(cache_contents$input, x$input, check.attributes = FALSE))) {
+          fit <- cache_contents$fit
+          cache_result <- "Loaded"
+        } else {
+          cache_result <- "Mismatch"
+        }
+      } else {
+        cache_result <- "Not found"
+      }
+
+      if(is.null(fit)) {
+        fit <- my_inla_fit(formula, x$input, num.threads = 1)
+        saveRDS(list(formula = formula, input = x$input, fit = fit), file = fit_cache_filename)
+      }
+
+      list(
+        pp_samples_matrix = inla_samples_to_matrix(inla.posterior.sample(n_samples, fit)),
+        marginals_summary = marginals_summary_from_fit(fit),
+        summary.hyperpar = fit$summary.hyperpar,
+        cache_result = cache_result
+      )
+    })
+    names(processed_fits) <- names(regression_inputs)
+    stopCluster(cl)
 
     result <- list(kategorie = kategorie,
-         formula = formula,
+                   formula = formula,
          regression_inputs = regression_inputs,
          n_samples = n_samples,
-         inla_fits = inla_fits,
-         pp_samples_matrices = pp_samples_matrices)
+         processed_fits = processed_fits)
 
-    if(save_cache) {
-      saveRDS(result, cache_filename)
-    }
+    saveRDS(result, cache_filename)
   }
 
-  # Samply pocitam vzdy, nevyplati se ukladat
+  # Samply pocitam vzdy, nevyplati se ukladat ani prenaset
   result$predicted_pp_checks <- list()
   for(k in kompetence_to_run) {
     result$predicted_pp_checks[[k]] <-
-      pp_samples_from_matrix(formula, result$pp_samples_matrices[[k]], regression_inputs[[k]])
+      pp_samples_from_matrix(formula, result$processed_fits[[k]]$pp_samples_matrix, regression_inputs[[k]])
   }
 
   result
 }
+
+formula_to_cache_name <- function(formula) {
+  openssl::md5(as.character(formula))
+}
+
+marginals_summary_from_fit <- function(fit) {
+  summary_random <-
+    map_dfr(fit$marginals.random,
+              ~  map_dfr(.,  marginals_summary_single, .id = "index"),
+        .id = "marginal")
+
+  summary_fixed <-
+    map_dfr(fit$marginals.fixed, marginals_summary_single, .id = "marginal") %>%
+    mutate(index = "")
+
+  summary_hyperpar <-
+    map_dfr(fit$marginals.hyperpar, marginals_summary_single, .id = "marginal") %>%
+    mutate(index = "")
+
+  rbind(summary_random, summary_fixed)
+}
+
+
+marginals_summary_single <- function(marginal) {
+  probs <- c(0.025, 0.05, 0.1, 0.5, 0.9, 0.95, 0.975)
+  cdf_at_0 <- inla.pmarginal(0, marginal)
+  as.data.frame(
+    matrix(
+      inla.qmarginal(p = probs, marginal),
+      ncol = length(probs),
+      dimnames = list(NULL, paste0("q",probs))
+    )
+  ) %>% mutate(widest_ci_sign = 2 * (0.5 - cdf_at_0))
+}
+
+make_data_for_inla <- function(base_data, kategorie, uzite_mc_sloupce) {
+  data_for_inla <- base_data %>%
+    filter(kategorie_kompetence == kategorie) %>%
+    group_by(session) %>%
+    odvozena_meritka_kompetenci() %>%
+    ungroup() %>%
+    mutate(age_norm = (age - 20.5) / 2.75,
+           age_ar = age - min(age) + 1,
+           kategorie_respondenta_full = factor(kategorie_respondenta_full)
+           )
+
+  mc_formula_str <- ""
+  for(sloupec in uzite_mc_sloupce) {
+    obsah_sloupce <- data_for_inla %>% pull(!!sloupec)
+    mc_matrix <- rozsir_mc_matrix(data_for_inla, sloupec)
+    if(any(is.na(obsah_sloupce))) {
+      na_matrix <- matrix(data = is.na(obsah_sloupce), ncol = 1, nrow = nrow(data_for_inla))
+      colnames(na_matrix) <- paste0(as_label(sloupec),"_NA")
+      mc_matrix <- cbind(mc_matrix, na_matrix)
+    }
+
+    ind_matrix <- matrix(1:ncol(mc_matrix), nrow = nrow(data_for_inla), ncol = ncol(mc_matrix), byrow = TRUE)
+    colnames(ind_matrix) <- paste0("id.", colnames(mc_matrix))
+    colnames(ind_matrix)[1] <- paste0("id.", as_label(sloupec))
+
+    mc_formula_str_sloupec <- paste0(
+      ' + f(', colnames(ind_matrix)[1], ', ', colnames(mc_matrix)[1],
+#      ', model = "generic3", Cmatrix = list(diag(', ncol(mc_matrix), ')))')
+    ', model = "generic3", Cmatrix = list(diag(', ncol(mc_matrix),
+    ')), hyper = list(theta1 = list(prior = log_inv_hn_sqrt(1))))')
+
+    for(i in 2:ncol(mc_matrix)) {
+      mc_formula_str_sloupec <- paste0(
+        mc_formula_str_sloupec,
+        ' + f(', colnames(ind_matrix)[i], ', ', colnames(mc_matrix)[i],
+        ', copy = "',colnames(ind_matrix)[1],'")'
+      )
+    }
+
+    # Use as fixed effects
+    #mc_formula_str_sloupec <- paste0(' + ', colnames(mc_matrix), collapse = "")
+
+
+    mc_formula_str <- paste0(mc_formula_str, mc_formula_str_sloupec)
+    data_for_inla <- cbind(data_for_inla, as_tibble(mc_matrix), as_tibble(ind_matrix))
+  }
+  list(data_for_inla = data_for_inla, mc_formula_str = mc_formula_str)
+}
+
 
 
 inla_samples_to_matrix <- function(samples) {
@@ -133,21 +231,6 @@ my_inla_fit <- function(model_formula, data, num.threads = inla.getOption("num.t
                 additional.args, num.threads = num.threads)
 
   do.call(inla, all_args)
-}
-
-matrix_samples_from_fits <- function(fits, n_samples) {
-  # cl <- parallel::makeCluster(parallel::detectCores(), useXDR = FALSE)
-  # parallel::clusterExport(cl, c("inla_samples_to_matrix", "n_samples"), envir = environment())
-  # parallel::clusterEvalQ(cl, { library(INLA) })
-  # ret <- parallel::parLapplyLB(cl, fits, function(fit) {
-  #   inla_samples_to_matrix(inla.posterior.sample(n_samples, fit))
-  # })
-  # stopCluster(cl)
-  ret <- list()
-  for(k in names(fits)) {
-    ret[[k]] <- inla_samples_to_matrix(inla.posterior.sample(n_samples, fits[[k]]))
-  }
-  ret
 }
 
 pp_samples_from_matrix <- function(model_formula, pp_samples_matrix, regression_input) {
@@ -204,7 +287,7 @@ my_pp_check <- function(pipeline_result, group, stat = mean, label = as_label({{
 
   data_predicted <- list()
   data_observed <- list()
-  for(k in kompetence) {
+  for(k in names(regression_inputs)) {
     # Odstranit otravny warning
     regression_inputs[[k]] <- regression_inputs[[k]] %>% mutate(group_char = !!group)
 
@@ -228,7 +311,16 @@ my_pp_check <- function(pipeline_result, group, stat = mean, label = as_label({{
     geom_point() +
     geom_line(aes(y = mid, group = kompetence), color = "lightblue", data = data_observed_all) +
     scale_x_discrete(label) +
-    facet_wrap(~kompetence)
+    facet_wrap(~kompetence) + ggtitle(paste0(pipeline_result$kategorie, " - ", lhs(pipeline_result$formula)))
 
 }
 
+#Log - Inverse - Half normal prior
+log_inv_hn_sqrt <- function(sigma = 1) {
+  paste0("expression:
+sigma = ", sigma, ";
+logdens = -1/(2 * sigma * log_x) - 0.5 * (log(2) + log(3.1415926535)) - log(sigma) - 1.5 * log_x;
+log_jacobian = log_x;
+return(logdens + log_jacobian);
+")
+}
