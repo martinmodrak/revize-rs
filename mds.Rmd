@@ -55,3 +55,8 @@ pca_res <- cmdscale(kompetence_dist)
 plot_mds(list(points = pca_res))
 ```
 
+
+```{r}
+cov(tabulka_kompetence, use = "pairwise.complete.ob") %>% hist()
+```
+

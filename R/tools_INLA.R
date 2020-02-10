@@ -1,6 +1,6 @@
 library(formula.tools)
 
-inla_pipeline <- function(base_data, kategorie, formula, n_samples = 200) {
+inla_pipeline <- function(base_data, kategorie, formula, n_samples = 200, kompetence_to_run = kompetence, save_cache = TRUE) {
   data_for_inla <- base_data %>%
     filter(kategorie_kompetence == kategorie) %>%
     group_by(session) %>%
@@ -9,8 +9,16 @@ inla_pipeline <- function(base_data, kategorie, formula, n_samples = 200) {
     mutate(age_norm = (age - 20.5) / 2.75,
            age_ar = age - min(age) + 1)
 
+  mc_matrices <- list()
+  for(sloupec in mc_sloupce) {
+    na_matrix <- matrix(data = is.na(data_for_inla %>% pull(!!sloupec)), ncol = 1, nrow = nrow(data_for_inla))
+    colnames(na_matrix) <- paste0(as_label(sloupec),"_NA")
+    mc_matrix <- cbind(mc_to_matrix(data_for_inla, sloupec), na_matrix)
+    mc_matrices[[as_label(sloupec)]] <- mc_matrix
+  }
+
   regression_inputs <- list()
-  for(k in kompetence) {
+  for(k in kompetence_to_run) {
     regression_inputs[[k]] <- data_for_inla %>% filter(kompetence == k) %>% mutate(row_id = 1:n())
   }
 
@@ -33,7 +41,9 @@ inla_pipeline <- function(base_data, kategorie, formula, n_samples = 200) {
         message("N_samples larger, computing more samples")
         cache_contents$n_samples = n_samples
         cache_contents$pp_samples_matrices <- matrix_samples_from_fits(cache_contents$inla_fits, n_samples)
-        saveRDS(cache_contents, cache_filename)
+        if(save_cache)  {
+          saveRDS(cache_contents, cache_filename)
+        }
       }
       result <- cache_contents
     } else {
@@ -53,7 +63,7 @@ inla_pipeline <- function(base_data, kategorie, formula, n_samples = 200) {
     # })
     # stopCluster(cl)
     inla_fits <- list()
-    for(k in kompetence) {
+    for(k in kompetence_to_run) {
       inla_fits[[k]] <- my_inla_fit(formula, regression_inputs[[k]])
     }
 
@@ -66,12 +76,14 @@ inla_pipeline <- function(base_data, kategorie, formula, n_samples = 200) {
          inla_fits = inla_fits,
          pp_samples_matrices = pp_samples_matrices)
 
-    saveRDS(result, cache_filename)
+    if(save_cache) {
+      saveRDS(result, cache_filename)
+    }
   }
 
   # Samply pocitam vzdy, nevyplati se ukladat
   result$predicted_pp_checks <- list()
-  for(k in kompetence) {
+  for(k in kompetence_to_run) {
     result$predicted_pp_checks[[k]] <-
       pp_samples_from_matrix(formula, result$pp_samples_matrices[[k]], regression_inputs[[k]])
   }
@@ -132,7 +144,7 @@ matrix_samples_from_fits <- function(fits, n_samples) {
   # })
   # stopCluster(cl)
   ret <- list()
-  for(k in kompetence) {
+  for(k in names(fits)) {
     ret[[k]] <- inla_samples_to_matrix(inla.posterior.sample(n_samples, fits[[k]]))
   }
   ret

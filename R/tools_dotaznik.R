@@ -445,8 +445,9 @@ replace_coding <- function(x, new_values) {
   ret
 }
 
+
 # umozni rozsekat mc odpovedi ulozene ve stringu do n sloupcu (true/false)
-rozsir_mc <- function(df, var, zachovat_NA = FALSE) {
+rozsir_mc_matrix <- function(df, var, zachovat_NA = FALSE) {
   mc_obsahuje <- function(v,polozka) {
     if(zachovat_NA && is.na(v)) {
       return(NA)
@@ -457,10 +458,12 @@ rozsir_mc <- function(df, var, zachovat_NA = FALSE) {
   col_names <- all_attributes$labels %>% as.character()
   polozky <- df[[as_label(var)]] %>% str_split(", ")
 
+  result <- matrix(NA, nrow = nrow(df), ncol = length(col_names))
+  colnames(result) <- paste0(as_label(var),"_",col_names)
+
   for (i in 1:length(col_names)) {
-    nazev_sloupce <- paste0(as_label(var),"_",col_names[i])
     obsah_sloupce <- map_lgl(polozky,mc_obsahuje,col_names[i])
-    df <- df %>% mutate(!!nazev_sloupce:=obsah_sloupce)
+    result[, i] <- obsah_sloupce
 
     # Check
     obsah_contains_word <- df[[as_label(var)]] %contains_word% col_names[i]
@@ -480,21 +483,25 @@ rozsir_mc <- function(df, var, zachovat_NA = FALSE) {
 
   }
 
-
-
-  df
+  result
 }
+
+# umozni rozsekat mc odpovedi ulozene ve stringu do n sloupcu (true/false)
+rozsir_mc <- function(df, var, zachovat_NA = FALSE) {
+  df <- cbind(df, as_tibble(mc_to_matrix(df, var, zachovat_NA = FALSE)))
+}
+
+mc_sloupce <- c(quo(role_skauting), quo(co_zazil), quo(fungovani_skautskeho_oddilu),
+                quo(spolecenstvi_registrace), quo(s_cim_spokojen), quo(s_cim_nespokojen),
+                quo(organizace_spolecenstvi), quo(vyroky_o_roveringu_zazil),
+                quo(vyroky_o_roveringu_zazil_2), quo(vychovne_nastroje), quo(problemy_roveringu),
+                quo(co_pomaha_roveringu), quo(komunikacni_kanaly_existujici),
+                quo(komunikacni_kanaly_hypoteticke), quo(proc_neni_rover),
+                quo(bez_zkuesnosti_velke_akce), quo(sluzba), quo(proc_nebyl_rover),
+                quo(vyroky_o_roveringu_stredisko), quo(problemy_roveringu_stredisko))
 
 
 rozsir_vsechna_mc <- function(data, zachovat_NA = FALSE) {
-  mc_sloupce <- c(quo(role_skauting), quo(co_zazil), quo(fungovani_skautskeho_oddilu),
-                  quo(spolecenstvi_registrace), quo(s_cim_spokojen), quo(s_cim_nespokojen),
-                  quo(organizace_spolecenstvi), quo(vyroky_o_roveringu_zazil),
-                  quo(vyroky_o_roveringu_zazil_2), quo(vychovne_nastroje), quo(problemy_roveringu),
-                  quo(co_pomaha_roveringu), quo(komunikacni_kanaly_existujici),
-                  quo(komunikacni_kanaly_hypoteticke), quo(proc_neni_rover),
-                  quo(bez_zkuesnosti_velke_akce), quo(sluzba), quo(proc_nebyl_rover),
-                  quo(vyroky_o_roveringu_stredisko), quo(problemy_roveringu_stredisko))
 
   for(sloupec in mc_sloupce) {
     data <- rozsir_mc(data, sloupec, zachovat_NA = zachovat_NA)

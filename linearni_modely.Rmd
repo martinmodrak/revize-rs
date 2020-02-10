@@ -59,28 +59,33 @@ expanded_no_NA_small <- expanded_no_NA %>% filter(session %in% users_to_use)
 
 ```{r}
 #Hromadny vypocet
-base_for_inla <- expanded_no_NA
-for(kategorie in kategorie_kompetence) {
-  for(meritko in names(meritka_kompetence)) {
-    inla_formula <- bbb ~ 1 + age_norm + f(age_ar, model = "iid") 
-    lhs(inla_formula) <- meritko
-
-    inla_pipeline(base_for_inla, kategorie, inla_formula)
-  }
-}
+# base_for_inla <- expanded_no_NA
+# for(kategorie in kategorie_kompetence) {
+#   for(meritko in names(meritka_kompetence)) {
+#     inla_formula <- bbb ~ 1 + age_norm + f(age_ar, model = "iid") 
+#     lhs(inla_formula) <- meritko
+# 
+#     inla_pipeline(base_for_inla, kategorie, inla_formula)
+#   }
+# }
 
 ```
 
 
 ```{r}
 kategorie = "rozvijim"
-inla_formula <- kompetence_relativne_k_populaci ~ 1 + age_norm + f(age_ar, model = "iid") 
+inla_formula <- kompetence_relativne_k_populaci ~ 1 + age_norm + f(age_ar, model = "iid")
+#inla_formula <- kompetence_relativne_k_populaci ~ 1 + age_norm + f(age_ar, model = "iid") + f(factor(kategorie_respondenta_full, model = "iid")) + f(mc_matrices$role_skauting, model = "z")
 base_for_inla <- expanded_no_NA
 
 
-pipeline_result <- inla_pipeline(base_for_inla, kategorie, inla_formula)
+pipeline_result <- inla_pipeline(base_for_inla, kategorie, inla_formula, kompetence_to_run = c("skautsky_zit"), save_cache = FALSE)
+# pipeline_result <- inla_pipeline(base_for_inla, kategorie, inla_formula, kompetence_to_run = c("skautsky_zit"), save_cache = FALSE)
 ```
 
+```{r}
+summary(pipeline_result$inla_fits[[1]])
+```
 
 
 ```{r}
