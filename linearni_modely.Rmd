@@ -83,9 +83,7 @@ pipeline_result <- inla_pipeline(base_for_inla, kategorie, inla_formula, kompete
 # pipeline_result <- inla_pipeline(base_for_inla, kategorie, inla_formula, kompetence_to_run = c("skautsky_zit"), save_cache = FALSE)
 ```
 
-```{r}
-summary(pipeline_result$inla_fits[[1]])
-```
+TODO: je nezvladani dany tim, ze nekdo nezvlada nic nebo tim, ze kazdy nezvlada neco
 
 
 ```{r}
@@ -105,7 +103,7 @@ any(is.na(expanded_no_NA$co_zazil))
 my_pp_check(pipeline_result,  role_skauting_clen_rady_roveru | 
                                role_skauting_tahoun_roveru |
                                role_skauting_clen_roveru |
-                               role_skauting_clen_rady_roveru, label = "role_rover")
+                              role_skauting_vedouci_roveru, label = "role_rover")
 
 my_pp_check(pipeline_result, 
                               interaction(factor(
@@ -123,7 +121,7 @@ my_pp_check(pipeline_result,
                                  role_skauting %contains_word% "clen_rady_roveru" | 
                                  role_skauting %contains_word% "tahoun_roveru" |
                                  role_skauting %contains_word% "clen_roveru" |
-                                 role_skauting %contains_word% "clen_rady_roveru",
+                                 role_skauting %contains_word% "vedouci_roveru",
                                  levels = c(TRUE, FALSE), labels = c("r","_"))
                               )
                                , label = "druh_role")
