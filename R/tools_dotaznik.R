@@ -231,17 +231,17 @@ preprocess_dat <- function(cela_data, verbose = TRUE) {
   if(!file.exists(psc_reg_cislo_pth)) {
     stop("Chybí překladní tabulka chybějící tečky na reg.číslo")
   }
-  psc_reg_cislo <- read_csv2(psc_reg_cislo_pth, col_types = cols(
+  psc_reg_cislo <- read_csv(psc_reg_cislo_pth, col_types = cols(
     reg_c_strediska = col_character(),
     reg_c_spravne = col_character()
   ))
 
   # nekde tam je bug, nevim kde zatim, ale musmi pracovat
-  #cela_data <-
-  #  cela_data %>%
-  #  left_join(psc_reg_cislo, by =c("reg_c_strediska")) %>%
-  #  mutate(reg_c_strediska = if_else(!is.na(reg_c_spravne), reg_c_spravne,reg_c_strediska)) %>%
-  #  select(-reg_c_spravne)
+  cela_data2 <-
+    cela_data %>%
+    left_join(psc_reg_cislo, by =c("reg_c_strediska")) %>%
+    mutate(reg_c_strediska = if_else(!is.na(reg_c_spravne), reg_c_spravne,reg_c_strediska)) %>%
+    select(-reg_c_spravne)
 
   # spocitej lss
   cela_data <- cela_data %>%
