@@ -45,7 +45,6 @@ source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
 ```{r}
 cela_data_raw <- nacti_dotaznik()
 cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE) 
-cela_data <- cela_data %>% select(-`spolecenstvi_registrace_jine`, -`vychovne_nastroje_jine`, -`co_pomaha_roveringu_jine`,- `komunikacni_kanaly_hypoteticke_jine`, -`proc_neni_rover_jine`)
 check_vysledky(cela_data)
 ```
 

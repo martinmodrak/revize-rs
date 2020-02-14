@@ -35,7 +35,7 @@ nacti_dotaznik <- function() {
   cela_data %>% as_tibble()
 }
 
-preprocess_dat <- function(cela_data, verbose = TRUE) {
+preprocess_dat <- function(cela_data, verbose = TRUE, vyhodit_jine_otazky = T) {
   cela_data <-  cela_data %>%
     mutate(zvolena_delka_dotazniku = factor(kolik_casu, levels = c(1,2), labels = c("kratka", "plna")))
 
@@ -246,7 +246,14 @@ preprocess_dat <- function(cela_data, verbose = TRUE) {
   # spocitej lss
   cela_data <- cela_data %>%
     mutate(lss = mc_lss1 + mc_lss2 + mc_lss3 + mc_lss4 + mc_lss5)
-
+  
+  # hazelo mi to error na tim, ze u vetsiny tech mc otazek je i moznost jine, ktera se pak dubluje s tema otevrenyma otazkama
+  # existuje tedy separatni skript, ktery preuklada jen otevrene otazky, tady se pak muzou vyhodit
+  if(vyhodit_jine_otazky) {
+    cela_data <- cela_data %>% select(-`spolecenstvi_registrace_jine`, -`vychovne_nastroje_jine`, -`co_pomaha_roveringu_jine`,- `komunikacni_kanaly_hypoteticke_jine`, -`proc_neni_rover_jine`)
+    
+  }
+  
   cela_data %>% as_tibble()
 }
 
