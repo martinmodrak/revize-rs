@@ -46,6 +46,7 @@ source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
 cela_data_raw <- nacti_dotaznik()
 cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE) 
 check_vysledky(cela_data)
+cela_data <- cela_data %>% rozsir_vsechna_mc()
 ```
 
 ```{r zakladni lss analyzy}
@@ -177,7 +178,7 @@ n_roli
 
 ```{r rozdelejless pro mc}
 
-cela_data <- cela_data %>% rozsir_vsechna_mc()
+
 cela_data %>% select(starts_with("roleFA_"),lss) %>% cor(use = "complete.obs") %>% knitr::kable(digits = 2)
 
 n_roli <- rowSums(cela_data %>% select(starts_with("role_skauting_")) %>% as.matrix())
@@ -937,14 +938,50 @@ cela_data %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 
 cela_data %>% 
-  filter(sex!=3) %>% 
-  mutate(sex = haven::as_factor(sex)) %>%
   select(sex,starts_with("fungovani_skautskeho_oddilu_")) %>% 
   pivot_longer(cols = starts_with("fungovani_skautskeho_oddilu_"), values_to = "procenta", names_to = "fungovani_skautskeho_oddilu") %>% 
   mutate(fungovani_skautskeho_oddilu = str_remove(fungovani_skautskeho_oddilu,"fungovani_skautskeho_oddilu_"),
          procenta = as.numeric(procenta)) %>% 
   
   ggplot(aes(x=fungovani_skautskeho_oddilu,y=procenta,col = sex,group = sex)) +
+  stat_summary(fun.data = "mean_cl_boot") + 
+  stat_summary(fun.y = "mean",geom = "line")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
+
+
+```{r}
+cela_data %>%
+  mutate(pocet_clenu_spolecenstvi=haven::as_factor(pocet_clenu_spolecenstvi)) %>% 
+  mutate(pocet_clenu_spolecenstvi = factor(pocet_clenu_spolecenstvi, levels = c("5 a méně", "6–10","11–20","21–30","31 a více"))) %>% 
+  select(pocet_clenu_spolecenstvi,starts_with("fungovani_skautskeho_oddilu_")) %>% 
+  pivot_longer(cols = starts_with("fungovani_skautskeho_oddilu_"), values_to = "procenta", names_to = "fungovani_skautskeho_oddilu") %>% 
+  mutate(fungovani_skautskeho_oddilu = str_remove(fungovani_skautskeho_oddilu,"fungovani_skautskeho_oddilu_"),
+         procenta = as.numeric(procenta)) %>% 
+  
+  ggplot(aes(x=fungovani_skautskeho_oddilu,y=procenta,col = pocet_clenu_spolecenstvi,group = pocet_clenu_spolecenstvi)) +
+  stat_summary(fun.data = "mean_cl_boot") + 
+  stat_summary(fun.y = "mean",geom = "line")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+cela_data %>% 
+  mutate(pocet_clenu_spolecenstvi=haven::as_factor(pocet_clenu_spolecenstvi)) %>% 
+  mutate(pocet_clenu_spolecenstvi = factor(pocet_clenu_spolecenstvi, levels = c("5 a méně", "6–10","11–20","21–30","31 a více"))) %>% 
+  group_by(pocet_clenu_spolecenstvi) %>% 
+  summarize(lss = mean(lss, na.rm = T),
+            spoko_rp = mean(spokojenost_s_roverskym_programem),
+            n=n())
+
+
+cela_data %>%
+  mutate(pocet_clenu_spolecenstvi=haven::as_factor(pocet_clenu_spolecenstvi)) %>% 
+  mutate(pocet_clenu_spolecenstvi = factor(pocet_clenu_spolecenstvi, levels = c("5 a méně", "6–10","11–20","21–30","31 a více"))) %>% 
+  select(pocet_clenu_spolecenstvi,starts_with("vyroky_o_roveringu_"),-starts_with("vyroky_o_roveringu_stredisko"),-vyroky_o_roveringu_zazil,-vyroky_o_roveringu_zazil_2) %>% 
+  pivot_longer(cols = starts_with("vyroky_o_roveringu_"), values_to = "procenta", names_to = "vyroky_o_roveringu") %>% 
+  mutate(vyroky_o_roveringu = str_remove(vyroky_o_roveringu,"vyroky_o_roveringu_"),
+         procenta = as.numeric(procenta)) %>% 
+  
+  ggplot(aes(x=vyroky_o_roveringu,y=procenta,col = pocet_clenu_spolecenstvi,group = pocet_clenu_spolecenstvi)) +
   stat_summary(fun.data = "mean_cl_boot") + 
   stat_summary(fun.y = "mean",geom = "line")+
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
