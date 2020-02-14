@@ -45,12 +45,57 @@ source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
 ```{r}
 cela_data_raw <- nacti_dotaznik()
 cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE) 
+cela_data <- cela_data %>% select(-`spolecenstvi_registrace_jine`, -`vychovne_nastroje_jine`, -`co_pomaha_roveringu_jine`,- `komunikacni_kanaly_hypoteticke_jine`, -`proc_neni_rover_jine`)
 check_vysledky(cela_data)
 ```
 
 ```{r zakladni lss analyzy}
 
 cor.test(~let_v_junaku+lss,cela_data)
+cela_data %>% 
+  group_by(pocet_clenu_spolecenstvi) %>% 
+  summarize(lss = mean(lss, na.rm=T)) %>% 
+  ggplot(aes(x=as.character(pocet_clenu_spolecenstvi),y=lss),cela_data) + geom_bar(stat = "identity")
+
+cela_data %>% 
+  mutate(frekvence_kratkych_akci = factor(frekvence_kratkych_akci, levels = c("nikdy","rocne","nekolik_rocne","mesicne","nekolik_mesicne","tydne","nekolik_tydne"))) %>% 
+  group_by(frekvence_kratkych_akci) %>% 
+  summarize(lss = mean(lss, na.rm=T)) %>% 
+  ggplot(aes(x=frekvence_kratkych_akci,y=lss),cela_data) + geom_bar(stat = "identity")
+
+cela_data %>% 
+  mutate(frekvence_kratkych_akci = factor(frekvence_kratkych_akci, levels = c("nikdy","rocne","nekolik_rocne","mesicne","nekolik_mesicne","tydne","nekolik_tydne"))) %>% 
+  group_by(frekvence_kratkych_akci) %>% 
+  summarize(spokojenost_s_roverskym_programem = mean(spokojenost_s_roverskym_programem, na.rm=T)) %>% 
+  ggplot(aes(x=frekvence_kratkych_akci,y=spokojenost_s_roverskym_programem),cela_data) + geom_bar(stat = "identity")
+
+p1 <- cela_data %>% 
+  mutate(frekvence_vicedennich_akci = factor(frekvence_vicedennich_akci, levels = c("nikdy","mene_nez_rocne","rocne","nekolik_rocne","mesicne","nekolik_mesicne"))) %>% 
+  group_by(frekvence_vicedennich_akci) %>% 
+  summarize(lss = mean(lss, na.rm=T)) %>% 
+  ggplot(aes(x=frekvence_vicedennich_akci,y=lss),cela_data) + geom_bar(stat = "identity") 
+
+p2 <- cela_data %>% 
+  mutate(frekvence_vicedennich_akci = factor(frekvence_vicedennich_akci, levels = c("nikdy","rocne","nekolik_rocne","mesicne","nekolik_mesicne","tydne","nekolik_tydne"))) %>% 
+  group_by(frekvence_vicedennich_akci) %>% 
+  summarize(spokojenost_s_roverskym_programem = mean(spokojenost_s_roverskym_programem, na.rm=T)) %>% 
+  ggplot(aes(x=frekvence_vicedennich_akci,y=spokojenost_s_roverskym_programem),cela_data) + geom_bar(stat = "identity")
+p1/p2
+
+p1 <- cela_data %>% 
+  mutate(frekvence_velkych_akci = factor(frekvence_velkych_akci, levels = c("nikdy","mene_nez_rocne","rocne","nekolik_rocne"))) %>% 
+  group_by(frekvence_velkych_akci) %>% 
+  summarize(lss = mean(lss, na.rm=T)) %>% 
+  ggplot(aes(x=frekvence_velkych_akci,y=lss),cela_data) + geom_bar(stat = "identity") 
+
+p2 <- cela_data %>% 
+  mutate(frekvence_velkych_akci = factor(frekvence_velkych_akci, levels = c("nikdy","mene_nez_rocne","rocne","nekolik_rocne"))) %>% 
+  group_by(frekvence_velkych_akci) %>% 
+  summarize(spokojenost_s_roverskym_programem = mean(spokojenost_s_roverskym_programem, na.rm=T)) %>% 
+  ggplot(aes(x=frekvence_velkych_akci,y=spokojenost_s_roverskym_programem),cela_data) + geom_bar(stat = "identity")
+p1/p2
+
+
 cor.test(~pocet_clenu_spolecenstvi+lss,cela_data)
 cor.test(~frekvence_kratkych_akci+lss,cela_data)
 cor.test(~frekvence_vicedennich_akci+lss,cela_data)
@@ -60,15 +105,74 @@ cor.test(~spokojenost_s_roverskym_programem+lss,cela_data)
 lss_pro_kategorie <- function(var) {
   cela_data %>% 
     group_by(!!var) %>% 
-    summarize(m_lss = mean(lss, na.rm = T),sd_lss = sd(lss, na.rm = T), n = sum(!is.na(lss)) ,n_NA = sum(is.na(lss)))
+    summarize(sd_lss = sd(lss, na.rm = T), n = sum(!is.na(lss)) ,n_NA = sum(is.na(lss)), lss = mean(lss, na.rm = T),
+              spokojenost_s_roverskym_programem = mean(spokojenost_s_roverskym_programem, na.rm = T),
+              spokojenost_s_fungovanim_v_junaku = mean(spokojenost_s_fungovanim_v_junaku, na.rm = T))
 }
-lss_pro_kategorie(quo(kategorie_respondenta))
+lss_pro_kategorie(quo(kategorie_respondenta)) %>% ggplot(aes(x = as.character(kategorie_respondenta), y =lss)) + geom_bar(stat="identity") + xlab("kategorie respondenta") +   theme(aspect.ratio = 0.5) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-lss_pro_kategorie(quo(role_skauting))
+lss_pro_kategorie(quo(kategorie_respondenta)) %>% ggplot(aes(x = as.character(kategorie_respondenta), y =spokojenost_s_roverskym_programem  )) + geom_bar(stat="identity") + xlab("kategorie respondenta") +   theme(aspect.ratio = 0.5) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-lss_pro_kategorie(quo(zivotni_faze))
-lss_pro_kategorie(quo(kraj))
+lss_pro_kategorie(quo(role_skauting_vedouci_roveru)) %>% ggplot(aes(x = as.character(role_skauting_vedouci_roveru), y =lss)) + geom_bar(stat="identity") + xlab("role skauting") +   theme(aspect.ratio = 0.5) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+lss_pro_kategorie(quo(zivotni_faze)) %>% 
+  mutate(zivotni_faze = recode(as.character(zivotni_faze), `1`="Studuji",`2`="Pracuji",`3`="Studuji i pracuji",`4`="Nepracuji ani nestuduji")) %>% 
+  ggplot(aes(x = as.character(zivotni_faze), y =spokojenost_s_roverskym_programem  )) + geom_bar(stat="identity") + xlab("zivotni_faze") +   
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+lss_pro_kategorie(quo(zivotni_faze)) %>% 
+  mutate(zivotni_faze = recode(as.character(zivotni_faze), `1`="Studuji",`2`="Pracuji",`3`="Studuji i pracuji",`4`="Nepracuji ani nestuduji")) %>% 
+  ggplot(aes(x = as.character(zivotni_faze), y =lss  )) + geom_bar(stat="identity") + xlab("zivotni_faze")
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+lss_pro_kategorie(quo(kraj)) %>% 
+  mutate(zivotni_faze = recode(as.character(zivotni_faze), `1`="Studuji",`2`="Pracuji",`3`="Studuji i pracuji",`4`="Nepracuji ani nestuduji")) %>% 
+  ggplot(aes(x = as.character(kraj), y =spokojenost_s_roverskym_programem  )) + geom_bar(stat="identity") + xlab("zivotni_faze") +   
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+kraj_val <- lss_pro_kategorie(quo(kraj)) %>% 
+  arrange(lss) %>% 
+  mutate(kraj = haven::as_factor(kraj) %>% as.character()) %>% pull(kraj)
+
+lss_pro_kategorie(quo(kraj)) %>% 
+  arrange(lss) %>% 
+  mutate(kraj = haven::as_factor(kraj) %>% as.character()) %>% 
+  mutate(kraj = factor(kraj, levels = kraj_val)) %>% 
+  ggplot(aes(x = kraj, y =lss  )) + geom_bar(stat="identity") + xlab("kraj")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+kraj_val <- lss_pro_kategorie(quo(kraj)) %>% 
+  arrange(spokojenost_s_roverskym_programem) %>% 
+  mutate(kraj = haven::as_factor(kraj) %>% as.character()) %>% pull(kraj)
+
+lss_pro_kategorie(quo(kraj)) %>% 
+  arrange(spokojenost_s_roverskym_programem) %>% 
+  mutate(kraj = haven::as_factor(kraj) %>% as.character()) %>% 
+  mutate(kraj = factor(kraj, levels = kraj_val)) %>% 
+  ggplot(aes(x = kraj, y =spokojenost_s_roverskym_programem  )) + geom_bar(stat="identity") + xlab("kraj")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+lss_pro_kategorie(quo(sex)) %>% 
+  mutate(sex = haven::as_factor(sex) %>% as.character()) %>% 
+  ggplot(aes(x = sex, y =spokojenost_s_roverskym_programem  )) + geom_bar(stat="identity") + xlab("pohlavi")+theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+lss_pro_kategorie(quo(sex)) %>% 
+  mutate(sex = haven::as_factor(sex) %>% as.character()) %>% 
+  ggplot(aes(x = sex, y =lss  )) + geom_bar(stat="identity") + xlab("pohlavi")+theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    
+
 lss_pro_kategorie(quo(sex))
+
+```
+
+## Podle pohlavi
+
+
+```{r}
+n_roli
 
 ```
 
@@ -87,17 +191,62 @@ cela_data %>%
 ggplot(aes(x=n_roli, y = lss, size = n)) + geom_point()
 
 cela_data %>% 
-  group_by(role_skauting_vedouci_roveru) %>% 
-  summarize(m_lss = mean(lss, na.rm =T),
-            sd_lss = sd(lss, na.rm =T),
-            n = n())
+   group_by(n_roli) %>% 
+   summarize(lss = mean(lss, na.rm = T), n =n()) %>% 
+ ggplot(aes(x=n_roli, y = lss, size = n)) + geom_point()
+
+cela_data %>% 
+  group_by(n_roli) %>% 
+  summarize(spokojenost_s_roverskym_programem = mean(spokojenost_s_roverskym_programem, na.rm = T), n =n()) %>% 
+ggplot(aes(x=n_roli, y = spokojenost_s_roverskym_programem, size = n)) + geom_point()
+
+cela_data %>% 
+   group_by(n_sluzba) %>% 
+   summarize(lss = mean(lss, na.rm = T), n =n()) %>% 
+ ggplot(aes(x=n_sluzba, y = lss, size = n)) + geom_point()
+
+cela_data %>% 
+  group_by(n_sluzba) %>% 
+  summarize(spokojenost_s_roverskym_programem = mean(spokojenost_s_roverskym_programem, na.rm = T), n =n()) %>% 
+ggplot(aes(x=n_sluzba, y = spokojenost_s_roverskym_programem, size = n)) + geom_point()
+
+cela_data %>% 
+  group_by(n_s_cim_spokojen) %>% 
+  summarize(lss = mean(lss, na.rm = T), n =n()) %>% 
+ggplot(aes(x=n_s_cim_spokojen, y = lss, size = n)) + geom_point()
+
+cela_data %>% 
+  group_by(n_s_cim_spokojen) %>% 
+  summarize(spokojenost_s_roverskym_programem = mean(spokojenost_s_roverskym_programem, na.rm = T), n =n()) %>% 
+ggplot(aes(x=n_s_cim_spokojen, y = spokojenost_s_roverskym_programem, size = n)) + geom_point()
+
+cela_data %>% 
+  group_by(n_s_cim_nespokojen) %>% 
+  summarize(lss = mean(lss, na.rm = T), n =n()) %>% 
+ggplot(aes(x=n_s_cim_nespokojen, y = lss, size = n)) + geom_point()
+
+cela_data %>% 
+  group_by(n_s_cim_nespokojen) %>% 
+  summarize(spokojenost_s_roverskym_programem = mean(spokojenost_s_roverskym_programem, na.rm = T), n =n()) %>% 
+ggplot(aes(x=n_s_cim_nespokojen, y = spokojenost_s_roverskym_programem, size = n)) + geom_point()
+
 
 
 cela_data %>% 
   group_by(role_skauting_vedouci_roveru) %>% 
-  summarize(m_spoko = mean(spokojenost_s_roverskym_programem, na.rm =T),
-            sd_spoko = sd(spokojenost_s_roverskym_programem, na.rm =T),
-            n = n())
+  summarize(lss = mean(lss, na.rm =T),
+            spokojenost_s_roverskym_programem = mean(spokojenost_s_roverskym_programem, na.rm =T),
+            n = n()) %>% 
+  ggplot(aes(x=role_skauting_vedouci_roveru, y = spokojenost_s_roverskym_programem, size = n)) + geom_bar(stat = "identity")
+
+cela_data %>% 
+  group_by(role_skauting_vedouci_roveru) %>% 
+  summarize(lss = mean(lss, na.rm =T),
+            spokojenost_s_roverskym_programem = mean(spokojenost_s_roverskym_programem, na.rm =T),
+            n = n()) %>% 
+  ggplot(aes(x=role_skauting_vedouci_roveru, y = lss, size = n)) + geom_bar(stat = "identity")
+
+
 
 cela_data %>% 
   group_by(role_skauting_tahoun_roveru) %>% 
@@ -134,30 +283,54 @@ rozdil_dul_zvl_agg %>% ggplot(aes(x = rozdil_dulezite_zvladam)) + geom_histogram
 rozdil_dul_zvl_agg %>% 
   cor.test(~lss+rozdil_dulezite_zvladam,.)
 
-lss_cor <- expanded %>% select(session, lss, kategorie_kompetence, kompetence_odpoved, kompetence) %>% filter(kategorie_kompetence %in% c("dulezite","zvladam","rozvijim","skauting")) %>%
-  pivot_wider(id_cols = c("session", "kompetence", "lss"), names_from = kategorie_kompetence, values_from = kompetence_odpoved) %>% 
+lss_cor <- expanded %>% select(session, lss, spokojenost_s_roverskym_programem,kategorie_kompetence, kompetence_odpoved, kompetence) %>% filter(kategorie_kompetence %in% c("dulezite","zvladam","rozvijim","skauting")) %>%
+  pivot_wider(id_cols = c("session", "kompetence", "lss","spokojenost_s_roverskym_programem"), names_from = kategorie_kompetence, values_from = kompetence_odpoved,values_fn = list(kompetence_odpoved = mean)) %>% 
+  mutate(dulezite = unlist(dulezite))
   group_by(session) %>% 
   summarize(lss = mean(lss), 
+            spokojenost_s_roverskym_programem = mean(spokojenost_s_roverskym_programem), 
             dulezite = mean(dulezite),
             zvladam = mean(zvladam),
             rozvijim = mean(rozvijim),
             skauting = mean(skauting)
             )
-lss_cor %>% 
-  select(lss, dulezite, zvladam, rozvijim, skauting) %>% 
-  as.matrix() %>% 
-  cor(use = "complete.obs") %>% knitr::kable(digits = 2)
+m <- lss_cor %>% 
+  select(lss, spokojenost_s_roverskym_programem,dulezite, zvladam, rozvijim, skauting) %>% 
+  as.matrix() %>% cor(use = "complete.obs") 
+m %>% ggcorrplot::ggcorrplot(type = "lower", lab = T)
+m <- m %>% 
+  round(2) %>% 
+  as.character()
+m[upper.tri(m)] <- ""
+  m %>% knitr::kable(digits = 2)
 
-cela_data %>% select(lss,ends_with("zvladam")) %>% as.matrix() %>% cor(use = "complete.obs") %>% round(2) %>% as_tibble(rownames = "var") %>% 
-  select(var, lss) %>% arrange(-lss)
+xxx <- cela_data %>% select(lss,ends_with("zvladam")) %>% as.matrix() %>% cor(use = "complete.obs") %>% round(2) %>% as_tibble(rownames = "var") %>% 
+  select(var, lss) %>% filter(var!="lss") %>% arrange(lss) %>% mutate(var = str_remove(var, "_zvladam"))
+lev <- xxx$var
+xxx %>% mutate(zvladam = factor(var, levels = lev, ordered = T)) %>% 
+  ggplot(aes(x = zvladam, y = lss)) + geom_bar(stat="identity") + xlab("Zvladam kompetence")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-cela_data %>% select(lss,ends_with("rozvijim")) %>% as.matrix() %>% cor(use = "complete.obs") %>% round(2) %>% as_tibble(rownames = "var") %>% 
-  select(var, lss) %>% arrange(-lss)
+xxx <- cela_data %>% select(lss,ends_with("rozvijim")) %>% as.matrix() %>% cor(use = "complete.obs") %>% round(2) %>% as_tibble(rownames = "var") %>% 
+  select(var, lss) %>% filter(var!="lss") %>% arrange(lss) %>% mutate(var = str_remove(var, "_rozvijim"))
+lev <- xxx$var
+xxx %>% mutate(rozvijim = factor(var, levels = lev, ordered = T)) %>% 
+  ggplot(aes(x = rozvijim, y = lss)) + geom_bar(stat="identity") + xlab("Rozvijim kompetence")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-cela_data %>% select(lss,ends_with("dulezite")) %>% as.matrix() %>% cor(use = "complete.obs") %>% round(2) %>% as_tibble(rownames = "var") %>% 
-  select(var, lss) %>% arrange(-lss)
+xxx <- cela_data %>% select(lss,ends_with("dulezite")) %>% as.matrix() %>% cor(use = "complete.obs") %>% round(2) %>% as_tibble(rownames = "var") %>% 
+  select(var, lss) %>% filter(var!="lss") %>% arrange(lss) %>% mutate(var = str_remove(var, "_dulezite"))
+lev <- xxx$var
+xxx %>% mutate(dulezite = factor(var, levels = lev, ordered = T)) %>% 
+  ggplot(aes(x = dulezite, y = lss)) + geom_bar(stat="identity") + xlab("Dulezite kompetence")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-
+xxx <- cela_data %>% select(lss,ends_with("skauting"),-role_skauting) %>% as.matrix() %>% cor(use = "complete.obs") %>% round(2) %>% as_tibble(rownames = "var") %>% 
+  select(var, lss) %>% filter(var!="lss") %>% arrange(lss) %>% mutate(var = str_remove(var, "_skauting"))
+lev <- xxx$var
+xxx %>% mutate(skauting = factor(var, levels = lev, ordered = T)) %>% 
+  ggplot(aes(x = skauting, y = lss)) + geom_bar(stat="identity") + xlab("Skauting kompetence")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
 
@@ -638,4 +811,142 @@ typ_respondednta_plot(quo(n_nastroje))
 typ_respondednta_plot(quo(n_s_cim_spokojen))
 typ_respondednta_plot(quo(n_s_cim_nespokojen))
 
+```
+
+## Muzi vs zeny
+
+```{r}
+cela_data %>% 
+  mutate(sex = haven::as_factor(sex)) %>% 
+  group_by(sex) %>% 
+   summarize(lss = mean(lss, na.rm = T)/35,
+            n_roli = mean(n_roli),
+            n_sluzba = mean(n_sluzba),
+            n_nastroje = mean(n_nastroje, na.rm = T),
+            spokojenost_s_rp = mean(spokojenost_s_roverskym_programem, na.rm = T),
+            n_s_cim_spokojen = mean(n_s_cim_spokojen, na.rm = T),
+            n_s_cim_nespokojen = mean(n_s_cim_nespokojen, na.rm = T)) %>% 
+  pivot_longer(values_to = "hodnota",names_to = "promenna", cols = lss:n_s_cim_nespokojen) %>% 
+  ggplot(aes(x=promenna,y=hodnota,fill=sex)) + geom_bar(stat ="identity", position = "dodge") + 
+  theme(aspect.ratio = 0.5) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+cela_data %>% 
+  filter(sex!=3) %>% 
+  mutate(sex = haven::as_factor(sex)) %>%
+  select(sex,starts_with("vychovne_nastroje_")) %>% 
+  pivot_longer(cols = starts_with("vychovne_nastroje_"), values_to = "procenta", names_to = "nastroj") %>% 
+  mutate(nastroj = str_remove(nastroj,"vychovne_nastroje_"),
+         procenta = as.numeric(procenta)) %>% 
+  
+  ggplot(aes(x=nastroj,y=procenta,col = sex,group = sex)) +
+  stat_summary(fun.data = "mean_cl_boot") + 
+  stat_summary(fun.y = "mean",geom = "line")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+cela_data %>% 
+  filter(sex!=3) %>% 
+  mutate(sex = haven::as_factor(sex)) %>%
+  select(sex,starts_with("role_skauting_")) %>% 
+  pivot_longer(cols = starts_with("role_skauting_"), values_to = "procenta", names_to = "role") %>% 
+  mutate(role = str_remove(role,"role_skauting_"),
+         procenta = as.numeric(procenta)) %>% 
+  
+  ggplot(aes(x=role,y=procenta,col = sex,group = sex)) +
+  stat_summary(fun.data = "mean_cl_boot") + 
+  stat_summary(fun.y = "mean",geom = "line")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+cela_data %>% 
+  filter(sex!=3) %>% 
+  mutate(sex = haven::as_factor(sex)) %>%
+  select(sex,starts_with("s_cim_spokojen_")) %>% 
+  pivot_longer(cols = starts_with("s_cim_spokojen_"), values_to = "procenta", names_to = "s_cim_spokojen") %>% 
+  mutate(s_cim_spokojen = str_remove(s_cim_spokojen,"s_cim_spokojen_"),
+         procenta = as.numeric(procenta)) %>% 
+  
+  ggplot(aes(x=s_cim_spokojen,y=procenta,col = sex,group = sex)) +
+  stat_summary(fun.data = "mean_cl_boot") + 
+  stat_summary(fun.y = "mean",geom = "line")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+cela_data %>% 
+  filter(sex!=3) %>% 
+  mutate(sex = haven::as_factor(sex)) %>%
+  select(sex,starts_with("s_cim_nespokojen_")) %>% 
+  pivot_longer(cols = starts_with("s_cim_nespokojen_"), values_to = "procenta", names_to = "s_cim_nespokojen") %>% 
+  mutate(s_cim_nespokojen = str_remove(s_cim_nespokojen,"s_cim_nespokojen_"),
+         procenta = as.numeric(procenta)) %>% 
+  
+  ggplot(aes(x=s_cim_nespokojen,y=procenta,col = sex,group = sex)) +
+  stat_summary(fun.data = "mean_cl_boot") + 
+  stat_summary(fun.y = "mean",geom = "line")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+xtabs(~kategorie_respondenta_full+sex, cela_data)
+
+cela_data %>% 
+  filter(sex!=3) %>% 
+  mutate(sex = haven::as_factor(sex)) %>%
+  select(sex,starts_with("sluzba_")) %>% 
+  pivot_longer(cols = starts_with("sluzba_"), values_to = "procenta", names_to = "sluzba") %>% 
+  mutate(sluzba = str_remove(sluzba,"sluzba_"),
+         procenta = as.numeric(procenta)) %>% 
+  
+  ggplot(aes(x=sluzba,y=procenta,col = sex,group = sex)) +
+  stat_summary(fun.data = "mean_cl_boot") + 
+  stat_summary(fun.y = "mean",geom = "line")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+cela_data %>% 
+  filter(sex!=3) %>% 
+  mutate(sex = haven::as_factor(sex)) %>%
+  select(sex,starts_with("sluzba_")) %>% 
+  pivot_longer(cols = starts_with("sluzba_"), values_to = "procenta", names_to = "sluzba") %>% 
+  mutate(sluzba = str_remove(sluzba,"sluzba_"),
+         procenta = as.numeric(procenta)) %>% 
+  
+  ggplot(aes(x=sluzba,y=procenta,col = sex,group = sex)) +
+  stat_summary(fun.data = "mean_cl_boot") + 
+  stat_summary(fun.y = "mean",geom = "line")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+cela_data %>% 
+  filter(sex!=3) %>% 
+  mutate(sex = haven::as_factor(sex)) %>%
+  select(sex,starts_with("vyroky_o_roveringu_"),-starts_with("vyroky_o_roveringu_stredisko"),-vyroky_o_roveringu_zazil,-vyroky_o_roveringu_zazil_2) %>% 
+  pivot_longer(cols = starts_with("vyroky_o_roveringu_"), values_to = "procenta", names_to = "vyroky_o_roveringu") %>% 
+  mutate(vyroky_o_roveringu = str_remove(vyroky_o_roveringu,"vyroky_o_roveringu_zazil_") %>% str_remove("2_"),
+         procenta = as.numeric(procenta)) %>% 
+  
+  ggplot(aes(x=vyroky_o_roveringu,y=procenta,col = sex,group = sex)) +
+  stat_summary(fun.data = "mean_cl_boot") + 
+  stat_summary(fun.y = "mean",geom = "line")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+cela_data %>% 
+  filter(sex!=3) %>% 
+  mutate(sex = haven::as_factor(sex)) %>%
+  select(sex,starts_with("problemy_roveringu_"),-starts_with("problemy_roveringu_stredisko")) %>% 
+  pivot_longer(cols = starts_with("problemy_roveringu_"), values_to = "procenta", names_to = "problemy_roveringu") %>% 
+  mutate(problemy_roveringu = str_remove(problemy_roveringu,"problemy_roveringu_"),
+         procenta = as.numeric(procenta)) %>% 
+  
+  ggplot(aes(x=problemy_roveringu,y=procenta,col = sex,group = sex)) +
+  stat_summary(fun.data = "mean_cl_boot") + 
+  stat_summary(fun.y = "mean",geom = "line")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+cela_data %>% 
+  filter(sex!=3) %>% 
+  mutate(sex = haven::as_factor(sex)) %>%
+  select(sex,starts_with("fungovani_skautskeho_oddilu_")) %>% 
+  pivot_longer(cols = starts_with("fungovani_skautskeho_oddilu_"), values_to = "procenta", names_to = "fungovani_skautskeho_oddilu") %>% 
+  mutate(fungovani_skautskeho_oddilu = str_remove(fungovani_skautskeho_oddilu,"fungovani_skautskeho_oddilu_"),
+         procenta = as.numeric(procenta)) %>% 
+  
+  ggplot(aes(x=fungovani_skautskeho_oddilu,y=procenta,col = sex,group = sex)) +
+  stat_summary(fun.data = "mean_cl_boot") + 
+  stat_summary(fun.y = "mean",geom = "line")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 ```
