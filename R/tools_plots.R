@@ -1,18 +1,79 @@
-dark_blue_color <- "#0040ae"
-darkest_fill <- "#668cce"
-midd_fill <- "#b2c5e6"
+
+revize_colors <- c(
+  white = "white",
+  green = "#3bff6b",
+  orange = "#f47913",
+  pink = "#ff0083",
+  dark_blue_color = "#002b74",
+  darkest_fill = "#668cce",
+  midd_fill = "#b2c5e6"
+)
+
+revize_cols <- function(...) {
+  cols <- c(...)
+
+  if (is.null(cols))
+    return (revize_colors)
+
+  revize_colors[cols]
+}
+
+revize_palettes <- list(
+  `main`  = revize_cols("white", "orange", "pink", "green"),
+
+  `continuous`  = revize_cols("white", "darkest_fill")
+)
+
+revize_pal <- function(palette = "main", reverse = FALSE, ...) {
+  pal <- revize_palettes[[palette]]
+
+  if (reverse) pal <- rev(pal)
+
+  colorRampPalette(pal, ...)
+}
+
+scale_color_revize <- function(discrete = TRUE, reverse = FALSE, ...) {
+
+  if (discrete) {
+    pal <- revize_pal(palette = "main", reverse = reverse)
+    discrete_scale("colour", "revize_main", palette = pal, ...)
+  } else {
+    pal <- revize_pal(palette = "continuous", reverse = reverse)
+    scale_color_gradientn(colours = pal(256), ...)
+  }
+}
+
+scale_fill_revize <- function(discrete = TRUE, reverse = FALSE, ...) {
+
+  if (discrete) {
+    pal <- revize_pal(palette = "main", reverse = reverse)
+    discrete_scale("fill", paste0("revize_main"), palette = pal, ...)
+  } else {
+    pal <- revize_pal(palette = "continuous", reverse = reverse)
+    scale_fill_gradientn(colours = pal(256), ...)
+  }
+}
 
 
 set_theme_revizers <- function() {
-  theme_set(cowplot::theme_cowplot())
-  theme_update(text = element_text(family = "Roboto", color = "white"),
-               plot.background = element_rect(fill = dark_blue_color),
-               line = element_line(color = "white"),
-               rect = element_rect(color = "white"),
+  default_margin <- 2
+  my_margin <- function(t = default_margin, r = default_margin, b = default_margin, l = default_margin) {
+    margin(t = t, r = r, b = b, l = l)
+  }
+  theme_replace(text = element_text(family = "Roboto", color = "white", size = 11,
+                                    face = "plain", hjust = 0, vjust = 0, angle = 0, lineheight = 1, margin = my_margin(), debug = FALSE),
+                line = element_line(color = "white", size = 1, linetype = "solid", lineend = "square"),
+                rect = element_rect(color = "white", size = 1, linetype = "solid", fill = FALSE),
+                plot.background = element_rect(fill = dark_blue_color),
                axis.text = element_text(color = "white", face = "bold"),
-               axis.title = element_text(color = "white"),
+               axis.title = element_text(color = "white", hjust = 0.5, margin = my_margin(t = 10, r = 10, l = 10, b = 10)),
                axis.line = element_line(color = "white"), axis.ticks = element_line(color = "white"),
-               strip.background = element_rect(color = "white", fill = darkest_fill))
+               strip.background = element_rect(color = "white", fill = darkest_fill),
+               strip.text = element_text(hjust = 0.5),
+               plot.title = element_text(family = "SKAUT", size = 35),
+               plot.subtitle = element_text(family = "Roboto", size = 13, margin = my_margin(b = 8)),
+               plot.margin = margin(t = 20, r = 20, b = 20, l = 15)
+  )
   windowsFonts("SKAUT" = windowsFont("SKAUT Bold"))
   windowsFonts("Roboto" = windowsFont("Roboto"))
   #sysfonts::font_add_google("Roboto")
@@ -20,7 +81,11 @@ set_theme_revizers <- function() {
   #showtext_auto()
 
   update_geom_defaults("bar",   list(fill = "white"))
+  update_geom_defaults("line", list(size = 2))
+  update_geom_defaults("point", list(color = "white"))
 }
+
+
 
 popis_pro_plot <- function(data, sloupec) {
   sloupec_val <- cela_data %>% pull( {{sloupec }})

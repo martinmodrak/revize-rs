@@ -179,10 +179,22 @@ preprocess_dat <- function(cela_data, verbose = TRUE) {
   cela_data <- cela_data %>% mutate(kategorie_respondenta_full = if_else(kategorie_respondenta != "nikdy_spolecenstvi", kategorie_respondenta,
                                                                          if_else(bez_zkusenosti_mladsi == "ano", "nikdy_spolecenstvi_mladsi", "nikdy_spolecenstvi_starsi")))
 
+  # Kurzy
+  # cela_data <- cela_data %>%
+  #   mutate(byl_na_rs_kurzu = co_zazil %contains_word% "roversky_kurz",
+  #          byl_na_kurzu = co_zazil %contains_word% "roversky_kurz"
+  #                      | co_zazil %contains_word% "radcovsky_kurz"
+  #                      | co_zazil %contains_word% "cekatelky"
+  #                      | co_zazil %contains_word% "jiny_kurz"
+  #                      | co_zazil %contains_word% "vudcovky")
+
   attributes(cela_data$kategorie_respondenta_full)$labels <-
     c(attributes(cela_data$kategorie_respondenta_full)$labels[c(1,2)],
       `Nikdy jsem nebyla součástí roverského společenství (mladší členi)` = "nikdy_spolecenstvi_mladsi",
       `Nikdy jsem nebyla součástí roverského společenství (starší členi)` = "nikdy_spolecenstvi_starsi")
+
+  cela_data$sex <- as_factor(cela_data$sex)
+  levels(cela_data$sex)[3] <- "Jinak/Neuvedeno"
 
   # Vytvor nove promenne z FA analyzy pro role
   role_fa <- cela_data %>% rozsir_mc(quo(role_skauting)) %>% select(starts_with("role_skauting_"))

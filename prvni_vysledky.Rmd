@@ -45,9 +45,68 @@ rozpracovano <- sum(!is.na(cela_data$kategorie_respondenta) & is.na(cela_data$en
 Dotazník dokončilo neuvěřitelných `r dokonceno` roverů a dalších `r rozpracovano` ho vyplnilo alespoň zčásti.
 
 ```{r}
-plots <- list() 
+
+cela_data_rs <- cela_data %>% filter(age >= 15, age <= 26) %>% mutate(
+  byl_na_rs_kurzu = co_zazil %contains_word% "roversky_kurz",
+           byl_na_kurzu = co_zazil %contains_word% "roversky_kurz"
+                       | co_zazil %contains_word% "radcovsky_kurz"
+                       | co_zazil %contains_word% "cekatelky"
+                       | co_zazil %contains_word% "jiny_kurz"
+                       | co_zazil %contains_word% "vudcovky")
+
+
 ```
 
+
+```{r}
+plots <- list() 
+max(cela_data_rs$let_v_kmeni, na.rm = TRUE)
+```
+
+```{r}
+plots$roky_ve_spolecenstvi <- cela_data_rs %>% filter(let_v_kmeni != 42) %>% ggplot(aes( x = let_v_kmeni)) + geom_histogram(binwidth = 1)
+plots$roky_ve_spolecenstvi
+
+```
+
+```{r}
+plots$spokojenost_rs <- cela_data %>% plot_summary_mc(spokojenost_s_roverskym_programem, "Spokojenost s členstvím ve společenství")
+plots$spokojenost_rs
+```
+
+```{r}
+plots$spokojenost_junak <- cela_data %>% plot_summary_mc(spokojenost_s_fungovanim_v_junaku, "Spokojenost s fungováním v Junáku")
+plots$spokojenost_junak
+```
+
+```{r}
+plots$komunikace_existujici <- cela_data %>% plot_summary_mc(komunikacni_kanaly_existujici, "Kde bys nejraději sledoval informace o roveringu")
+plots$komunikace_existujici
+plots$komunikace_hypoteticke <- cela_data %>% plot_summary_mc(komunikacni_kanaly_hypoteticke, "Kde bys nejraději sledoval informace o roveringu")
+plots$komunikace_hypoteticke
+attributes(cela_data$komunikacni_kanaly_hypoteticke)
+```
+
+
+```{r}
+plots$zivotni_faze <- cela_data %>% plot_summary_mc(zivotni_faze, "Životní fáze", title_hjust = 0.5)
+plots$zivotni_faze
+```
+
+```{r}
+plots$spokojenost_rs_program <- cela_data %>% plot_summary_mc(spokojenost_s_roverskym_programem, "Celkově spokojen s RS")
+plots$spokojenost_rs_program
+```
+```{r, fig.width=12}
+plots$role <- cela_data %>% plot_summary_mc(role_skauting, "Role ve skautingu")
+plots$role
+```
+
+
+```{r}
+plots$co_zazil <- cela_data %>% plot_summary_mc(co_zazil, "Co zažili ve skautingu")
+plots$co_zazil
+```
 
 ```{r}
 

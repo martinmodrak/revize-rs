@@ -1,6 +1,7 @@
 library(formula.tools)
 
-inla_pipeline <- function(base_data, kategorie, formula_base, uzite_mc_sloupce, n_samples = 200, kompetence_to_run = kompetence) {
+inla_pipeline <- function(base_data, kategorie, formula_base, uzite_mc_sloupce, n_samples = 200, kompetence_to_run = kompetence,
+                          n_cores = parallel::detectCores()) {
   data_for_inla <- make_data_for_inla(base_data, kategorie, uzite_mc_sloupce)
 
   formula <- update(formula_base, as.formula(paste0(". ~ . ", data_for_inla$mc_formula_str)))
@@ -39,7 +40,7 @@ inla_pipeline <- function(base_data, kategorie, formula_base, uzite_mc_sloupce, 
   # Potrebuju spocitat
   if(is.null(result)) {
 
-    cl <- parallel::makeCluster(min(parallel::detectCores(), length(kompetence_to_run)))
+    cl <- parallel::makeCluster(min(n_cores, length(kompetence_to_run)))
 
     r_basedir <- here::here("R")
     parallel::clusterExport(cl,
@@ -309,9 +310,10 @@ my_pp_check <- function(pipeline_result, group, stat = mean, label = as_label({{
   data_predicted_all %>% ggplot(aes(x = group_char, y = mid)) +
     geom_linerange(aes(ymin = low, ymax = high)) +
     geom_point() +
-    geom_line(aes(y = mid, group = kompetence), color = "lightblue", data = data_observed_all) +
+    geom_line(aes(y = mid, group = kompetence), color = "blue", data = data_observed_all) +
     scale_x_discrete(label) +
-    facet_wrap(~kompetence) + ggtitle(paste0(pipeline_result$kategorie, " - ", lhs(pipeline_result$formula)))
+    facet_wrap(~kompetence) + ggtitle(paste0(pipeline_result$kategorie, " - ", lhs(pipeline_result$formula))) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.3, hjust = 1))
 
 }
 

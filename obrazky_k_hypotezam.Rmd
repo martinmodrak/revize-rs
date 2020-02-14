@@ -23,7 +23,7 @@ theme_set(theme_cowplot())
 
 source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
 source(here::here("R","tools_plots.R"), encoding = "UTF-8")
-source(here::here("R","tools_clmm.R"), encoding = "UTF-8")
+source(here::here("R","tools_kompetence.R"), encoding = "UTF-8")
 
 ```
 
@@ -43,20 +43,22 @@ expanded_pro_plot <- expanded %>%
   group_by(session, kategorie_kompetence) %>% 
   filter(n() >= 5) %>%
   filter(age >= 15, age <= 26) %>%
-  odvozena_meritka_kompetenci() %>%
-  pivot_longer(meritka_kompetence_nazvy, names_to = "meritko", values_to = "meritko_ano", 
-                 names_prefix = "kompetence_") 
-  
-if(any(is.na(expanded_pro_plot$meritko_ano))) {
-  stop("NA")
-}
+  odvozena_meritka_kompetenci()
+
 ```
 
 ```{r, fig.height=8}
-plot_kompetence_by <- function(data, kategorie, group, meritko = "nejvyse") {
-  data <- data %>% 
-    filter(kategorie_kompetence == kategorie, meritko == !!meritko)
+nejistota_meritka <- function(prob, meritko_nazev, hodnoty) {
+  type <- meritka_kompetence[[meritko_nazev]]$type
+  if(type == "bool") {
+    qbeta(prob, sum(hodnoty) + 1, sum(!hodnoty) + 1)
+  } else if(type == "ordinal" || type == "interval") {
+    sem <- sd(hodnoty)/sqrt(length(hodnoty))
+    qnorm(prob, mean(hodnoty), sem)
+  }
+}
 
+plot_kompetence_by <- function(data, kategorie, group, meritko = kompetence_odpoved) {
   group_col <- data %>% pull({{group}})
   if(typeof(group_col) == "double") {
     my_scale_x <-  NULL
@@ -64,27 +66,37 @@ plot_kompetence_by <- function(data, kategorie, group, meritko = "nejvyse") {
   } else {
     my_scale_x <- scale_x_discrete()
     my_theme <- theme(axis.text.x = element_text(angle = 90, vjust = 0.1))
-    data <- data %>% mutate({{group}} := fct_reorder(factor({{group}}), meritko_ano, .fun = mean))
+    data <- data %>% mutate({{group}} := fct_reorder(factor({{group}}), {{meritko}}, .fun = mean))
   }
+  
+  meritko_nazev <- names(data %>% select({{meritko}})) #Blby hack, protoze neumim tidy a jsem liny se to ucit
   data %>%
+    filter(kategorie_kompetence == kategorie) %>%
     group_by(kompetence, {{ group }}) %>%
-    summarise(prumer = mean(meritko_ano, na.rm = TRUE), 
-              pocet = sum(!is.na(meritko_ano)),
-              dolni = qbeta(0.025, sum(meritko_ano) + 1, sum(!meritko_ano) + 1),
-              horni = qbeta(0.975, sum(meritko_ano) + 1, sum(!meritko_ano) + 1),
+    summarise(prumer = mean({{meritko}}, na.rm = TRUE), 
+              dolni = nejistota_meritka(0.025, meritko_nazev, {{meritko}}),
+              horni = nejistota_meritka(0.975, meritko_nazev, {{meritko}})
               ) %>%
     ungroup() %>%
     ggplot(aes(x = {{group}}, y = prumer, ymin = dolni, ymax = horni, group = kompetence)) +
       geom_ribbon(alpha = 0.4) + geom_line() + facet_wrap(~ kompetence) + 
-      my_scale_x + my_theme
+      my_scale_x + my_theme + ggtitle(paste0(kategorie, " - ", meritko_nazev))
 }
+
 ```
 
 ```{r, fig.height=8}
-expanded_pro_plot %>% plot_kompetence_by("zvladam", age, "nad_median")
-
+for(kategorie in kategorie_kompetence) {
+  expanded_pro_plot %>% plot_kompetence_by(kategorie, age, kompetence_nad_median) %>% print()
+}
+```
+```{r, fig.height=8}
+for(kategorie in kategorie_kompetence) {
+  expanded_pro_plot %>% plot_kompetence_by(kategorie, sex, kompetence_nad_median) %>% print()
+}
 
 ```
+
 
 
 ```{r, fig.height=8}

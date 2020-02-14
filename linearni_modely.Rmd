@@ -20,6 +20,8 @@ options(mc.cores = parallel::detectCores())
 
 save_format <- ".svg"
 
+knitr::opts_chunk$set(fig.width = 8, fig.height = 8)
+
 theme_set(theme_cowplot())
 
 source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
@@ -74,15 +76,19 @@ base_for_inla <- expanded_no_NA
 
 
 ```{r}
-
-kategorie = "rozvijim"
+pipeline_results <- list()
 #inla_formula <- kompetence_relativne_k_populaci ~ 1 + age_norm + f(age_ar, model = "iid")
-inla_formula_base <- kompetence_odpoved ~ 1 + age_norm + f(age_ar, model = "iid") + f(kategorie_respondenta_full, model = "iid", hyper = list(theta = list(prior = log_inv_hn_sqrt(1)))) + f(row_id, model = "iid")
+inla_formula_base <- kompetence_odpoved ~ 1 + age_norm + f(age_ar, model = "iid") + sex + f(row_id, model = "iid")
+  #f(kategorie_respondenta_full, model = "iid", hyper = list(theta = list(prior = log_inv_hn_sqrt(1)))) + f(row_id, model = "iid")
 
+#mc_sloupce <- list(quo(role_skauting), quo(co_zazil), quo(fungovani_skautskeho_oddilu), quo(organizace_spolecenstvi))
+mc_sloupce <- list()
 
-pipeline_result <- inla_pipeline(base_for_inla, kategorie, inla_formula_base, list(quo(role_skauting), quo(co_zazil), quo(fungovani_skautskeho_oddilu), quo(organizace_spolecenstvi)))
+for(kategorie in kategorie_kompetence) {
+  pipeline_results[[kategorie]] <- inla_pipeline(base_for_inla, kategorie, inla_formula_base, mc_sloupce)
+}
 
-pipeline_result$processed_fits %>% map(~ .$cache_result)
+#pipeline_result$processed_fits %>% map(~ .$cache_result)
 ```
 
 TODO: je nezvladani dany tim, ze nekdo nezvlada nic nebo tim, ze kazdy nezvlada neco
@@ -116,34 +122,91 @@ pipeline_result$processed_fits[["skautsky_zit"]]$summary.hyperpar
 
 
 ```{r, fig.width=8, fig.height = 8}
-my_pp_check(pipeline_result, age)
-my_pp_check(pipeline_result, age, stat = sd)
-my_pp_check(pipeline_result, kategorie_respondenta_full) + theme(axis.text.x = element_text(angle = 90, vjust = 0.3, hjust = 1))
+for(pipeline_result in pipeline_results) {
+  my_pp_check(pipeline_result, age) %>% print()
+}
+for(pipeline_result in pipeline_results) {
+  my_pp_check(pipeline_result, age, stat = sd) 5:
 
 ```
 
+```{r, fig.width=8, fig.height = 8}
+for(pipeline_result in pipeline_results) {
+  my_pp_check(pipeline_result, kategorie_respondenta_full)  %>% print()
+}
+```
+
+
 ```{r}
-my_pp_check(pipeline_result, co_zazil %contains_word% "roversky_kurz")
+for(pipeline_result in pipeline_results) {
+  my_pp_check(pipeline_result, sex) %>% print()
+}
+```
+
+
+```{r}
+for(pipeline_result in pipeline_results) {
+  my_pp_check(pipeline_result, co_zazil %contains_word% "roversky_kurz") %>% print()
+}
 ```
 
 ```{r}
-my_pp_check(pipeline_result,     role_skauting %contains_word% "druzinovy_radce" 
-                                 )
-my_pp_check(pipeline_result,     role_skauting %contains_word% "clen_roveru" 
-                                 )
-my_pp_check(pipeline_result,     role_skauting %contains_word% "tahoun_roveru" 
-                                 )
-my_pp_check(pipeline_result,     role_skauting %contains_word% "vedouci_roveru" 
-                                 )
+for(pipeline_result in pipeline_results) {
+  my_pp_check(pipeline_result, co_zazil %contains_word% "roversky_kurz"
+                       | co_zazil %contains_word% "radcovsky_kurz"
+                       | co_zazil %contains_word% "cekatelky"
+                       | co_zazil %contains_word% "jiny_kurz"
+                       | co_zazil %contains_word% "vudcovky", label = "jakykoliv_kurz") %>% print()
+}
+```
+
+```{r}
+for(pipeline_result in pipeline_results) {
+  my_pp_check(pipeline_result, 
+                       co_zazil %contains_word% "radcovsky_kurz"
+                       | co_zazil %contains_word% "cekatelky"
+                       | co_zazil %contains_word% "jiny_kurz"
+                       | co_zazil %contains_word% "vudcovky", label = "neroversky_kurz") %>% print()
+}
+```
 
 
-my_pp_check(pipeline_result,     role_skauting %contains_word% "clen_rady_roveru" | 
+```{r, fig.width=8, fig.height = 8}
+for(pipeline_result in pipeline_results) {
+  my_pp_check(pipeline_result, pmin(let_v_junaku, 10)) %>% print()
+}
+```
+
+
+```{r}
+for(pipeline_result in pipeline_results) {
+  my_pp_check(pipeline_result,     role_skauting %contains_word% "druzinovy_radce" 
+                                   ) %>% print()
+}
+for(pipeline_result in pipeline_results) {
+  my_pp_check(pipeline_result,     role_skauting %contains_word% "clen_roveru" 
+                                 ) %>% print()
+}
+for(pipeline_result in pipeline_results) {
+  my_pp_check(pipeline_result,     role_skauting %contains_word% "tahoun_roveru" 
+                                 ) %>% print()
+}
+
+for(pipeline_result in pipeline_results) {
+  my_pp_check(pipeline_result,     role_skauting %contains_word% "vedouci_roveru" 
+                                 )%>% print()
+}
+
+for(pipeline_result in pipeline_results) {
+  my_pp_check(pipeline_result,     role_skauting %contains_word% "clen_rady_roveru" | 
                                  role_skauting %contains_word% "tahoun_roveru" |
                                  role_skauting %contains_word% "clen_roveru" |
                                  role_skauting %contains_word% "vedouci_roveru",
-                  label = "role_rover")
+                  label = "role_rover")%>% print()
+}
 
-my_pp_check(pipeline_result, 
+for(pipeline_result in pipeline_results) {
+  my_pp_check(pipeline_result, 
                               interaction(factor(
                                  role_skauting %contains_word% "druzinovy_radce" | 
                                  role_skauting %contains_word% "oddilovy_radce" |
@@ -162,10 +225,59 @@ my_pp_check(pipeline_result,
                                  role_skauting %contains_word% "vedouci_roveru",
                                  levels = c(TRUE, FALSE), labels = c("r","_"))
                               )
-                               , label = "druh_role")
-
+                               , label = "druh_role") %>% print()
+}
 
 ```
+
+
+```{r}
+attributes(cela_data$organizace_spolecenstvi)
+for(pipeline_result in pipeline_results) {
+  my_pp_check(pipeline_result,     organizace_spolecenstvi %contains_word% "formalni_vudce_zhury" | 
+                                 organizace_spolecenstvi %contains_word% "formalni_vudce_demokraticky" |
+                                 organizace_spolecenstvi %contains_word% "neformalni_tahoun",
+                  label = "maji_vedouciho")%>% print()
+}
+```
+
+```{r}
+for(pipeline_result in pipeline_results) {
+  my_pp_check(pipeline_result,     organizace_spolecenstvi %contains_word% "formalni_vudce_zhury" | 
+                                 organizace_spolecenstvi %contains_word% "formalni_vudce_demokraticky" |
+                                 organizace_spolecenstvi %contains_word% "neformalni_tahoun" |
+                                 organizace_spolecenstvi %contains_word% "formalni_rada_zhury"|
+                                 organizace_spolecenstvi %contains_word% "neformalni_rada",
+              
+                  label = "nejake_vedeni")%>% print()
+}
+```
+
+
+
+```{r}
+for(pipeline_result in pipeline_results) {
+  my_pp_check(pipeline_result,  frekvence_velkych_akci)%>% print()
+}
+
+```
+
+
+```{r}
+for(pipeline_result in pipeline_results) {
+  my_pp_check(pipeline_result,     fungovani %contains_word% "druzinovy_radce" 
+                                   ) %>% print()
+}
+
+n_matches <- function(x) {
+  gre
+}
+
+head(gregexpr(",",cela_data$fungovani_skautskeho_oddilu) %>% lapply())
+length(cela_data$fungovani_skautskeho_oddilu)
+```
+
+
 
 
 ```{r}
@@ -295,7 +407,7 @@ ategorie) %>%
   print(plot)
 }
 
-```{r}
+```
 tt <- function(log_x, sigma) {  -1/(2 * sigma * log_x) - 0.5 * (log(2) + log(3.1415926535)) - log(sigma) - 1.5 * log_x }
 
 

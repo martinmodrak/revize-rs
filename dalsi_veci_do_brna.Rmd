@@ -1,0 +1,103 @@
+---
+title: "Do Brna"
+output: html_notebook
+---
+
+```{r setup}
+if(!grepl("cz|utf", Sys.getlocale(), ignore.case = TRUE)) {
+  Sys.setlocale(locale= 'English_United States.1250')
+}
+library(lubridate)
+library(tidyverse)
+library(formr)
+library(here)
+library(RCzechia)
+library(sf)
+library(cowplot)
+library(showtext)
+
+save_format <- ".svg"
+
+
+source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
+source(here::here("R","tools_plots.R"), encoding = "UTF-8")
+
+#theme_set(theme_cowplot())
+set_theme_revizers()
+
+```
+
+```{r}
+cela_data_raw <- nacti_dotaznik()
+cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE)  
+cela_data_rs <- cela_data %>% filter(age >= 15, age <= 26) %>% mutate(
+  byl_na_rs_kurzu = co_zazil %contains_word% "roversky_kurz",
+           byl_na_kurzu = co_zazil %contains_word% "roversky_kurz"
+                       | co_zazil %contains_word% "radcovsky_kurz"
+                       | co_zazil %contains_word% "cekatelky"
+                       | co_zazil %contains_word% "jiny_kurz"
+                       | co_zazil %contains_word% "vudcovky")
+
+```
+
+```{r}
+sluzba_matrix <- rozsir_mc_matrix(cela_data_rs, quo(sluzba), zachovat_NA = TRUE) 
+data_sluzba <- sluzba_matrix %>% as_tibble() %>% 
+  cbind(cela_data_rs %>% select(kategorie_respondenta_full)) %>% 
+  filter(!is.na(kategorie_respondenta_full)) %>%
+  pivot_longer(cols = colnames(sluzba_matrix), names_to = "sluzba", names_prefix = "sluzba_", values_to = "sluzba_ano") %>%
+  group_by(kategorie_respondenta_full, sluzba) %>% summarise(prumer_ano = mean(sluzba_ano, na.rm = TRUE)) 
+
+data_sluzba %>%
+  ggplot(aes(x = sluzba, y = kategorie_respondenta_full, fill = prumer_ano)) + geom_raster() + scale_x_discrete() + scale_y_discrete() +
+scale_fill_revize(discrete = FALSE)  +  theme(axis.text.x = element_text(angle = 90, vjust = 0.1, hjust = 1)) + ggtitle("Titulek")
+
+
+#ggsave("local_data/test_lines2.svg", pp)
+
+```
+
+TODO: dostat titulky os "doprostred okraje", srovnat velikost textu v legende a v popiskach os
+
+```{r, fig.width=8, fig.height=4.5}
+set_theme_revizers()
+
+data_sluzba %>% mutate(kategorie = if_else(sluzba < "nic", "Prvni","Druhy")) %>%
+  ggplot(aes(x = sluzba, y = prumer_ano, color = kategorie_respondenta_full, group = kategorie_respondenta_full)) + geom_line() + scale_x_discrete() + scale_color_revize() +  theme(axis.text.x = element_text(angle = 90, vjust = 0.1, hjust = 1)) + ggtitle("Titulek", "Podtitulek") + facet_wrap(~kategorie)
+
+```
+
+
+
+```{r}
+cela_data_rs %>% mutate(byl_na_kurzu = co_zazil %contains_word% "roversky_kurz") %>%
+  group_by(byl_na_kurzu) %>% summarise(prumer_spokojenost = mean(spokojenost_s_roverskym_programem, na.rm = TRUE), sdev = sd(spokojenost_s_roverskym_programem, na.rm = TRUE)) %>%
+  ggplot(aes(x = byl_na_kurzu, y = prumer_spokojenost, ymin = prumer_spokojenost - sdev, ymax = prumer_spokojenost + sdev)) +  geom_errorbar(color = "white") + geom_point(color = "white")
+```
+
+```{r}
+
+
+plot_frekvence_by <- function(cela_data, quo_frekvence_sloupec, group) {
+  vyplnena_data <- cela_data %>% filter(!is.na({{group}}), !is.na(!!quo_frekvence_sloupec))
+  frekvence_matrix <- rozsir_mc_matrix(vyplnena_data, quo_frekvence_sloupec, zachovat_NA = FALSE) 
+  frekvence_cummulative <- 1 -  t(apply(frekvence_matrix, 1,  cummax)) + frekvence_matrix
+  
+  names_prefix <- paste0(as_label(quo_frekvence_sloupec), "_")
+  frekvence_names <- gsub(names_prefix, "", colnames(frekvence_cummulative), fixed = TRUE)
+  
+  frekvence_cummulative %>% cbind(vyplnena_data %>% select({{group}})) %>%
+    pivot_longer(cols = colnames(frekvence_cummulative), names_to = "frekvence", names_prefix = names_prefix, values_to = "frekvence_ano") %>%
+    mutate(frekvence = factor(frekvence, levels = frekvence_names, labels = frekvence_names)) %>%
+    group_by({{group}}, frekvence) %>% 
+    summarise(prumer_ano = mean(frekvence_ano)) %>%
+      ggplot(aes(x = frekvence, y = prumer_ano, color = {{group}}, group = {{group}}, shape = {{group}})) +  geom_line() + geom_point() + theme_cowplot() + scale_x_discrete(as_label(quo_frekvence_sloupec))
+}
+
+
+cela_data_rs %>% plot_frekvence_by(quo(frekvence_kratkych_akci), byl_na_kurzu)
+cela_data_rs %>% plot_frekvence_by(quo(frekvence_vicedennich_akci), byl_na_kurzu)
+cela_data_rs %>% plot_frekvence_by(quo(frekvence_velkych_akci), byl_na_kurzu)
+
+```
+
