@@ -5,15 +5,16 @@ output: html_notebook
 
 ```{r setup}
 source(here::here("R","setup_dotaznik.R"), encoding = "UTF-8")
+source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
+
 ```
 
 ```{r}
-cela_data_raw <- nacti_dotaznik()
-cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE)  
+cela_data <- datasety_wide$hlavni
 #check_vysledky(cela_data)
 ```
 ```{r}
-expanded <- cela_data %>% expand_kompetence()
+expanded <- datasety_long$hlavni
 ```
 
 
@@ -50,7 +51,7 @@ plots$roky_ve_spolecenstvi
 ```
 
 ```{r}
-plots$spokojenost_rs <- cela_data %>% plot_summary_mc(spokojenost_s_roverskym_programem, "Spokojenost s členstvím ve společenství")
+plots$spokojenost_rs <- cela_data %>% plot_summary_mc(spokojenost_clenstvim_v_rs, "Spokojenost s členstvím ve společenství")
 plots$spokojenost_rs
 ```
 
