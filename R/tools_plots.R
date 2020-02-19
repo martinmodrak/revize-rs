@@ -74,7 +74,7 @@ theme_revizers <- function() {
 
       panel.grid = element_blank(),
       panel.background = NULL,
-      panel.border = NULL,
+      panel.border = element_blank(),
       panel.spacing = unit(5, "pt"),
       panel.spacing.x = NULL,
       panel.spacing.y = NULL,

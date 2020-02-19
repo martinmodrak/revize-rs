@@ -47,6 +47,7 @@ preprocess_dat <- function(cela_data, verbose = FALSE, vyhodit_otevrene_jine_ota
     vyhod_texty_jine(vyhodit_otevrene_jine_otazky) %>%
     prejmenuj_sloupce_kompetenci() %>%
     preved_haven_na_factory() %>%
+    droplevels() %>%
     as_tibble()
 
   #TODO u otazek, kde je moznost nic vyfiltrovat (zamenit za NA ?) ty, kdo nezaskrtlni zadnou moznost, ani "nic"
@@ -216,7 +217,8 @@ preved_haven_na_factory <- function(cela_data) {
     old_attributes <- attributes(cela_data[[sloupec]])
     cela_data[[sloupec]] <- cela_data[[sloupec]] %>%
       factor() %>%
-      forcats::fct_explicit_na(explicit_na_level)
+      forcats::fct_explicit_na(explicit_na_level) %>%
+      droplevels()
 
     #Zachovat info o otázce pro případné kontroly
     attributes(cela_data[[sloupec]])$label <- old_attributes$label
@@ -238,14 +240,21 @@ spocitej_odvozene_kategorie <- function(cela_data) {
       `Nikdy jsem nebyla součástí roverského společenství (mladší členi)` = "nikdy_spolecenstvi_mladsi",
       `Nikdy jsem nebyla součástí roverského společenství (starší členi)` = "nikdy_spolecenstvi_starsi")
 
-  # Kurzy
   cela_data <- cela_data %>%
     mutate(byl_na_rs_kurzu = co_zazil %contains_word% "roversky_kurz",
            byl_na_kurzu = co_zazil %contains_word% "roversky_kurz"
                        | co_zazil %contains_word% "radcovsky_kurz"
                        | co_zazil %contains_word% "cekatelky"
                        | co_zazil %contains_word% "jiny_kurz"
-                       | co_zazil %contains_word% "vudcovky")
+                       | co_zazil %contains_word% "vudcovky",
+           dokoncil_hlavni = !is.na(ended.hlavni),
+           druh_vyplneni = case_when(is.na(ended.hlavni) ~ "nedokoncil",
+                                     kolik_casu == "delsi" ~ "dokoncil_delsi",
+                                     jeste_pokracovat == "ne" ~ "dokoncil_kratsi",
+                                     is.na(ended.doplnek) ~ "rozpracoval_doplnek",
+                                     TRUE ~ "dokoncil_doplnek"
+                                     )
+  )
 
 
   cela_data

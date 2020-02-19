@@ -12,6 +12,7 @@ manual_codings <- list(
   sex = c("muz","zena","jinak_neuvedeno"),
   kategorie_respondenta = c("nyni_spolecenstvi", "drive_spolecenstvi", "nikdy_spolecenstvi"),
   bez_zkusenosti_mladsi = c("ano","ne"),
+  jeste_pokracovat = c("ano","ne"),
   pocet_clenu_spolecenstvi = c("5_a_mene","6_10","11_20","21_30","31_a_vice"),
   frekvence_kratkych_akci = c("nikdy","rocne","nekolik_rocne","mesicne","nekolik_mesicne","tydne","nekolik_tydne"),
   frekvence_vicedennich_akci= c("nikdy","mene_nez_rocne","rocne","nekolik_rocne","mesicne","nekolik_mesicne"),
@@ -68,7 +69,8 @@ mc_sloupce <- c(quo(role_skauting), quo(co_zazil), quo(fungovani_skautskeho_oddi
 factor_sloupce  <- c("sex", "kolik_casu","kategorie_respondenta","kategorie_respondenta_full","kraj",
                      "bez_zkusenosti_mladsi", "pocet_clenu_spolecenstvi", "frekvence_kratkych_akci",
                      "frekvence_vicedennich_akci", "frekvence_velkych_akci",
-                     "bez_zkusenosti_setkavam_se_s_vrstevniky", "bez_zkusenosti_seberozvojovy_program")
+                     "bez_zkusenosti_setkavam_se_s_vrstevniky", "bez_zkusenosti_seberozvojovy_program",
+                     "jeste_pokracovat")
 
 # Timto se nahradi factory, kde je NA
 explicit_na_level <- "nevyplneno"
