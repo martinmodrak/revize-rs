@@ -4,7 +4,7 @@ revize_colors <- c(
   green = "#3bff6b",
   orange = "#f47913",
   pink = "#ff0083",
-  dark_blue_color = "#002b74",
+  dark_blue = "#002b74",
   darkest_fill = "#668cce",
   midd_fill = "#b2c5e6"
 )
@@ -54,31 +54,79 @@ scale_fill_revize <- function(discrete = TRUE, reverse = FALSE, ...) {
   }
 }
 
-
-set_theme_revizers <- function() {
+theme_revizers <- function() {
   default_margin <- 2
   my_margin <- function(t = default_margin, r = default_margin, b = default_margin, l = default_margin) {
     margin(t = t, r = r, b = b, l = l)
   }
-  theme_replace(text = element_text(family = "Roboto", color = "white", size = 11,
-                                    face = "plain", hjust = 0, vjust = 0, angle = 0, lineheight = 1, margin = my_margin(), debug = FALSE),
-                line = element_line(color = "white", size = 1, linetype = "solid", lineend = "square"),
-                rect = element_rect(color = "white", size = 1, linetype = "solid", fill = FALSE),
-                plot.background = element_rect(fill = dark_blue_color),
-               axis.text = element_text(color = "white", face = "bold"),
-               axis.title = element_text(color = "white", hjust = 0.5, margin = my_margin(t = 10, r = 10, l = 10, b = 10)),
-               axis.line = element_line(color = "white"), axis.ticks = element_line(color = "white"),
-               strip.background = element_rect(color = "white", fill = darkest_fill),
-               strip.text = element_text(hjust = 0.5),
-               plot.title = element_text(family = "SKAUT", size = 35),
-               plot.subtitle = element_text(family = "Roboto", size = 13, margin = my_margin(b = 8)),
-               plot.margin = margin(t = 20, r = 20, b = 20, l = 15)
-  )
+
+  theme_void() +
+    theme(
+      text = element_text(family = "Roboto", color = "white", size = 11,
+                          face = "plain", hjust = 0, vjust = 0, angle = 0, lineheight = 1, margin = my_margin(), debug = FALSE),
+      line = element_line(color = "white", size = 0.5, linetype = "solid", lineend = "square"),
+      rect = element_rect(color = "white", size = 1, linetype = "solid", fill = FALSE),
+
+      plot.background = element_rect(fill = revize_cols("dark_blue")),
+      plot.margin = margin(t = 20, r = 20, b = 20, l = 15),
+      plot.title = element_text(family = "SKAUT", size = 35),
+      plot.subtitle = element_text(family = "Roboto", size = 13, margin = my_margin(b = 8)),
+
+      panel.grid = element_blank(),
+      panel.background = NULL,
+      panel.border = NULL,
+      panel.spacing = unit(5, "pt"),
+      panel.spacing.x = NULL,
+      panel.spacing.y = NULL,
+      panel.grid.minor = NULL,
+
+      legend.position = "right",
+      legend.background = element_blank(),
+      legend.key = element_blank(),
+      legend.margin = NULL,
+      legend.spacing = unit(3, "pt"),
+      legend.spacing.x = NULL,
+      legend.spacing.y = NULL,
+      legend.key.height = NULL,
+      legend.key.width = NULL,
+      legend.text.align = 0,
+      legend.title.align = 0,
+      legend.direction = "vertical",
+      legend.justification = "center",
+      legend.box.margin = NULL,
+      legend.box.background = NULL,
+      legend.box.spacing = NULL,
+
+
+      axis.text = element_text(face = "bold"),
+      axis.title = element_text(hjust = 0.5, margin = my_margin(t = 5)),
+      axis.title.y = element_text(angle = 90, vjust = 0.5, hjust = 1),
+      axis.title.x = NULL,
+      axis.title.x.top = NULL,
+      axis.title.y.right = NULL,
+      axis.text.x = NULL,
+      axis.text.x.top = NULL,
+      axis.text.y = NULL,
+      axis.text.y.right = NULL,
+      axis.ticks = NULL,
+      axis.ticks.length = unit(2, units = "pt"),
+      axis.line = NULL,
+      axis.line.x = NULL,
+      axis.line.y = NULL,
+
+      strip.background = element_rect(color = "white", fill = revize_cols("darkest_fill")),
+      strip.text = element_text(hjust = 0.5),
+      strip.text.x = NULL,
+      strip.text.y = NULL,
+      strip.placement = "inside"
+    )
+}
+
+set_theme_revizers <- function() {
+
+  theme_set(theme_revizers())
   windowsFonts("SKAUT" = windowsFont("SKAUT Bold"))
   windowsFonts("Roboto" = windowsFont("Roboto"))
-  #sysfonts::font_add_google("Roboto")
-  #sysfonts::font_add(family = "SKAUT Bold", paste0(Sys.getenv("APPDATA"),"/../Local/Microsoft/Windows/Fonts/skaut-bold-webfont.otf"))
-  #showtext_auto()
 
   update_geom_defaults("bar",   list(fill = "white"))
   update_geom_defaults("line", list(size = 2))
