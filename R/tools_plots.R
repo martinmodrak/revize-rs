@@ -165,7 +165,7 @@ plot_summary_mc <- function(cela_data, sloupec, title = popis_pro_plot(cela_data
     ggplot(aes(x = nazev_volby, y = podil_ano, label = paste0(round(podil_ano * 100),"%"))) +
     geom_bar(stat = "identity") +
     geom_text(aes(color = podil_ano > invert_color_threshold, y = if_else(podil_ano > invert_color_threshold,0.01, podil_ano + 0.01)), hjust = 0, family = "SKAUT") +
-    scale_color_manual(values = c("white", dark_blue_color), guide = FALSE) +
+    scale_color_manual(values = c("white", revize_cols("darkest_fill")), guide = FALSE) +
     expand_limits(color = c(FALSE, TRUE)) +
     coord_flip() +
     theme(axis.title = element_blank(), axis.text.x = element_blank(),

@@ -47,7 +47,6 @@ preprocess_dat <- function(cela_data, verbose = FALSE, vyhodit_otevrene_jine_ota
     vyhod_texty_jine(vyhodit_otevrene_jine_otazky) %>%
     prejmenuj_sloupce_kompetenci() %>%
     preved_haven_na_factory() %>%
-    droplevels() %>%
     as_tibble()
 
   #TODO u otazek, kde je moznost nic vyfiltrovat (zamenit za NA ?) ty, kdo nezaskrtlni zadnou moznost, ani "nic"
