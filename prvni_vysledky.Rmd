@@ -4,27 +4,7 @@ output: html_notebook
 ---
 
 ```{r setup}
-if(!grepl("cz|utf", Sys.getlocale(), ignore.case = TRUE)) {
-  Sys.setlocale(locale= 'English_United States.1250')
-}
-library(lubridate)
-library(tidyverse)
-library(formr)
-library(here)
-library(RCzechia)
-library(sf)
-library(cowplot)
-library(showtext)
-
-save_format <- ".svg"
-
-
-source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
-source(here::here("R","tools_plots.R"), encoding = "UTF-8")
-
-#theme_set(theme_cowplot())
-set_theme_revizers()
-
+source(here::here("R","setup_dotaznik.R"), encoding = "UTF-8")
 ```
 
 ```{r}
@@ -205,8 +185,8 @@ plots$proc_nebyl_rover
 ```
 
 ```{r}
-plots$bez_zkuesnosti_velke_akce <- plot_summary_mc(cela_data, bez_zkuesnosti_velke_akce, "Účast na akcích (jen bez roverské zkušenosti)")
-plots$bez_zkuesnosti_velke_akce
+plots$bez_zkusenosti_velke_akce <- plot_summary_mc(cela_data, bez_zkusenosti_velke_akce, "Účast na akcích (jen bez roverské zkušenosti)")
+plots$bez_zkusenosti_velke_akce
 
 
 ```

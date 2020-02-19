@@ -4,42 +4,7 @@ output: html_document
 ---
 
 ```{r setup}
-if(!grepl("cz|utf", Sys.getlocale(), ignore.case = TRUE)) {
-  Sys.setlocale(locale= 'English_United States.1250')
-}
-library(rlang)
-library(lubridate)
-library(tidyverse)
-library(formr)
-library(here)
-library(RCzechia)
-library(sf)
-library(cowplot)
-library(showtext)
-library(polycor)
-
-save_format <- ".svg"
-
-theme_set(theme_cowplot(20))
-dark_blue_color <- "#0040ae"
-darkest_fill <- "#668cce"
-midd_fill <- "#b2c5e6"
-# theme_update(text = element_text(family = "Roboto", color = "white"), 
-#              plot.background = element_rect(fill = dark_blue_color), 
-#              line = element_line(color = "white"), 
-#              rect = element_rect(color = "white"), 
-#              axis.text = element_text(color = "white", face = "bold"), 
-#              axis.title = element_text(color = "white"),
-#              axis.line = element_line(color = "white"), axis.ticks = element_line(color = "white"),
-#              strip.background = element_rect(color = "white", fill = darkest_fill))
-
-
-#sysfonts::font_add_google("Roboto")
-#sysfonts::font_add(family = "Skaut Bold", #paste0(Sys.getenv("APPDATA"),"/../Local/Microsoft/Windows/Fonts/skaut-bold-webfont.otf"))
-#showtext_auto()
-
-source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
-
+source(here::here("R","setup_dotaznik.R"), encoding = "UTF-8")
 ```
 
 ```{r}
@@ -156,11 +121,11 @@ lss_pro_kategorie(quo(kraj)) %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 lss_pro_kategorie(quo(sex)) %>% 
-  mutate(sex = haven::as_factor(sex) %>% as.character()) %>% 
+  mutate(sex = as.character(sex)) %>% 
   ggplot(aes(x = sex, y =spokojenost_s_roverskym_programem  )) + geom_bar(stat="identity") + xlab("pohlavi")+theme(axis.text.x = element_text(angle = 45, hjust = 1))
   
 lss_pro_kategorie(quo(sex)) %>% 
-  mutate(sex = haven::as_factor(sex) %>% as.character()) %>% 
+  mutate(sex = as.character()) %>% 
   ggplot(aes(x = sex, y =lss  )) + geom_bar(stat="identity") + xlab("pohlavi")+theme(axis.text.x = element_text(angle = 45, hjust = 1))
     
 
@@ -466,7 +431,6 @@ visualizuj_skupinu <- function(df_in, var, which_visualize,str_to_remove ="") {
 
 visualizuj_skupinu(quo(pomaha_skodi_skupina), colnames(pomaha_skodi))
 
-library(klaR)
 role_data <- cela_data %>% 
   filter(role_skauting!="")
 
@@ -494,7 +458,6 @@ which_visualize <- colnames(role_data %>%
 visualizuj_skupinu(role_data,quo(role_skupina), which_visualize, str_to_remove = "role_skauting_")
 }
 
-library(vegan)
 mds_df <- role_data %>% dplyr::select(starts_with("role_skauting_")) %>% as.matrix() %>% 
   vegan::vegdist(method = "jaccard",binary = T) %>% 
   cmdscale() 
