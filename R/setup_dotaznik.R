@@ -11,6 +11,7 @@ library(polycor)
 library(vegan)
 library(tidyverse)
 library(cowplot)
+library(patchwork)
 
 
 options(mc.cores = parallel::detectCores())
