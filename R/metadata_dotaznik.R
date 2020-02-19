@@ -67,7 +67,7 @@ mc_sloupce <- c(quo(role_skauting), quo(co_zazil), quo(fungovani_skautskeho_oddi
                 quo(vyroky_o_roveringu_stredisko), quo(problemy_roveringu_stredisko))
 
 
-factor_sloupce  <- c("sex", "kolik_casu","kategorie_respondenta","kategorie_respondenta_full","kraj",
+factor_sloupce  <- c("sex", "kolik_casu","kategorie_respondenta","kategorie_respondenta_full",
                      "bez_zkusenosti_mladsi", "pocet_clenu_spolecenstvi", "frekvence_kratkych_akci",
                      "frekvence_vicedennich_akci", "frekvence_velkych_akci",
                      "bez_zkusenosti_setkavam_se_s_vrstevniky", "bez_zkusenosti_seberozvojovy_program",

@@ -227,6 +227,7 @@ preved_haven_na_factory <- function(cela_data) {
 
   cela_data %>%
     mutate(
+      kraj = haven::as_factor(kraj),
       kraj_nazev = as.character(kraj) #jeden relikt
     )
 }
