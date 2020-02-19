@@ -188,7 +188,7 @@ sluc_hlavni_a_doplnek <- function(cela_data, verbose = FALSE) {
 prejmenuj_spatne_pojmenovane <- function(cela_data) {
   cela_data %>%
     rename(bez_zkusenosti_velke_akce = bez_zkuesnosti_velke_akce,
-           spokojenst_clenstvim_v_rs = spokojenost_s_roverskym_programem)
+           spokojenost_clenstvim_v_rs = spokojenost_s_roverskym_programem)
 }
 
 aplikuj_manual_codings <- function(cela_data, verbose = FALSE) {
