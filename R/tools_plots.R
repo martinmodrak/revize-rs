@@ -100,7 +100,7 @@ theme_revizers <- function() {
 
       axis.text = element_text(face = "bold"),
       axis.title = element_text(hjust = 0.5, margin = my_margin(t = 5)),
-      axis.title.y = element_text(angle = 90, vjust = 0.5, hjust = 1),
+      axis.title.y = element_text(angle = 90, vjust = 0.5, hjust = 0.5),
       axis.title.x = NULL,
       axis.title.x.top = NULL,
       axis.title.y.right = NULL,
