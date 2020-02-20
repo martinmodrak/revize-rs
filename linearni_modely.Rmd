@@ -82,10 +82,10 @@ inla_formula_base <- kompetence_odpoved ~ 1 + age_norm + f(age_ar, model = "iid"
   #f(kategorie_respondenta_full, model = "iid", hyper = list(theta = list(prior = log_inv_hn_sqrt(1)))) + f(row_id, model = "iid")
 
 #mc_sloupce <- list(quo(role_skauting), quo(co_zazil), quo(fungovani_skautskeho_oddilu), quo(organizace_spolecenstvi))
-mc_sloupce <- list()
+mc_sloupce_k_pouziti <- list()
 
 for(kategorie in kategorie_kompetence) {
-  pipeline_results[[kategorie]] <- inla_pipeline(base_for_inla, kategorie, inla_formula_base, mc_sloupce)
+  pipeline_results[[kategorie]] <- inla_pipeline(base_for_inla, kategorie, inla_formula_base, mc_sloupce_k_pouziti)
 }
 
 #pipeline_result$processed_fits %>% map(~ .$cache_result)

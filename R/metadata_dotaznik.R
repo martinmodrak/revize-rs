@@ -57,14 +57,30 @@ manual_codings <- list(
 
 manual_codings$problemy_roveringu_stredisko = manual_codings$problemy_roveringu
 
-mc_sloupce <- c(quo(role_skauting), quo(co_zazil), quo(fungovani_skautskeho_oddilu),
-                quo(spolecenstvi_registrace), quo(s_cim_spokojen), quo(s_cim_nespokojen),
-                quo(organizace_spolecenstvi), quo(vyroky_o_roveringu_zazil),
-                quo(vyroky_o_roveringu_zazil_2), quo(vychovne_nastroje), quo(problemy_roveringu),
-                quo(co_pomaha_roveringu), quo(komunikacni_kanaly_existujici),
-                quo(komunikacni_kanaly_hypoteticke), quo(proc_neni_rover),
-                quo(bez_zkusenosti_velke_akce), quo(sluzba), quo(proc_nebyl_rover),
-                quo(vyroky_o_roveringu_stredisko), quo(problemy_roveringu_stredisko))
+# Metadata k multiple choice sloupcum (kde toho slo vybrat vic).
+# Pokud je explicitní možnost "Nic" a pokud respondent nic nezaškrtl, tak můžeme odpověď brát jako NA, protože
+# nedával pozor. To je podchyceno v "moznost_pro_kazdeho"
+mc_sloupce <- list(
+  role_skauting = list(),
+  co_zazil = list(),
+  fungovani_skautskeho_oddilu = list(),
+  spolecenstvi_registrace = list(moznost_pro_kazdeho = TRUE),
+  s_cim_spokojen = list(),
+  s_cim_nespokojen = list(),
+  organizace_spolecenstvi = list(moznost_pro_kazdeho = TRUE),
+  vyroky_o_roveringu_zazil = list(),
+  vyroky_o_roveringu_zazil_2 = list(),
+  vychovne_nastroje = list(moznost_pro_kazdeho = TRUE),
+  problemy_roveringu = list(),
+  co_pomaha_roveringu = list(moznost_pro_kazdeho = TRUE),
+  komunikacni_kanaly_existujici = list(),
+  komunikacni_kanaly_hypoteticke = list(),
+  proc_neni_rover = list(moznost_pro_kazdeho = TRUE),
+  bez_zkusenosti_velke_akce = list(moznost_pro_kazdeho = TRUE),
+  sluzba = list(moznost_pro_kazdeho = TRUE),
+  proc_nebyl_rover = list(moznost_pro_kazdeho = TRUE),
+  vyroky_o_roveringu_stredisko = list(),
+  problemy_roveringu_stredisko = list())
 
 
 factor_sloupce  <- c("sex", "kolik_casu","kategorie_respondenta","kategorie_respondenta_full",

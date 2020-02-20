@@ -19,10 +19,6 @@ nacti_dotaznik <- function() {
   hlavni <- formr::formr_recognise(item_list = hlavni_items, results = hlavni)
   doplnek <- formr::formr_recognise(item_list = doplnek_items, results = doplnek)
 
-  rozcestnik <- rozcestnik %>% mutate(zdroj = case_when(zdroj == "neuvedeno_redirect" ~  "nezname",
-                                                      zdroj == "" ~ "primo formr.org",
-                                                      TRUE ~ zdroj))
-
   cela_data <- rozcestnik %>%
     inner_join(hlavni, by = c("session" = "session"), suffix = c("",".hlavni")) %>%
     left_join(doplnek, by = c("session" = "session"), suffix = c("",".doplnek")) %>%
@@ -32,7 +28,7 @@ nacti_dotaznik <- function() {
   cela_data %>% as_tibble()
 }
 
-preprocess_dat <- function(cela_data, verbose = FALSE, vyhodit_otevrene_jine_otazky = T) {
+preprocess_dat <- function(cela_data, verbose = FALSE, vyhodit_otevrene_jine_otazky = TRUE) {
   cela_data %>%
     odstran_zbytecne_sloupce(verbose = verbose) %>%
     oprav_fuckup_kategorie_kompetence() %>%
@@ -45,6 +41,7 @@ preprocess_dat <- function(cela_data, verbose = FALSE, vyhodit_otevrene_jine_ota
     vycisti_registracni_cisla() %>%
     spocitej_lss() %>%
     vyhod_texty_jine(vyhodit_otevrene_jine_otazky) %>%
+    nastav_nepozorne_mc_jako_na(verbose = verbose) %>%
     prejmenuj_sloupce_kompetenci() %>%
     # Prevod na faktory volam umyslne zvlast az v datasety_dotaznik
     # preved_haven_na_factory() %>%
@@ -259,7 +256,7 @@ spocitej_odvozene_kategorie <- function(cela_data) {
                        | co_zazil %contains_word% "jiny_kurz"
                        | co_zazil %contains_word% "vudcovky",
            dokoncil_hlavni = !is.na(ended.hlavni),
-           druh_vyplneni = case_when(is.na(ended.hlavni) ~ "nedokoncil",
+           stav_vyplneni = case_when(is.na(ended.hlavni) ~ "nedokoncil",
                                      kolik_casu == "delsi" ~ "dokoncil_delsi",
                                      jeste_pokracovat == "ne" ~ "dokoncil_kratsi",
                                      is.na(ended.doplnek) ~ "rozpracoval_doplnek",
@@ -267,13 +264,16 @@ spocitej_odvozene_kategorie <- function(cela_data) {
                                      )
   )
 
+  cela_data <- cela_data %>% mutate(zdroj = case_when(zdroj == "neuvedeno_redirect" ~  "nezname",
+                                                             zdroj == "" ~ "primo formr.org",
+                                                             TRUE ~ zdroj))
 
   cela_data
 }
 
 # Vytvor nove promenne z FA analyzy pro role
 vytvor_fa_role <- function(cela_data) {
-  role_fa <- cela_data %>% rozsir_mc(quo(role_skauting)) %>% select(starts_with("role_skauting."))
+  role_fa <- cela_data %>% rozsir_mc("role_skauting") %>% select(starts_with("role_skauting."))
   role_fa_res <- psych::fa(role_fa , nfactors = 6, rotate = "varimax")
 
   cela_data <- vytvor_promenne_dle_fa(cela_data,role_fa,role_fa_res, var_name = "roleFA")
@@ -358,11 +358,12 @@ prejmenuj_sloupce_kompetenci <- function(cela_data) {
 }
 
 
-# Pouzitelne == nejsou zjevne roboti ci nesmysly a prosli aspon pres prvni stranku
+# Pouzitelne == nejsou zjevne roboti ci nesmysly a dostali se aspon ke kategorii respondenta
 #
 vyfiltruj_pouzitelne <- function(cela_data) {
   cela_data %>%
     filter(!is.na(cela_data$ended.rozcestnik),
+           !is.na(cela_data$kategorie_respondenta),
            !is.na(session),
            age >= 10, age <= 50,  #TODO
            is.na(let_v_kmeni) | let_v_kmeni != 42,
@@ -460,26 +461,26 @@ replace_coding <- function(x, new_values) {
 
 
 # umozni rozsekat mc odpovedi ulozene ve stringu do n sloupcu (true/false)
-rozsir_mc_matrix <- function(df, var, zachovat_NA = FALSE) {
+rozsir_mc_matrix <- function(df, nazev_sloupce, zachovat_NA = TRUE) {
   mc_obsahuje <- function(v,polozka) {
     if(zachovat_NA && is.na(v)) {
       return(NA)
     }
     return(any(v %in% polozka))
   }
-  all_attributes <- df[[as_label(var)]] %>% attributes()
+  all_attributes <- df[[nazev_sloupce]] %>% attributes()
   col_names <- all_attributes$labels %>% as.character()
-  polozky <- df[[as_label(var)]] %>% str_split(", ")
+  polozky <- df[[nazev_sloupce]] %>% str_split(", ")
 
   result <- matrix(NA, nrow = nrow(df), ncol = length(col_names))
-  colnames(result) <- paste0(as_label(var),".",col_names)
+  colnames(result) <- paste0(nazev_sloupce,".",col_names)
 
   for (i in 1:length(col_names)) {
     obsah_sloupce <- map_lgl(polozky,mc_obsahuje,col_names[i])
     result[, i] <- obsah_sloupce
 
     # Check
-    obsah_contains_word <- df[[as_label(var)]] %contains_word% col_names[i]
+    obsah_contains_word <- df[[nazev_sloupce]] %contains_word% col_names[i]
     if(!all(obsah_sloupce == obsah_contains_word, na.rm = TRUE)) {
       stop(paste0("rozsir_mc:Not equal - ", nazev_sloupce))
     }
@@ -500,19 +501,35 @@ rozsir_mc_matrix <- function(df, var, zachovat_NA = FALSE) {
 }
 
 # umozni rozsekat mc odpovedi ulozene ve stringu do n sloupcu (true/false)
-rozsir_mc <- function(df, var, zachovat_NA = FALSE) {
-  df <- cbind(df, as_tibble(rozsir_mc_matrix(df, var, zachovat_NA = FALSE)))
+rozsir_mc <- function(df, nazev_sloupce, zachovat_NA = TRUE) {
+  df <- cbind(df, as_tibble(rozsir_mc_matrix(df, nazev_sloupce, zachovat_NA = zachovat_NA)))
 }
 
 
 
-rozsir_vsechna_mc <- function(data, zachovat_NA = FALSE) {
-  for(sloupec in mc_sloupce) {
+rozsir_vsechna_mc <- function(data, zachovat_NA = TRUE) {
+  for(sloupec in names(mc_sloupce)) {
     data <- rozsir_mc(data, sloupec, zachovat_NA = zachovat_NA)
   }
   data
 }
 
+
+# Tam, kde pro kazdeho vyplneneho byla moznost k vyberu
+# Vezmu prazdne a nastavim jako NA, protoze reposndent nedaval pozor
+nastav_nepozorne_mc_jako_na <- function(data, verbose) {
+  for(sloupec in names(mc_sloupce)) {
+    moznost <- mc_sloupce[[sloupec]]$moznost_pro_kazdeho
+    if(!is.null(moznost) && moznost) {
+      prazdne = (!is.na(data[[sloupec]]) & data[[sloupec]] == "");
+      if(verbose) {
+        cat("Ve sloupci '",sloupec,"' je ", sum(prazdne), " prazdnych odpovedi nahrazeno NA\n")
+      }
+      data[[sloupec]][prazdne] <- NA
+    }
+  }
+  data
+}
 
 psc_na_reg_cislo <- function(x) {
   psc_jako_vektor <- str_split(x,pattern="") %>% unlist()

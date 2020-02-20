@@ -34,3 +34,4 @@ datasety_long$hlavni <- datasety_long$pouzitelne %>%
 datasety_wide <- datasety_wide %>% purrr::map(rozsir_vsechna_mc)
 
 hlavni_data <- datasety_wide$hlavni
+hlavni_data_long <- datasety_long$hlavni

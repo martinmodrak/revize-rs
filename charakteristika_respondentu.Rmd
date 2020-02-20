@@ -1,0 +1,17 @@
+---
+title: "Charakteristika respondentů"
+output: html_notebook
+---
+
+```{r setup}
+source(here::here("R","setup_dotaznik.R"), encoding = "UTF-8")
+source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
+
+```
+
+```{r}
+datasety_wide$pouzitelne %>% group_by(stav_vyplneni) %>% summarise(pocet = n())
+```
+
+
+
