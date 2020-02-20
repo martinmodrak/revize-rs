@@ -1,17 +1,26 @@
+# Vytvori objekty s daty tak, abychom vsude analyzovali to same
+
 raw_data <- nacti_dotaznik()
 
-
-
+# "Wide" data - co radek to respondent, ruzne profiltrovana
 datasety_wide <- list()
 
-datasety_wide$pouzitelne <- raw_data %>%
+preprocesovana_data <- raw_data %>%
   vyfiltruj_pouzitelne() %>%
   preprocess_dat(verbose = FALSE)
+
+zaloha_labels <- zalohuj_labels(preprocesovana_data)
+
+datasety_wide$pouzitelne <- preprocesovana_data %>% preved_haven_na_factory()
+
+rm(preprocesovana_data)
+
 datasety_wide$hlavni <- datasety_wide$pouzitelne %>%
   filter(age >= 15, age <= 26, dokoncil_hlavni)
 datasety_wide$pouzitelne_dokoncene <- datasety_wide$pouzitelne %>%
   filter(dokoncil_hlavni)
 
+# "Long" data - expandovane kompetence, ruzne profiltrovana
 datasety_long <- list()
 datasety_long$pouzitelne <- datasety_wide$pouzitelne %>%
   expand_kompetence() %>%

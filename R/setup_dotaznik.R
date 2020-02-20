@@ -16,7 +16,6 @@ library(patchwork)
 
 options(mc.cores = parallel::detectCores())
 
-knitr::opts_chunk$set(fig.width = 8, fig.height = 4.5)
 
 source(here::here("R","tools_kompetence.R"), encoding = "UTF-8")
 source(here::here("R","metadata_dotaznik.R"), encoding = "UTF-8")
@@ -25,5 +24,8 @@ source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
 source(here::here("R","tools_plots.R"), encoding = "UTF-8")
 source(here::here("R","tools_INLA.R"), encoding = "UTF-8")
 source(here::here("R","tools_fa.R"), encoding = "UTF-8")
+
+knitr::opts_chunk$set(fig.width = default_plot_width, fig.height = default_plot_height)
+
 
 set_theme_revizers()

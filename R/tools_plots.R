@@ -1,3 +1,6 @@
+#V palcich
+default_plot_width <- 12
+default_plot_height <- (default_plot_width / 16) * 9
 
 revize_colors <- c(
   white = "white",
@@ -62,15 +65,15 @@ theme_revizers <- function() {
 
   theme_void() +
     theme(
-      text = element_text(family = "Roboto", color = "white", size = 11,
+      text = element_text(family = "Roboto", color = "white", size = 12,
                           face = "plain", hjust = 0, vjust = 0, angle = 0, lineheight = 1, margin = my_margin(), debug = FALSE),
       line = element_line(color = "white", size = 0.5, linetype = "solid", lineend = "square"),
       rect = element_rect(color = "white", size = 1, linetype = "solid", fill = FALSE),
 
       plot.background = element_rect(fill = revize_cols("dark_blue")),
       plot.margin = margin(t = 20, r = 20, b = 20, l = 15),
-      plot.title = element_text(family = "SKAUT", size = 35),
-      plot.subtitle = element_text(family = "Roboto", size = 13, margin = my_margin(b = 8)),
+      plot.title = element_text(family = "SKAUT", size = 35, hjust = 1),
+      plot.subtitle = element_text(family = "Roboto", size = 16, face = "bold", hjust = 1, margin = my_margin(b = 8)),
 
       panel.grid = element_blank(),
       panel.background = NULL,
@@ -100,7 +103,7 @@ theme_revizers <- function() {
 
       axis.text = element_text(face = "bold"),
       axis.title = element_text(hjust = 0.5, margin = my_margin(t = 5)),
-      axis.title.y = element_text(angle = 90, vjust = 0.5, hjust = 0.5),
+      axis.title.y = element_text(angle = 90, vjust = 0.5, hjust = 0.5, inherit.blank = TRUE),
       axis.title.x = NULL,
       axis.title.x.top = NULL,
       axis.title.y.right = NULL,
@@ -136,14 +139,13 @@ set_theme_revizers <- function() {
 
 
 popis_pro_plot <- function(data, sloupec) {
-  sloupec_val <- cela_data %>% pull( {{sloupec }})
-  if(inherits(sloupec_val, "haven_labelled")) {
-    raw_popis <- attributes(sloupec_val)$label
-    gsub("*","", raw_popis, fixed = TRUE) %>%
+  popisek <- popisek_otazky(data, {{sloupec}})
+  if(!is.null(popisek)) {
+    gsub("*","", popisek, fixed = TRUE) %>%
       gsub("`[^`]*`", "", .)
   } else {
     # Hack protoze neumim quasiquotation
-    names(cela_data %>% select( {{sloupec}}))
+    names(data %>% select( {{sloupec}}))
   }
 }
 
@@ -157,7 +159,7 @@ plot_summary_mc <- function(cela_data, sloupec, title = popis_pro_plot(cela_data
     data_to_plot <- data_to_plot %>%
       mutate(nazev_volby =  fct_reorder(str_wrap(nazev_volby, wrap_width), podil_ano))
   } else {
-    labels <- attributes(cela_data %>% pull( {{ sloupec }}))$labels
+    labels <- popisky_voleb(cela_data, {{ sloupec }})
     data_to_plot <- data_to_plot %>%
       mutate(nazev_volby = factor(id_volby, levels = labels, labels = str_wrap(names(labels), wrap_width)))
   }
@@ -171,5 +173,5 @@ plot_summary_mc <- function(cela_data, sloupec, title = popis_pro_plot(cela_data
     theme(axis.title = element_blank(), axis.text.x = element_blank(),
           axis.ticks.x = element_blank(), axis.line.x = element_blank(),
           plot.title = element_text(hjust = title_hjust)) +
-    ggtitle(paste0(title, " (", sum(!is.na(cela_data %>% pull( {{ sloupec }}))) ," odpovědí)"))
+    ggtitle(title, subtitle =  paste0(sum(!is.na(cela_data %>% pull( {{ sloupec }}))) ," odpovědí"))
 }

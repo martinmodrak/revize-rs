@@ -4,41 +4,22 @@ output: html_notebook
 ---
 
 ```{r setup}
-if(!grepl("cz|utf", Sys.getlocale(), ignore.case = TRUE)) {
-  Sys.setlocale(locale= 'English_United States.1250')
-}
-library(lubridate)
-library(tidyverse)
-library(formr)
-library(here)
-library(RCzechia)
-library(sf)
-library(cowplot)
-library(showtext)
-
-save_format <- ".svg"
-
-
-source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
-source(here::here("R","tools_plots.R"), encoding = "UTF-8")
-
-#theme_set(theme_cowplot())
-set_theme_revizers()
-
+source(here::here("R","setup_dotaznik.R"))
 ```
 
 ```{r}
 cela_data_raw <- nacti_dotaznik()
 cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE)  
-cela_data_rs <- cela_data %>% filter(age >= 15, age <= 26) %>% mutate(
-  byl_na_rs_kurzu = co_zazil %contains_word% "roversky_kurz",
-           byl_na_kurzu = co_zazil %contains_word% "roversky_kurz"
-                       | co_zazil %contains_word% "radcovsky_kurz"
-                       | co_zazil %contains_word% "cekatelky"
-                       | co_zazil %contains_word% "jiny_kurz"
-                       | co_zazil %contains_word% "vudcovky")
+cela_data_rs <- cela_data %>% filter(age >= 15, age <= 26)
 
 ```
+
+
+```{r}
+cela_data %>% group_by(druh_vyplneni) %>% summarise(pocet = n())
+unique(cela_data$jeste_pokracovat)
+```
+
 
 ```{r}
 sluzba_matrix <- rozsir_mc_matrix(cela_data_rs, quo(sluzba), zachovat_NA = TRUE) 
@@ -58,6 +39,7 @@ scale_fill_revize(discrete = FALSE)  +  theme(axis.text.x = element_text(angle =
 ```
 
 TODO: dostat titulky os "doprostred okraje", srovnat velikost textu v legende a v popiskach os
+Titulek, podtitulek doprostred
 
 ```{r, fig.width=8, fig.height=4.5}
 set_theme_revizers()
@@ -70,9 +52,9 @@ data_sluzba %>% mutate(kategorie = if_else(sluzba < "nic", "Prvni","Druhy")) %>%
 
 
 ```{r}
-cela_data_rs %>% mutate(byl_na_kurzu = co_zazil %contains_word% "roversky_kurz") %>%
-  group_by(byl_na_kurzu) %>% summarise(prumer_spokojenost = mean(spokojenost_s_roverskym_programem, na.rm = TRUE), sdev = sd(spokojenost_s_roverskym_programem, na.rm = TRUE)) %>%
-  ggplot(aes(x = byl_na_kurzu, y = prumer_spokojenost, ymin = prumer_spokojenost - sdev, ymax = prumer_spokojenost + sdev)) +  geom_errorbar(color = "white") + geom_point(color = "white")
+cela_data_rs %>% 
+  group_by(byl_na_rs_kurzu) %>% summarise(prumer_spokojenost = mean(spokojenst_clenstvim_v_rs, na.rm = TRUE), sdev = sd(spokojenst_clenstvim_v_rs, na.rm = TRUE)) %>%
+  ggplot(aes(x = byl_na_rs_kurzu, y = prumer_spokojenost, ymin = prumer_spokojenost - sdev, ymax = prumer_spokojenost + sdev)) +  geom_errorbar(color = "white") + geom_point(color = "white")
 ```
 
 ```{r}

@@ -15,6 +15,10 @@ expand_kompetence <- function(cela_data) {
     stop(paste0("Neexistujici kompetence: ", paste0(neexistujici, collapse = ", ")))
   }
 
+  for(sloupec in kompetence_nazvy_sloupcu$nazev) {
+    cela_data[[sloupec]] <- as.integer(cela_data[[sloupec]])
+  }
+
   expanded <- cela_data %>%
     pivot_longer(cols = one_of(kompetence_nazvy_sloupcu$nazev),
                  names_sep = "\\.",

@@ -46,7 +46,8 @@ preprocess_dat <- function(cela_data, verbose = FALSE, vyhodit_otevrene_jine_ota
     spocitej_lss() %>%
     vyhod_texty_jine(vyhodit_otevrene_jine_otazky) %>%
     prejmenuj_sloupce_kompetenci() %>%
-    preved_haven_na_factory() %>%
+    # Prevod na faktory volam umyslne zvlast az v datasety_dotaznik
+    # preved_haven_na_factory() %>%
     as_tibble()
 
   #TODO u otazek, kde je moznost nic vyfiltrovat (zamenit za NA ?) ty, kdo nezaskrtlni zadnou moznost, ani "nic"
@@ -210,8 +211,20 @@ spocitej_delku_vyplneni <- function(cela_data) {
   cela_data
 }
 
+zalohuj_labels <- function(data) {
+  zaloha <- list()
+  for(sloupec in names(data)) {
+    if(inherits(data[[sloupec]], "haven_labelled")) {
+      zaloha[[sloupec]] <- list(label = attributes(data[[sloupec]])$label,
+                                labels = attributes(data[[sloupec]])$labels)
+    }
+  }
+  zaloha
+}
+
 # Vybrane haven prevest na faktory
 preved_haven_na_factory <- function(cela_data) {
+  # TODO vymyslet jak zachovat u faktoru atributy pri dalsich operacich
   for(sloupec in factor_sloupce) {
     old_attributes <- attributes(cela_data[[sloupec]])
     cela_data[[sloupec]] <- cela_data[[sloupec]] %>%
@@ -220,8 +233,6 @@ preved_haven_na_factory <- function(cela_data) {
       droplevels()
 
     #Zachovat info o otázce pro případné kontroly
-    attributes(cela_data[[sloupec]])$label <- old_attributes$label
-    attributes(cela_data[[sloupec]])$labels <- old_attributes$labels
   }
 
   cela_data %>%
@@ -341,6 +352,7 @@ vyhod_texty_jine <- function(cela_data, vyhodit = TRUE) {
 prejmenuj_sloupce_kompetenci <- function(cela_data) {
   for(i in 1:nrow(kompetence_nazvy_sloupcu)) {
     cela_data[[kompetence_nazvy_sloupcu$nazev[i]]] <- as.integer(cela_data[[kompetence_nazvy_sloupcu$nazev_raw[i]]])
+    attributes(cela_data[[kompetence_nazvy_sloupcu$nazev[i]]]) <- attributes(cela_data[[kompetence_nazvy_sloupcu$nazev_raw[i]]])
   }
   cela_data %>% dplyr::select(- one_of(kompetence_nazvy_sloupcu$nazev_raw))
 }
