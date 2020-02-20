@@ -329,7 +329,7 @@ plot_kompetence_by_age <- function(expanded, kategorie) {
     mutate(od_prumeru = prumer - mean(prumer), low = od_prumeru - 1.96 * sem, high = od_prumeru + 1.96 * sem) %>%
     ungroup() %>%
     ggplot(aes(x = age, y = od_prumeru, ymin = low, ymax = high)) +
-      geom_ribbon(fill = midd_fill) +
+      geom_ribbon(fill = revize_cols("midd_fill")) +
       geom_line() + facet_wrap(~kompetence) +
       theme(strip.text = element_text(size = 8))
 }

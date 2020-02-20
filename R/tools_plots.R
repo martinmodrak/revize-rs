@@ -132,7 +132,8 @@ set_theme_revizers <- function() {
   windowsFonts("Roboto" = windowsFont("Roboto"))
 
   update_geom_defaults("bar",   list(fill = "white"))
-  update_geom_defaults("line", list(size = 2))
+  update_geom_defaults("line", list(size = 2, color = "white"))
+  update_geom_defaults("smooth", list(size = 2, color = "white", fill = revize_cols("midd_fill")))
   update_geom_defaults("point", list(color = "white"))
 }
 
