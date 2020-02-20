@@ -13,5 +13,12 @@ source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
 datasety_wide$pouzitelne %>% group_by(stav_vyplneni) %>% summarise(pocet = n())
 ```
 
+```{r}
+plots <- list()
+```
 
 
+```{r}
+plots$zivotni_faze <- hlavni_data %>% plot_summary_mc(zivotni_faze, "Životní fáze", title_hjust = 0.5)
+plots$zivotni_faze
+```

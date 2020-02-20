@@ -12,7 +12,6 @@ source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
 
 ```{r}
 plots <- list() 
-max(hlavni_data$let_v_kmeni, na.rm = TRUE)
 ```
 
 ```{r}
@@ -40,10 +39,6 @@ attributes(hlavni_data$komunikacni_kanaly_hypoteticke)
 ```
 
 
-```{r}
-plots$zivotni_faze <- hlavni_data %>% plot_summary_mc(zivotni_faze, "Životní fáze", title_hjust = 0.5)
-plots$zivotni_faze
-```
 
 ```{r}
 plots$role <- hlavni_data %>% plot_summary_mc(role_skauting, "Role ve skautingu")

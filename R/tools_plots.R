@@ -18,7 +18,9 @@ revize_cols <- function(...) {
   if (is.null(cols))
     return (revize_colors)
 
-  revize_colors[cols]
+  ret <- revize_colors[cols]
+  names(ret) <- NULL # Je potreba, jinak nelze pouzit ve scale_color_manual
+  ret
 }
 
 revize_palettes <- list(
@@ -167,8 +169,8 @@ plot_summary_mc <- function(cela_data, sloupec, title = popis_pro_plot(cela_data
   data_to_plot %>%
     ggplot(aes(x = nazev_volby, y = podil_ano, label = paste0(round(podil_ano * 100),"%"))) +
     geom_bar(stat = "identity") +
-    geom_text(aes(color = podil_ano > invert_color_threshold, y = if_else(podil_ano > invert_color_threshold,0.01, podil_ano + 0.01)), hjust = 0, family = "SKAUT") +
-    scale_color_manual(values = c("white", revize_cols("darkest_fill")), guide = FALSE) +
+    geom_text(aes(color = podil_ano > invert_color_threshold, y = if_else(podil_ano > invert_color_threshold,0.01, podil_ano + 0.01)), hjust = 0, family = "SKAUT", size = 6) +
+    scale_color_manual(values = c("white", revize_cols("dark_blue")), guide = FALSE) +
     expand_limits(color = c(FALSE, TRUE)) +
     coord_flip() +
     theme(axis.title = element_blank(), axis.text.x = element_blank(),

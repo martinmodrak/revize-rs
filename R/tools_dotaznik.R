@@ -3,12 +3,23 @@ summarise_multiple_choice <- function(cela_data, sloupec) {
   volby_df <- data.frame(id_volby = volby_vec, nazev_volby = names(volby_vec))
 
   data_vyplneno <- cela_data %>% filter(!is.na({{sloupec}}))
-  volby_df %>% crossing(data_vyplneno) %>%
+  ret <- volby_df %>% crossing(data_vyplneno) %>%
     group_by(id_volby, nazev_volby) %>%
     mutate(volba_ano = {{sloupec}} %contains_word% id_volby) %>%
     summarise(pocet_ano = sum(volba_ano), podil_ano = mean(volba_ano), pocet_total = length(volba_ano)) %>%
     ungroup()
 
+  nazev_sloupce <- rlang::as_name(enquo(sloupec))
+  if(!is.null(mc_sloupce[[nazev_sloupce]])) {
+    moznost_pro_kazdeho <- mc_sloupce[[nazev_sloupce]]$moznost_pro_kazdeho
+    if(is.null(moznost_pro_kazdeho) || !moznost_pro_kazdeho) {
+      obsah = data_vyplneno %>% pull({{sloupec}})
+      ret <- rbind(ret, data.frame(
+          id_volby = "__nic", nazev_volby = "(nic nevybráno)",
+          pocet_ano = sum(obsah == ""), podil_ano = mean(obsah == ""), pocet_total = length(obsah)))
+    }
+  }
+  ret
 }
 
 
