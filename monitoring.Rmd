@@ -259,7 +259,7 @@ cat(paste0(df_sex %>% filter(dokonceno,sex == 1) %>% pull(n), " mužů dokončil
 ```{r}
 pie_sex <- df_sex %>% ungroup() %>% filter(dokonceno) %>%
   mutate(sex = factor(sex, levels = c(1,2,3), labels = c("MUŽI", "ŽENY", "NEUVEDENO")), sex = replace_na(sex, "Neuvedeno")) %>%
-  ggplot(aes(x = "", y = n, fill = sex)) + geom_bar(stat = "identity") + coord_polar("y", start = 0) + scale_fill_manual("Pohlaví", values = c("MUŽI" = "white", "ŽENY" = darkest_fill, "NEUVEDENO" = midd_fill)) + 
+  ggplot(aes(x = "", y = n, fill = sex)) + geom_bar(stat = "identity") + coord_polar("y", start = 0) + scale_fill_manual("Pohlaví", values = c("MUŽI" = "white", "ŽENY" = darkest_fill, "NEUVEDENO" = mid_fill)) + 
   geom_text(aes(y = 2*n/3 + c(0, cumsum(n)[-length(n)]), 
             label = paste0(round(100 * n/sum(n)), "%"), color = sex == "MUŽI"), x = 1, size=5, family = "Roboto", fontface = "bold")+
   scale_color_manual(values = c(dark_blue_color,"white"), guide = FALSE) +

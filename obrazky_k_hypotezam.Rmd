@@ -5,92 +5,35 @@ output: html_notebook
 
 ```{r setup}
 source(here::here("R","setup_dotaznik.R"), encoding = "UTF-8")
+source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
 ```
 
 ```{r}
-cela_data_raw <- nacti_dotaznik()
-cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE)  
-#check_vysledky(cela_data)
-expanded <- cela_data %>% rozsir_vsechna_mc() %>% expand_kompetence()
+for(kategorie in kategorie_kompetence) {
+  hlavni_data_long %>% plot_kompetence_by(kategorie, age, kompetence_odpoved) %>% print()
+}
+```
+```{r}
+for(kategorie in kategorie_kompetence) {
+  hlavni_data_long %>% plot_kompetence_by(kategorie, sex, kompetence_nad_median) %>% print()
+}
 
 ```
 
-Budeme pracovat jen s temi, co vyplnili alespon 5 kompetenci a jsou v cilovem vekovem rozmezi.
+
 
 ```{r}
-expanded_pro_plot <- expanded %>% 
-  filter(!is.na(kompetence_odpoved)) %>% 
-  group_by(session, kategorie_kompetence) %>% 
-  filter(n() >= 5) %>%
-  filter(age >= 15, age <= 26) %>%
-  odvozena_meritka_kompetenci()
+hlavni_data_long %>% mutate(byl_na_kurzu = co_zazil %contains_word% "roversky_kurz") %>% plot_kompetence_by("zvladam", byl_na_kurzu, "nad_prumer_populace")
+hlavni_data_long %>% mutate(byl_na_kurzu = co_zazil %contains_word% "roversky_kurz") %>% plot_kompetence_by("zvladam", byl_na_kurzu)
 
 ```
 
-```{r, fig.height=8}
-nejistota_meritka <- function(prob, meritko_nazev, hodnoty) {
-  type <- meritka_kompetence[[meritko_nazev]]$type
-  if(type == "bool") {
-    qbeta(prob, sum(hodnoty) + 1, sum(!hodnoty) + 1)
-  } else if(type == "ordinal" || type == "interval") {
-    sem <- sd(hodnoty)/sqrt(length(hodnoty))
-    qnorm(prob, mean(hodnoty), sem)
-  }
-}
-
-plot_kompetence_by <- function(data, kategorie, group, meritko = kompetence_odpoved) {
-  group_col <- data %>% pull({{group}})
-  if(typeof(group_col) == "double") {
-    my_scale_x <-  NULL
-    my_theme <- NULL
-  } else {
-    my_scale_x <- scale_x_discrete()
-    my_theme <- theme(axis.text.x = element_text(angle = 90, vjust = 0.1))
-    data <- data %>% mutate({{group}} := fct_reorder(factor({{group}}), {{meritko}}, .fun = mean))
-  }
-  
-  meritko_nazev <- names(data %>% select({{meritko}})) #Blby hack, protoze neumim tidy a jsem liny se to ucit
-  data %>%
-    filter(kategorie_kompetence == kategorie) %>%
-    group_by(kompetence, {{ group }}) %>%
-    summarise(prumer = mean({{meritko}}, na.rm = TRUE), 
-              dolni = nejistota_meritka(0.025, meritko_nazev, {{meritko}}),
-              horni = nejistota_meritka(0.975, meritko_nazev, {{meritko}})
-              ) %>%
-    ungroup() %>%
-    ggplot(aes(x = {{group}}, y = prumer, ymin = dolni, ymax = horni, group = kompetence)) +
-      geom_ribbon(alpha = 0.4) + geom_line() + facet_wrap(~ kompetence) + 
-      my_scale_x + my_theme + ggtitle(paste0(kategorie, " - ", meritko_nazev))
-}
-
-```
-
-```{r, fig.height=8}
-for(kategorie in kategorie_kompetence) {
-  expanded_pro_plot %>% plot_kompetence_by(kategorie, age, kompetence_nad_median) %>% print()
-}
-```
-```{r, fig.height=8}
-for(kategorie in kategorie_kompetence) {
-  expanded_pro_plot %>% plot_kompetence_by(kategorie, sex, kompetence_nad_median) %>% print()
-}
-
-```
-
-
-
-```{r, fig.height=8}
-expanded_pro_plot %>% mutate(byl_na_kurzu = co_zazil %contains_word% "roversky_kurz") %>% plot_kompetence_by("zvladam", byl_na_kurzu, "nad_prumer_populace")
-expanded_pro_plot %>% mutate(byl_na_kurzu = co_zazil %contains_word% "roversky_kurz") %>% plot_kompetence_by("zvladam", byl_na_kurzu)
-
-```
-
-```{r, fig.height=8}
-expanded_pro_plot %>% mutate(role_rover = role_skauting %contains_word% "clen_rady_roveru" | 
+```{r}
+hlavni_data_long %>% mutate(role_rover = role_skauting %contains_word% "clen_rady_roveru" | 
                                role_skauting %contains_word% "tahoun_roveru" |
                                role_skauting %contains_word% "clen_roveru" |
                                role_skauting %contains_word% "clen_rady_roveru") %>% plot_kompetence_by("zvladam", role_rover)
-expanded_pro_plot %>% mutate(role_rover = role_skauting %contains_word% "clen_rady_roveru" | 
+hlavni_data_long %>% mutate(role_rover = role_skauting %contains_word% "clen_rady_roveru" | 
                                role_skauting %contains_word% "tahoun_roveru" |
                                role_skauting %contains_word% "clen_roveru" |
                                role_skauting %contains_word% "clen_rady_roveru") %>% plot_kompetence_by("zvladam", role_rover, meritko = "nad_prumer_populace)

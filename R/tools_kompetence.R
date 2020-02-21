@@ -44,11 +44,12 @@ expand_kompetence <- function(cela_data) {
 }
 
 
-odvozena_meritka_kompetenci <- function(expanded_no_NA) {
-  if(any(is.na(expanded_no_NA$kompetence_odpoved))) {
-    stop("expanded_no_NA nesmi mit NA v kompetencich")
+odvozena_meritka_kompetenci <- function(data_long) {
+  if(any(is.na(data_long$kompetence_odpoved))) {
+    stop("data_long nesmi mit NA v kompetencich")
   }
-  expanded_no_NA %>%
+  data_long %>%
+    mutate(kompetence_pozitivni = kompetence_odpoved > 4) %>%
     group_by(kategorie_kompetence, session) %>%
     mutate(kompetence_nad_median = kompetence_odpoved > min(6,median(kompetence_odpoved)),
            kompetence_nejvyse = kompetence_odpoved == max(kompetence_odpoved),
@@ -63,9 +64,84 @@ odvozena_meritka_kompetenci <- function(expanded_no_NA) {
 }
 
 meritka_kompetence <- list(kompetence_odpoved = list(type = "ordinal"),
+                           kompetence_pozitivni = list(type = "bool"),
                            kompetence_nad_median = list(type = "bool"),
                            kompetence_nejvyse = list(type = "bool"),
                            kompetence_relativne_k_sobe = list(type = "interval"),
                            kompetence_relativne_k_populaci = list(type = "interval"),
                            kompetence_nad_prumer_populace = list(type = "bool")
 )
+
+popis_meritka <- function(meritko_nazev) {
+  gsub(pattern = "kompetence_", "", meritko_nazev, fixed = TRUE)
+}
+
+nejistota_meritka <- function(prob, meritko_nazev, hodnoty) {
+  type <- meritka_kompetence[[meritko_nazev]]$type
+  if(type == "bool") {
+    qbeta(prob, sum(hodnoty) + 1, sum(!hodnoty) + 1)
+  } else if(type == "ordinal" || type == "interval") {
+    sem <- sd(hodnoty)/sqrt(length(hodnoty))
+    qnorm(prob, mean(hodnoty), sem)
+  }
+}
+
+plot_kompetence_by <- function(data, kategorie, group, meritko = kompetence_odpoved, all_together = FALSE) {
+  group_col <- data %>% pull({{group}})
+  if(typeof(group_col) == "double") {
+    my_scale_x <-  NULL
+    my_theme <- vodorovne_popisky_x
+  } else {
+    my_scale_x <- scale_x_discrete()
+    my_theme <- NULL
+    data <- data %>% mutate({{group}} := fct_reorder(factor({{group}}), {{meritko}}, .fun = mean))
+  }
+
+  if(all_together) {
+    my_facet <- NULL
+    kompetence_group <-  quo(1)
+  } else {
+    my_facet <- facet_wrap(~ kompetence)
+    kompetence_group <- quo(kompetence)
+  }
+
+
+  meritko_nazev <- names(data %>% select({{meritko}})) #Blby hack, protoze neumim tidy a jsem liny se to ucit
+  data %>%
+    filter(kategorie_kompetence == kategorie) %>%
+    group_by(!!kompetence_group, {{ group }}) %>%
+    summarise(prumer = mean({{meritko}}, na.rm = TRUE),
+              dolni = nejistota_meritka(0.025, meritko_nazev, {{meritko}}),
+              horni = nejistota_meritka(0.975, meritko_nazev, {{meritko}})
+    ) %>%
+    ungroup() %>%
+    ggplot(aes(x = {{group}}, y = prumer, ymin = dolni, ymax = horni, group = !!kompetence_group)) +
+    geom_ribbon() + geom_line() + my_facet +
+    my_scale_x + my_theme + ggtitle(paste0(kategorie, " - ", meritko_nazev)) + my_theme
+}
+
+plot_kompetence_by_smooth <- function(data, kategorie, group, meritko = kompetence_odpoved, all_together = FALSE) {
+  group_col <- data %>% pull({{group}})
+  if(typeof(group_col) == "double") {
+    my_scale_x <-  NULL
+    my_theme <- vodorovne_popisky_x
+  } else {
+    my_scale_x <- scale_x_discrete()
+    my_theme <- NULL
+    data <- data %>% mutate({{group}} := fct_reorder(factor({{group}}), {{meritko}}, .fun = mean))
+  }
+
+  if(all_together) {
+    my_facet <- NULL
+  } else {
+    my_facet <- facet_wrap(~ kompetence)
+  }
+
+  meritko_nazev <- names(data %>% select({{meritko}})) #Blby hack, protoze neumim tidy a jsem liny se to ucit
+  data %>%
+    filter(kategorie_kompetence == kategorie) %>%
+    ggplot(aes(x = {{group}}, y = {{ meritko }})) +
+    geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"), alpha = 1) + my_facet +
+    my_scale_x + my_theme + ggtitle(paste0(kategorie, " - ", meritko_nazev), subtitle = "Vyhlazeno") + my_theme
+}
+

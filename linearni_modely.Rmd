@@ -4,39 +4,13 @@ output: html_notebook
 ---
 
 ```{r setup}
-if(!grepl("cz|utf", Sys.getlocale(), ignore.case = TRUE)) {
-  Sys.setlocale(locale= 'English_United States.1250')
-}
-library(lubridate)
-library(tidyverse)
-library(formr)
-library(here)
-library(RCzechia)
-library(sf)
-library(cowplot)
+source(here::here("R","setup_dotaznik.R"), encoding = "UTF-8")
+
+
+library(formula.tools)
 library(INLA) #Install via install.packages("INLA", repos=c(getOption("repos"), INLA="https://inla.r-inla-download.org/R/stable"), dep=TRUE)
 
-options(mc.cores = parallel::detectCores())
-
-save_format <- ".svg"
-
-knitr::opts_chunk$set(fig.width = 8, fig.height = 8)
-
-theme_set(theme_cowplot())
-
-source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
-source(here::here("R","tools_plots.R"), encoding = "UTF-8")
-source(here::here("R","tools_INLA.R"), encoding = "UTF-8")
-source(here::here("R","tools_kompetence.R"), encoding = "UTF-8")
-
-```
-
-
-```{r}
-cela_data_raw <- nacti_dotaznik()
-cela_data <- cela_data_raw %>% vyfiltruj_pouzitelne() %>% preprocess_dat(verbose = FALSE)  
-#check_vysledky(cela_data)
-expanded <- cela_data %>% expand_kompetence()
+source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
 ```
 
 
@@ -45,17 +19,7 @@ names(expanded)
 ```
 
 ```{r}
-expanded_no_NA <- expanded %>% filter(!is.na(kompetence_odpoved))  %>% group_by(session, kategorie_kompetence) %>% 
-  filter(n() >= 5) %>%
-  filter(age >= 15, age <= 26) %>%
-  ungroup()
-
-set.seed(20201501)
-users_to_use <- expanded_no_NA %>% select(session) %>% distinct() %>% sample_n(800) %>% pull(session) 
-expanded_no_NA_small <- expanded_no_NA %>% filter(session %in% users_to_use)
- formula_jen_id <- kompetence_odpoved ~ (1| session*kategorie_kompetence)
-
-base_for_inla <- expanded_no_NA
+base_for_inla <- hlavni_long
 ```
 
 
@@ -407,15 +371,23 @@ ategorie) %>%
   print(plot)
 }
 
-```
-tt <- function(log_x, sigma) {  -1/(2 * sigma * log_x) - 0.5 * (log(2) + log(3.1415926535)) - log(sigma) - 1.5 * log_x }
+
+Kontrola, ze mam spravne naimplementovany prior
+
+```{r}
+log_sqrt_inv_hn_logdens <- function(log_x, sigma) {  
+  x = exp(log_x);
+  logdens = - 1.5 * log_x - log(sigma) - 0.5 * (log(2) + log(pi)) -1/(2 * sigma * sigma * x);
+  log_jacobian = log_x;
+  return(logdens + log_jacobian);  
+}
 
 
-limit <- 30
-vals <- 1/(rnorm(1e3, sd = 100)^2)
-curve(exp(tt(x, 1) + x), log(min(vals)),log(max(vals)))
-dd <- density(log(vals))
-plot(dd)
+sigma <- 2
+log_precision_vals <- log(1/(rnorm(1e6, sd = sigma)^2))
+dens_data <- data.frame(x = seq(min(c(0,log_precision_vals)),max(log_precision_vals), length.out = 100)) %>% mutate(y =  (exp(log_sqrt_inv_hn_logdens(x, sigma))))
+
+data.frame(x = log_precision_vals) %>% ggplot(aes(x = x)) +  geom_density() + geom_line(data = dens_data, aes(x = x, y = y), color = revize_cols(2), linetype = "dashed") 
 
 
 

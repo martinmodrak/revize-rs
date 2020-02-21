@@ -1,5 +1,3 @@
-library(formula.tools)
-
 inla_pipeline <- function(base_data, kategorie, formula_base, uzite_mc_sloupce, n_samples = 200, kompetence_to_run = kompetence,
                           n_cores = parallel::detectCores()) {
   data_for_inla <- make_data_for_inla(base_data, kategorie, uzite_mc_sloupce)
@@ -169,7 +167,7 @@ make_data_for_inla <- function(base_data, kategorie, uzite_mc_sloupce) {
       ' + f(', colnames(ind_matrix)[1], ', ', colnames(mc_matrix)[1],
 #      ', model = "generic3", Cmatrix = list(diag(', ncol(mc_matrix), ')))')
     ', model = "generic3", Cmatrix = list(diag(', ncol(mc_matrix),
-    ')), hyper = list(theta1 = list(prior = log_inv_hn_sqrt(1))))')
+    ')), hyper = list(theta1 = list(prior = log_sqrt_inv_hn(1))))')
 
     for(i in 2:ncol(mc_matrix)) {
       mc_formula_str_sloupec <- paste0(
@@ -317,11 +315,12 @@ my_pp_check <- function(pipeline_result, group, stat = mean, label = as_label({{
 
 }
 
-#Log - Inverse - Half normal prior
-log_inv_hn_sqrt <- function(sigma = 1) {
+#Log - Sqrt(Inverse(Half normal))prior, implies Half normal prior on sd
+log_sqrt_inv_hn <- function(sigma = 1) {
   paste0("expression:
 sigma = ", sigma, ";
-logdens = -1/(2 * sigma * log_x) - 0.5 * (log(2) + log(3.1415926535)) - log(sigma) - 1.5 * log_x;
+x = exp(log_x);
+logdens = - 1.5 * log_x - log(sigma) - 0.5 * (log(2) + log(pi)) -1/(2 * sigma * sigma * x);
 log_jacobian = log_x;
 return(logdens + log_jacobian);
 ")

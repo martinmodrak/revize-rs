@@ -10,37 +10,104 @@ source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
 ```
 
 
-## Obrazky ke kompetencim
+# Dle kategorie
 
 ```{r}
-plots$zvladam_celkem <- hlavni_data_long %>% 
-  filter(kategorie_kompetence == "zvladam", !is.na(kompetence_odpoved)) %>% ggplot(aes(x = kompetence_odpoved)) +
-    geom_histogram(bins = 7) +
-    scale_x_continuous(breaks = c(1,7), labels = c("Zcela nesouhlasím", "Zcela souhlasím")) +
-    theme(axis.title = element_blank(), axis.line.y = element_blank(), axis.title.y = element_blank(), axis.ticks.y = element_blank(), axis.text.y = element_blank()) + ggtitle('Celkové rozložení odpovědí \nZvládám to velmi dobře"')
-
-plots$zvladam_celkem
+plots <- list()
 ```
+
+# Zvládám
 
 ```{r}
 plot_kategorie_kompetence <- function(data_long, kategorie, kategorie_popis) {
-  data_long %>% 
-    filter(kategorie_kompetence == kategorie, !is.na(kompetence_odpoved)) %>% ggplot(aes(x = kompetence_odpoved)) +
-      geom_histogram(bins = 7) +
-      scale_x_continuous(breaks = c(1,7), labels = c("Zcela nesouhlasím", "Zcela souhlasím")) +
-      theme(axis.title = element_blank(), axis.line.y = element_blank(), axis.title.y = element_blank(), axis.ticks.y = element_blank(), axis.text.y = element_blank()) + ggtitle(paste0('Celkové rozložení odpovědí "', kategorie_popis,'"'))
+  data_to_plot <- data_long %>% 
+    filter(kategorie_kompetence == kategorie, !is.na(kompetence_odpoved)) %>%
+    group_by(kompetence_odpoved) %>%
+    summarise(pocet = n()) %>% 
+    ungroup() %>%
+    mutate(podil = pocet / sum(pocet))
+
+  data_to_plot %>% 
+    ggplot(aes(x = kompetence_odpoved, y = podil, label = scales::percent(podil, accuracy = 1))) +
+      geom_bar(stat = "identity") +
+      geom_text(nudge_y = 0.03, size = 7) +
+      scale_x_continuous(breaks = c(1,4,7), labels = c("Zcela nesouhlasím", "Neutrální", "Zcela souhlasím")) +
+      theme(axis.title = element_blank(), axis.line.y = element_blank(), axis.title.y = element_blank(), axis.ticks.y = element_blank(), axis.text.y = element_blank()) + ggtitle(paste0('Celkové rozložení odpovědí\n"', kategorie_popis,'"')) + vodorovne_popisky_x
 }
 
+plots$zvladam_celkem <-  plot_kategorie_kompetence(hlavni_data_long, "zvladam", popis_pro_plot(hlavni_data, "duchovni_zivot.zvladam"))
+plots$zvladam_celkem
+```
 
+Nezvládám = sloučené všechny tři negativní odpovědi
+
+
+Je spíš situace taková, že každý má nějakou slabou stránku, nebo spíš máme lidi, co všechno zvládají a lidi, co nic nezvládají?
+
+```{r}
+data_nezvladam <- hlavni_data_long %>% filter(kategorie_kompetence == "zvladam") %>% 
+  group_by(session) %>%
+  summarise(pocet_nezvladam = sum(kompetence_odpoved <= 3), podil_nezvladam = mean(kompetence_odpoved <= 3), prumer_zvladam = mean(kompetence_odpoved)) %>%
+  ungroup()
+
+data_nezvladam %>%
+  group_by(pocet_nezvladam) %>%
+  summarise(pocet_respondentu = n())
+```
+
+
+```{r}
+data_nezvladam %>% ggplot(aes(x = prumer_zvladam)) + geom_histogram(binwidth = 0.5) + vodorovne_popisky_x
+```
+
+
+Které kompetence jsou nejčastěji nezvládané?
+
+```{r}
+hlavni_data_long %>% filter(kategorie_kompetence == "zvladam") %>% 
+  group_by(kompetence) %>% 
+  summarise(pocet_nezvladam = sum(kompetence_odpoved <= 3), podil_nezvladam = scales::percent(mean(kompetence_odpoved <= 3))) %>%
+  arrange(desc(pocet_nezvladam))
+```
+
+## Důležité
+
+```{r}
 plots$dulezite_celkem <- plot_kategorie_kompetence(hlavni_data_long, "dulezite", popis_pro_plot(hlavni_data, "duchovni_zivot.dulezite"))
 plots$dulezite_celkem
 ```
 
-```{r}
-plots$zvladam_celkem <- plot_kategorie_kompetence(hlavni_data_long, "zvladam", popis_pro_plot(hlavni_data, "duchovni_zivot.zvladam"))
-plots$zvladam_celkem
 
+```{r}
+data_nedulezite <- hlavni_data_long %>% filter(kategorie_kompetence == "dulezite") %>% 
+  group_by(session) %>%
+  summarise(pocet_nedulezite = sum(kompetence_odpoved <= 3), podil_nedulezite = mean(kompetence_odpoved <= 3), prumer_dulezite = mean(kompetence_odpoved)) %>%
+  ungroup()
+
+data_nedulezite %>%
+  group_by(pocet_nedulezite) %>%
+  summarise(pocet_respondentu = n())
 ```
+
+
+```{r}
+data_nedulezite %>% ggplot(aes(x = prumer_dulezite)) + geom_histogram(binwidth = 0.5) + vodorovne_popisky_x
+```
+
+
+
+Které kompetence jsou nejčastěji nedůležité?
+
+```{r}
+hlavni_data_long %>% filter(kategorie_kompetence == "dulezite") %>% 
+  group_by(kompetence) %>% 
+  summarise(pocet_nedulezite = sum(kompetence_odpoved <= 3), podil_nedulezite = scales::percent(mean(kompetence_odpoved <= 3))) %>%
+  arrange(desc(pocet_nedulezite))
+```
+
+
+## Rozvíjím se v tom
+
 
 ```{r}
 plots$rozvijim_celkem <- plot_kategorie_kompetence(hlavni_data_long, "rozvijim", popis_pro_plot(hlavni_data, "duchovni_zivot.rozvijim"))
@@ -49,140 +116,195 @@ plots$rozvijim_celkem
 ```
 
 ```{r}
-plots$skauting_celkem <- plot_kategorie_kompetence(hlavni_data_long, "skauting", popis_pro_plot(hlavni_data, "duchovni_zivot.skauting"))
+data_nerozvijim <- hlavni_data_long %>% filter(kategorie_kompetence == "rozvijim") %>% 
+  group_by(session) %>%
+  summarise(pocet_nerozvijim = sum(kompetence_odpoved <= 3), podil_nerozvijim = mean(kompetence_odpoved <= 3), prumer_rozvijim = mean(kompetence_odpoved)) %>%
+  ungroup()
+
+data_nerozvijim %>%
+  group_by(pocet_nerozvijim) %>%
+  summarise(pocet_respondentu = n())
+```
+
+
+```{r}
+data_nerozvijim %>% ggplot(aes(x = prumer_rozvijim)) + geom_histogram(binwidth = 0.5) + vodorovne_popisky_x
+```
+
+Které kompetence se nejčastěji nerozvíjí?
+
+```{r}
+hlavni_data_long %>% filter(kategorie_kompetence == "rozvijim") %>% 
+  group_by(kompetence) %>% 
+  summarise(pocet_nerozvijim = sum(kompetence_odpoved <= 3), podil_nerozvijim = scales::percent(mean(kompetence_odpoved <= 3))) %>%
+  arrange(desc(pocet_nerozvijim))
+```
+
+
+## Skauting mi pomáhá
+
+```{r}
+plots$skauting_celkem <- plot_kategorie_kompetence(hlavni_data_long, "skauting", popis_pro_plot(hlavni_data, "duchovni_zivot.skauting")) + theme(plot.title = element_text(size = 30))
 plots$skauting_celkem
 
 ```
 
-## Ulozit obrazky
 
 ```{r}
-plot_dir <- here::here("local_data","plots_basic")
-if(!dir.exists(plot_dir)) {
-  dir.create(plot_dir, recursive = TRUE)
-}
-for(plot_name in names(plots)) {
-#  for(format in c(".svg",".wmf",".png")) {
-  for(format in c(".png")) {
-    ggsave(paste0(plot_dir, "/", plot_name, format), plots[[plot_name]], width = default_plot_width, height = default_plot_height)
-  }
-}
+data_neskauting <- hlavni_data_long %>% filter(kategorie_kompetence == "skauting") %>% 
+  group_by(session) %>%
+  summarise(pocet_neskauting = sum(kompetence_odpoved <= 3), podil_neskauting = mean(kompetence_odpoved <= 3), prumer_skauting = mean(kompetence_odpoved)) %>%
+  ungroup()
+
+data_neskauting %>%
+  group_by(pocet_neskauting) %>%
+  summarise(pocet_respondentu = n())
 ```
 
 
+```{r}
+data_neskauting %>% ggplot(aes(x = prumer_skauting)) + geom_histogram(binwidth = 0.5) + vodorovne_popisky_x
+```
 
+Které kompetence skauting nejčastěji míjí?
+
+```{r}
+hlavni_data_long %>% filter(kategorie_kompetence == "skauting") %>% 
+  group_by(kompetence) %>% 
+  summarise(pocet_neskauting = sum(kompetence_odpoved <= 3), podil_neskauting = scales::percent(mean(kompetence_odpoved <= 3))) %>%
+  arrange(desc(pocet_neskauting))
+```
+
+Tohle je zajímavé: rodina asi nepřekvapí, ale aktivní občasntví, duchovní život, svědomí nebo sebepoznání jsou věci, kde má skauting unikátní postavení.
+
+# Vývoj s věkem
 
 ## Je to pro mě důležité
 
 
-
 ```{r}
-tabulka_kompetence <- function(data_long, kategorie) {
-  data_long %>% filter(kategorie_kompetence == kategorie) %>%
-    group_by(kompetence) %>%
-    summarise(prumer = mean(kompetence_odpoved, na.rm = TRUE), pocet = sum(!is.na(kompetence_odpoved))) %>%
-    arrange(desc(prumer))
-}
-
-tabulka_kompetence(hlavni_data_long, "dulezite")
+plot_kompetence_by(hlavni_data_long, "dulezite", age, all_together = TRUE)
 ```
 
 ```{r}
-histogram_kompetence <- function(data_long, kategorie) {
-  data_long %>% filter(kategorie_kompetence == kategorie, !is.na(kompetence_odpoved)) %>%
-    ggplot(aes(kompetence_odpoved)) +
-      geom_histogram(binwidth = 1) + facet_wrap(~kompetence) +
-      theme(strip.text = element_text(size = 8))
-}
-
-histogram_kompetence(hlavni_data_long, "dulezite")
+plot_kompetence_by(hlavni_data_long, "dulezite", age)
+plot_kompetence_by_smooth(hlavni_data_long, "dulezite", age)
 ```
 
-```{r}
-plot_kompetence_by_age <- function(data_long, kategorie) {
-  data_long %>% filter(kategorie_kompetence == kategorie, !is.na(kompetence_odpoved), age >= 15, age <= 26) %>%
-    group_by(age, kompetence) %>%
-    summarise(prumer = mean(kompetence_odpoved) ,
-              sem = sd(kompetence_odpoved) / sqrt(n())
-              ) %>%
-    group_by(kompetence) %>%
-    mutate(od_prumeru = prumer - mean(prumer), low = od_prumeru - 1.96 * sem, high = od_prumeru + 1.96 * sem) %>%
-    ungroup() %>%
-    ggplot(aes(x = age, y = od_prumeru, ymin = low, ymax = high)) +
-      geom_ribbon(fill = revize_cols("midd_fill")) +
-      geom_line() + facet_wrap(~kompetence) +
-      theme(strip.text = element_text(size = 8))
-}
-
-plot_kompetence_by_age_smooth <- function(data_long, kategorie) {
-  data_long %>% filter(kategorie_kompetence == kategorie, !is.na(kompetence_odpoved), age >= 15, age <= 26) %>%
-    group_by(kompetence) %>%
-    mutate(od_prumeru = kompetence_odpoved - mean(kompetence_odpoved)) %>%
-    ggplot(aes(x = age, y = od_prumeru)) +
-      geom_smooth() + facet_wrap(~kompetence) +
-      theme(strip.text = element_text(size = 8)) 
-}
-
-
-plot_kompetence_by_age(hlavni_data_long, "dulezite")
-plot_kompetence_by_age_smooth(hlavni_data_long, "dulezite")
-```
 
 ## Zvládám to
 
 ```{r}
-tabulka_kompetence(hlavni_data_long, "zvladam")
+plot_kompetence_by(hlavni_data_long, "zvladam", age, all_together = TRUE)
+plot_kompetence_by(hlavni_data_long, "zvladam", age)
+plot_kompetence_by_smooth(hlavni_data_long, "zvladam", age)
 ```
 
-```{r}
-histogram_kompetence(hlavni_data_long, "zvladam")
-```
-
-
-```{r}
-plot_kompetence_by_age(hlavni_data_long, "zvladam")
-plot_kompetence_by_age_smooth(hlavni_data_long, "zvladam")
-```
 
 ## Rozvijim se v tom
 
 ```{r}
-tabulka_kompetence(hlavni_data_long, "rozvijim")
+plot_kompetence_by(hlavni_data_long, "rozvijim", age, all_together = TRUE)
+plot_kompetence_by(hlavni_data_long, "rozvijim", age)
+plot_kompetence_by_smooth(hlavni_data_long, "rozvijim", age)
 ```
 
-```{r}
-histogram_kompetence(hlavni_data_long, "rozvijim")
-```
-
-```{r}
-plot_kompetence_by_age(hlavni_data_long, "rozvijim")
-plot_kompetence_by_age_smooth(hlavni_data_long, "rozvijim")
-```
 
 ## Skauting me rozviji
 
 ```{r}
-tabulka_kompetence(hlavni_data_long, "skauting")
+plot_kompetence_by(hlavni_data_long, "skauting", age, all_together = TRUE)
+plot_kompetence_by(hlavni_data_long, "skauting", age)
+plot_kompetence_by_smooth(hlavni_data_long, "skauting", age)
 ```
 
-```{r}
-histogram_kompetence(hlavni_data_long, "skauting")
-```
+# Rozdíly a nedostatky
 
 ```{r}
-plot_kompetence_by_age(hlavni_data_long, "skauting")
-plot_kompetence_by_age_smooth(hlavni_data_long, "skauting")
+spocitej_data_rozdil <- function(hlavni_data_long, prvni, druhy, meritko_nazev) {
+  typ_meritka <- meritka_kompetence[[meritko_nazev]]$type
+  
+  nazev_prvni <- rlang::as_name(enquo(prvni))
+  nazev_druhy <- rlang::as_name(enquo(druhy))
+  if(typ_meritka == "bool") {
+    diff_fun <- function(x, y) {
+      x & !y
+    }
+    popis <- paste0(nazev_prvni," ", popis_meritka(meritko_nazev), " zatímco ", nazev_druhy, " nikoliv")
+  } else if(typ_meritka == "interval" || typ_meritka == "ordinal") {
+    diff_fun <- `-`
+    popis <- paste0(popis_meritka(meritko_nazev),": ",nazev_prvni," - ", nazev_druhy)
+  }
+  
+  data_diff <- hlavni_data_long %>% select(session, kategorie_kompetence, kompetence_odpoved, kompetence, !!meritko_nazev) %>% 
+      pivot_wider(id_cols = c("session", "kompetence"), names_from = kategorie_kompetence, values_from = !!meritko_nazev) %>%
+      mutate(rozdil = diff_fun({{prvni}},{{druhy}})) %>%
+      filter(!is.na(rozdil))
+  
+  list(data = data_diff,
+    popis = popis,
+    meritko_nazev = meritko_nazev)
+}
+
+tabulka_rozdilu <- function(data_rozdil) {
+  if(meritka_kompetence[[data_rozdil$meritko_nazev]]$type == "bool") {
+    formatter = scales::percent
+  } else {
+    formatter = identity
+  }
+  nazev_prumer <- paste0("Průměr ", data_rozdil$popis)
+  data_rozdil$data %>%
+    group_by(kompetence) %>%
+    summarise(prumer = mean(rozdil)) %>%
+    arrange(desc(prumer)) %>%
+    mutate(prumer = formatter(prumer)) %>%
+    rename(!!nazev_prumer := prumer)
+}
+
+
 ```
+
+
+
+## Důležité vs. rozvíjím
+
+Zajímavé je, že mezi top "nerozvíjené" patří aktivni obcan, tvořivost, které se zde posunuly dolů zatímco rodina k top nerozvíjeným nepatří, ale zde vede.
+
+```{r}
+hlavni_data_long %>% spocitej_data_rozdil(dulezite, rozvijim, "kompetence_pozitivni") %>% tabulka_rozdilu()
+```
+
+Když zohledníme i velikost rozdílu, trochu se to přehází - hlavně vyplavou vztahy, svědomí a připraven na krize - opět něco, co se samo o sobě neobjevuje čast jako nerozvíjené.
+
+```{r}
+hlavni_data_long %>% spocitej_data_rozdil(dulezite, rozvijim, "kompetence_odpoved") %>% tabulka_rozdilu()
+```
+
+
+
+## Důležité vs. skauting me rozviji
+
+Tohle velmi blízce kopíruje obecně to, kde skauting lidi nerozvíjí, takže nepřínáší moc další informace.
+
+```{r}
+hlavni_data_long %>% spocitej_data_rozdil(dulezite, skauting, "kompetence_pozitivni") %>% tabulka_rozdilu()
+
+```
+
 
 ## Rozvijim se vs. skauting me rozviji
+
+Opět poměrně kopíruje jen ty věci, kde mě skauting nerozvíjí...
+
+```{r}
+hlavni_data_long %>% spocitej_data_rozdil(rozvijim, skauting, "kompetence_pozitivni") %>% tabulka_rozdilu()
+
+```
+
 
 Všude číslo větší než 0 znamená, že "rozvíjím se" mělo vyšší hodnocení než "skauting mě v tom rozvíjí"
 
 ```{r}
-rozdil_rozvijim_skauting <- hlavni_data_long %>% select(session, kategorie_kompetence, kompetence_odpoved, kompetence) %>% filter(kategorie_kompetence %in% c("rozvijim","skauting")) %>%
-  pivot_wider(id_cols = c("session", "kompetence"), names_from = kategorie_kompetence, values_from = kompetence_odpoved) %>%
-  mutate(rozdil_rozvijim_skauting = rozvijim - skauting) %>%
-  filter(!is.na(rozdil_rozvijim_skauting))
 
 
 rozdil_rozvijim_skauting %>%
@@ -194,15 +316,49 @@ rozdil_rozvijim_skauting %>%
 ```
 
 ```{r}
+set_theme_revizers()
 rozdil_rozvijim_skauting %>%
   ggplot(aes(rozdil_rozvijim_skauting)) +
     geom_histogram(binwidth = 1) + facet_wrap(~kompetence) +
-    geom_vline(xintercept = 0, color = "gray") +
-    theme(strip.text = element_text(size = 8))
+    geom_vline(xintercept = 0, color = revize_cols("orange")) + vodorovne_popisky_x
 ```
+
+
+
+
+## Ulozit obrazky
 
 ```{r}
-
+save_list_of_plots(plots,"plots_shrnuti_kompetenci")
 ```
 
+
+# Doplnky a kontroly
+
+Nevymyká se nějaká kompetence svým rozložením odpovědí?
+```{r}
+histogram_kompetence <- function(data_long, kategorie) {
+  sloupec_pro_popis <- paste0("duchovni_zivot.", kategorie)
+  popisek <- popis_pro_plot(hlavni_data, !!sloupec_pro_popis)
+  data_long %>% filter(kategorie_kompetence == kategorie, !is.na(kompetence_odpoved)) %>%
+    ggplot(aes(kompetence_odpoved)) +
+      geom_histogram(binwidth = 1) + facet_wrap(~kompetence) +
+      ggtitle("Rozložení odpovědí dle kompetencí", subtitle = popisek) +
+      vodorovne_popisky_x
+}
+
+histogram_kompetence(hlavni_data_long, "zvladam")
+histogram_kompetence(hlavni_data_long, "dulezite")
+histogram_kompetence(hlavni_data_long, "rozvijim")
+histogram_kompetence(hlavni_data_long, "skauting")
+```
+
+# Jak se liší různá měřítka?
+
+Korelace:
+
+```{r}
+hlavni_data_long %>% select(one_of(names(meritka_kompetence))) %>%
+  as.matrix() %>% cor()
+```
 

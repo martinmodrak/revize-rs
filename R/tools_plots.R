@@ -4,12 +4,12 @@ default_plot_height <- (default_plot_width / 16) * 9
 
 revize_colors <- c(
   white = "white",
-  green = "#3bff6b",
   orange = "#f47913",
+  green = "#3bff6b",
   pink = "#ff0083",
-  dark_blue = "#002b74",
-  darkest_fill = "#668cce",
-  midd_fill = "#b2c5e6"
+  dark_blue = "#00225e",
+  darkest_fill = "#003ca5",
+  mid_fill = "#b2c5e6"
 )
 
 revize_cols <- function(...) {
@@ -59,6 +59,8 @@ scale_fill_revize <- function(discrete = TRUE, reverse = FALSE, ...) {
   }
 }
 
+vodorovne_popisky_x <- theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 0.5))
+
 theme_revizers <- function() {
   default_margin <- 2
   my_margin <- function(t = default_margin, r = default_margin, b = default_margin, l = default_margin) {
@@ -67,8 +69,8 @@ theme_revizers <- function() {
 
   theme_void() +
     theme(
-      text = element_text(family = "Roboto", color = "white", size = 12,
-                          face = "plain", hjust = 0, vjust = 0, angle = 0, lineheight = 1, margin = my_margin(), debug = FALSE),
+      text = element_text(family = "Roboto", color = "white", size = 13,
+                          face = "plain", hjust = 0, vjust = 0.5, angle = 0, lineheight = 1, margin = my_margin(), debug = FALSE),
       line = element_line(color = "white", size = 0.5, linetype = "solid", lineend = "square"),
       rect = element_rect(color = "white", size = 1, linetype = "solid", fill = FALSE),
 
@@ -78,7 +80,7 @@ theme_revizers <- function() {
       plot.subtitle = element_text(family = "Roboto", size = 16, face = "bold", hjust = 1, margin = my_margin(b = 8)),
 
       panel.grid = element_blank(),
-      panel.background = NULL,
+      panel.background = element_blank(),
       panel.border = element_blank(),
       panel.spacing = unit(5, "pt"),
       panel.spacing.x = NULL,
@@ -109,9 +111,9 @@ theme_revizers <- function() {
       axis.title.x = NULL,
       axis.title.x.top = NULL,
       axis.title.y.right = NULL,
-      axis.text.x = NULL,
+      axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3, margin = my_margin(t = 8), inherit.blank = TRUE),
       axis.text.x.top = NULL,
-      axis.text.y = NULL,
+      axis.text.y = element_text(vjust = 0.3, hjust = 1, inherit.blank = TRUE),
       axis.text.y.right = NULL,
       axis.ticks = NULL,
       axis.ticks.length = unit(2, units = "pt"),
@@ -119,7 +121,7 @@ theme_revizers <- function() {
       axis.line.x = NULL,
       axis.line.y = NULL,
 
-      strip.background = element_rect(color = "white", fill = revize_cols("darkest_fill")),
+      strip.background = element_rect(color = revize_cols("mid_fill"), fill = revize_cols("darkest_fill")),
       strip.text = element_text(hjust = 0.5),
       strip.text.x = NULL,
       strip.text.y = NULL,
@@ -135,8 +137,13 @@ set_theme_revizers <- function() {
 
   update_geom_defaults("bar",   list(fill = "white"))
   update_geom_defaults("line", list(size = 2, color = "white"))
-  update_geom_defaults("smooth", list(size = 2, color = "white", fill = revize_cols("midd_fill")))
+  update_geom_defaults("vline", list(color = revize_cols(2)))
+  update_geom_defaults("hline", list(color = revize_cols(2)))
+  update_geom_defaults("density", list(size = 2, color = "white"))
+  update_geom_defaults("smooth", list(size = 2, color = "white", fill = revize_cols("mid_fill")))
+  update_geom_defaults("ribbon", list(fill = revize_cols("mid_fill")))
   update_geom_defaults("point", list(color = "white"))
+  update_geom_defaults("text", list(color = "white"))
 }
 
 
@@ -167,7 +174,7 @@ plot_summary_mc <- function(cela_data, sloupec, title = popis_pro_plot(cela_data
       mutate(nazev_volby = factor(id_volby, levels = labels, labels = str_wrap(names(labels), wrap_width)))
   }
   data_to_plot %>%
-    ggplot(aes(x = nazev_volby, y = podil_ano, label = paste0(round(podil_ano * 100),"%"))) +
+    ggplot(aes(x = nazev_volby, y = podil_ano, label = scales::percent(podil_ano, accuracy = 1))) +
     geom_bar(stat = "identity") +
     geom_text(aes(color = podil_ano > invert_color_threshold, y = if_else(podil_ano > invert_color_threshold,0.01, podil_ano + 0.01)), hjust = 0, family = "SKAUT", size = 6) +
     scale_color_manual(values = c("white", revize_cols("dark_blue")), guide = FALSE) +
@@ -177,4 +184,17 @@ plot_summary_mc <- function(cela_data, sloupec, title = popis_pro_plot(cela_data
           axis.ticks.x = element_blank(), axis.line.x = element_blank(),
           plot.title = element_text(hjust = title_hjust)) +
     ggtitle(title, subtitle =  paste0(sum(!is.na(cela_data %>% pull( {{ sloupec }}))) ," odpovědí"))
+}
+
+save_list_of_plots <- function(plot_list, local_data_subdir) {
+  plot_dir <- here::here("local_data",local_data_subdir)
+  if(!dir.exists(plot_dir)) {
+    dir.create(plot_dir, recursive = TRUE)
+  }
+  for(plot_name in names(plot_list)) {
+    for(format in c(".svg",".wmf",".png")) {
+      ggsave(paste0(plot_dir, "/", plot_name, format), plot_list[[plot_name]], width = default_plot_width, height = default_plot_height)
+    }
+  }
+
 }
