@@ -15,7 +15,7 @@ plots <- list()
 ```
 
 ```{r}
-plots$roky_ve_spolecenstvi <- hlavni_data %>% filter(let_v_kmeni != 42) %>% ggplot(aes( x = let_v_kmeni)) + geom_histogram(binwidth = 1) + ggtitle("Počet let ve společenství") + scale_x_continuous("Let ve společenství") + scale_y_continuous("Počet")
+plots$roky_ve_spolecenstvi <- hlavni_data %>% filter(let_v_kmeni != 42) %>% ggplot(aes( x = let_v_kmeni)) + geom_histogram(binwidth = 1) + ggtitle("Počet let ve společenství") + scale_x_continuous("Let ve společenství") + scale_y_continuous("Počet") + vodorovne_popisky_x
 plots$roky_ve_spolecenstvi
 
 ```
@@ -26,16 +26,16 @@ plots$spokojenost_rs
 ```
 
 ```{r}
-plots$spokojenost_junak <- hlavni_data %>% plot_summary_mc(spokojenost_s_fungovanim_v_junaku, "Spokojenost s fungováním v Junáku")
+plots$spokojenost_junak <- hlavni_data %>% plot_summary_mc(spokojenost_s_fungovanim_v_junaku, "Spokojenost s fungováním v Junáku\nJen bez roverske zkušenosti")
 plots$spokojenost_junak
 ```
 
 ```{r}
-plots$komunikace_existujici <- hlavni_data %>% plot_summary_mc(komunikacni_kanaly_existujici, "Kde bys nejraději sledoval informace o roveringu")
+plots$komunikace_existujici <- hlavni_data %>% plot_summary_mc(komunikacni_kanaly_existujici, "Kde bys nejraději sledoval\n informace o roveringu")
 plots$komunikace_existujici
-plots$komunikace_hypoteticke <- hlavni_data %>% plot_summary_mc(komunikacni_kanaly_hypoteticke, "Kde bys nejraději sledoval informace o roveringu")
+plots$komunikace_hypoteticke <- hlavni_data %>% plot_summary_mc(komunikacni_kanaly_hypoteticke, "Kde bys nejraději sledoval\n informace o roveringu (hypotetické)")
 plots$komunikace_hypoteticke
-attributes(hlavni_data$komunikacni_kanaly_hypoteticke)
+
 ```
 
 
@@ -53,14 +53,14 @@ plots$co_zazil
 
 ```{r}
 
-plots$problemy_cleni <- hlavni_data %>% plot_summary_mc(problemy_roveringu, "Hlavní problémy roveringu - jen členi společenství", title_hjust = 1)
+plots$problemy_cleni <- hlavni_data %>% plot_summary_mc(problemy_roveringu, "Hlavní problémy roveringu \n jen členi společenství", title_hjust = 1)
 
 plots$problemy_cleni
 
 ```
 
 ```{r}
-plots$problemy_necleni <- hlavni_data %>% plot_summary_mc(problemy_roveringu_stredisko, "Hlavní problémy roveringu - jen bez společenství", title_hjust = 1)
+plots$problemy_necleni <- hlavni_data %>% plot_summary_mc(problemy_roveringu_stredisko, "Hlavní problémy roveringu\njen bez společenství", title_hjust = 1)
 
 plots$problemy_necleni
 ```
@@ -114,7 +114,7 @@ plots$vyroky_o_roveringu_zazil_2
 ```
 
 ```{r}
-plots$vyroky_o_roveringu_stredisko <- plot_summary_mc(hlavni_data, vyroky_o_roveringu_stredisko)
+plots$vyroky_o_roveringu_stredisko <- plot_summary_mc(hlavni_data, vyroky_o_roveringu_stredisko, "O roverech v mém středisku platí")
 plots$vyroky_o_roveringu_stredisko
 ```
 
@@ -130,19 +130,19 @@ plots$vychovne_nastroje
 ```
 
 ```{r}
-plots$co_pomaha_roveringu <- plot_summary_mc(hlavni_data, co_pomaha_roveringu)
+plots$co_pomaha_roveringu <- plot_summary_mc(hlavni_data, co_pomaha_roveringu, "Roveringu dle mé vlastní\nzkušenosti znatelně pomáhá:")
 plots$co_pomaha_roveringu
 
 ```
 
 ```{r}
-plots$proc_neni_rover <- plot_summary_mc(hlavni_data, proc_neni_rover, "Proč jsem už nejsem v roverském společenství")
+plots$proc_neni_rover <- plot_summary_mc(hlavni_data, proc_neni_rover, "Proč už nejsem v roverském společenství")
 plots$proc_neni_rover
 
 ```
 
 ```{r}
-plots$proc_nebyl_rover <- plot_summary_mc(hlavni_data, proc_nebyl_rover)
+plots$proc_nebyl_rover <- plot_summary_mc(hlavni_data, proc_nebyl_rover, "Proč jis nikdy nebyla\nsoučástí roverského společenství")
 plots$proc_nebyl_rover
 
 ```
@@ -193,7 +193,7 @@ plots$frekvence_velkych_akci
 
 ```
 ```{r}
-plots$bez_zkusenosti_setkavam_se_s_vrstevniky <- plot_summary_mc(hlavni_data, bez_zkusenosti_setkavam_se_s_vrstevniky, "Setkávání s vrstevníky -  roveři mimo společenství", order_by_podil = FALSE, invert_color_threshold = 0.02)
+plots$bez_zkusenosti_setkavam_se_s_vrstevniky <- plot_summary_mc(hlavni_data, bez_zkusenosti_setkavam_se_s_vrstevniky, "Setkávání s vrstevníky \n  roveři mimo společenství", order_by_podil = FALSE, invert_color_threshold = 0.02)
 plots$bez_zkusenosti_setkavam_se_s_vrstevniky
 
 ```
@@ -201,6 +201,9 @@ plots$bez_zkusenosti_setkavam_se_s_vrstevniky
 ```{r}
 plots$bez_zkusenosti_seberozvojovy_program <- plot_summary_mc(hlavni_data, bez_zkusenosti_seberozvojovy_program, "Seberozvojový program \n roveři mimo společenství", order_by_podil = FALSE, invert_color_threshold = 0.02)
 plots$bez_zkusenosti_seberozvojovy_program
+```
 
+```{r save_plots}
+save_list_of_plots(plots,"stav_roveringu")
 ```
 

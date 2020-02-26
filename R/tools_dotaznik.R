@@ -2,7 +2,7 @@ summarise_multiple_choice <- function(cela_data, sloupec) {
   volby_vec <- popisky_voleb(cela_data, {{ sloupec }})
   volby_df <- data.frame(id_volby = volby_vec, nazev_volby = names(volby_vec))
 
-  data_vyplneno <- cela_data %>% filter(!is.na({{sloupec}}))
+  data_vyplneno <- cela_data %>% filter(!is.na({{sloupec}}), {{sloupec}} != explicit_na_level)
   ret <- volby_df %>% crossing(data_vyplneno) %>%
     group_by(id_volby, nazev_volby) %>%
     mutate(volba_ano = {{sloupec}} %contains_word% id_volby) %>%

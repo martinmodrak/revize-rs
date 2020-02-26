@@ -164,7 +164,12 @@ plot_summary_mc <- function(cela_data, sloupec, title = popis_pro_plot(cela_data
                             title_hjust = 1, order_by_podil = TRUE, invert_color_threshold = 0.06 ) {
   data_to_plot <- summarise_multiple_choice(cela_data, {{ sloupec }})
 
-  wrap_width <- 45
+  n_odpovedi <- unique(data_to_plot$pocet_total)
+  if(!length(n_odpovedi) == 1) {
+    stop("Vice pocet_total")
+  }
+
+  wrap_width <- 55
   if(order_by_podil) {
     data_to_plot <- data_to_plot %>%
       mutate(nazev_volby =  fct_reorder(str_wrap(nazev_volby, wrap_width), podil_ano))
@@ -183,7 +188,7 @@ plot_summary_mc <- function(cela_data, sloupec, title = popis_pro_plot(cela_data
     theme(axis.title = element_blank(), axis.text.x = element_blank(),
           axis.ticks.x = element_blank(), axis.line.x = element_blank(),
           plot.title = element_text(hjust = title_hjust)) +
-    ggtitle(title, subtitle =  paste0(sum(!is.na(cela_data %>% pull( {{ sloupec }}))) ," odpovědí"))
+    ggtitle(title, subtitle =  paste0(n_odpovedi ," odpovědí"))
 }
 
 save_list_of_plots <- function(plot_list, local_data_subdir) {

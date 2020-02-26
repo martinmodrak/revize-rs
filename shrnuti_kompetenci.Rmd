@@ -302,34 +302,11 @@ hlavni_data_long %>% spocitej_data_rozdil(rozvijim, skauting, "kompetence_poziti
 ```
 
 
-Všude číslo větší než 0 znamená, že "rozvíjím se" mělo vyšší hodnocení než "skauting mě v tom rozvíjí"
-
-```{r}
-
-
-rozdil_rozvijim_skauting %>%
-  group_by(kompetence) %>%
-  summarise(prumer_rozdil = mean(rozdil_rozvijim_skauting, na.rm = TRUE), pocet = sum(!is.na(rozdil_rozvijim_skauting))) %>%
-  arrange(desc(prumer_rozdil))
-
-
-```
-
-```{r}
-set_theme_revizers()
-rozdil_rozvijim_skauting %>%
-  ggplot(aes(rozdil_rozvijim_skauting)) +
-    geom_histogram(binwidth = 1) + facet_wrap(~kompetence) +
-    geom_vline(xintercept = 0, color = revize_cols("orange")) + vodorovne_popisky_x
-```
-
-
-
 
 ## Ulozit obrazky
 
 ```{r}
-save_list_of_plots(plots,"plots_shrnuti_kompetenci")
+save_list_of_plots(plots,"shrnuti_kompetenci")
 ```
 
 
@@ -362,3 +339,6 @@ hlavni_data_long %>% select(one_of(names(meritka_kompetence))) %>%
   as.matrix() %>% cor()
 ```
 
+```{r save_plots}
+save_list_of_plots(plots,"shrnuti_kompetenci")
+```
