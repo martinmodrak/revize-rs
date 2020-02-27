@@ -74,10 +74,10 @@ theme_revizers <- function() {
       line = element_line(color = "white", size = 0.5, linetype = "solid", lineend = "square"),
       rect = element_rect(color = "white", size = 1, linetype = "solid", fill = FALSE),
 
-      plot.background = element_rect(fill = revize_cols("dark_blue")),
+      plot.background = element_rect(fill = revize_cols("dark_blue"), color = FALSE),
       plot.margin = margin(t = 20, r = 20, b = 20, l = 15),
-      plot.title = element_text(family = "SKAUT", size = 35, hjust = 1),
-      plot.subtitle = element_text(family = "Roboto", size = 16, face = "bold", hjust = 1, margin = my_margin(b = 8)),
+      plot.title = element_text(family = "SKAUT", size = 35, hjust = 0.5),
+      plot.subtitle = element_text(family = "Roboto", size = 16, face = "bold", hjust = 0.5, margin = my_margin(b = 8)),
 
       panel.grid = element_blank(),
       panel.background = element_blank(),
@@ -137,8 +137,9 @@ set_theme_revizers <- function() {
 
   update_geom_defaults("bar",   list(fill = "white"))
   update_geom_defaults("line", list(size = 2, color = "white"))
-  update_geom_defaults("vline", list(color = revize_cols(2)))
-  update_geom_defaults("hline", list(color = revize_cols(2)))
+  update_geom_defaults("path", list(size = 2, color = "white"))
+  update_geom_defaults("vline", list(color = revize_cols(2), size = 2, linetype = "dashed"))
+  update_geom_defaults("hline", list(color = revize_cols(2), size = 2, linetype = "dashed"))
   update_geom_defaults("density", list(size = 2, color = "white"))
   update_geom_defaults("smooth", list(size = 2, color = "white", fill = revize_cols("mid_fill")))
   update_geom_defaults("ribbon", list(fill = revize_cols("mid_fill")))
@@ -159,9 +160,8 @@ popis_pro_plot <- function(data, sloupec) {
   }
 }
 
-
 plot_summary_mc <- function(cela_data, sloupec, title = popis_pro_plot(cela_data, {{ sloupec }}),
-                            title_hjust = 1, order_by_podil = TRUE, invert_color_threshold = 0.06 ) {
+                            order_by_podil = TRUE, invert_color_threshold = 0.06 ) {
   data_to_plot <- summarise_multiple_choice(cela_data, {{ sloupec }})
 
   n_odpovedi <- unique(data_to_plot$pocet_total)
@@ -186,9 +186,47 @@ plot_summary_mc <- function(cela_data, sloupec, title = popis_pro_plot(cela_data
     expand_limits(color = c(FALSE, TRUE)) +
     coord_flip() +
     theme(axis.title = element_blank(), axis.text.x = element_blank(),
-          axis.ticks.x = element_blank(), axis.line.x = element_blank(),
-          plot.title = element_text(hjust = title_hjust)) +
-    ggtitle(title, subtitle =  paste0(n_odpovedi ," odpovědí"))
+          axis.ticks.x = element_blank(), axis.line.x = element_blank()) +
+    plot_annotation(title = title, subtitle =  paste0(n_odpovedi ," odpovědí"))
+}
+
+plot_binarni_s_nejistotou <- function(data, binarni_sloupce_nazev, by, names_prefix = "", legend_label = "Měřítko") {
+  if(length(binarni_sloupce_nazev) == 1) {
+    my_aes <- aes(x = {{by}}, y = podil_ano, ymin = dolni, ymax = horni)
+    my_color_scale <- NULL
+    my_fill_scale <- NULL
+  } else {
+    my_aes <- aes(x = {{by}}, y = podil_ano, ymin = dolni, ymax = horni, color = meritko, group = meritko, fill = meritko)
+    my_color_scale <- scale_color_revize(name = legend_label)
+    my_fill_scale <- scale_fill_revize(name = legend_label)
+  }
+  data %>% filter(!is.na({{by}})) %>%
+    pivot_longer(binarni_sloupce_nazev, names_to = "meritko", values_to = "ano", names_prefix = names_prefix) %>%
+    group_by({{by}}, meritko) %>%
+    summarise(podil_ano = mean(ano), dolni = nejistota_binarni(0.025, ano), horni = nejistota_binarni(0.975, ano)) %>%
+    ggplot(my_aes) + geom_ribbon(alpha = 0.5) + geom_line() + vodorovne_popisky_x +
+    my_color_scale  + my_fill_scale +
+    scale_y_continuous("Podíl")
+}
+
+plot_ciselne_s_nejistotou <- function(data, ciselne_sloupce_nazev, by, names_prefix = "", legend_label = "Měřítko") {
+  if(length(ciselne_sloupce_nazev) == 1) {
+    my_aes <- aes(x = {{by}}, y = prumer, ymin = dolni, ymax = horni)
+    my_color_scale <- NULL
+    my_fill_scale <- NULL
+  } else {
+    my_aes <- aes(x = {{by}}, y = prumer, ymin = dolni, ymax = horni, color = meritko, group = meritko, fill = meritko)
+    my_color_scale <- scale_color_revize(name = legend_label)
+    my_fill_scale <- scale_fill_revize(name = legend_label)
+  }
+  data %>% filter(!is.na({{by}})) %>%
+    pivot_longer(ciselne_sloupce_nazev, names_to = "meritko", values_to = "hodnota", names_prefix = names_prefix) %>%
+    group_by({{by}}, meritko) %>%
+    summarise(prumer = mean(hodnota), sem = sd(hodnota)/sqrt(length(hodnota)),
+              dolni = qnorm(0.025, prumer, sem), horni = qnorm(0.975, prumer, sem)) %>%
+    ggplot(my_aes) + geom_ribbon(alpha = 0.5) + geom_line() + vodorovne_popisky_x +
+    my_color_scale  + my_fill_scale +
+    scale_y_continuous("Průměr")
 }
 
 save_list_of_plots <- function(plot_list, local_data_subdir) {

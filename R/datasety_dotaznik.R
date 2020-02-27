@@ -8,18 +8,13 @@ if(exists("raw_data") && exists("datasety_wide") && exists("datasety_long")) {
   # "Wide" data - co radek to respondent, ruzne profiltrovana
   datasety_wide <- list()
 
-  preprocesovana_data <- raw_data %>%
+  datasety_wide$pouzitelne <- raw_data %>%
     vyfiltruj_pouzitelne() %>%
     preprocess_dat(verbose = FALSE)
 
-  zaloha_labels <- zalohuj_labels(preprocesovana_data)
-
-  datasety_wide$pouzitelne <- preprocesovana_data %>% preved_haven_na_factory()
-
-  rm(preprocesovana_data)
-
   datasety_wide$hlavni <- datasety_wide$pouzitelne %>%
-    filter(age >= 15, age <= 26, dokoncil_hlavni)
+    filter(age >= 15, age <= 26, dokoncil_hlavni) %>%
+    nastav_podivne_odpovedi_na()
   datasety_wide$pouzitelne_dokoncene <- datasety_wide$pouzitelne %>%
     filter(dokoncil_hlavni)
 
@@ -39,4 +34,14 @@ if(exists("raw_data") && exists("datasety_wide") && exists("datasety_long")) {
 
   hlavni_data <- datasety_wide$hlavni
   hlavni_data_long <- datasety_long$hlavni
+
+  # Vezmu kus a neprevedu na faktory ani nic podobneho a tim zachovam metadata
+  zaloha_labels <- raw_data %>% head(50) %>%
+    odstran_zbytecne_sloupce(verbose = FALSE) %>%
+    oprav_fuckup_kategorie_kompetence() %>%
+    sluc_hlavni_a_doplnek(verbose = FALSE) %>%
+    prejmenuj_spatne_pojmenovane() %>%
+    aplikuj_manual_codings(verbose = FALSE) %>%
+    zalohuj_labels()
+
 }

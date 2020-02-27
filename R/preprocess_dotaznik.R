@@ -36,18 +36,16 @@ preprocess_dat <- function(cela_data, verbose = FALSE, vyhodit_otevrene_jine_ota
     prejmenuj_spatne_pojmenovane() %>%
     aplikuj_manual_codings(verbose = verbose) %>%
     spocitej_delku_vyplneni() %>%
-    spocitej_odvozene_kategorie() %>%
+    spocitej_kategorii_respondenta() %>%
     vytvor_fa_role() %>%
     vycisti_registracni_cisla() %>%
     spocitej_lss() %>%
     vyhod_texty_jine(vyhodit_otevrene_jine_otazky) %>%
     nastav_nepozorne_mc_jako_na(verbose = verbose) %>%
     prejmenuj_sloupce_kompetenci() %>%
-    # Prevod na faktory volam umyslne zvlast az v datasety_dotaznik
-    # preved_haven_na_factory() %>%
+    preved_haven_na_factory() %>%
+    spocitej_odvozene_kategorie() %>%
     as_tibble()
-
-  #TODO u otazek, kde je moznost nic vyfiltrovat (zamenit za NA ?) ty, kdo nezaskrtlni zadnou moznost, ani "nic"
 }
 
 odstran_zbytecne_sloupce <- function(cela_data, verbose = FALSE) {
@@ -219,17 +217,24 @@ zalohuj_labels <- function(data) {
   zaloha
 }
 
-# Vybrane haven prevest na faktory
+# Vybrane haven prevest na faktory. Faktory nazachovaji metedata,
+# ale ta už jsou uložena v záloze
 preved_haven_na_factory <- function(cela_data) {
   # TODO vymyslet jak zachovat u faktoru atributy pri dalsich operacich
   for(sloupec in factor_sloupce) {
-    old_attributes <- attributes(cela_data[[sloupec]])
-    cela_data[[sloupec]] <- cela_data[[sloupec]] %>%
-      factor() %>%
-      forcats::fct_explicit_na(explicit_na_level) %>%
-      droplevels()
+    if(sloupec %in% ordered_sloupce) {
+      ordered_levels <- c(explicit_na_level, attributes(cela_data[[sloupec]])$labels %>% as.character())
+      cela_data[[sloupec]] <- cela_data[[sloupec]] %>%
+        factor(ordered = TRUE, levels = ordered_levels) %>%
+        forcats::fct_explicit_na(explicit_na_level)
 
-    #Zachovat info o otázce pro případné kontroly
+      #cela_data[[sloupec]][is.na(cela_data[[sloupec]])] <- explicit_na_level
+    } else {
+       cela_data[[sloupec]] <- cela_data[[sloupec]] %>% factor() %>%
+         forcats::fct_explicit_na(explicit_na_level) %>%
+         droplevels()
+    }
+
   }
 
   cela_data %>%
@@ -239,10 +244,13 @@ preved_haven_na_factory <- function(cela_data) {
     )
 }
 
-spocitej_odvozene_kategorie <- function(cela_data) {
-  # Kategorie respondenta
+spocitej_kategorii_respondenta <- function(cela_data) {
   cela_data <- cela_data %>% mutate(kategorie_respondenta_full = if_else(kategorie_respondenta != "nikdy_spolecenstvi", kategorie_respondenta,
                                                                          if_else(bez_zkusenosti_mladsi == "ano", "nikdy_spolecenstvi_mladsi", "nikdy_spolecenstvi_starsi")))
+}
+
+spocitej_odvozene_kategorie <- function(cela_data) {
+  # Kategorie respondenta
   attributes(cela_data$kategorie_respondenta_full)$labels <-
     c(attributes(cela_data$kategorie_respondenta_full)$labels[c(1,2)],
       `Nikdy jsem nebyla součástí roverského společenství (mladší členi)` = "nikdy_spolecenstvi_mladsi",
@@ -261,7 +269,12 @@ spocitej_odvozene_kategorie <- function(cela_data) {
                                      jeste_pokracovat == "ne" ~ "dokoncil_kratsi",
                                      is.na(ended.doplnek) ~ "rozpracoval_doplnek",
                                      TRUE ~ "dokoncil_doplnek"
-                                     )
+                                     ),
+           kmen_aktivni_zaklad =
+             frekvence_kratkych_akci >= "mesicne" |
+             (frekvence_kratkych_akci >= "nekolik_rocne" & frekvence_vicedennich_akci >= "nekolik_rocne") |
+             (frekvence_velkych_akci >= "rocne" & (frekvence_kratkych_akci >= "nekolik_rocne" | frekvence_vicedennich_akci >= "nekolik_rocne")),
+           kmen_aktivni_velmi = frekvence_velkych_akci >= "rocne" & frekvence_kratkych_akci >= "mesicne" & frekvence_vicedennich_akci >= "nekolik_rocne"
   )
 
   cela_data <- cela_data %>% mutate(zdroj = case_when(zdroj == "neuvedeno_redirect" ~  "nezname",
@@ -529,6 +542,16 @@ nastav_nepozorne_mc_jako_na <- function(data, verbose) {
     }
   }
   data
+}
+
+# Nyni volano jen pro hlavni data, aby to pripadne slo dale analyzovat
+nastav_podivne_odpovedi_na <- function(data) {
+  data %>% mutate(
+    # Kdo byl v kmeni moc brzy je podivny
+    let_v_kmeni = if_else(!is.na(let_v_kmeni) & (age - let_v_kmeni >= 14), let_v_kmeni, NA_real_),
+    # Kdo vstoupil do Junaka pred 4 narozeninami je podivny
+    let_v_junaku = if_else(!is.na(let_v_junaku) & (age - let_v_junaku >= 5), let_v_junaku, NA_real_),
+  )
 }
 
 psc_na_reg_cislo <- function(x) {

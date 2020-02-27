@@ -57,6 +57,9 @@ manual_codings <- list(
 
 manual_codings$problemy_roveringu_stredisko = manual_codings$problemy_roveringu
 
+ordered_sloupce <- c("frekvence_kratkych_akci","frekvence_vicedennich_akci", "frekvence_velkych_akci",
+                     "bez_zkusenosti_setkavam_se_s_vrstevniky", "bez_zkusenosti_seberozvojovy_program")
+
 # Metadata k multiple choice sloupcum (kde toho slo vybrat vic).
 # Pokud je explicitní možnost "Nic" a pokud respondent nic nezaškrtl, tak můžeme odpověď brát jako NA, protože
 # nedával pozor. To je podchyceno v "moznost_pro_kazdeho"

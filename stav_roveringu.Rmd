@@ -1,6 +1,7 @@
 ---
 title: "Stav roveringu"
-output: html_notebook
+output: html_document:
+    code_folding: hide
 ---
 
 ```{r setup}
@@ -14,11 +15,91 @@ source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
 plots <- list() 
 ```
 
+# Životní cyklus rovera
+
+
 ```{r}
-plots$roky_ve_spolecenstvi <- hlavni_data %>% filter(let_v_kmeni != 42) %>% ggplot(aes( x = let_v_kmeni)) + geom_histogram(binwidth = 1) + ggtitle("Počet let ve společenství") + scale_x_continuous("Let ve společenství") + scale_y_continuous("Počet") + vodorovne_popisky_x
+plots$roky_ve_spolecenstvi <- hlavni_data %>% filter(!is.na(let_v_kmeni)) %>% ggplot(aes( x = let_v_kmeni)) + geom_histogram(binwidth = 1) + ggtitle("Počet let ve společenství") + scale_x_continuous("Let ve společenství") + scale_y_continuous("Počet") + vodorovne_popisky_x 
 plots$roky_ve_spolecenstvi
+```
+
+Obrázek výše obsahuje ukončená i neukončená členství - je to tedy spíše dolní odhad (lidé, kteří neukončili tak ještě budou pokračovat a zvednou to)
+
+
+TODO censored model pro dobu ve společenství.
+
+```{r}
+kolik_roveru_dele_nez_tri_roky <- mean(hlavni_data$let_v_kmeni > 3, na.rm = TRUE)
+```
+
+Cca `r scales::percent(kolik_roveru_dele_nez_tri_roky)` roverů vydrželo v kmeni více jak 3 roky.
+
+```{r}
+if(sum(hlavni_data$frekvence_kratkych_akci < "mesicne", na.rm = TRUE) !=
+   sum(hlavni_data$frekvence_kratkych_akci %in% c("nevyplneno", "nikdy","rocne","nekolik_rocne"), na.rm = TRUE)) {
+  stop("Neplatny ordering")
+}
 
 ```
+
+
+Celkem nepřekvapivě klesá aktivita kmenů s věkem jejich členů:
+
+```{r}
+plots$aktivita_vek <- hlavni_data %>% 
+  filter(kategorie_respondenta_full == "nyni_spolecenstvi") %>%
+  plot_binarni_s_nejistotou(c("kmen_aktivni_zaklad","kmen_aktivni_velmi"), age, names_prefix = "kmen_") +
+  plot_annotation("Aktivita (frekvence akcí) - věk\nJen současní členové") + scale_x_continuous("Věk")
+           
+plots$aktivita_vek
+
+```
+
+
+Otázkou je, jestli je to spíše věkem členů nebo délkou trvání kmene. Délku existence kmene nemáme, ale můžeme se podívat na počet let v kmeni
+
+```{r}
+plots$aktivita_let_v_kmeni <- hlavni_data %>% 
+  filter(kategorie_respondenta_full == "nyni_spolecenstvi", let_v_kmeni < 8) %>%
+  plot_binarni_s_nejistotou(c("kmen_aktivni_zaklad","kmen_aktivni_velmi"), let_v_kmeni, names_prefix = "kmen_") +
+  plot_annotation("Aktivita (frekvence akcí) - let v kmeni\nJen současní členové")
+           
+plots$aktivita_let_v_kmeni
+```
+
+Trend je výraznější u věku, takže bych spíš vsadil na věk. Nedá se to ale dobře rozlišit, protože to spolu hodně koreluje.
+
+
+
+```{r}
+if(any(hlavni_data$let_v_junaku < hlavni_data$let_v_kmeni, na.rm = TRUE)) {
+  stop("Nekdo byl dele v Junaku nez v kmeni")
+}
+
+data_vstupy <- hlavni_data %>% mutate(
+  vek_vstupu_do_kmene = if_else(kategorie_respondenta_full == "nyni_spolecenstvi", age - let_v_kmeni, NA_real_),
+  vek_vstupu_do_junaka = age - let_v_junaku)
+
+plots$vek_vstupu_do_kmene <- data_vstupy %>% filter(!is.na(vek_vstupu_do_kmene)) %>%
+  ggplot(aes(x = vek_vstupu_do_kmene)) + geom_histogram(binwidth = 1) + vodorovne_popisky_x + 
+  scale_x_continuous(breaks = c(13, 15, 18, 21, 24)) +
+  ggtitle("Věk vstupu do kmene\nJen členi společenství")
+
+plots$vek_vstupu_do_kmene
+```
+
+Věk vstupu určen z otázek "Jak dlouho jsi ve společenství" a "Věk", proto lze určit jen u těch, kdo nyní jsou ve společenství.
+
+
+```{r}
+hlavni_data %>% filter(kategorie_respondenta_full == "nyni_spolecenstvi") %>%
+  mutate(spise_spokojen = spokojenost_clenstvim_v_rs > 4, naprosto_spokojen = spokojenost_clenstvim_v_rs > 6) %>%
+  plot_binarni_s_nejistotou(c("spise_spokojen","naprosto_spokojen"), age) + scale_x_continuous("Věk") + plot_annotation("Spíše spokojen s členstvím v RS - Věk\nJen současní členové")
+  
+```
+
+
+# Nezařazeno
 
 ```{r}
 plots$spokojenost_rs <- hlavni_data %>% plot_summary_mc(spokojenost_clenstvim_v_rs, "Spokojenost s členstvím ve společenství")
@@ -26,7 +107,9 @@ plots$spokojenost_rs
 ```
 
 ```{r}
+set_theme_revizers()
 plots$spokojenost_junak <- hlavni_data %>% plot_summary_mc(spokojenost_s_fungovanim_v_junaku, "Spokojenost s fungováním v Junáku\nJen bez roverske zkušenosti")
+
 plots$spokojenost_junak
 ```
 
@@ -202,6 +285,61 @@ plots$bez_zkusenosti_setkavam_se_s_vrstevniky
 plots$bez_zkusenosti_seberozvojovy_program <- plot_summary_mc(hlavni_data, bez_zkusenosti_seberozvojovy_program, "Seberozvojový program \n roveři mimo společenství", order_by_podil = FALSE, invert_color_threshold = 0.02)
 plots$bez_zkusenosti_seberozvojovy_program
 ```
+
+
+# Doplňky a kontroly
+
+```{r}
+v_kmeni_od_14ti <- sum(datasety_wide$pouzitelne$let_v_kmeni > datasety_wide$pouzitelne$age - 14, na.rm = TRUE)
+v_kmeni_od_13ti <- sum(datasety_wide$pouzitelne$let_v_kmeni > datasety_wide$pouzitelne$age - 13, na.rm = TRUE)
+```
+
+`r v_kmeni_od_14ti` respondentů bylo (dle svých odpovědí) v kmeni už ve 14ti letech, `r v_kmeni_od_13ti` dokonce ve 13ti. Otázka, jestli to není spíš znak, že to lidé vyplňovali špatně.
+
+
+```{r}
+hlavni_data %>% filter(!is.na(let_v_kmeni)) %>%
+  group_by(let_v_kmeni, age) %>%
+  summarise(pocet = n()) %>%
+  ggplot(aes(x = let_v_kmeni, y = age, fill = pocet)) + geom_raster() + 
+  scale_fill_revize(discrete = FALSE)  + vodorovne_popisky_x
+```
+
+
+Věk vstupu do Junáka se moc neliší napříč věkovými skupinami.
+
+```{r}
+data_vstupy %>% filter(!is.na(vek_vstupu_do_junaka)) %>%
+  group_by(vek_vstupu_do_junaka, age) %>%
+  summarise(pocet = n()) %>%
+  group_by(age) %>%
+  mutate(podil_ve_vekove_skupine = pocet / sum(pocet)) %>%
+  ggplot(aes(x = vek_vstupu_do_junaka, y = age, fill = podil_ve_vekove_skupine)) + geom_raster() + 
+  scale_fill_revize(discrete = FALSE)  + vodorovne_popisky_x
+```
+
+
+```{r}
+data_vstupy %>% filter(!is.na(vek_vstupu_do_kmene)) %>%
+  group_by(vek_vstupu_do_kmene, age) %>%
+  summarise(pocet = n()) %>%
+  group_by(age) %>%
+  mutate(podil_ve_vekove_skupine = pocet / sum(pocet)) %>%
+  ggplot(aes(x = vek_vstupu_do_kmene, y = age, fill = podil_ve_vekove_skupine)) + geom_raster() + 
+  scale_fill_revize(discrete = FALSE)  + vodorovne_popisky_x
+
+```
+
+
+Rozložení věku vstupu do Junáka vychází podobně jako z registrace.
+Pozn. ti u kterých vycházel věk vstupu do Junáka menší než 5 byli vyjmuti.
+
+```{r}
+plots$vek_vstupu_do_junaka <- data_vstupy %>% filter(!is.na(vek_vstupu_do_junaka)) %>%
+  ggplot(aes(x = vek_vstupu_do_junaka)) + geom_freqpoly(binwidth = 1) + vodorovne_popisky_x
+plots$vek_vstupu_do_junaka
+```
+
 
 ```{r save_plots}
 save_list_of_plots(plots,"stav_roveringu")

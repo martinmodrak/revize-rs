@@ -76,10 +76,14 @@ popis_meritka <- function(meritko_nazev) {
   gsub(pattern = "kompetence_", "", meritko_nazev, fixed = TRUE)
 }
 
+nejistota_binarni <- function(prob, hodnoty) {
+  qbeta(prob, sum(hodnoty) + 1, sum(!hodnoty) + 1)
+}
+
 nejistota_meritka <- function(prob, meritko_nazev, hodnoty) {
   type <- meritka_kompetence[[meritko_nazev]]$type
   if(type == "bool") {
-    qbeta(prob, sum(hodnoty) + 1, sum(!hodnoty) + 1)
+    nejistota_binarni(prob, hodnoty)
   } else if(type == "ordinal" || type == "interval") {
     sem <- sd(hodnoty)/sqrt(length(hodnoty))
     qnorm(prob, mean(hodnoty), sem)

@@ -22,3 +22,5 @@ plots <- list()
 plots$zivotni_faze <- hlavni_data %>% plot_summary_mc(zivotni_faze, "Životní fáze", title_hjust = 0.5)
 plots$zivotni_faze
 ```
+
+TODO: reprezentativnost dle pohlavi a veku
