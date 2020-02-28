@@ -136,14 +136,14 @@ plots$co_zazil
 
 ```{r}
 
-plots$problemy_cleni <- hlavni_data %>% plot_summary_mc(problemy_roveringu, "Hlavní problémy roveringu \n jen členi společenství", title_hjust = 1)
+plots$problemy_cleni <- hlavni_data %>% plot_summary_mc(problemy_roveringu, "Hlavní problémy roveringu \n jen členi společenství")
 
 plots$problemy_cleni
 
 ```
 
 ```{r}
-plots$problemy_necleni <- hlavni_data %>% plot_summary_mc(problemy_roveringu_stredisko, "Hlavní problémy roveringu\njen bez společenství", title_hjust = 1)
+plots$problemy_necleni <- hlavni_data %>% plot_summary_mc(problemy_roveringu_stredisko, "Hlavní problémy roveringu\njen bez společenství")
 
 plots$problemy_necleni
 ```
@@ -155,7 +155,7 @@ if(any(!is.na(hlavni_data$problemy_roveringu) && !is.na(hlavni_data$problemy_rov
 }
 plots$problemy_all <- hlavni_data %>% mutate(problemy_roveringu_all = if_else(!is.na(problemy_roveringu), problemy_roveringu, 
                                                   problemy_roveringu_stredisko)) %>%
-  plot_summary_mc(problemy_roveringu_all, "Hlavní problémy roveringu", title_hjust = 1.5)
+  plot_summary_mc(problemy_roveringu_all, "Hlavní problémy roveringu")
 
 plots$problemy_all
 ```
@@ -294,7 +294,7 @@ v_kmeni_od_14ti <- sum(datasety_wide$pouzitelne$let_v_kmeni > datasety_wide$pouz
 v_kmeni_od_13ti <- sum(datasety_wide$pouzitelne$let_v_kmeni > datasety_wide$pouzitelne$age - 13, na.rm = TRUE)
 ```
 
-`r v_kmeni_od_14ti` respondentů bylo (dle svých odpovědí) v kmeni už ve 14ti letech, `r v_kmeni_od_13ti` dokonce ve 13ti. Otázka, jestli to není spíš znak, že to lidé vyplňovali špatně.
+`r v_kmeni_od_14ti` respondentů bylo (dle svých odpovědí) v kmeni už ve 14ti letech, `r v_kmeni_od_13ti` dokonce ve 13ti. Otázka, jestli to není spíš znak, že to lidé vyplňovali špatně. (V hlavních datech tyto ignoruji)
 
 
 ```{r}

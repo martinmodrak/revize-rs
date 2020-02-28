@@ -247,15 +247,14 @@ preved_haven_na_factory <- function(cela_data) {
 spocitej_kategorii_respondenta <- function(cela_data) {
   cela_data <- cela_data %>% mutate(kategorie_respondenta_full = if_else(kategorie_respondenta != "nikdy_spolecenstvi", kategorie_respondenta,
                                                                          if_else(bez_zkusenosti_mladsi == "ano", "nikdy_spolecenstvi_mladsi", "nikdy_spolecenstvi_starsi")))
-}
-
-spocitej_odvozene_kategorie <- function(cela_data) {
-  # Kategorie respondenta
   attributes(cela_data$kategorie_respondenta_full)$labels <-
     c(attributes(cela_data$kategorie_respondenta_full)$labels[c(1,2)],
       `Nikdy jsem nebyla součástí roverského společenství (mladší členi)` = "nikdy_spolecenstvi_mladsi",
       `Nikdy jsem nebyla součástí roverského společenství (starší členi)` = "nikdy_spolecenstvi_starsi")
+  cela_data
+}
 
+spocitej_odvozene_kategorie <- function(cela_data) {
   cela_data <- cela_data %>%
     mutate(byl_na_rs_kurzu = co_zazil %contains_word% "roversky_kurz",
            byl_na_kurzu = co_zazil %contains_word% "roversky_kurz"

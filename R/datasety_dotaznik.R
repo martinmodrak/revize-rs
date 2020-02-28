@@ -42,6 +42,7 @@ if(exists("raw_data") && exists("datasety_wide") && exists("datasety_long")) {
     sluc_hlavni_a_doplnek(verbose = FALSE) %>%
     prejmenuj_spatne_pojmenovane() %>%
     aplikuj_manual_codings(verbose = FALSE) %>%
+    spocitej_kategorii_respondenta() %>%
     zalohuj_labels()
 
 }
