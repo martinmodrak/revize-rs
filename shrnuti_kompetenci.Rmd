@@ -301,6 +301,10 @@ hlavni_data_long %>% spocitej_data_rozdil(rozvijim, skauting, "kompetence_poziti
 
 ```
 
+# Ještě projít
+
+TODO: Dát kategorie kompetencí přes sebe?
+Kompetence - nemají starší lidi širší škálu?
 
 
 ## Ulozit obrazky

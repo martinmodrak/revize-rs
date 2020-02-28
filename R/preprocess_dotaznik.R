@@ -255,13 +255,20 @@ spocitej_kategorii_respondenta <- function(cela_data) {
 }
 
 spocitej_odvozene_kategorie <- function(cela_data) {
+  test_contains_any_word(cela_data$byl_na_rs_kurzu, "roversky_kurz")
+  test_contains_any_word(cela_data$byl_na_rs_kurzu, "roversky_kurz", "radcovsky_kurz", "cekatelky")
   cela_data <- cela_data %>%
     mutate(byl_na_rs_kurzu = co_zazil %contains_word% "roversky_kurz",
-           byl_na_kurzu = co_zazil %contains_word% "roversky_kurz"
-                       | co_zazil %contains_word% "radcovsky_kurz"
-                       | co_zazil %contains_word% "cekatelky"
-                       | co_zazil %contains_word% "jiny_kurz"
-                       | co_zazil %contains_word% "vudcovky",
+           byl_na_kurzu = co_zazil %contains_any_word%
+             c("roversky_kurz", "radcovsky_kurz", "cekatelky", "jiny_kurz", "vudcovky"),
+           neni_organizovan =  organizace_spolecenstvi %contains_any_word% c("vsichni", "nikdo", "neaktivni"),
+           je_organizovan = organizace_spolecenstvi %contains_any_word%
+             c("formalni_vudce_zhury", "formalni_vudce_demokraticky", "formalni_rada_zhury",
+               "formalni_rada_demokraticky", "neformalni_tahoun", "neformalni_rada"),
+           je_rover = role_skauting %contains_any_word% c("clen_roveru", "tahoun_roveru", "rover_sam", "clen_rady_roveru"),
+           ma_roverskou_roli = je_rover | role_skauting %contains_word% "vedouci_roveru",
+           ma_vudcovskou_roli = role_skauting %contains_any_word% c("vedouci_zastupce_oddilu",
+                                                                    "clen_vedeni_oddilu","oddilovy_radce"),
            dokoncil_hlavni = !is.na(ended.hlavni),
            stav_vyplneni = case_when(is.na(ended.hlavni) ~ "nedokoncil",
                                      kolik_casu == "delsi" ~ "dokoncil_delsi",

@@ -76,8 +76,8 @@ popis_meritka <- function(meritko_nazev) {
   gsub(pattern = "kompetence_", "", meritko_nazev, fixed = TRUE)
 }
 
-nejistota_binarni <- function(prob, hodnoty) {
-  qbeta(prob, sum(hodnoty) + 1, sum(!hodnoty) + 1)
+nejistota_binarni <- function(prob, hodnoty, na.rm = FALSE) {
+  qbeta(prob, sum(hodnoty, na.rm = na.rm) + 1, sum(!hodnoty, na.rm = na.rm) + 1)
 }
 
 nejistota_meritka <- function(prob, meritko_nazev, hodnoty) {

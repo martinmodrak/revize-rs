@@ -1,3 +1,30 @@
+`%contains_any_word%` <- function(x, words) {
+  partial_results <- matrix(nrow = length(x), ncol = length(words))
+  for(i in 1:length(words)) {
+    partial_results[,i] <- x %contains_word% words[i]
+  }
+  rowSums(partial_results) > 0
+}
+
+test_contains_any_word <- function(x, word1, word2 = FALSE, word3 = FALSE) {
+  if(identical(word3, FALSE)) {
+    if(identical(word3, FALSE)) {
+      words_all <- word1
+      correct_val <- x %contains_word% word1
+    } else {
+      words_all <- c(word1, word2)
+      correct_val <- x %contains_word% word1 | x %contains_word% word2
+    }
+  } else {
+    words_all <- c(word1, word2, word3)
+    correct_val <- x %contains_word% word1 | x %contains_word% word2 | x %contains_word% word3
+  }
+
+  if(!identical(x %contains_any_word% words_all, correct_val)) {
+    stop("contains_any_word is broken")
+  }
+}
+
 summarise_multiple_choice <- function(cela_data, sloupec) {
   volby_vec <- popisky_voleb(cela_data, {{ sloupec }})
   volby_df <- data.frame(id_volby = volby_vec, nazev_volby = names(volby_vec))

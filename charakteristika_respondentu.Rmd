@@ -9,9 +9,6 @@ source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
 
 ```
 
-```{r}
-datasety_wide$pouzitelne %>% group_by(stav_vyplneni) %>% summarise(pocet = n())
-```
 
 ```{r}
 plots <- list()
@@ -19,8 +16,35 @@ plots <- list()
 
 
 ```{r}
-plots$zivotni_faze <- hlavni_data %>% plot_summary_mc(zivotni_faze, "Životní fáze", title_hjust = 0.5)
+plots$odpovedi <- datasety_wide$pouzitelne %>% group_by(stav_vyplneni) %>% summarise(pocet = n()) %>%
+  mutate(stav_vyplneni = factor(stav_vyplneni, levels = c("nedokoncil","dokoncil_kratsi", "rozpracoval_doplnek", "dokoncil_doplnek", "dokoncil_delsi"), labels = c("Nedokončil ale vyplnil aspoň něco", "Dokončil kratší a nepokračoval", "Dokončil kratší a nedokončil pokračování", "Dokončil kratší i pokračování", "Dokončil delší"))) %>%
+  ggplot(aes(x = stav_vyplneni, y = pocet, label = pocet)) + geom_bar(stat = "identity") + 
+  geom_text(aes(color = pocet > 50), y = 50, hjust = 0, family = "SKAUT", size = 6) + 
+              coord_flip() + vodorovne_popisky_x + expand_limits(y = 1330) +
+  scale_color_manual(values = c("white", revize_cols("dark_blue")), guide = FALSE) +
+    theme(axis.title = element_blank(), axis.text.x = element_blank(),
+          axis.ticks.x = element_blank(), axis.line.x = element_blank()) +
+  plot_annotation("Počet vyplnění")
+
+plots$odpovedi
+ 
+```
+
+
+```{r}
+plots$zivotni_faze <- hlavni_data %>% plot_summary_mc(zivotni_faze, "Životní fáze")
 plots$zivotni_faze
 ```
 
+```{r}
+plots$kategorie_respondenta <- plot_summary_mc(hlavni_data, kategorie_respondenta_full, "Roverská zkušenost")
+plots$kategorie_respondenta
+```
+
 TODO: reprezentativnost dle pohlavi a veku
+
+TODO: Je ostrý odpad lidí u vyplnění kompetencí?
+
+```{r save_plots}
+save_list_of_plots(plots,"charakteristika_respondentu")
+```

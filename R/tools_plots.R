@@ -160,9 +160,12 @@ popis_pro_plot <- function(data, sloupec) {
   }
 }
 
-plot_summary_mc <- function(cela_data, sloupec, title = popis_pro_plot(cela_data, {{ sloupec }}),
-                            order_by_podil = TRUE, invert_color_threshold = 0.06 ) {
-  data_to_plot <- summarise_multiple_choice(cela_data, {{ sloupec }})
+plot_summary_mc <- function(cela_data, sloupec,
+                            title = popis_pro_plot(cela_data, {{ sloupec }}), subtitle = NULL,
+                            order_by_podil = TRUE, invert_color_threshold = 0.06,
+                            max_podil = Inf, min_podil = -Inf, exclude_values = c()) {
+  data_to_plot <- summarise_multiple_choice(cela_data, {{ sloupec }}) %>%
+    filter(podil_ano > min_podil, podil_ano < max_podil, !(id_volby %in% exclude_values))
 
   n_odpovedi <- unique(data_to_plot$pocet_total)
   if(!length(n_odpovedi) == 1) {
@@ -178,6 +181,13 @@ plot_summary_mc <- function(cela_data, sloupec, title = popis_pro_plot(cela_data
     data_to_plot <- data_to_plot %>%
       mutate(nazev_volby = factor(id_volby, levels = labels, labels = str_wrap(names(labels), wrap_width)))
   }
+
+  if(is.null(subtitle)) {
+    full_subtitle <- paste0(n_odpovedi ," odpovědí")
+  } else {
+    full_subtitle <- paste0(subtitle, ", ", n_odpovedi ," odpovědí")
+  }
+
   data_to_plot %>%
     ggplot(aes(x = nazev_volby, y = podil_ano, label = scales::percent(podil_ano, accuracy = 1))) +
     geom_bar(stat = "identity") +
@@ -186,13 +196,14 @@ plot_summary_mc <- function(cela_data, sloupec, title = popis_pro_plot(cela_data
     expand_limits(color = c(FALSE, TRUE)) +
     coord_flip() +
     theme(axis.title = element_blank(), axis.text.x = element_blank(),
-          axis.ticks.x = element_blank(), axis.line.x = element_blank()) +
-    plot_annotation(title = title, subtitle =  paste0(n_odpovedi ," odpovědí"))
+          axis.ticks.x = element_blank(), axis.line.x = element_blank(),
+          axis.text.y = element_text(lineheight = 0.8)) +
+    plot_annotation(title = title, subtitle =  full_subtitle)
 }
 
-plot_binarni_s_nejistotou <- function(data, binarni_sloupce_nazev, by, names_prefix = "", legend_label = "Měřítko") {
+plot_binarni_s_nejistotou <- function(data, binarni_sloupce_nazev, by, names_prefix = "", legend_label = "Měřítko", na.rm = FALSE) {
   if(length(binarni_sloupce_nazev) == 1) {
-    my_aes <- aes(x = {{by}}, y = podil_ano, ymin = dolni, ymax = horni)
+    my_aes <- aes(x = {{by}}, y = podil_ano, ymin = dolni, ymax = horni, group = 1)
     my_color_scale <- NULL
     my_fill_scale <- NULL
   } else {
@@ -203,7 +214,7 @@ plot_binarni_s_nejistotou <- function(data, binarni_sloupce_nazev, by, names_pre
   data %>% filter(!is.na({{by}})) %>%
     pivot_longer(binarni_sloupce_nazev, names_to = "meritko", values_to = "ano", names_prefix = names_prefix) %>%
     group_by({{by}}, meritko) %>%
-    summarise(podil_ano = mean(ano), dolni = nejistota_binarni(0.025, ano), horni = nejistota_binarni(0.975, ano)) %>%
+    summarise(podil_ano = mean(ano, na.rm = na.rm), dolni = nejistota_binarni(0.025, ano, na.rm = na.rm), horni = nejistota_binarni(0.975, ano, na.rm = na.rm)) %>%
     ggplot(my_aes) + geom_ribbon(alpha = 0.5) + geom_line() + vodorovne_popisky_x +
     my_color_scale  + my_fill_scale +
     scale_y_continuous("Podíl")
