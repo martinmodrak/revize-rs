@@ -35,7 +35,7 @@ plots$pohlavi <- hlavni_data %>%
   group_by(sex) %>%
   summarise(n = n()) %>%
   ggplot(aes(x = "", y = n, fill = sex)) + geom_bar(stat = "identity") + coord_polar("y", start = 0) + scale_fill_manual(values = revize_cols("darkest_fill","mid_fill","white")) + 
-  geom_text(aes(y = sum(n) - n/2 - 65 - c(0, cumsum(n)[-length(n)]), 
+  geom_text(aes(y = sum(n) - n/2 - 625 - c(0, cumsum(n)[-length(n)]), 
             label = scales::percent(n/sum(n))), color = revize_cols("dark_blue"), x = 1, size=5, family = "Roboto", fontface = "bold")+
   theme(axis.text = element_blank(), axis.ticks = element_blank(), axis.line = element_blank(),
         axis.title = element_blank())

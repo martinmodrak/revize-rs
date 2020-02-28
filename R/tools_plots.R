@@ -213,11 +213,12 @@ plot_binarni_s_nejistotou <- function(data, binarni_sloupce_nazev, by, names_pre
   }
   data %>% filter(!is.na({{by}})) %>%
     pivot_longer(binarni_sloupce_nazev, names_to = "meritko", values_to = "ano", names_prefix = names_prefix) %>%
+    mutate(meritko = factor(meritko, levels = binarni_sloupce_nazev)) %>%
     group_by({{by}}, meritko) %>%
     summarise(podil_ano = mean(ano, na.rm = na.rm), dolni = nejistota_binarni(0.025, ano, na.rm = na.rm), horni = nejistota_binarni(0.975, ano, na.rm = na.rm)) %>%
     ggplot(my_aes) + geom_ribbon(alpha = 0.5) + geom_line() + vodorovne_popisky_x +
     my_color_scale  + my_fill_scale +
-    scale_y_continuous("Podíl")
+    scale_y_continuous("Podíl", labels = scales::percent)
 }
 
 plot_ciselne_s_nejistotou <- function(data, ciselne_sloupce_nazev, by, names_prefix = "", legend_label = "Měřítko") {
@@ -232,6 +233,7 @@ plot_ciselne_s_nejistotou <- function(data, ciselne_sloupce_nazev, by, names_pre
   }
   data %>% filter(!is.na({{by}})) %>%
     pivot_longer(ciselne_sloupce_nazev, names_to = "meritko", values_to = "hodnota", names_prefix = names_prefix) %>%
+    mutate(meritko = factor(meritko, levels = ciselne_sloupce_nazev)) %>%
     group_by({{by}}, meritko) %>%
     summarise(prumer = mean(hodnota), sem = sd(hodnota)/sqrt(length(hodnota)),
               dolni = qnorm(0.025, prumer, sem), horni = qnorm(0.975, prumer, sem)) %>%

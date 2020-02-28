@@ -81,7 +81,7 @@ mc_sloupce <- list(
   proc_neni_rover = list(moznost_pro_kazdeho = TRUE),
   bez_zkusenosti_velke_akce = list(moznost_pro_kazdeho = TRUE),
   sluzba = list(moznost_pro_kazdeho = TRUE),
-  proc_nebyl_rover = list(moznost_pro_kazdeho = TRUE),
+  proc_nebyl_rover = list(),
   vyroky_o_roveringu_stredisko = list(),
   problemy_roveringu_stredisko = list())
 

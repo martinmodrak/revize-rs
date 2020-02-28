@@ -272,6 +272,31 @@ TODO: rozdíly v pohlaví A ve spokojenosti - trošku komplikované, zatím odkl
 
 ### Organizace společenství
 
+```{r}
+hlavni_data %>% 
+  filter(!is.na(organizace_spolecenstvi)) %>% 
+  mutate(neformalni = organizace_spolecenstvi %contains_any_word% c("neformalni_tahoun", "neformalni_rada"),
+         je_formalni = organizace_spolecenstvi %contains_any_word% c("formalni_vudce_zhury", "formalni_vudce_demokraticky", "formalni_rada_zhury",
+               "formalni_rada_demokraticky")) %>%
+  group_by(neformalni, je_formalni, neni_organizovan) %>% summarise(pocet = n()) %>%
+  ungroup() %>%
+  mutate(podil = pocet / sum(pocet))
+```
+
+
+```{r}
+plots$organizace_spolecenstvi <- plot_summary_mc(hlavni_data, organizace_spolecenstvi, title = "Organizace kmene")
+plots$organizace_spolecenstvi
+```
+
+```{r}
+plots$vyroky_o_roveringu_zazil <- plot_summary_mc(hlavni_data, vyroky_o_roveringu_zazil, "Rovering, který jsem zažil 1") 
+plots$vyroky_o_roveringu_zazil
+
+plots$vyroky_o_roveringu_zazil_2 <- plot_summary_mc(hlavni_data, vyroky_o_roveringu_zazil_2, "Rovering, který jsem zažil 2") 
+plots$vyroky_o_roveringu_zazil_2
+```
+
 Dotaz RO: Čekali bychom, že velké akce jsou důležité pro společenství, co není moc organizované, ale data to možná nepotvrzují.
 
 Skutečně se to moc nezdá, kmeny s organizací (tahoun, rada, vudce) jsou na tom skoro stejně jako kmeny bez tohoto.
@@ -344,55 +369,117 @@ Velmi mírný nárůst, ale může být i věkem, dalšími faktory... musíme p
 
 # Roverští singles
 
-Jako singles bereme lidi bez společenství. 
+Jako singles bereme lidi bez společenství, i když sami sebe za rovera nepovažují.  
 
 ```{r}
 podil_roveru_mezi_bez_spolecenstvi <- hlavni_data %>% filter(kategorie_respondenta == "nikdy_spolecenstvi") %>% summarise(podil = mean(je_rover, na.rm = TRUE)) %>% pull(podil)
+
+hlavni_data %>% group_by(kategorie_respondenta_full) %>% summarise(podil_ma_roverskou_roli = mean(ma_roverskou_roli, na.rm = TRUE))
 ```
 
 `scales::percent(podil_roveru_mezi_bez_spolecenstvi)` lidí v roverském věku, kteří jsou mimo společenství považuje "rover" za jednu ze svých rolí.
 
 ```{r}
-plots$spokojenost_junak <- hlavni_data %>% plot_summary_mc(spokojenost_s_fungovanim_v_junaku, "Spokojenost s fungováním v Junáku\nJen bez roverske zkušenosti")
+plots$spokojenost_junak <- hlavni_data %>% plot_summary_mc(spokojenost_s_fungovanim_v_junaku, "Spokojenost s fungováním v Junáku", subtitle = "Jen bez roverske zkušenosti", invert_color_threshold = 0.05)
 plots$spokojenost_junak
-
-plots$spokojenost_junak <- hlavni_data %>% filter(je_rover) %>% plot_summary_mc(spokojenost_s_fungovanim_v_junaku, "Spokojenost s fungováním v Junáku\nJen bez roverske zkušenosti")
-plots$spokojenost_junak
-
 ```
 
 ```{r}
-plots$proc_nebyl_rover <- plot_summary_mc(hlavni_data, proc_nebyl_rover, "Proč jis nikdy nebyla\nsoučástí roverského společenství")
+plots$proc_nebyl_rover <- plot_summary_mc(hlavni_data, proc_nebyl_rover, "Proč jsi nikdy nebyla\nsoučástí roverského společenství")
 plots$proc_nebyl_rover
 
+hlavni_data %>% summarise(podil = mean(proc_nebyl_rover.nelakalo | proc_nebyl_rover.smysl | proc_nebyl_rover.smysl | proc_nebyl_rover.jine | proc_nebyl_rover.program, na.rm = TRUE)) %>% pull(podil)
+                                
+#podil_
 ```
 
 ```{r}
-plots$bez_zkusenosti_velke_akce <- plot_summary_mc(hlavni_data, bez_zkusenosti_velke_akce, "Účast na akcích\n(jen bez roverské zkušenosti)")
-plots$bez_zkusenosti_velke_akce
+plots$bez_zkusenosti_velke_akce_nerover <- hlavni_data %>% filter(!je_rover) %>% plot_summary_mc( bez_zkusenosti_velke_akce, "Účast na akcích", subtitle = "Nepovažuje se za rover, bez roverské zkušenosti")
+plots$bez_zkusenosti_velke_akce_nerover
 
+plots$bez_zkusenosti_velke_akce_rover <- hlavni_data %>% filter(je_rover) %>% plot_summary_mc(bez_zkusenosti_velke_akce, "Účast na akcích", subtitle = "Jen bez roverské zkušenosti ale považuje se za rovera")
+plots$bez_zkusenosti_velke_akce_rover
 
 ```
 
 ```{r}
-plots$bez_zkusenosti_setkavam_se_s_vrstevniky <- plot_summary_mc(hlavni_data, bez_zkusenosti_setkavam_se_s_vrstevniky, "Setkávání s vrstevníky \n  roveři mimo společenství", order_by_podil = FALSE, invert_color_threshold = 0.02)
+plots$bez_zkusenosti_setkavam_se_s_vrstevniky <- plot_summary_mc(hlavni_data, bez_zkusenosti_setkavam_se_s_vrstevniky, "Setkávání s vrstevníky ", subtitle = "Jen bez roverské zkušenosti", order_by_podil = FALSE, invert_color_threshold = 0.02)
 plots$bez_zkusenosti_setkavam_se_s_vrstevniky
-
 ```
 
 ```{r}
-plots$bez_zkusenosti_seberozvojovy_program <- plot_summary_mc(hlavni_data, bez_zkusenosti_seberozvojovy_program, "Seberozvojový program \n roveři mimo společenství", order_by_podil = FALSE, invert_color_threshold = 0.02)
+plots$bez_zkusenosti_seberozvojovy_program <- plot_summary_mc(hlavni_data, bez_zkusenosti_seberozvojovy_program, "Seberozvojový program", subtitle = "Jen bez roverské zkušenosti", order_by_podil = FALSE, invert_color_threshold = 0.02)
 plots$bez_zkusenosti_seberozvojovy_program
 ```
 
+
+```{r}
+plots$problemy_necleni <- hlavni_data %>% plot_summary_mc(problemy_roveringu_stredisko, "Hlavní problémy roveringu\njen bez společenství")
+
+plots$problemy_necleni
+```
 
 # Vstup do roverského věku
 
 Ifanka: Jak jsou na tom rádci u oddílů / u družin s aktivitou (jde mi asi hlavně o ty mladší) - jak často jezdí na akce, vzdělávačky, jednoduše jak jsou aktivní?
 
+```{r}
+hlavni_data %>% filter(age < 20, role_skauting.oddilovy_radce | role_skauting.druzinovy_radce) %>%
+  plot_summary_mc(frekvence_kratkych_akci, "Frekvence krátkých akcí", subtitle = "Jen do 20ti let, oddíloví, družinoví rádci" , order_by_podil = FALSE)
+
+hlavni_data %>% filter(age < 20, role_skauting.oddilovy_radce | role_skauting.druzinovy_radce) %>%
+  plot_summary_mc(frekvence_vicedennich_akci, "Frekvence vícedenních akcí", subtitle = "Jen do 20ti let, oddíloví, družinoví rádci" , order_by_podil = FALSE)
+
+```
+
+Nezdá se, že by tu byl nějaký velký rozdíl.
+
+
 Přechod automaticky - znamená to “Bez rituálu?”
 
+```{r}
+hlavni_data %>% filter(!is.na(vyroky_o_roveringu_zazil_2)) %>%
+  rename(rover_automaticky = vyroky_o_roveringu_zazil_2.rover_automaticky, vstupni_ritual = vyroky_o_roveringu_zazil_2.vstupni_ritual) %>%
+  group_by(rover_automaticky, vstupni_ritual) %>%
+  summarise(pocet = n()) %>%
+  ungroup() %>%
+  mutate(podil = scales::percent(pocet / sum(pocet)))
+```
+
+Nezdá se, všechny varianty automaticky/rituál jsou zhruba podobně zastoupeny, jakkoliv z "automatických" jich rituálem projde více".
+
 # Odchod z roverského věku
+
+```{r}
+plots$proc_neni_rover <- plot_summary_mc(hlavni_data, proc_neni_rover, "Proč už nejsem v roverském společenství")
+plots$proc_neni_rover
+
+#zaniklo_nefungovalo_jediny_duvod
+
+podil_jen_zaniklo_nefungovalo <- hlavni_data %>% summarise(podil = mean(proc_neni_rover == "zaniklo_nefungovalo", na.rm = TRUE)) %>% pull(podil)
+
+```
+
+Nejvíc se ochází protože společenství zanikne nebo nefunguje, málokdy (`r scales::percent(podil_jen_zaniklo_nefungovalo)` to je ale jediný důvod.
+
+```{r}
+plots$proc_neni_rover_zaniklo <- 
+  hlavni_data %>% filter(proc_neni_rover.zaniklo_nefungovalo) %>%  plot_summary_mc(proc_neni_rover, "Proč už nejsem v roverském společenství", max_podil = 0.99, subtitle = "Jen ti, co odpověděli, že společenství zaniklo/nefungovalo")
+plots$proc_neni_rover_zaniklo
+
+
+```
+
+
+
+```{r}
+hlavni_data %>% # filter(kategorie_respondenta != "nikdy_spolecenstvi") %>%
+  mutate(`Je ve společenství` = kategorie_respondenta == "nyni_spolecenstvi", `Byl ve společenství` = kategorie_respondenta == "drive_spolecenstvi", `Nikdy nebyl` = kategorie_respondenta == "nikdy_spolecenstvi") %>%
+  plot_binarni_s_nejistotou(c("Je ve společenství","Byl ve společenství", "Nikdy nebyl"), age, legend_label = "") +
+  scale_x_continuous("Věk")+ plot_annotation("Věkové rozložení dle kategorie")
+```
+
+Výše mimochodem další důvod si myslet, že lidi nevstupují do společenství po 16tém roku, jinak by čára "Nikdy nebyl" musela jít dolů v čase. Na druhou stranu až na hraně roverského věku máme více lidí co nejsou, než co jsou (ale to může být problém našeho průzkumu).
 
 TODO: Problémy - jak se změnilo mezi lidmi, co “byli” a “jsou”
 
@@ -438,11 +525,7 @@ plots$problemy_cleni
 
 ```
 
-```{r}
-plots$problemy_necleni <- hlavni_data %>% plot_summary_mc(problemy_roveringu_stredisko, "Hlavní problémy roveringu\njen bez společenství")
 
-plots$problemy_necleni
-```
 
 
 ```{r}
@@ -479,18 +562,7 @@ plots$sluzba
 ```
 
 
-```{r}
-plots$organizace_spolecenstvi <- plot_summary_mc(hlavni_data, organizace_spolecenstvi, title = "Organizace kmene")
-plots$organizace_spolecenstvi
-```
 
-```{r}
-plots$vyroky_o_roveringu_zazil <- plot_summary_mc(hlavni_data, vyroky_o_roveringu_zazil, "Rovering, který jsem zažil 1") 
-plots$vyroky_o_roveringu_zazil
-
-plots$vyroky_o_roveringu_zazil_2 <- plot_summary_mc(hlavni_data, vyroky_o_roveringu_zazil_2, "Rovering, který jsem zažil 2") 
-plots$vyroky_o_roveringu_zazil_2
-```
 
 ```{r}
 plots$vyroky_o_roveringu_stredisko <- plot_summary_mc(hlavni_data, vyroky_o_roveringu_stredisko, "O roverech v mém středisku platí")
@@ -510,11 +582,6 @@ plots$co_pomaha_roveringu
 
 ```
 
-```{r}
-plots$proc_neni_rover <- plot_summary_mc(hlavni_data, proc_neni_rover, "Proč už nejsem v roverském společenství")
-plots$proc_neni_rover
-
-```
 
 
 
@@ -591,6 +658,12 @@ plots$vek_vstupu_do_junaka <- data_vstupy %>% filter(!is.na(vek_vstupu_do_junaka
 plots$vek_vstupu_do_junaka
 ```
 
+
+
+```{r}
+hlavni_data %>% filter(kategorie_respondenta == "nyni_spolecenstvi", !ma_roverskou_roli) %>% 
+  plot_summary_mc(role_skauting, title = "Role lidí ve společenství, \nkteří se necítí rovery", min_podil = 0.01)
+```
 
 ```{r save_plots}
 save_list_of_plots(plots,"stav_roveringu")
