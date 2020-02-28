@@ -206,6 +206,18 @@ plots$vychovne_nastroje_jen_vedeni <- hlavni_data %>%
 plots$vychovne_nastroje_jen_vedeni
 ```
 
+```{r}
+plots$klicove_nastroje <- hlavni_data %>% 
+  filter(!is.na(vychovne_nastroje)) %>%
+  mutate(pocet_klicovych_nastroju = vychovne_nastroje.vyzvy + vychovne_nastroje.projekty + vychovne_nastroje.zacatek + vychovne_nastroje.kurzy + vychovne_nastroje.odborky + vychovne_nastroje.putovani + vychovne_nastroje.zahranici + vychovne_nastroje.vlastni_stezky + vychovne_nastroje.velke_akce) %>% 
+  group_by(pocet_klicovych_nastroju) %>%
+  summarise(pocet = n()) %>%
+  ungroup() %>%
+  mutate(podil = pocet / sum(pocet)) %>%
+  ggplot(aes(x = pocet_klicovych_nastroju, y = podil)) + geom_bar(stat = "identity") + vodorovne_popisky_x + plot_annotation("Počet klíčových výchovných nástrojů", subtitle = "9 nástrojů (vyzvy, projekty, zacatek, kurzy, odborky, putovani, zahranici, stezky, velke akce)") + scale_y_continuous("Podíl", labels = scales::percent)
+
+plots$klicove_nastroje
+```
 
 
 
@@ -298,7 +310,6 @@ podil_aspon_nejak_funkce <- hlavni_data %>%
   summarise(podil = mean(role_skauting.vedouci_zastupce_oddilu | 
                            role_skauting.clen_vedeni_oddilu |
                            role_skauting.oddilovy_radce)) %>% pull(podil)
-podil_aspon_nejak_funkce
 ```
 
 
@@ -324,8 +335,55 @@ hlavni_data %>% plot_binarni_s_nejistotou("ma_vudcovskou_roli", frekvence_kratky
 hlavni_data %>% plot_binarni_s_nejistotou("ma_vudcovskou_roli", frekvence_vicedennich_akci, na.rm = TRUE) + plot_annotation("Podíl vedoucích \ndle frekvence vícedenních akcí kmene")
 ```
 
+```{r}
+hlavni_data %>% filter(je_rover) %>%
+  plot_ciselne_s_nejistotou("lss", ma_vudcovskou_roli) + plot_annotation("Roveři ve vůdcovské roli \n a životní spokojenost")
+```
+
+Velmi mírný nárůst, ale může být i věkem, dalšími faktory... musíme pořádně vymodelovat :-(.
 
 # Roverští singles
+
+Jako singles bereme lidi bez společenství. 
+
+```{r}
+podil_roveru_mezi_bez_spolecenstvi <- hlavni_data %>% filter(kategorie_respondenta == "nikdy_spolecenstvi") %>% summarise(podil = mean(je_rover, na.rm = TRUE)) %>% pull(podil)
+```
+
+`scales::percent(podil_roveru_mezi_bez_spolecenstvi)` lidí v roverském věku, kteří jsou mimo společenství považuje "rover" za jednu ze svých rolí.
+
+```{r}
+plots$spokojenost_junak <- hlavni_data %>% plot_summary_mc(spokojenost_s_fungovanim_v_junaku, "Spokojenost s fungováním v Junáku\nJen bez roverske zkušenosti")
+plots$spokojenost_junak
+
+plots$spokojenost_junak <- hlavni_data %>% filter(je_rover) %>% plot_summary_mc(spokojenost_s_fungovanim_v_junaku, "Spokojenost s fungováním v Junáku\nJen bez roverske zkušenosti")
+plots$spokojenost_junak
+
+```
+
+```{r}
+plots$proc_nebyl_rover <- plot_summary_mc(hlavni_data, proc_nebyl_rover, "Proč jis nikdy nebyla\nsoučástí roverského společenství")
+plots$proc_nebyl_rover
+
+```
+
+```{r}
+plots$bez_zkusenosti_velke_akce <- plot_summary_mc(hlavni_data, bez_zkusenosti_velke_akce, "Účast na akcích\n(jen bez roverské zkušenosti)")
+plots$bez_zkusenosti_velke_akce
+
+
+```
+
+```{r}
+plots$bez_zkusenosti_setkavam_se_s_vrstevniky <- plot_summary_mc(hlavni_data, bez_zkusenosti_setkavam_se_s_vrstevniky, "Setkávání s vrstevníky \n  roveři mimo společenství", order_by_podil = FALSE, invert_color_threshold = 0.02)
+plots$bez_zkusenosti_setkavam_se_s_vrstevniky
+
+```
+
+```{r}
+plots$bez_zkusenosti_seberozvojovy_program <- plot_summary_mc(hlavni_data, bez_zkusenosti_seberozvojovy_program, "Seberozvojový program \n roveři mimo společenství", order_by_podil = FALSE, invert_color_threshold = 0.02)
+plots$bez_zkusenosti_seberozvojovy_program
+```
 
 
 # Vstup do roverského věku
@@ -349,12 +407,7 @@ plots$spokojenost_rs <- hlavni_data %>% plot_summary_mc(spokojenost_clenstvim_v_
 plots$spokojenost_rs
 ```
 
-```{r}
-set_theme_revizers()
-plots$spokojenost_junak <- hlavni_data %>% plot_summary_mc(spokojenost_s_fungovanim_v_junaku, "Spokojenost s fungováním v Junáku\nJen bez roverske zkušenosti")
 
-plots$spokojenost_junak
-```
 
 ```{r}
 plots$komunikace_existujici <- hlavni_data %>% plot_summary_mc(komunikacni_kanaly_existujici, "Kde bys nejraději sledoval\n informace o roveringu")
@@ -427,8 +480,8 @@ plots$sluzba
 
 
 ```{r}
-plots$oranizace_spolecenstvi <- plot_summary_mc(hlavni_data, organizace_spolecenstvi, title = "Organizace kmene")
-plots$oranizace_spolecenstvi
+plots$organizace_spolecenstvi <- plot_summary_mc(hlavni_data, organizace_spolecenstvi, title = "Organizace kmene")
+plots$organizace_spolecenstvi
 ```
 
 ```{r}
@@ -463,18 +516,7 @@ plots$proc_neni_rover
 
 ```
 
-```{r}
-plots$proc_nebyl_rover <- plot_summary_mc(hlavni_data, proc_nebyl_rover, "Proč jis nikdy nebyla\nsoučástí roverského společenství")
-plots$proc_nebyl_rover
 
-```
-
-```{r}
-plots$bez_zkusenosti_velke_akce <- plot_summary_mc(hlavni_data, bez_zkusenosti_velke_akce, "Účast na akcích\n(jen bez roverské zkušenosti)")
-plots$bez_zkusenosti_velke_akce
-
-
-```
 
 ```{r}
 plots$spolecenstvi_registrace <- plot_summary_mc(hlavni_data, spolecenstvi_registrace)
@@ -489,18 +531,6 @@ plots$spolecenstvi_registrace
 plots$pocet_clenu_spolecenstvi <- plot_summary_mc(hlavni_data, pocet_clenu_spolecenstvi, order_by_podil = FALSE, invert_color_threshold =  0.03)
 plots$pocet_clenu_spolecenstvi
 
-```
-
-
-```{r}
-plots$bez_zkusenosti_setkavam_se_s_vrstevniky <- plot_summary_mc(hlavni_data, bez_zkusenosti_setkavam_se_s_vrstevniky, "Setkávání s vrstevníky \n  roveři mimo společenství", order_by_podil = FALSE, invert_color_threshold = 0.02)
-plots$bez_zkusenosti_setkavam_se_s_vrstevniky
-
-```
-
-```{r}
-plots$bez_zkusenosti_seberozvojovy_program <- plot_summary_mc(hlavni_data, bez_zkusenosti_seberozvojovy_program, "Seberozvojový program \n roveři mimo společenství", order_by_podil = FALSE, invert_color_threshold = 0.02)
-plots$bez_zkusenosti_seberozvojovy_program
 ```
 
 

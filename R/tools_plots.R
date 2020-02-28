@@ -222,7 +222,7 @@ plot_binarni_s_nejistotou <- function(data, binarni_sloupce_nazev, by, names_pre
 
 plot_ciselne_s_nejistotou <- function(data, ciselne_sloupce_nazev, by, names_prefix = "", legend_label = "Měřítko") {
   if(length(ciselne_sloupce_nazev) == 1) {
-    my_aes <- aes(x = {{by}}, y = prumer, ymin = dolni, ymax = horni)
+    my_aes <- aes(x = {{by}}, y = prumer, ymin = dolni, ymax = horni, group = 1)
     my_color_scale <- NULL
     my_fill_scale <- NULL
   } else {
