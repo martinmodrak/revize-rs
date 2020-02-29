@@ -64,10 +64,21 @@ data_nezvladam %>% ggplot(aes(x = prumer_zvladam)) + geom_histogram(binwidth = 0
 Které kompetence jsou nejčastěji nezvládané?
 
 ```{r}
-hlavni_data_long %>% filter(kategorie_kompetence == "zvladam") %>% 
+tabulka_nezvladane <- hlavni_data_long %>% filter(kategorie_kompetence == "zvladam") %>% 
   group_by(kompetence) %>% 
-  summarise(pocet_nezvladam = sum(kompetence_odpoved <= 3), podil_nezvladam = scales::percent(mean(kompetence_odpoved <= 3))) %>%
+  summarise(pocet_nezvladam = sum(kompetence_odpoved <= 3), pocet_celkem = n(), podil = pocet_nezvladam/pocet_celkem) %>%
+  ungroup() %>%
   arrange(desc(pocet_nezvladam))
+
+tabulka_nezvladane %>% mutate(podil_nezvladam = scales::percent(podil))
+
+plot_tabulka_extrem <- function(tabulka, indices = 5:1, text_y = 0.01) {
+  tabulka[indices, ] %>% 
+    mutate(kompetence = factor(kompetence, levels = kompetence)) %>% ggplot(aes(x = kompetence, y = podil, label = scales::percent(podil, accuracy = 1))) + geom_bar(stat = "identity") + coord_flip() + geom_text(y = text_y, size = 6, color = revize_cols("dark_blue")) + theme(axis.title = element_blank(), axis.ticks.x = element_blank(), axis.text.x =  element_blank())
+}
+
+plots$top_nezvladane <- plot_tabulka_extrem(tabulka_nezvladane) + plot_annotation("Nejčastěji nezvládané kompetence", subtitle = "'Spíše nesouhlasím' a hůř")
+plots$top_nezvladane
 ```
 
 ## Důležité
@@ -99,11 +110,28 @@ data_nedulezite %>% ggplot(aes(x = prumer_dulezite)) + geom_histogram(binwidth =
 Které kompetence jsou nejčastěji nedůležité?
 
 ```{r}
-hlavni_data_long %>% filter(kategorie_kompetence == "dulezite") %>% 
+tabulka_nedulezite <- hlavni_data_long %>% filter(kategorie_kompetence == "dulezite") %>% 
   group_by(kompetence) %>% 
-  summarise(pocet_nedulezite = sum(kompetence_odpoved <= 3), podil_nedulezite = scales::percent(mean(kompetence_odpoved <= 3))) %>%
+  summarise(pocet_nedulezite = sum(kompetence_odpoved <= 3), podil = mean(kompetence_odpoved <= 3), podil_nedulezite = scales::percent(podil)) %>%
   arrange(desc(pocet_nedulezite))
+
+tabulka_nedulezite
+
+plots$top_nedulezite <- plot_tabulka_extrem(tabulka_nedulezite) + plot_annotation("Nejčastěji nedůležité kompetence", subtitle = "'Spíše nesouhlasím' a hůř")
+plots$top_nedulezite
 ```
+
+```{r}
+tabulka_dulezite <- hlavni_data_long %>% filter(kategorie_kompetence == "dulezite") %>% 
+  group_by(kompetence) %>% 
+  summarise(pocet_dulezite = sum(kompetence_odpoved >= 7), podil = mean(kompetence_odpoved >= 7), podil_dulezite = scales::percent(podil)) %>%
+  arrange(desc(pocet_dulezite))
+
+plots$top_dulezite <- plot_tabulka_extrem(tabulka_dulezite, text_y = 0.05) + plot_annotation("Nejčastěji důležité kompetence", subtitle = "Jen 'Zcela souhlasím'")
+plots$top_dulezite
+
+```
+
 
 
 ## Rozvíjím se v tom
@@ -134,10 +162,16 @@ data_nerozvijim %>% ggplot(aes(x = prumer_rozvijim)) + geom_histogram(binwidth =
 Které kompetence se nejčastěji nerozvíjí?
 
 ```{r}
-hlavni_data_long %>% filter(kategorie_kompetence == "rozvijim") %>% 
+tabulka_nerozvijim <- hlavni_data_long %>% filter(kategorie_kompetence == "rozvijim") %>% 
   group_by(kompetence) %>% 
-  summarise(pocet_nerozvijim = sum(kompetence_odpoved <= 3), podil_nerozvijim = scales::percent(mean(kompetence_odpoved <= 3))) %>%
+  summarise(pocet_nerozvijim = sum(kompetence_odpoved <= 3), podil = mean(kompetence_odpoved <= 3, podil_nerozvijim = scales::percent(podil))) %>%
   arrange(desc(pocet_nerozvijim))
+
+tabulka_nerozvijim
+
+plots$top_nerozvijim <- plot_tabulka_extrem(tabulka_nerozvijim) + plot_annotation("Nejčastěji nerozvíjené kompetence", subtitle = "'Spíše nesouhlasím' a hůř")
+plots$top_nerozvijim
+
 ```
 
 
@@ -169,10 +203,15 @@ data_neskauting %>% ggplot(aes(x = prumer_skauting)) + geom_histogram(binwidth =
 Které kompetence skauting nejčastěji míjí?
 
 ```{r}
-hlavni_data_long %>% filter(kategorie_kompetence == "skauting") %>% 
+tabulka_neskauting <- hlavni_data_long %>% filter(kategorie_kompetence == "skauting") %>% 
   group_by(kompetence) %>% 
-  summarise(pocet_neskauting = sum(kompetence_odpoved <= 3), podil_neskauting = scales::percent(mean(kompetence_odpoved <= 3))) %>%
+  summarise(pocet_neskauting = sum(kompetence_odpoved <= 3), podil = mean(kompetence_odpoved <= 3), podil_neskauting = scales::percent(podil)) %>%
   arrange(desc(pocet_neskauting))
+
+tabulka_neskauting
+
+plots$top_neskauting <- plot_tabulka_extrem(tabulka_neskauting, text_y = 0.05) + plot_annotation("Skautingem nejčastěji nerozvíjené", subtitle = "'Spíše nesouhlasím' a hůř")
+plots$top_neskauting
 ```
 
 Tohle je zajímavé: rodina asi nepřekvapí, ale aktivní občasntví, duchovní život, svědomí nebo sebepoznání jsou věci, kde má skauting unikátní postavení.
@@ -188,7 +227,8 @@ plot_kompetence_by(hlavni_data_long, "dulezite", age, all_together = TRUE)
 
 ```{r}
 plot_kompetence_by(hlavni_data_long, "dulezite", age)
-plot_kompetence_by_smooth(hlavni_data_long, "dulezite", age)
+plots$dulezite_age_smooth <-  plot_kompetence_by_smooth(hlavni_data_long, "dulezite", age)
+plots$dulezite_age_smooth
 ```
 
 
@@ -197,7 +237,8 @@ plot_kompetence_by_smooth(hlavni_data_long, "dulezite", age)
 ```{r}
 plot_kompetence_by(hlavni_data_long, "zvladam", age, all_together = TRUE)
 plot_kompetence_by(hlavni_data_long, "zvladam", age)
-plot_kompetence_by_smooth(hlavni_data_long, "zvladam", age)
+plots$zvladam_age_smooth <- plot_kompetence_by_smooth(hlavni_data_long, "zvladam", age)
+plots$zvladam_age_smooth
 ```
 
 
@@ -206,7 +247,8 @@ plot_kompetence_by_smooth(hlavni_data_long, "zvladam", age)
 ```{r}
 plot_kompetence_by(hlavni_data_long, "rozvijim", age, all_together = TRUE)
 plot_kompetence_by(hlavni_data_long, "rozvijim", age)
-plot_kompetence_by_smooth(hlavni_data_long, "rozvijim", age)
+plots$rozvijim_age_smooth <- plot_kompetence_by_smooth(hlavni_data_long, "rozvijim", age)
+plots$rozvijim_age_smooth
 ```
 
 
@@ -215,7 +257,8 @@ plot_kompetence_by_smooth(hlavni_data_long, "rozvijim", age)
 ```{r}
 plot_kompetence_by(hlavni_data_long, "skauting", age, all_together = TRUE)
 plot_kompetence_by(hlavni_data_long, "skauting", age)
-plot_kompetence_by_smooth(hlavni_data_long, "skauting", age)
+plots$skauting_age_smooth <- plot_kompetence_by_smooth(hlavni_data_long, "skauting", age)
+plots$skauting_age_smooth 
 ```
 
 # Rozdíly a nedostatky
@@ -257,13 +300,25 @@ tabulka_rozdilu <- function(data_rozdil) {
     group_by(kompetence) %>%
     summarise(prumer = mean(rozdil)) %>%
     arrange(desc(prumer)) %>%
-    mutate(prumer = formatter(prumer)) %>%
-    rename(!!nazev_prumer := prumer)
+    mutate(!!nazev_prumer := formatter(prumer))
 }
+
 
 
 ```
 
+## Důležité vs. zvládám
+
+```{r}
+tabulka_dulezite_zvladam <- hlavni_data_long %>% spocitej_data_rozdil(dulezite, zvladam, "kompetence_pozitivni") %>% tabulka_rozdilu()
+tabulka_dulezite_zvladam
+
+```
+
+```{r}
+
+hlavni_data_long %>% spocitej_data_rozdil(dulezite, zvladam, "kompetence_odpoved") %>% tabulka_rozdilu()
+```
 
 
 ## Důležité vs. rozvíjím
@@ -271,8 +326,20 @@ tabulka_rozdilu <- function(data_rozdil) {
 Zajímavé je, že mezi top "nerozvíjené" patří aktivni obcan, tvořivost, které se zde posunuly dolů zatímco rodina k top nerozvíjeným nepatří, ale zde vede.
 
 ```{r}
-hlavni_data_long %>% spocitej_data_rozdil(dulezite, rozvijim, "kompetence_pozitivni") %>% tabulka_rozdilu()
+tabulka_dulezite_rozvijim <- hlavni_data_long %>% spocitej_data_rozdil(dulezite, rozvijim, "kompetence_pozitivni") %>% tabulka_rozdilu()
+tabulka_dulezite_rozvijim
 ```
+
+```{r}
+plot_tabulka_rozdil <- function(tabulka, indices = 5:1, text_y = 0.01) {
+  tabulka[indices, ] %>% 
+    mutate(kompetence = factor(kompetence, levels = kompetence)) %>% ggplot(aes(x = kompetence, y = prumer, label = scales::percent(prumer, accuracy = 1))) + geom_bar(stat = "identity") + coord_flip() + geom_text(y = text_y, size = 6, color = revize_cols("dark_blue")) + theme(axis.title = element_blank(), axis.ticks.x = element_blank(), axis.text.x =  element_blank())
+}
+
+plots$dulezite_rozvijim <- tabulka_dulezite_rozvijim %>% plot_tabulka_rozdil(indices = 7:1) + plot_annotation("Kontrast důležité x rozvíjím", subtitle = "Je to důležité, ale nerozvíjím se v tom")
+plots$dulezite_rozvijim
+```
+
 
 Když zohledníme i velikost rozdílu, trochu se to přehází - hlavně vyplavou vztahy, svědomí a připraven na krize - opět něco, co se samo o sobě neobjevuje čast jako nerozvíjené.
 
@@ -287,8 +354,12 @@ hlavni_data_long %>% spocitej_data_rozdil(dulezite, rozvijim, "kompetence_odpove
 Tohle velmi blízce kopíruje obecně to, kde skauting lidi nerozvíjí, takže nepřínáší moc další informace.
 
 ```{r}
-hlavni_data_long %>% spocitej_data_rozdil(dulezite, skauting, "kompetence_pozitivni") %>% tabulka_rozdilu()
+tabulka_dulezite_skauting <-  hlavni_data_long %>% spocitej_data_rozdil(dulezite, skauting, "kompetence_pozitivni") %>% tabulka_rozdilu()
+tabulka_dulezite_skauting
+```
 
+```{r}
+# tabulka_dulezite_skauting %>% plot_tabulka_rozdil(text_y = 0.03) + plot_annotation("Kontrast důležité x skauting", subtitle = "Je to důležité, ale skauting mě v tom nerozvíjí")
 ```
 
 

@@ -213,7 +213,7 @@ plot_binarni_s_nejistotou <- function(data, binarni_sloupce_nazev, by, names_pre
   }
   data %>% filter(!is.na({{by}})) %>%
     pivot_longer(binarni_sloupce_nazev, names_to = "meritko", values_to = "ano", names_prefix = names_prefix) %>%
-    mutate(meritko = factor(meritko, levels = binarni_sloupce_nazev)) %>%
+    #mutate(meritko = factor(meritko, levels = binarni_sloupce_nazev)) %>%
     group_by({{by}}, meritko) %>%
     summarise(podil_ano = mean(ano, na.rm = na.rm), dolni = nejistota_binarni(0.025, ano, na.rm = na.rm), horni = nejistota_binarni(0.975, ano, na.rm = na.rm)) %>%
     ggplot(my_aes) + geom_ribbon(alpha = 0.5) + geom_line() + vodorovne_popisky_x +
@@ -233,7 +233,7 @@ plot_ciselne_s_nejistotou <- function(data, ciselne_sloupce_nazev, by, names_pre
   }
   data %>% filter(!is.na({{by}})) %>%
     pivot_longer(ciselne_sloupce_nazev, names_to = "meritko", values_to = "hodnota", names_prefix = names_prefix) %>%
-    mutate(meritko = factor(meritko, levels = ciselne_sloupce_nazev)) %>%
+    #mutate(meritko = factor(meritko, levels = ciselne_sloupce_nazev)) %>%
     group_by({{by}}, meritko) %>%
     summarise(prumer = mean(hodnota), sem = sd(hodnota)/sqrt(length(hodnota)),
               dolni = qnorm(0.025, prumer, sem), horni = qnorm(0.975, prumer, sem)) %>%
@@ -248,8 +248,9 @@ save_list_of_plots <- function(plot_list, local_data_subdir) {
     dir.create(plot_dir, recursive = TRUE)
   }
   for(plot_name in names(plot_list)) {
-    for(format in c(".svg",".wmf",".png")) {
-      ggsave(paste0(plot_dir, "/", plot_name, format), plot_list[[plot_name]], width = default_plot_width, height = default_plot_height)
+    # for(format in c(".svg",".wmf",".png")) {
+    for(format in c(".png")) {
+        ggsave(paste0(plot_dir, "/", plot_name, format), plot_list[[plot_name]], width = default_plot_width, height = default_plot_height)
     }
   }
 

@@ -50,7 +50,7 @@ Celkem nepřekvapivě klesá aktivita kmenů s věkem jejich členů:
 ```{r}
 plots$aktivita_vek <- hlavni_data %>% 
   filter(kategorie_respondenta_full == "nyni_spolecenstvi") %>%
-  plot_binarni_s_nejistotou(c("kmen_aktivni_zaklad","kmen_aktivni_velmi"), age, names_prefix = "kmen_") +
+  plot_binarni_s_nejistotou(c("kmen_aktivni_zaklad","kmen_aktivni_velmi"), age, names_prefix = "kmen_", na.rm = TRUE) +
   plot_annotation("Aktivita (frekvence akcí) - věk\nJen současní členové") + scale_x_continuous("Věk")
            
 plots$aktivita_vek
@@ -231,6 +231,10 @@ plots$vychovne_nastroje_bottom <- plot_summary_mc(hlavni_data, vychovne_nastroje
 plots$vychovne_nastroje_bottom
 ```
 
+```{r}
+
+```
+
 
 TODO: Porovnat s průzkumem na Obroku!
 
@@ -306,6 +310,29 @@ hlavni_data %>% plot_binarni_s_nejistotou("vychovne_nastroje.velke_akce", je_org
 hlavni_data %>% plot_binarni_s_nejistotou("vychovne_nastroje.velke_akce", organizace_spolecenstvi.formalni_vudce_zhury, na.rm = TRUE)
 ```
 
+```{r}
+# plot_frekvence_by <- function(cela_data, quo_frekvence_sloupec, group) {
+#   vyplnena_data <- cela_data %>% filter(!is.na({{group}}), !is.na(!!quo_frekvence_sloupec))
+#   frekvence_matrix <- rozsir_mc_matrix(vyplnena_data, quo_frekvence_sloupec, zachovat_NA = FALSE) 
+#   frekvence_cummulative <- 1 -  t(apply(frekvence_matrix, 1,  cummax)) + frekvence_matrix
+#   
+#   names_prefix <- paste0(as_label(quo_frekvence_sloupec), "_")
+#   frekvence_names <- gsub(names_prefix, "", colnames(frekvence_cummulative), fixed = TRUE)
+#   
+#   frekvence_cummulative %>% cbind(vyplnena_data %>% select({{group}})) %>%
+#     pivot_longer(cols = colnames(frekvence_cummulative), names_to = "frekvence", names_prefix = names_prefix, values_to = "frekvence_ano") %>%
+#     mutate(frekvence = factor(frekvence, levels = frekvence_names, labels = frekvence_names)) %>%
+#     group_by({{group}}, frekvence) %>% 
+#     summarise(prumer_ano = mean(frekvence_ano)) %>%
+#       ggplot(aes(x = frekvence, y = prumer_ano, color = {{group}}, group = {{group}}, shape = {{group}})) +  geom_line() + geom_point() + theme_cowplot() + scale_x_discrete(as_label(quo_frekvence_sloupec))
+# }
+# 
+# 
+# hlavni_data %>% plot_frekvence_by(quo(frekvence_kratkych_akci), byl_na_kurzu)
+# hlavni_data %>% plot_frekvence_by(quo(frekvence_vicedennich_akci), byl_na_kurzu)
+# hlavni_data %>% plot_frekvence_by(quo(frekvence_velkych_akci), byl_na_kurzu)
+
+```
 
 
 TODO: Přispívá RSP k nějakým problémům roveringu?
@@ -473,10 +500,12 @@ plots$proc_neni_rover_zaniklo
 
 
 ```{r}
-hlavni_data %>% # filter(kategorie_respondenta != "nikdy_spolecenstvi") %>%
-  mutate(`Je ve společenství` = kategorie_respondenta == "nyni_spolecenstvi", `Byl ve společenství` = kategorie_respondenta == "drive_spolecenstvi", `Nikdy nebyl` = kategorie_respondenta == "nikdy_spolecenstvi") %>%
-  plot_binarni_s_nejistotou(c("Je ve společenství","Byl ve společenství", "Nikdy nebyl"), age, legend_label = "") +
+plots$vek_kategorie <-  hlavni_data %>% 
+  mutate(`Je ve spolecenstvi` = kategorie_respondenta == "nyni_spolecenstvi", `Byl ve spolecenstvi` = kategorie_respondenta == "drive_spolecenstvi", `Nikdy nebyl` = kategorie_respondenta == "nikdy_spolecenstvi") %>%
+  plot_binarni_s_nejistotou(c("Je ve spolecenstvi","Byl ve spolecenstvi", "Nikdy nebyl"), age, legend_label = "") +
   scale_x_continuous("Věk")+ plot_annotation("Věkové rozložení dle kategorie")
+
+plots$vek_kategorie
 ```
 
 Výše mimochodem další důvod si myslet, že lidi nevstupují do společenství po 16tém roku, jinak by čára "Nikdy nebyl" musela jít dolů v čase. Na druhou stranu až na hraně roverského věku máme více lidí co nejsou, než co jsou (ale to může být problém našeho průzkumu).
@@ -522,7 +551,6 @@ plots$co_zazil
 plots$problemy_cleni <- hlavni_data %>% plot_summary_mc(problemy_roveringu, "Hlavní problémy roveringu \n jen členi společenství")
 
 plots$problemy_cleni
-
 ```
 
 

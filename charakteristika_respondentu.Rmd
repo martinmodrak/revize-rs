@@ -24,23 +24,51 @@ plots$odpovedi <- datasety_wide$pouzitelne %>% group_by(stav_vyplneni) %>% summa
   scale_color_manual(values = c("white", revize_cols("dark_blue")), guide = FALSE) +
     theme(axis.title = element_blank(), axis.text.x = element_blank(),
           axis.ticks.x = element_blank(), axis.line.x = element_blank()) +
-  plot_annotation("Počet vyplnění")
+  plot_annotation("Počet vyplnění", subtitle = "Všichni")
 
 plots$odpovedi
- 
 ```
+
+```{r}
+plots$odpovedi_15_26 <- datasety_wide$pouzitelne %>%  filter(age >= 15, age <= 26) %>% group_by(stav_vyplneni) %>% summarise(pocet = n()) %>%
+  mutate(stav_vyplneni = factor(stav_vyplneni, levels = c("nedokoncil","dokoncil_kratsi", "rozpracoval_doplnek", "dokoncil_doplnek", "dokoncil_delsi"), labels = c("Nedokončil ale vyplnil aspoň něco", "Dokončil kratší a nepokračoval", "Dokončil kratší a nedokončil pokračování", "Dokončil kratší i pokračování", "Dokončil delší"))) %>%
+  ggplot(aes(x = stav_vyplneni, y = pocet, label = pocet)) + geom_bar(stat = "identity") + 
+  geom_text(aes(color = pocet > 50), y = 50, hjust = 0, family = "SKAUT", size = 6) + 
+              coord_flip() + vodorovne_popisky_x + expand_limits(y = 1330) +
+  scale_color_manual(values = c("white", revize_cols("dark_blue")), guide = FALSE) +
+    theme(axis.title = element_blank(), axis.text.x = element_blank(),
+          axis.ticks.x = element_blank(), axis.line.x = element_blank()) +
+  plot_annotation("Počet vyplnění", subtitle = "Jen 15-26")
+
+plots$odpovedi_15_26
+
+```
+
+```{r}
+podil_z_registrovanych_roveru <- nrow(hlavni_data) / 12924
+podil_z_registrovanych_roveru
+nrow(datasety_wide$pouzitelne %>% filter(dokoncil_hlavni))
+```
+
 
 ```{r}
 plots$pohlavi <- hlavni_data %>%
   group_by(sex) %>%
   summarise(n = n()) %>%
   ggplot(aes(x = "", y = n, fill = sex)) + geom_bar(stat = "identity") + coord_polar("y", start = 0) + scale_fill_manual(values = revize_cols("darkest_fill","mid_fill","white")) + 
-  geom_text(aes(y = sum(n) - n/2 - 625 - c(0, cumsum(n)[-length(n)]), 
+  geom_text(aes(y = sum(n) - n/2 - 65 - c(0, cumsum(n)[-length(n)]), 
             label = scales::percent(n/sum(n))), color = revize_cols("dark_blue"), x = 1, size=5, family = "Roboto", fontface = "bold")+
   theme(axis.text = element_blank(), axis.ticks = element_blank(), axis.line = element_blank(),
         axis.title = element_blank())
 
 plots$pohlavi
+```
+
+```{r}
+plots$vek <- hlavni_data %>% group_by(age) %>% summarise(pocet = n()) %>% mutate(podil = pocet / sum(pocet)) %>%
+  ggplot(aes(x = age, y = podil, label = scales::percent(podil, accuracy = 1))) + geom_bar(stat = "identity") + #geom_text(aes(y = 0.01), color = revize_cols("dark_blue"), size = 6 ) + 
+  vodorovne_popisky_x + scale_y_continuous("Podíl", labels = scales::percent) + scale_x_continuous("Věk") + plot_annotation("Věkové rozložení respondentů")
+plots$vek
 ```
 
 
