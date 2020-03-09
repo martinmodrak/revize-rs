@@ -138,6 +138,7 @@ set_theme_revizers <- function() {
   update_geom_defaults("bar",   list(fill = "white"))
   update_geom_defaults("line", list(size = 2, color = "white"))
   update_geom_defaults("path", list(size = 2, color = "white"))
+  update_geom_defaults("linerange", list(size = 2, color = "white"))
   update_geom_defaults("vline", list(color = revize_cols(2), size = 2, linetype = "dashed"))
   update_geom_defaults("hline", list(color = revize_cols(2), size = 2, linetype = "dashed"))
   update_geom_defaults("density", list(size = 2, color = "white"))
@@ -145,6 +146,7 @@ set_theme_revizers <- function() {
   update_geom_defaults("ribbon", list(fill = revize_cols("mid_fill")))
   update_geom_defaults("point", list(color = "white"))
   update_geom_defaults("text", list(color = "white"))
+
 }
 
 

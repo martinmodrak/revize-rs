@@ -272,7 +272,7 @@ pp_samples_from_matrix <- function(model_formula, pp_samples_matrix, regression_
   res
 }
 
-my_pp_check <- function(pipeline_result, group, stat = mean, label = as_label({{ group }})) {
+my_pp_check <- function(pipeline_result, group, stat = mean, label = as_label({{ group }}), to_baseline = TRUE, subset_kompetence = NULL) {
   meritko_nazev <- as.character(lhs(pipeline_result$formula))
   meritko_info <- meritka_kompetence[[meritko_nazev]]
   if(is.null(meritko_info)) {
@@ -305,10 +305,24 @@ my_pp_check <- function(pipeline_result, group, stat = mean, label = as_label({{
   data_predicted_all <- do.call(rbind, data_predicted)
   data_observed_all <- do.call(rbind, data_observed)
 
+  if(to_baseline) {
+    data_predicted_all <- data_predicted_all %>%
+      inner_join(data_observed_all, by = c("kompetence" = "kompetence", "group_char" = "group_char"),
+                 suffix = c("",".observed")) %>%
+      mutate(mid = mid - mid.observed, low = low - mid.observed, high = high - mid.observed)
+
+    data_observed_all$mid <- 0
+  }
+
+  if(!is.null(subset_kompetence)) {
+    data_predicted_all <- data_predicted_all %>% filter(kompetence %in% subset_kompetence)
+    data_observed_all <- data_observed_all %>% filter(kompetence %in% subset_kompetence)
+  }
+
   data_predicted_all %>% ggplot(aes(x = group_char, y = mid)) +
     geom_linerange(aes(ymin = low, ymax = high)) +
     geom_point() +
-    geom_line(aes(y = mid, group = kompetence), color = "blue", data = data_observed_all) +
+    geom_line(aes(y = mid, group = kompetence), color = revize_cols(2), data = data_observed_all) +
     scale_x_discrete(label) +
     facet_wrap(~kompetence) + ggtitle(paste0(pipeline_result$kategorie, " - ", lhs(pipeline_result$formula))) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.3, hjust = 1))

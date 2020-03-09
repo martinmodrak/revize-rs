@@ -255,8 +255,9 @@ spocitej_kategorii_respondenta <- function(cela_data) {
 }
 
 spocitej_odvozene_kategorie <- function(cela_data) {
-  test_contains_any_word(cela_data$byl_na_rs_kurzu, "roversky_kurz")
-  test_contains_any_word(cela_data$byl_na_rs_kurzu, "roversky_kurz", "radcovsky_kurz", "cekatelky")
+  test_contains_any_word(cela_data$co_zazil, "roversky_kurz")
+  test_contains_any_word(cela_data$co_zazil, "roversky_kurz", "radcovsky_kurz", "cekatelky")
+  test_contains_any_word(cela_data$role_skauting, "vedouci_zastupce_oddilu", "oddilovy_radce")
   cela_data <- cela_data %>%
     mutate(byl_na_rs_kurzu = co_zazil %contains_word% "roversky_kurz",
            byl_na_kurzu = co_zazil %contains_any_word%
