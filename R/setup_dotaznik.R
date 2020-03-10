@@ -1,4 +1,4 @@
-if(!grepl("cz|utf", Sys.getlocale(), ignore.case = TRUE)) {
+if(!grepl("cz|utf|Slovak", Sys.getlocale(), ignore.case = TRUE)) {
   Sys.setlocale(locale= 'English_United States.1250')
 }
 library(lubridate)
