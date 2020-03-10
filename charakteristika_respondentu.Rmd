@@ -84,7 +84,76 @@ plots$kategorie_respondenta <- plot_summary_mc(hlavni_data, kategorie_respondent
 plots$kategorie_respondenta
 ```
 
-TODO: reprezentativnost dle pohlavi a veku
+```{r}
+source(here::here("R","data_registrace_jednotlivci.R"), encoding = "UTF-8")
+data_skautis_jednotlivci_raw <- registrace_jednotlivci()
+data_skautis_jednotlivci <- data_skautis_jednotlivci_raw %>%
+  filter(Year == 2018) %>%
+  select(Year, Person_PseudoID, vek, ID_Sex) %>% distinct() %>%
+  mutate(sex = if_else(ID_Sex == "female", "zena", "muz"))
+```
+
+Porovnávám s registrací 2018 (novější nemám).
+
+```{r}
+reprezentativnost_vek <- function(data_skautis_, data_pruzkum_, min_vek = 15, max_vek = 26, additional_group = "Vše") {
+  dle_veku_pruzkum <- data_pruzkum_ %>% mutate(vek = age) %>%
+    filter(!is.na(vek), vek >= min_vek, vek <= max_vek) %>%
+    group_by(vek, {{additional_group}}) %>%
+    summarise(clenu = length(vek)) %>% ungroup() %>% 
+    mutate(zdroj = "Průzkum", 
+           group = {{additional_group}})
+  
+  dle_veku_skautis <-  data_skautis_ %>%
+    filter(vek >= min_vek, vek <= max_vek) %>%
+    group_by(vek, {{additional_group}}) %>%
+    summarise(clenu = length(vek)) %>% 
+    ungroup() %>%
+    mutate(zdroj = "SkautIS", 
+           group = {{additional_group}})
+  
+dle_veku <- rbind(dle_veku_pruzkum, dle_veku_skautis) 
+
+celkem <- dle_veku %>% group_by(zdroj) %>% summarise(celkem_v_datech = sum(clenu))
+
+dle_veku <- dle_veku %>%
+  inner_join(celkem, by = c("zdroj" = "zdroj")) %>% 
+  mutate(podil = clenu / celkem_v_datech)
+
+confidence <- dle_veku %>% filter(zdroj == "Průzkum") %>%
+  inner_join(
+    dle_veku %>% filter(zdroj == "SkautIS") %>% 
+      select(vek, podil, group) %>%
+      rename(podil_skautis = podil)
+      , 
+    by = c("vek" = "vek", "group" = "group")) %>%
+  mutate(
+    conf_lower = qbinom(0.025, celkem_v_datech, podil_skautis) / celkem_v_datech,
+    conf_upper = qbinom(0.975, celkem_v_datech, podil_skautis) / celkem_v_datech,
+    zdroj = "SkautIS",
+  )
+
+
+dle_veku %>% 
+  ggplot(aes(x=vek, y = podil, color = zdroj, fill = zdroj, group = zdroj )) + 
+  geom_ribbon(data = confidence, aes(ymin = conf_lower, ymax = conf_upper), alpha = 0.2, color = "transparent") +
+  geom_point() + geom_line() + scale_color_revize() + scale_fill_revize() + vodorovne_popisky_x +
+  facet_wrap(~group)
+}
+
+plots$reprezentativnost_vek <- reprezentativnost_vek(data_skautis_jednotlivci, hlavni_data) + plot_annotation("Reprezentativnost průzkumu dle věku")
+
+plots$reprezentativnost_vek
+
+reprezentativnost_vek(data_skautis_jednotlivci, hlavni_data %>% filter(sex != "jinak_neuvedeno"), additional_group = sex) + plot_annotation("Reprezentativnost dle věku a pohlaví")
+
+#plots$reprezentativnost_vek_pohlavi
+
+```
+
+
+
+TODO: reprezentativnost dle kraje
 
 TODO: Je ostrý odpad lidí u vyplnění kompetencí?
 
