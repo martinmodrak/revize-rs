@@ -409,6 +409,7 @@ hlavni_data %>% plot_binarni_s_nejistotou("role_skauting.clen_vedeni_oddilu", ag
 
 
 
+
 ```{r}
 hlavni_data %>% plot_binarni_s_nejistotou("ma_vudcovskou_roli", frekvence_kratkych_akci, na.rm = TRUE) + plot_annotation("Podíl vedoucích \ndle frekvence krátkých akcí kmene")
 hlavni_data %>% plot_binarni_s_nejistotou("ma_vudcovskou_roli", frekvence_vicedennich_akci, na.rm = TRUE) + plot_annotation("Podíl vedoucích \ndle frekvence vícedenních akcí kmene")
@@ -650,6 +651,12 @@ plots$spolecenstvi_registrace <- plot_summary_mc(hlavni_data, spolecenstvi_regis
 plots$spolecenstvi_registrace
 
 
+```
+
+```{r}
+plots$typ_id_strediska <- 
+  plot_summary_mc(hlavni_data, typ_id_strediska, order_by_podil = FALSE, invert_color_threshold =  0.03)
+plots$typ_id_strediska
 ```
 
 

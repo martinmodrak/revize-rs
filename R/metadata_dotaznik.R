@@ -52,7 +52,8 @@ manual_codings <- list(
 
   komunikacni_kanaly_existujici = c("email","facebook","instagram","krizovatka","SI", "vedouci", "diar",
                                     "knihy", "casopis_kmen", "rovernet"),
-  zivotni_faze = c("studuji","pracuji","studiji_pracuji","nestuduji_nepracuji")
+  zivotni_faze = c("studuji","pracuji","studiji_pracuji","nestuduji_nepracuji"),
+  typ_id_strediska = c("reg_cislo","obecne_informace","nevim", "bez_strediska")
 )
 
 manual_codings$problemy_roveringu_stredisko = manual_codings$problemy_roveringu
@@ -90,7 +91,7 @@ factor_sloupce  <- c("sex", "kolik_casu","kategorie_respondenta","kategorie_resp
                      "bez_zkusenosti_mladsi", "pocet_clenu_spolecenstvi", "frekvence_kratkych_akci",
                      "frekvence_vicedennich_akci", "frekvence_velkych_akci",
                      "bez_zkusenosti_setkavam_se_s_vrstevniky", "bez_zkusenosti_seberozvojovy_program",
-                     "jeste_pokracovat", "zivotni_faze")
+                     "jeste_pokracovat", "zivotni_faze", "typ_id_strediska")
 
 # Timto se nahradi factory, kde je NA
 explicit_na_level <- "nevyplneno"

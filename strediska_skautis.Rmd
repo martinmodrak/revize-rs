@@ -1,0 +1,95 @@
+---
+title: "Napojování středisek ze SkautISu"
+output: html_notebook
+---
+
+```{r setup}
+source(here::here("R","setup_dotaznik.R"), encoding = "UTF-8")
+source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
+
+```
+
+```{r}
+strediska_skautis <- read_csv2("public_data/pocet-clenu-strediska-2019.csv", na = c("NULL"), col_types = 
+                                 cols(
+                                    Year = col_integer(),
+                                    ID_Unit = col_integer(),
+                                    ID_UnitType = col_character(),
+                                    RegistrationNumber = col_character(),
+                                    UnitName = col_character(),
+                                    Location = col_character(),
+                                    RegularMembersTo6 = col_integer(),
+                                    RegularMembersTo15 = col_integer(),
+                                    RegularMembersTo18 = col_integer(),
+                                    RegularMembersTo26 = col_integer(),
+                                    RegularMembersFrom26 = col_integer(),
+                                    RegularMembers = col_integer(),
+                                    MembersTo6 = col_integer(),
+                                    MembersTo15 = col_integer(),
+                                    MembersTo18 = col_integer(),
+                                    MembersTo26 = col_integer(),
+                                    MembersFrom26 = col_integer(),
+                                    Members = col_integer()
+))
+strediska_skautis_id <- strediska_skautis %>% select(RegistrationNumber, UnitName, Location)
+head(strediska_skautis_id)
+```
+
+
+
+```{r}
+replace_stredisko <- function(x) {
+  gsub(pattern = " ?(skautské)? ?st.edisko ?", replacement = "",ignore.case = TRUE, x = x)
+}
+
+normalize_stredisko <- function(x) {
+  replace_stredisko(x) %>%
+    gsub(x = ., pattern = " ", replacement = "", fixed = TRUE) %>%
+    tolower()
+}
+
+datasety_wide$pouzitelne %>% 
+  select(reg_c_strediska, nazev_strediska) %>%
+  mutate(reg_c_strediska = str_trim(reg_c_strediska)) %>%
+  distinct() %>%
+  inner_join(strediska_skautis_id, by = c("reg_c_strediska" = "RegistrationNumber")) %>%
+  transmute(reg_c_strediska = reg_c_strediska, nazev_strediska_dotaznik = replace_stredisko(nazev_strediska), nazev_strediska_skautis = replace_stredisko(UnitName), misto_strediska_skautis = Location, nrml_stredisko_dotaznik = normalize_stredisko(nazev_strediska), nrml_stredisko_skautis = normalize_stredisko(UnitName)) %>%
+  rowwise() %>%
+  filter(!grepl(nrml_stredisko_dotaznik, nrml_stredisko_skautis, fixed = TRUE), !grepl(nrml_stredisko_skautis, nrml_stredisko_dotaznik, fixed = TRUE)) %>%
+  ungroup() %>%
+  select(nazev_strediska_dotaznik, nazev_strediska_skautis, misto_strediska_skautis, reg_c_strediska)
+```
+
+Jediné, co nesedí je předposlední řádek - "Watakí" vs. "Jablonec nad Nisou", ale to je v pořádku, protože středisko Jablonec nad Nisou vzniklo sloučením středisek Kříšťál a Watakí (http://jablonec.skauting.cz/informace-o-stredisku/)
+
+OK, jak vypadají ty, kde se reg. č. nenamapovalo
+
+```{r}
+nesparovana <- datasety_wide$pouzitelne %>% filter(typ_id_strediska == "reg_cislo", !(str_trim(reg_c_strediska) %in% strediska_skautis_id$RegistrationNumber)) %>% select(reg_c_strediska, nazev_strediska, nazev_oddilu)
+write_csv(nesparovana, here("local_data","nesparovana_strediska.csv"))
+```
+
+```{r}
+oddily_skautis <- read_csv2(here("public_data/pocet-clenu-oddily-2019.csv"), na = c("NULL"), col_types = 
+                                 cols(
+                                    Year = col_integer(),
+                                    ID_Unit = col_integer(),
+                                    ID_UnitType = col_character(),
+                                    RegistrationNumber = col_character(),
+                                    UnitName = col_character(),
+                                    Location = col_character(),
+                                    RegularMembersTo6 = col_integer(),
+                                    RegularMembersTo15 = col_integer(),
+                                    RegularMembersTo18 = col_integer(),
+                                    RegularMembersTo26 = col_integer(),
+                                    RegularMembersFrom26 = col_integer(),
+                                    RegularMembers = col_integer(),
+                                    MembersTo6 = col_integer(),
+                                    MembersTo15 = col_integer(),
+                                    MembersTo18 = col_integer(),
+                                    MembersTo26 = col_integer(),
+                                    MembersFrom26 = col_integer(),
+                                    Members = col_integer()
+))
+```
+

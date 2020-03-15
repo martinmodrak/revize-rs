@@ -1,0 +1,491 @@
+Year;ID_Unit;ID_UnitType;RegistrationNumber;UnitName;Location;RegularMembersTo6;RegularMembersTo15;RegularMembersTo18;RegularMembersTo26;RegularMembersFrom26;RegularMembers;MembersTo6;MembersTo15;MembersTo18;MembersTo26;MembersFrom26;Members
+2019;24118;stredisko;112.02;středisko Dvojka Praha;Praha 2 - Vinohrady;0;75;16;25;63;179;0;75;16;26;67;184
+2019;24131;stredisko;112.31;středisko Polaris Praha;Praha 5 - Zbraslav;0;119;21;26;37;203;0;119;21;26;37;203
+2019;24148;stredisko;112.47;středisko Maják Praha;Praha 3;0;91;20;23;49;183;0;91;20;23;49;183
+2019;24157;stredisko;112.53;středisko Bratří Mašínů Praha;Praha 9 - Libeň;0;86;7;12;52;157;0;86;7;13;52;158
+2019;24168;stredisko;112.99;středisko Arcus Praha;Praha 3 - Žižkov;0;105;5;15;52;177;0;105;5;15;52;177
+2019;24176;stredisko;113.04;4. přístav Jana Nerudy Praha;Praha 3 - Žižkov;0;128;15;15;32;190;0;128;15;15;37;195
+2019;24102;stredisko;113.05;přístav Pětka Praha;Praha 1;0;70;14;13;45;142;0;70;14;13;45;142
+2019;24185;stredisko;113.61;61. středisko Vítkov Praha;Praha 3 - Žižkov;0;88;15;24;34;161;0;88;23;30;35;176
+2019;24202;stredisko;114.05;5. středisko Modřany;Praha 4 - Kamýk;0;67;8;8;32;115;0;67;8;9;36;120
+2019;24207;stredisko;114.07;7. středisko Blaník Praha;Praha 4;0;490;96;138;54;778;0;490;96;139;54;779
+2019;24232;stredisko;114.32;středisko Platan Praha;Praha 4;4;73;6;7;29;119;4;73;6;7;31;121
+2019;24239;stredisko;114.34;34. středisko Ostříž Praha;Praha 4 - Záběhlice;9;154;35;24;43;265;9;154;35;24;43;265
+2019;24254;stredisko;114.43;středisko Paprsek Praha-Kunratice;Praha 4 - Kunratice;9;50;7;9;10;85;9;50;7;9;11;86
+2019;24258;stredisko;114.57;středisko Trilobit Praha;Praha 4 - Braník;1;61;4;10;18;94;1;61;4;10;18;94
+2019;24272;stredisko;115.55;středisko 55 Vatra Praha;Praha 5 - Stodůlky;0;33;2;12;15;62;0;33;2;12;15;62
+2019;24278;stredisko;115.56;středisko Hiawatha Praha;Praha 5 - Smíchov;2;134;22;25;51;234;2;134;24;27;54;241
+2019;24286;stredisko;115.58;středisko Mawadani Praha 5;Praha 6 - Břevnov;1;65;7;22;25;120;1;65;7;22;26;121
+2019;24297;stredisko;115.76;středisko 5. květen Radotín;Praha 5 Radotín;5;73;8;11;35;132;5;73;8;11;35;132
+2019;24399;stredisko;115.85;středisko Bílý Albatros Praha;Praha 7 - Holešovice;0;79;11;20;23;133;0;79;11;20;24;134
+2019;24312;stredisko;116.06;středisko Vočko Praha;Praha 6;0;135;26;20;23;204;0;135;26;20;23;204
+2019;24319;stredisko;116.08;středisko Osmička Libčice nad Vltavou;Libčice nad Vltavou;3;31;2;2;11;49;3;31;2;2;11;49
+2019;24323;stredisko;116.10;10. středisko Bílá Hora Praha;Praha 6 - Ruzyně;0;115;23;10;32;180;0;115;23;10;32;180
+2019;24329;stredisko;116.11;středisko Pplk. Vally Praha;Praha 6 - Vokovice;2;73;11;19;23;128;2;73;11;19;24;129
+2019;24338;stredisko;116.18;18. středisko Kruh Praha;Praha 6 - Dejvice;0;71;12;32;66;181;0;71;12;32;66;181
+2019;24344;stredisko;116.22;středisko Šipka Praha;Praha 6 - Dejvice;7;141;33;38;26;245;7;141;33;38;26;245
+2019;24351;stredisko;116.30;středisko Jiskra Praha;Praha 6;5;45;0;5;28;83;5;45;0;5;28;83
+2019;24357;stredisko;116.33;středisko Bílý los Praha;Praha 6;2;131;20;21;23;197;2;131;20;21;23;197
+2019;24361;stredisko;116.73;středisko Javor Praha;Praha 6 - Dejvice;0;52;18;12;43;125;0;52;18;12;43;125
+2019;24367;stredisko;116.74;středisko Střelka Kralupy nad Vltavou;Kralupy nad Vltavou;12;89;8;19;33;161;12;89;8;19;33;161
+2019;24375;stredisko;116.81;středisko Lípa Roztoky;Roztoky u Prahy;4;105;13;14;36;172;4;105;13;14;36;172
+2019;24404;stredisko;118.24;středisko 24 Sever Praha;Praha 8 - Kobylisy;4;80;13;18;36;151;4;80;13;18;36;151
+2019;24392;stredisko;118.39;středisko Vatra Praha;Praha 7 - Holešovice;10;37;2;0;15;64;10;37;2;0;15;64
+2019;28790;stredisko;118.42;středisko Ibis Odolena Voda;Odolena Voda;0;29;0;1;5;35;0;29;0;1;8;38
+2019;24415;stredisko;118.45;středisko Silmaril Praha;Praha 7;2;58;4;8;24;96;2;58;4;8;26;98
+2019;24419;stredisko;118.46;středisko Sfinx Praha;Praha 8 - Karlín;0;45;10;12;11;78;0;45;10;12;11;78
+2019;24423;stredisko;118.52;středisko Stopaři Praha;Praha 8 - Bohnice;10;116;29;21;13;189;10;116;29;21;13;189
+2019;24435;stredisko;118.88;středisko 88 Radost Praha;Praha 8 - Kobylisy;0;67;7;23;43;140;0;67;7;23;43;140
+2019;24443;stredisko;119.17;středisko Athabaska Praha;Praha 9 - Čakovice;10;97;11;17;38;173;10;97;11;18;39;175
+2019;24453;stredisko;119.23;středisko Douglaska Praha;Praha 21 - Újezd nad Lesy;3;99;8;15;10;135;3;99;8;15;10;135
+2019;24458;stredisko;119.27;středisko Oheň Horní Počernice;Praha 9 - Horní Počernice;0;169;36;65;30;300;0;169;36;66;30;301
+2019;24464;stredisko;119.67;středisko Prosek Praha;Praha 9 - Prosek;5;93;12;13;62;185;5;93;12;13;65;188
+2019;24470;stredisko;119.84;středisko Kyje Praha;Praha 9 - Kyje;0;62;6;9;13;90;0;62;6;9;13;90
+2019;24477;stredisko;11A.10;středisko STOVKA Praha;Praha 10 - Vršovice;0;92;7;14;29;142;0;92;7;14;29;142
+2019;24483;stredisko;11A.20;středisko Pasát Praha;Praha 4 - Háje;0;62;5;4;8;79;0;62;5;4;8;79
+2019;24491;stredisko;11A.35;středisko J. Rady Praha;Praha 4 - Chodov;0;76;5;12;34;127;0;76;5;12;34;127
+2019;24502;stredisko;11A.50;středisko Sova Praha;Praha 10 - Strašnice;1;40;6;8;10;65;1;40;6;8;10;65
+2019;24510;stredisko;11A.77;středisko 77 ROD SOVY Praha;Praha 10;7;138;24;24;62;255;7;138;24;24;62;255
+2019;24522;stredisko;11A.92;středisko Šípů Praha;Praha 10 - Hostivař;0;93;25;14;33;165;0;93;25;14;34;166
+2019;24536;stredisko;11A.93;středisko 93 Praha;Praha 6 - Střešovice;0;46;3;5;11;65;0;46;3;5;11;65
+2019;24540;stredisko;11A.96;středisko Scarabeus Praha;Praha 10 - Strašnice;6;34;9;11;24;84;6;35;10;12;24;87
+2019;24097;stredisko;211.01;středisko Fr. Konáše Benešov;Divišov;2;107;19;14;22;164;2;107;19;14;22;164
+2019;23570;stredisko;211.02;středisko Vlašim;Vlašim;1;62;9;9;33;114;1;62;9;9;34;115
+2019;23576;stredisko;211.03;středisko Kamenice;Kamenice;5;132;15;18;30;200;5;132;15;18;30;200
+2019;23582;stredisko;211.05;středisko Úsvit Votice;Votice;0;54;6;5;34;99;0;54;6;5;34;99
+2019;23588;stredisko;212.01;středisko 01 Beroun;Beroun;1;102;9;14;35;161;1;102;9;14;35;161
+2019;23597;stredisko;212.03;středisko 03 Králův Dvůr;Králův Dvůr;1;25;3;3;15;47;1;25;3;3;15;47
+2019;23603;stredisko;212.04;středisko Radost a Naděje Beroun;Beroun 1;12;105;21;23;29;190;12;105;21;23;29;190
+2019;23616;stredisko;212.07;středisko Balvan Rudná;Rudná;0;79;27;13;51;170;0;79;27;13;51;170
+2019;23621;stredisko;212.08;středisko 08 Mořina;Mořina;1;88;9;20;10;128;1;88;9;20;10;128
+2019;23630;stredisko;212.10;středisko Mušketýři Nové Strašecí;Nové Strašecí;0;63;13;15;19;110;0;63;13;15;19;110
+2019;23644;stredisko;213.01;středisko Orion Kladno;Kladno;4;126;27;32;45;234;4;127;27;32;47;237
+2019;23653;stredisko;213.02;středisko Stopa Kladno;Kladno 1;1;69;2;2;12;86;1;69;2;2;12;86
+2019;23657;stredisko;213.03;středisko Stráž Lidic Buštěhrad;Buštěhrad;0;82;5;19;25;131;0;82;5;19;25;131
+2019;23666;stredisko;213.04;středisko Mír Libušín;Libušín;12;43;6;6;32;99;12;43;6;6;32;99
+2019;23672;stredisko;213.05;středisko Modrý Kruh Slaný;Slaný;8;92;12;17;18;147;8;92;12;17;18;147
+2019;23681;stredisko;214.01;1. středisko Kolín;Kolín;9;73;10;16;32;140;9;73;10;16;32;140
+2019;23689;stredisko;214.02;přístav Poutníci Kolín;Kolín 5;5;58;7;12;17;99;5;58;7;12;17;99
+2019;23698;stredisko;214.04;středisko Starý Kolín;Starý Kolín;1;23;4;4;11;43;1;23;4;4;11;43
+2019;23702;stredisko;214.05;středisko Červené Pečky;Červené Pečky;1;158;26;25;38;248;1;158;26;25;38;248
+2019;23715;stredisko;214.07;středisko Ing. Ládi Nováka Český Brod;Český Brod;1;74;17;25;30;147;1;74;17;25;30;147
+2019;23721;stredisko;214.09;přístav Slanečci Kolín;Kolín 2;4;41;7;9;20;81;4;41;7;9;21;82
+2019;23729;stredisko;214.11;středisko Kouřim;Kouřim;3;44;7;20;22;96;3;44;7;20;22;96
+2019;23737;stredisko;214.12;středisko Modrá želva Ratboř;Ratboř;0;52;15;10;28;105;0;52;15;10;28;105
+2019;23746;stredisko;214.14;středisko Psohlavci Český Brod;Český Brod;6;127;17;14;22;186;6;127;17;14;22;186
+2019;27138;stredisko;214.15;středisko Datel Kostelec nad Černými lesy;Kostelec nad Černými lesy;3;74;9;3;20;109;3;74;9;3;20;109
+2019;23752;stredisko;214.19;středisko Plaňany;Plaňany;0;63;13;10;40;126;0;63;13;10;40;126
+2019;23760;stredisko;215.01;středisko Kutná Hora;Kutná Hora 1;10;106;19;20;42;197;10;106;19;20;42;197
+2019;23766;stredisko;215.02;středisko Čáslav;Čáslav;19;56;7;10;11;103;19;56;8;10;11;104
+2019;23771;stredisko;215.04;přístav Dobré naděje Kutná Hora;Kutná Hora 1;12;40;7;8;22;89;12;41;7;8;22;90
+2019;23777;stredisko;215.05;středisko Vrdy - Bučice;Vrdy - Dolní Bučice;0;30;4;8;41;83;0;30;4;8;41;83
+2019;23783;stredisko;215.06;středisko Jana Roháče z Dubé a na Sioně Uhlířské Janovice;Uhlířské Janovice;6;55;1;4;22;88;6;55;1;4;22;88
+2019;23789;stredisko;215.07;středisko Doubrava Ronov nad Doubravou;Ronov nad Doubravou;2;25;2;3;9;41;2;25;2;3;9;41
+2019;23794;stredisko;216.01;středisko Mělník;Mělník 1;0;41;2;7;11;61;0;41;2;7;11;61
+2019;23801;stredisko;216.03;středisko Kostelec nad Labem;Kostelec nad Labem;9;50;5;4;21;89;9;50;5;4;21;89
+2019;23807;stredisko;216.04;středisko Lišák Neratovice;Neratovice;7;111;15;20;13;166;7;111;15;20;13;166
+2019;23814;stredisko;216.07;přístav Modrá kotva Liběchov;Liběchov;4;26;3;3;18;54;4;26;3;3;18;54
+2019;23821;stredisko;216.08;přístav Neratovice;Neratovice;0;63;14;18;43;138;0;63;14;18;43;138
+2019;23829;stredisko;217.01;středisko Dakota Mladá Boleslav;Mladá Boleslav;0;48;7;9;11;75;0;48;7;9;11;75
+2019;23837;stredisko;217.02;středisko Povodeň Benátky nad Jizerou;Benátky nad Jizerou 1;12;110;18;14;24;178;12;110;18;14;24;178
+2019;23852;stredisko;217.08;středisko Mnichovo Hradiště;Mnichovo Hradiště;2;80;27;16;15;140;2;80;27;16;15;140
+2019;23858;stredisko;217.10;přístav Mladá Boleslav;Mladá Boleslav;2;17;5;2;14;40;2;17;5;2;14;40
+2019;23862;stredisko;217.11;středisko Svornost Bělá pod Bezdězem;Bělá pod Bezdězem;0;45;5;5;23;78;0;45;5;5;23;78
+2019;23867;stredisko;218.01;středisko Cefeus Nymburk;Nymburk;0;57;2;13;16;88;0;57;2;13;16;88
+2019;23873;stredisko;218.02;přístav Modrá flotila Nymburk;Nymburk 2;3;79;10;14;23;129;3;79;10;14;24;130
+2019;23880;stredisko;218.03;středisko Lysá nad Labem;Lysá nad Labem;2;125;9;10;22;168;2;125;9;10;22;168
+2019;23886;stredisko;218.04;středisko Městec Králové;Městec Králové;13;60;6;8;36;123;13;60;6;8;36;123
+2019;23895;stredisko;218.07;středisko Krále Jiřího Poděbrady;Poděbrady 1;1;64;5;9;44;123;1;64;5;9;44;123
+2019;23906;stredisko;218.09;středisko Sadská;Sadská;0;17;9;2;12;40;0;17;9;2;12;40
+2019;23913;stredisko;218.10;středisko Krahujec Nymburk;Nymburk 2;0;70;15;19;30;134;0;70;15;19;30;134
+2019;23920;stredisko;219.01;středisko VJAS Brandýs n. L.;Brandýs nad Labem;7;62;10;0;19;98;7;62;10;0;19;98
+2019;23927;stredisko;219.02;středisko Br. Fandy Antoše Jirny;Jirny;1;58;8;9;19;95;1;58;8;9;19;95
+2019;23931;stredisko;219.03;středisko Havran Klecany;Klecany;0;78;19;11;26;134;0;78;19;11;27;135
+2019;23936;stredisko;219.04;středisko Willi Líbeznice;Líbeznice;2;126;20;21;29;198;2;126;20;21;31;200
+2019;23945;stredisko;219.05;středisko Čelákovice;Čelákovice;0;58;17;16;15;106;0;58;17;16;15;106
+2019;23951;stredisko;219.06;středisko Lípa Říčany;Říčany;15;184;26;24;75;324;15;184;26;24;77;326
+2019;23961;stredisko;219.08;středisko Jiřího Bubáka Úvaly;Úvaly;0;66;16;15;15;112;0;66;16;15;15;112
+2019;23967;stredisko;219.09;středisko Stará Boleslav;Stará Boleslav;12;87;21;7;15;142;12;87;21;7;15;142
+2019;23973;stredisko;219.10;přístav RETRA Brandýs nad Labem;Předměřice nad Jizerou;1;46;7;7;13;74;1;46;7;7;13;74
+2019;23978;stredisko;219.11;středisko Zápy;Zápy, pošta Brandýs nad Labem;0;47;5;8;5;65;0;47;5;8;5;65
+2019;23988;stredisko;21A.01;středisko Skalka Mníšek pod Brdy;Mníšek pod Brdy;8;79;13;11;15;126;8;79;13;11;15;126
+2019;23993;stredisko;21A.02;středisko Lesní Moudrost Dobřichovice;Dobřichovice;1;85;22;17;9;134;1;85;22;17;9;134
+2019;23999;stredisko;21A.06;středisko Vltava Vrané nad Vltavou;Vrané nad Vltavou;0;68;14;6;21;109;0;72;16;6;22;116
+2019;24006;stredisko;21A.07;přístav Dub Všenory;Všenory;0;22;6;4;5;37;0;22;6;4;5;37
+2019;24010;stredisko;21A.08;středisko Uragan Zbraslav;Praha Zbraslav;0;143;25;21;45;234;0;143;25;24;58;250
+2019;24027;stredisko;21A.13;středisko Černošice;252 28 Černošice;0;60;20;18;10;108;0;60;20;18;10;108
+2019;24076;stredisko;21B.01;středisko Hiawatha Příbram;Příbram VII;12;137;17;18;32;216;12;137;17;18;32;216
+2019;24046;stredisko;21B.02;středisko Clan Hiawatha Příbram;Příbram;5;39;18;16;34;112;5;39;18;16;34;112
+2019;24064;stredisko;21B.04;středisko Rožmitál p. Tř.;Rožmitál p. Tř.;0;80;16;14;31;141;0;80;16;14;31;141
+2019;24098;stredisko;21B.07;středisko Sedlčany;Sedlčany;1;48;6;11;20;86;1;48;6;11;20;86
+2019;28864;stredisko;21B.08;středisko prof. Oliče Dobříš;Dobříš;0;150;10;17;25;202;0;150;10;17;25;202
+2019;26148;stredisko;310.31;středisko Zlatá Růže Jindřichův Hradec;Jindřichův Hradec;1;104;12;21;49;187;1;104;12;21;49;187
+2019;26163;stredisko;310.32;středisko Rožmberská růže Třeboň;Třeboň;1;88;8;12;27;136;1;88;8;12;27;136
+2019;26314;stredisko;310.41;středisko Gáhál Písek;Písek;4;51;9;21;25;110;4;51;9;21;25;110
+2019;26073;stredisko;311.01;středisko Zlatá stezka Prachatice;Prachatice;3;48;4;3;12;70;3;48;4;3;12;70
+2019;26079;stredisko;311.02;středisko Vimperk;Horní Vltavice;0;28;8;6;9;51;0;28;8;6;9;51
+2019;26085;stredisko;311.03;středisko Walden České Budějovice;České Budejovice;1;224;58;66;82;431;1;224;58;66;82;431
+2019;26098;stredisko;311.04;středisko VAVÉHA České Budějovice;České Budějovice;6;318;36;56;70;486;6;318;36;56;71;487
+2019;26110;stredisko;311.07;středisko Týn nad Vltavou;Týn nad Vltavou;0;47;11;10;19;87;0;47;11;10;19;87
+2019;26115;stredisko;311.13;středisko Jantar Kaplice;Kaplice;0;6;1;3;15;25;0;6;1;3;15;25
+2019;26140;stredisko;312.06;středisko Pod Kletí Holubov;Holubov;5;178;20;27;65;295;5;178;20;27;65;295
+2019;26169;stredisko;313.03;přístav Dačice;Dačice;0;13;2;0;7;22;0;13;2;0;7;22
+2019;26173;stredisko;313.04;středisko Slavonice;Slavonice;0;28;3;0;8;39;0;28;3;0;9;40
+2019;26177;stredisko;313.08;středisko 13 klíčů Lomnice nad Lužnicí;Lomnice nad Lužnicí;2;45;2;11;15;75;2;45;2;11;15;75
+2019;26183;stredisko;313.13;středisko Fidelis et Fortis Kamenice nad Lipou;Kamenice nad Lipou;0;67;10;17;22;116;0;68;10;17;23;118
+2019;26194;stredisko;314.01;středisko Šipka Písek;Písek;0;67;6;12;47;132;0;67;6;12;47;132
+2019;26203;stredisko;314.02;středisko Oheň života Písek;Písek;0;50;15;4;18;87;0;50;15;4;18;87
+2019;26210;stredisko;314.03;středisko Stínadla Písek;Písek;0;50;10;10;13;83;0;50;10;10;13;83
+2019;26215;stredisko;314.07;středisko Sedmička Milevsko;Milevsko;2;56;14;17;26;115;2;56;14;17;26;115
+2019;26220;stredisko;314.08;středisko Blanice Protivín;Protivín;5;46;6;7;24;88;5;46;6;7;24;88
+2019;26231;stredisko;316.01;středisko Strakonice;Strakonice;4;85;9;11;41;150;4;85;9;11;41;150
+2019;26241;stredisko;316.02;středisko RNDr. Rudolfa Plajnera Volyně;Volyně;3;58;4;18;20;103;3;58;4;18;20;103
+2019;26248;stredisko;316.04;středisko Vodňany;Vodňany;0;57;6;12;21;96;0;57;6;12;21;96
+2019;26253;stredisko;317.01;středisko Kalich Tábor;Tábor;0;218;30;49;63;360;0;218;30;51;63;362
+2019;26265;stredisko;317.03;středisko Černá růže Sezimovo Ústí;Sezimovo Ústí;6;65;9;10;21;111;6;65;9;10;21;111
+2019;26271;stredisko;317.04;středisko Bechyně;Bechyně;0;19;1;1;16;37;0;19;1;1;16;37
+2019;26276;stredisko;317.05;středisko Racek Veselí nad Lužnicí;Veselí nad Lužnicí 1;1;50;1;2;15;69;1;50;1;2;15;69
+2019;26283;stredisko;317.07;středisko Borotín;Borotín;2;19;9;6;14;50;2;19;9;6;14;50
+2019;26287;stredisko;317.09;středisko Planá nad Lužnicí;Planá nad Lužnicí;4;61;10;4;20;99;4;61;10;4;20;99
+2019;26300;stredisko;317.13;přístav Třináctka Opařany;Opařany;1;100;9;19;32;161;1;100;9;19;32;161
+2019;25342;stredisko;321.01;středisko Jiřinky Paroubkové Domažlice;Domažlice;6;81;12;24;51;174;6;81;12;24;51;174
+2019;25348;stredisko;321.03;středisko A.B.S. Holýšov;Holýšov;0;71;15;13;23;122;0;71;15;13;23;122
+2019;25352;stredisko;321.05;středisko Lípa Prapořiště;Kdyně;2;47;3;2;17;71;2;47;3;2;17;71
+2019;25532;stredisko;321.07;středisko Tajfun Tachov;Tachov 1;0;45;7;0;14;66;0;45;7;0;14;66
+2019;25356;stredisko;322.01;středisko Královák Klatovy;Klatovy;0;148;12;18;38;216;0;148;12;18;38;216
+2019;25366;stredisko;322.02;středisko Prácheň;Horažďovice;1;45;8;18;33;105;1;45;8;18;33;105
+2019;25370;stredisko;322.03;středisko Vydří stopa Sušice;Sušice;15;127;23;29;31;225;15;127;23;29;31;225
+2019;25381;stredisko;322.04;středisko Jestřáb Pačejov;Pačejov;1;23;2;5;19;50;1;23;2;5;19;50
+2019;25385;stredisko;322.05;středisko Javor Klatovy;Klatovy;1;32;10;8;29;80;1;32;10;8;29;80
+2019;25395;stredisko;323.01;středisko Jožky Knappa Plzeň;Plzeň 1;14;128;25;19;60;246;14;128;25;19;61;247
+2019;25402;stredisko;323.02;středisko Stopa Plzeň;Plzeň 1;3;216;15;25;47;306;3;217;15;25;49;309
+2019;25412;stredisko;323.03;středisko 5. květen Plzeň;Plzeň;0;130;23;29;53;235;0;130;23;29;53;235
+2019;25424;stredisko;323.04;středisko ICHTHYS Plzeň;Plzeň 12;3;193;35;44;47;322;3;193;36;44;47;323
+2019;25431;stredisko;323.05;středisko Střela Plzeň;Plzeň 1;1;168;42;30;103;344;1;168;42;30;105;346
+2019;25447;stredisko;323.06;středisko Krokodýl Tlučná;Tlučná;0;62;9;24;12;107;0;62;9;24;12;107
+2019;25451;stredisko;323.07;středisko Limba Plzeň;Plzeň 1;1;65;11;16;16;109;1;65;11;16;16;109
+2019;25527;stredisko;323.08;středisko Omaha Kralovice;Kralovice;0;20;4;4;27;55;0;20;4;4;27;55
+2019;25455;stredisko;323.09;přístav Omaha Plzeň;Plzeň 1;1;107;14;25;28;175;1;107;14;25;28;175
+2019;25463;stredisko;324.02;středisko Dr. Bečváře Přeštice;Přeštice;3;56;6;7;12;84;3;56;6;7;12;84
+2019;25469;stredisko;324.03;středisko Palcát Dnešice;Dnešice;0;19;6;5;11;41;0;19;6;5;11;41
+2019;25473;stredisko;324.04;středisko Příchovice;Přeštice;3;71;17;17;33;141;3;71;17;17;33;141
+2019;25480;stredisko;324.05;středisko Zelený šíp Dobřany;Dobřany;0;84;4;13;19;120;0;84;4;13;19;120
+2019;25486;stredisko;324.07;středisko Devětsil Spálené Poříčí;Spálené Poříčí;0;17;5;1;17;40;0;17;5;1;17;40
+2019;25508;stredisko;326.01;středisko Rarášek Rokycany;Rokycany;20;79;13;6;26;144;20;79;13;6;27;145
+2019;25518;stredisko;326.03;středisko Omaha Radnice;Radnice;5;43;14;12;20;94;5;43;14;12;20;94
+2019;27561;stredisko;326.09;středisko Čertovka Zbiroh;Zbiroh;0;53;8;7;14;82;0;53;8;7;14;82
+2019;25791;stredisko;411.01;středisko Šedého vlka Cheb;Cheb 2;1;4;0;0;24;29;1;4;0;0;24;29
+2019;25797;stredisko;411.03;středisko Dakota Cheb;Cheb 2;0;42;3;2;18;65;0;42;3;2;18;65
+2019;25804;stredisko;411.04;středisko Smrčina Aš;Aš 1;1;65;17;8;24;115;1;65;17;8;24;115
+2019;25815;stredisko;411.06;středisko Stopa Mariánské Lázně;Mariánské Lázně;0;48;6;2;17;73;0;48;6;2;17;73
+2019;25820;stredisko;411.07;středisko Vysoký kámen Luby u Chebu;Luby;1;20;0;0;16;37;1;20;0;0;16;37
+2019;25825;stredisko;412.04;středisko Arnika Jáchymov;Jáchymov;0;3;2;2;7;14;0;3;2;2;7;14
+2019;25829;stredisko;412.05;středisko Kompas Nejdek;Nejdek 1;0;14;5;8;11;38;0;14;5;8;11;38
+2019;25834;stredisko;412.11;přístav ORION Karlovy Vary;Karlovy Vary;3;89;14;18;36;160;3;89;14;18;36;160
+2019;25854;stredisko;413.04;středisko Jestřáb Chodov;Chodov u Karlových Var 1;0;28;4;5;12;49;0;28;4;5;12;49
+2019;25860;stredisko;413.05;středisko Lípa Kynšperk nad Ohří;Kynšperk nad Ohří;1;23;1;2;22;49;1;23;1;2;22;49
+2019;25867;stredisko;413.07;středisko Dýmka Habartov;Habartov;3;32;3;12;19;69;3;32;3;12;19;69
+2019;25874;stredisko;413.09;středisko Arnika Horní Slavkov;Horní Slavkov;0;28;4;1;8;41;0;28;4;1;8;41
+2019;25882;stredisko;413.10;středisko Jitřenka Loket;Loket;1;19;5;2;15;42;1;19;5;2;15;42
+2019;26596;stredisko;421.01;středisko Úsvit Děčín;Děčín 2;1;86;8;17;29;141;1;86;8;17;29;141
+2019;26601;stredisko;421.02;středisko Lužan Varnsdorf;Varnsdorf;1;32;10;7;15;65;1;32;10;7;15;65
+2019;26605;stredisko;421.03;středisko Rumburk;Rumburk;2;15;1;4;11;33;2;15;1;4;11;33
+2019;27459;stredisko;421.04;středisko Sojčáci Děčín;Děčín 9;0;54;5;9;16;84;0;54;5;9;16;84
+2019;26608;stredisko;421.08;středisko Seveřan Šluknov;Šluknov;0;1;5;2;0;8;0;1;5;4;1;11
+2019;26614;stredisko;422.01;středisko Český lev Chomutov;Chomutov;10;79;17;12;37;155;10;79;17;12;37;155
+2019;26624;stredisko;422.03;středisko Br. Zubra Klášterec nad Ohří;Klášterec nad Ohří;0;18;3;8;3;32;0;18;3;8;3;32
+2019;26629;stredisko;422.04;středisko Hraničář Jirkov;Jirkov;5;52;4;13;10;84;5;52;4;13;10;84
+2019;26635;stredisko;422.05;středisko Úhošť Kadaň;Kadaň;7;40;4;1;12;64;7;40;4;1;12;64
+2019;26642;stredisko;422.06;středisko Žatec;Žatec;2;38;1;10;12;63;2;38;1;10;12;63
+2019;26652;stredisko;423.01;středisko Nereus Terezín;Terezín;1;22;9;12;26;70;1;22;9;12;26;70
+2019;26658;stredisko;423.02;středisko Říp Roudnice nad Labem;Roudnice nad Labem;10;91;17;18;30;166;10;91;17;18;30;166
+2019;26664;stredisko;423.03;středisko Brána Lovosice;Lovosice 2;0;30;10;7;15;62;0;30;10;7;15;62
+2019;26670;stredisko;423.04;středisko Libochovice;Libochovice;0;23;0;0;10;33;0;23;0;0;10;33
+2019;26678;stredisko;423.05;středisko Štětí;Štětí;2;22;0;2;4;30;2;22;0;2;4;30
+2019;26682;stredisko;423.06;středisko Radobýl Litoměřice;Litoměřice;7;145;17;16;48;233;7;145;17;16;49;234
+2019;26713;stredisko;425.01;středisko Oheň Most;Most 1;29;113;12;10;28;192;29;113;12;10;28;192
+2019;26723;stredisko;425.02;středisko Perun Litvínov;Litvínov 8;5;22;7;9;20;63;5;22;7;9;21;64
+2019;26727;stredisko;425.03;středisko Louny;Louny;0;59;6;0;21;86;0;59;6;0;21;86
+2019;26732;stredisko;426.01;středisko Doubravka Teplice;Teplice 1;0;24;2;3;32;61;0;24;2;3;32;61
+2019;26738;stredisko;426.02;středisko Dvojka Teplice;Teplice;6;118;26;8;36;194;6;118;26;8;36;194
+2019;26752;stredisko;427.01;středisko Ústí nad Labem;Ústí nad Labem;0;52;9;18;41;120;0;52;9;18;41;120
+2019;26758;stredisko;427.02;středisko Šíp Neštěmice;Ústí nad Labem;9;53;12;14;22;110;9;53;12;15;28;117
+2019;25552;stredisko;511.01;středisko Řetěz Česká Lípa;Česká Lípa;4;49;14;18;57;142;4;49;14;18;58;143
+2019;25566;stredisko;511.02;středisko Klíč Nový Bor;Nový Bor;1;74;8;10;30;123;1;74;8;10;30;123
+2019;25572;stredisko;511.04;středisko Doksy;Doksy;3;63;11;7;20;104;3;63;11;7;20;104
+2019;25578;stredisko;511.05;přístav Ralsko Mimoň;Mimoň;2;93;11;11;19;136;2;93;11;11;19;136
+2019;25591;stredisko;512.01;středisko Jablonec nad Nisou;Jablonec nad Nisou 5;14;154;17;23;80;288;14;155;17;23;82;291
+2019;25612;stredisko;513.01;středisko Ještěd Liberec;Liberec 8;1;39;6;5;40;91;1;39;6;5;40;91
+2019;25620;stredisko;513.04;středisko Stopa Liberec;Liberec 14;13;131;17;22;43;226;13;131;17;22;44;227
+2019;25630;stredisko;513.05;středisko Mustang Liberec;Liberec 14;0;98;21;26;52;197;0;98;21;26;52;197
+2019;25640;stredisko;513.07;přístav Flotila Liberec;Liberec 25;0;26;6;10;36;78;0;26;6;10;36;78
+2019;25647;stredisko;513.09;středisko Šurean Liberec;Liberec 30;0;66;15;24;19;124;0;66;15;24;19;124
+2019;25652;stredisko;513.10;přístav Maják Liberec;Liberec;1;62;5;11;14;93;1;62;5;11;15;94
+2019;25662;stredisko;513.12;středisko Hrádek nad Nisou;Hrádek nad Nisou;0;37;1;0;9;47;0;37;1;0;9;47
+2019;25666;stredisko;513.15;středisko Dub Český Dub;Český Dub;1;50;6;8;20;85;1;50;6;8;20;85
+2019;25678;stredisko;514.01;středisko Varta Semily;Semily;6;114;18;26;51;215;6;114;18;26;51;215
+2019;25686;stredisko;514.02;středisko Štika Turnov;Turnov;13;190;30;49;53;335;13;190;30;49;53;335
+2019;25695;stredisko;514.03;středisko Jilm Jilemnice;Jilemnice;13;146;25;20;52;256;13;146;25;20;53;257
+2019;25706;stredisko;514.06;středisko Údolí Železný Brod;Železný Brod;6;40;4;5;20;75;6;40;4;5;20;75
+2019;25713;stredisko;514.07;středisko Lípa Tatobity;Tatobity;1;34;0;9;11;55;1;34;0;9;11;55
+2019;25722;stredisko;514.11;středisko Jestřáb Jilemnice;Jilemnice;0;36;7;7;26;76;0;36;7;7;26;76
+2019;25128;stredisko;521.01;středisko Františka Barvíře Třebechovice pod Orebem;Třebechovice pod Orebem;9;91;6;15;35;156;9;91;6;15;35;156
+2019;25899;stredisko;521.02;středisko Střela Stěžery;Stěžery;4;65;6;4;7;86;4;65;6;4;8;87
+2019;25924;stredisko;521.03;středisko Černého havrana Chlumec nad Cidlinou;Chlumec nad Cidlinou;4;79;7;4;30;124;4;79;7;4;30;124
+2019;26011;stredisko;522.01;středisko Brána Jičín;Jičín;2;65;7;18;30;122;2;65;7;18;30;122
+2019;26319;stredisko;522.02;středisko Hořice;Hořice;4;45;12;13;31;105;4;45;12;13;31;105
+2019;26325;stredisko;522.03;středisko Sopka Nová Paka;Nová Paka;5;66;8;20;35;134;5;66;8;20;35;134
+2019;26329;stredisko;522.04;středisko Svatého Jiří Miletín;Miletín;0;0;0;0;5;5;0;0;0;0;5;5
+2019;26333;stredisko;522.05;středisko Lázně Bělohrad;Lázně Bělohrad;1;40;9;4;9;63;1;40;9;4;11;65
+2019;26345;stredisko;523.01;středisko Náchod;Náchod;16;166;37;30;54;303;16;166;37;30;56;305
+2019;26373;stredisko;523.04;středisko Skaláci Police nad Metují;Police nad Metují;6;54;9;13;17;99;6;54;9;14;17;100
+2019;26378;stredisko;523.06;středisko Šedého vlka Broumov;Broumov;0;18;1;7;17;43;0;18;1;7;17;43
+2019;26383;stredisko;523.07;středisko Červený Kostelec;Červený Kostelec;0;105;24;45;97;271;0;105;24;45;97;271
+2019;26392;stredisko;523.09;středisko Jiřího Šimáně Česká Skalice;Česká Skalice;1;55;4;16;20;96;1;55;4;16;20;96
+2019;26399;stredisko;523.10;středisko ÚTA Nové Město nad Metují;Nové Město nad Metují;8;137;28;43;48;264;8;137;28;43;49;265
+2019;26408;stredisko;523.11;středisko Jaroměř;Jaroměř 1;1;44;11;9;20;85;1;44;11;9;20;85
+2019;26416;stredisko;524.01;středisko Stetson Rychnov nad Kněžnou;Rychnov nad Kněžnou;2;72;22;27;45;168;2;72;22;27;45;168
+2019;26421;stredisko;524.03;středisko Kostelec nad Orlicí;Kostelec nad Orlicí;2;63;3;12;24;104;2;63;3;13;24;105
+2019;26429;stredisko;524.06;středisko Opočno;Opočno;1;59;1;11;33;105;1;59;1;11;33;105
+2019;26434;stredisko;524.07;středisko Dobruška;Dobruška;14;116;21;25;49;225;14;116;21;25;49;225
+2019;26445;stredisko;524.09;středisko Vamberk;Vamberk;6;44;3;2;20;75;6;44;3;2;20;75
+2019;26455;stredisko;525.01;středisko Hraničář Trutnov;Trutnov;3;70;13;7;30;123;3;70;13;7;31;124
+2019;26463;stredisko;525.02;středisko Zvičina Dvůr Králové nad Labem;Dvůr Králové nad Labem;10;110;13;10;38;181;10;110;13;10;38;181
+2019;26473;stredisko;525.03;středisko Permoník Rtyně v Podkrkonoší;Rtyně v Podkrkonoší;0;76;14;10;15;115;0;76;14;10;15;115
+2019;26478;stredisko;525.04;středisko Dobráček Hostinné;Hostinné;6;139;27;22;43;237;6;139;27;23;44;239
+2019;26486;stredisko;525.05;středisko Krakonoš Vrchlabí;Vrchlabí;0;50;4;6;14;74;0;50;4;6;14;74
+2019;26492;stredisko;525.06;středisko Araukarit Malé Svatoňovice;Malé Svatoňovice;0;38;7;5;8;58;0;38;7;5;8;58
+2019;26498;stredisko;525.07;středisko Svoboda nad Úpou;Svoboda nad Úpou;0;31;5;2;9;47;0;31;5;2;9;47
+2019;26503;stredisko;526.01;středisko K. Šimka Hradec Králové;Hradec Králové;9;158;28;22;49;266;9;159;28;22;52;270
+2019;26510;stredisko;526.02;středisko Rotunda Hradec Králové;Hradec Králové 3;2;31;4;6;35;78;2;31;4;6;35;78
+2019;26520;stredisko;526.04;středisko Kukleny Hradec Králové;Hradec Králové;5;55;14;7;43;124;5;55;14;7;43;124
+2019;26526;stredisko;526.05;středisko Svatého Jiří Hradec Králové;Hradec Králové;1;87;18;29;20;155;1;87;18;29;20;155
+2019;26531;stredisko;526.06;středisko Rybárny Hradec Králové;Hradec Králové;6;36;7;5;29;83;6;36;7;5;29;83
+2019;26537;stredisko;526.07;středisko Želivák Hradec Králové;Hradec Králové 9;7;36;3;2;25;73;7;36;3;2;25;73
+2019;25893;stredisko;531.01;středisko Chrudim;Chrudim;1;61;4;5;15;86;1;61;4;5;16;87
+2019;25926;stredisko;531.02;středisko Slatiňany;Slatiňany;0;128;17;43;78;266;0;128;17;43;78;266
+2019;26017;stredisko;531.03;středisko Skála Hlinsko;Hlinsko v Čechách;1;49;6;16;39;111;1;50;6;16;39;112
+2019;26767;stredisko;531.04;středisko Ležáky Skuteč;Skuteč;2;85;26;33;50;196;2;85;26;33;50;196
+2019;26777;stredisko;531.06;středisko Chrast;Chrast u Chrudimě;0;28;3;13;29;73;0;28;3;13;29;73
+2019;26785;stredisko;531.07;středisko Kelt Nasavrky;Nasavrky;0;26;6;7;14;53;0;26;6;7;14;53
+2019;26790;stredisko;531.08;středisko Leknín Heřmanův Městec;Heřmanův Městec;3;38;6;7;30;84;3;38;6;7;30;84
+2019;26801;stredisko;531.10;středisko Toulovec Proseč;Proseč 188;3;80;16;11;27;137;3;80;16;11;27;137
+2019;26807;stredisko;531.11;středisko Tangram Luže;Luže;7;33;4;12;22;78;7;33;4;12;23;79
+2019;26817;stredisko;531.13;středisko Kameničky;Kameničky;0;30;12;5;15;62;0;30;12;5;15;62
+2019;26834;stredisko;532.03;středisko Lázně Bohdaneč;Pardubice 3;0;75;4;7;28;114;0;75;4;7;28;114
+2019;26842;stredisko;532.04;středisko Chvaletice;Chvaletice;0;25;1;4;9;39;0;25;1;4;9;39
+2019;26847;stredisko;532.05;středisko Holice;Holice;1;69;9;24;14;117;1;69;9;24;14;117
+2019;26853;stredisko;532.06;středisko Šestka Pardubice;Pardubice;0;55;10;8;41;114;0;55;10;8;41;114
+2019;26859;stredisko;532.07;přístav Sedmička Pardubice;Pardubice;0;55;13;6;28;102;0;55;13;6;28;102
+2019;26864;stredisko;532.08;středisko Přelouč;Přelouč;11;88;15;14;37;165;11;88;15;14;38;166
+2019;26874;stredisko;532.10;středisko Dívčí Pardubice;Pardubice;2;59;11;9;26;107;2;59;11;9;31;112
+2019;26882;stredisko;532.11;středisko A. Bartoše Sezemice;Sezemice;2;42;7;8;11;70;2;42;7;8;11;70
+2019;26886;stredisko;532.12;středisko Polaris Pardubice;Pardubice;4;126;21;25;70;246;4;130;22;26;73;255
+2019;26897;stredisko;533.01;středisko Smrček Svitavy;Svitavy 2;2;78;13;10;16;119;2;78;13;10;16;119
+2019;26907;stredisko;533.02;středisko Liliový kruh Litomyšl;Litomyšl;2;108;18;41;31;200;2;108;18;41;31;200
+2019;26919;stredisko;533.03;středisko Tilia Polička;Polička;0;46;4;15;35;100;0;46;4;15;35;100
+2019;26923;stredisko;533.04;středisko Moravská Třebová;Moravská Třebová;2;101;21;18;41;183;2;101;21;18;41;183
+2019;26935;stredisko;533.07;středisko Dolní Újezd;Dolní Újezd;12;66;17;14;30;139;12;66;17;14;30;139
+2019;26940;stredisko;534.01;středisko Orlice Ústí nad Orlicí;Ústí nad Orlicí;2;80;15;14;14;125;2;80;15;14;14;125
+2019;26946;stredisko;534.03;středisko Javor Česká Třebová;Česká Třebová;17;166;36;43;33;295;17;166;36;43;33;295
+2019;26955;stredisko;534.04;středisko Skály Choceň;Choceň;0;75;14;14;19;122;0;75;14;14;19;122
+2019;26963;stredisko;534.05;středisko Vysoké Mýto;Vysoké Mýto;0;50;4;14;29;97;0;50;4;14;29;97
+2019;26974;stredisko;534.06;středisko Zubr a Dikobraz Lanškroun;Lanškroun;1;147;19;33;74;274;1;147;19;33;74;274
+2019;26985;stredisko;534.07;středisko Žamberk;Žamberk;4;68;9;12;28;121;4;68;9;12;28;121
+2019;26991;stredisko;534.08;středisko Bratra Robina Letohrad;Letohrad;22;172;32;43;85;354;22;172;32;43;85;354
+2019;27008;stredisko;534.09;středisko Medvěd Jablonné nad Orlicí;Jablonné nad Orlicí;0;26;7;7;16;56;0;26;7;7;16;56
+2019;27014;stredisko;534.11;středisko Rikitan Brandýs nad Orlicí;Brandýs nad Orlicí;1;55;13;8;12;89;1;55;13;8;12;89
+2019;27020;stredisko;534.12;středisko Dolní Dobrouč;Dolní Dobrouč;0;52;7;16;33;108;0;52;7;16;33;108
+2019;27036;stredisko;534.15;středisko Bílá liška Červená Voda;Červená Voda;5;46;11;8;20;90;5;46;11;8;20;90
+2019;25135;stredisko;610.23;středisko Doubravka Chotěboř;Chotěboř;3;56;18;23;38;138;3;56;18;23;39;139
+2019;25111;stredisko;611.01;středisko Bobři Havlíčkův Brod;Havlíčkův Brod;2;63;4;28;48;145;2;63;4;28;48;145
+2019;25147;stredisko;611.04;středisko Ledeč nad Sázavou;Ledeč nad Sázavou;13;37;7;0;27;84;13;37;7;0;27;84
+2019;25153;stredisko;611.05;středisko Goliath Přibyslav;Přibyslav;4;70;6;13;68;161;4;70;6;13;68;161
+2019;25185;stredisko;611.10;středisko Bobříci Havlíčkův Brod;Havlíčkův Brod;3;87;24;11;55;180;3;87;24;11;56;181
+2019;25198;stredisko;612.01;středisko Zvon Jihlava;Jihlava;0;36;7;0;26;69;0;36;7;0;26;69
+2019;25218;stredisko;612.02;středisko Batelov;Batelov;0;21;1;6;18;46;0;21;1;6;18;46
+2019;25235;stredisko;612.04;středisko Divočáci Jihlava;Jihlava;1;53;14;15;33;116;1;53;14;15;33;116
+2019;25271;stredisko;613.03;středisko Orlík Humpolec;Humpolec;4;40;9;9;21;83;4;40;9;9;21;83
+2019;25277;stredisko;613.04;středisko Sušený tresky Počátky;Počátky;0;14;2;10;5;31;0;14;2;10;5;31
+2019;25288;stredisko;613.05;středisko Pelhřimov;Pelhřimov;10;75;11;7;17;120;10;75;11;7;17;120
+2019;25293;stredisko;614.01;středisko Srdíčko Třebíč;Třebíč;6;212;48;25;27;318;6;212;48;25;28;319
+2019;25228;stredisko;614.03;středisko Luka nad Jihlavou;Luka nad Jihlavou;2;72;5;16;12;107;2;72;5;16;12;107
+2019;25315;stredisko;614.04;středisko Moravská Orlice Moravské Budějovice;Moravské Budějovice;4;77;18;18;15;132;4;77;18;18;15;132
+2019;25324;stredisko;614.05;středisko Jemnice;Jemnice;1;40;12;15;30;98;1;40;12;15;30;98
+2019;25334;stredisko;614.06;středisko Budišov;Budišov;0;22;12;6;15;55;0;22;12;6;15;55
+2019;25540;stredisko;614.07;středisko Velké Meziříčí;Uhřínov;12;61;14;23;13;123;12;61;14;23;13;123
+2019;25737;stredisko;614.10;přístav Žlutá Ponorka Třebíč;Třebíč;0;72;9;16;33;130;0;73;9;16;33;131
+2019;25752;stredisko;615.02;středisko Bílý štít Nové Město na Moravě;Nové Město na Moravě;1;70;14;24;36;145;1;70;14;24;36;145
+2019;25758;stredisko;615.03;středisko Klen Bystřice nad Pernštejnem;Bystřice nad Pernštejnem;16;71;10;11;28;136;16;71;10;11;28;136
+2019;25765;stredisko;615.04;přístav Racek Žďár nad Sázavou;Žďár nad Sázavou;0;51;3;14;36;104;0;51;3;14;36;104
+2019;25771;stredisko;615.05;středisko Svratka;Svratka;0;22;5;5;19;51;0;22;5;5;19;51
+2019;25778;stredisko;615.06;středisko Parkán Polná;Polná;1;55;12;11;38;117;1;55;12;11;38;117
+2019;23542;stredisko;621.01;středisko Srdce na dlani Blansko;Blansko;12;186;28;38;49;313;12;186;28;38;49;313
+2019;23507;stredisko;621.02;středisko Rájec-Jestřebí;Rájec-Jestřebí;0;59;3;13;30;105;0;59;3;13;30;105
+2019;23512;stredisko;621.03;středisko Boskovice;Boskovice;26;232;39;44;98;439;26;232;39;44;99;440
+2019;23521;stredisko;621.04;středisko Erb Letovice;Letovice;13;61;11;10;38;133;13;62;11;10;39;135
+2019;23527;stredisko;621.05;středisko Jedovnice;Jedovnice;2;130;29;26;48;235;2;130;29;26;48;235
+2019;23537;stredisko;621.07;středisko Světla Blansko;Blansko;31;332;44;61;81;549;31;332;44;63;83;553
+2019;23203;stredisko;622.01;středisko Řehoře Mendla Brno;Brno 2;10;133;13;27;31;214;10;133;13;28;34;218
+2019;23210;stredisko;622.02;středisko Dvojka Brno;Brno;1;131;21;19;45;217;1;131;21;19;45;217
+2019;23222;stredisko;622.06;středisko A je to! Brno;Brno;1;99;24;20;30;174;1;99;24;20;31;175
+2019;23228;stredisko;622.08;středisko Milana Genserka Brno;Brno;0;127;13;20;23;183;0;127;13;20;23;183
+2019;29012;stredisko;622.09;středisko Ignis Brno;Brno 23;6;174;29;30;44;283;6;174;30;30;44;284
+2019;23235;stredisko;622.10;středisko Mafeking Brno;Brno 15;5;118;20;26;35;204;5;118;20;26;35;204
+2019;23241;stredisko;622.12;středisko Královo Pole Brno;Brno;4;111;12;27;36;190;4;111;12;27;36;190
+2019;23246;stredisko;622.13;středisko Hiawatha Brno;Brno 13;6;152;12;17;47;234;6;152;12;17;49;236
+2019;23258;stredisko;622.15;středisko Kompas Brno;Brno;11;141;34;36;41;263;11;141;34;36;41;263
+2019;23265;stredisko;622.16;středisko Duha Brno;Brno-Řečkovice;0;185;29;46;41;301;0;185;29;47;41;302
+2019;23284;stredisko;622.22;středisko Stopadesáttrojka Brno;Brno 2;0;39;10;15;16;80;0;39;10;15;16;80
+2019;23289;stredisko;622.24;středisko Vrbovec Brno;Brno - Bosonohy;0;192;35;44;51;322;0;192;35;44;51;322
+2019;23298;stredisko;622.25;středisko Axinit Brno;Brno;0;118;25;17;23;183;0;118;25;17;23;183
+2019;23306;stredisko;622.26;středisko Žabovřesky Brno;Brno;1;117;10;25;28;181;1;117;10;25;28;181
+2019;23313;stredisko;622.27;středisko Starý Lískovec Brno;Brno;0;85;18;12;29;144;0;85;18;12;29;144
+2019;23317;stredisko;622.28;středisko Brána Brno;Brno;11;188;49;68;68;384;11;188;49;69;68;385
+2019;23327;stredisko;623.01;středisko Oslavany;Oslavany;0;23;3;6;21;53;0;23;3;6;21;53
+2019;23335;stredisko;623.04;středisko Ivančice;Ivančice;27;62;7;5;15;116;27;62;7;5;15;116
+2019;23346;stredisko;623.11;středisko Wahinkpe Střelice;Střelice;1;71;17;18;23;130;1;71;17;18;23;130
+2019;23350;stredisko;623.14;středisko Tumulus Újezd u Brna;Újezd u Brna;1;57;3;5;13;79;1;57;3;5;13;79
+2019;23355;stredisko;623.15;středisko Květnice Tišnov;Tišnov;0;119;12;27;18;176;0;119;12;27;18;176
+2019;23361;stredisko;623.16;středisko Kuřim;Kuřim;11;130;28;22;31;222;11;130;28;22;31;222
+2019;23367;stredisko;623.17;středisko Veverská Bítýška;Veverská Bítýška;0;33;1;11;28;73;0;33;1;11;28;73
+2019;23372;stredisko;623.18;středisko Křtiny;Křtiny;6;82;5;18;22;133;6;82;5;18;22;133
+2019;23378;stredisko;623.21;středisko Pozořice;Pozořice;18;231;22;36;79;386;18;231;22;36;79;386
+2019;23394;stredisko;623.25;středisko Hrozen Židlochovice;Židlochovice;9;77;1;14;13;114;9;77;1;14;13;114
+2019;23403;stredisko;623.26;středisko Devíti Křížů Domašov;Domašov;6;80;12;7;14;119;6;80;12;7;14;119
+2019;23409;stredisko;623.30;středisko Šlapanice;Šlapanice u Brna;13;127;24;13;14;191;13;127;24;13;14;191
+2019;23414;stredisko;623.31;středisko Vranovice;Vranovice;21;241;28;25;25;340;21;241;28;25;25;340
+2019;23549;stredisko;624.01;středisko Svatopluk Břeclav;Břeclav;0;85;13;23;37;158;0;85;13;23;37;158
+2019;23556;stredisko;624.03;středisko Mikulov;Mikulov;10;73;10;12;17;122;10;73;10;12;17;122
+2019;23422;stredisko;625.02;středisko Kyjov;Kyjov;6;127;15;19;43;210;6;127;15;19;46;213
+2019;23432;stredisko;625.03;středisko Čejka Veselí nad Moravou;Veselí nad Moravou;0;82;6;12;25;125;0;82;6;12;25;125
+2019;23438;stredisko;625.04;středisko Ratíškovice;Ratíškovice;7;153;21;23;37;241;7;153;21;24;37;242
+2019;23449;stredisko;625.05;středisko Mikulčice;Mikulčice;0;85;12;7;28;132;0;85;12;7;28;132
+2019;23457;stredisko;625.06;středisko Přátelství Hodonín;Hodonín 1;7;136;15;26;24;208;7;136;15;26;26;210
+2019;27680;stredisko;625.09;středisko Ichthys Klobouky u Brna;Klobouky u Brna;0;49;9;8;8;74;0;49;9;8;8;74
+2019;23479;stredisko;626.01;středisko Vyškov;Vyškov;1;188;43;52;50;334;1;188;43;52;51;335
+2019;23487;stredisko;626.03;středisko Slavkov u Brna;Slavkov u Brna;10;82;10;7;14;123;10;82;10;7;14;123
+2019;23493;stredisko;627.01;středisko Jevišovice;Jevišovice;1;31;10;13;30;85;1;31;10;13;30;85
+2019;23497;stredisko;627.02;středisko Podyjí Znojmo;Znojmo;0;113;18;32;39;202;0;113;18;32;39;202
+2019;28153;stredisko;627.03;přístav Neptun Znojmo;Znojmo;21;99;9;7;81;217;21;99;9;7;81;217
+2019;25910;stredisko;712.03;středisko Zdimíra Touška Olomouc;Olomouc 9;16;132;6;7;64;225;16;132;6;7;64;225
+2019;25915;stredisko;712.04;středisko Mjr. Karla Haase Olomouc;Olomouc;1;69;17;24;35;146;1;69;17;25;37;149
+2019;25925;stredisko;712.05;středisko J. E. Kosiny Olomouc;Olomouc;0;133;20;32;61;246;0;133;20;32;63;248
+2019;25937;stredisko;712.06;středisko Dvanáctka Olomouc;Olomouc;0;50;11;6;22;89;0;50;11;6;22;89
+2019;25943;stredisko;712.07;středisko Žlutý kvítek Olomouc;Olomouc;0;72;9;17;18;116;0;72;9;17;18;116
+2019;25947;stredisko;712.08;středisko Vládi Tylšara Olomouc;Olomouc 9;4;161;19;33;59;276;4;161;19;33;60;277
+2019;25960;stredisko;712.09;středisko Jana Boska Olomouc;Olomouc;22;121;24;28;17;212;22;121;24;28;18;213
+2019;25972;stredisko;712.13;středisko Šternberk;Šternberk;6;64;11;10;15;106;6;64;11;10;15;106
+2019;25984;stredisko;712.18;středisko Quercus Dub nad moravou;Dub nad Moravou;11;67;22;15;34;149;11;67;22;15;34;149
+2019;25988;stredisko;712.19;středisko Ladislava Ruska;Čechovice, Velký Týnec;8;182;31;44;43;308;8;182;31;44;43;308
+2019;25994;stredisko;712.21;středisko Bělkovice - Lašťany;Bělkovice-Lašťany;0;15;2;3;11;31;0;15;2;3;11;31
+2019;25999;stredisko;713.02;středisko Děti přírody Prostějov;Prostějov;0;53;16;9;14;92;0;53;16;9;14;92
+2019;26005;stredisko;713.03;středisko Pelikáni Prostějov;Prostějov;0;85;17;12;9;123;0;85;17;12;9;123
+2019;26014;stredisko;713.04;středisko Petra Bezruče Kostelec na Hané;Kostelec na Hané;0;28;1;0;14;43;0;28;1;0;14;43
+2019;26019;stredisko;713.05;středisko Járy Kaštila Prostějov;Prostějov;3;70;9;19;14;115;3;70;9;19;14;115
+2019;26025;stredisko;713.07;středisko Konice;Konice;2;38;3;7;13;63;2;38;3;7;13;63
+2019;28128;stredisko;713.08;přístav Tamatea Vrbátky;Vrbátky;0;19;3;1;5;28;0;19;3;1;5;28
+2019;26031;stredisko;714.01;středisko Prof. Skoumala Přerov;Přerov;4;39;6;8;17;74;4;39;6;8;17;74
+2019;26035;stredisko;714.02;středisko Táborníci Brodek u Přerova;Brodek u Přerova;8;61;10;16;46;141;8;61;10;16;46;141
+2019;26046;stredisko;714.03;středisko Kojetín;Kojetín;0;19;4;6;10;39;0;19;4;6;10;39
+2019;26051;stredisko;714.04;středisko Ing. L. Cagaše Lipník nad Bečvou;Lipník nad Bečvou;1;21;6;11;10;49;1;21;6;11;10;49
+2019;26055;stredisko;714.05;středisko Psohlavci Hranice;Hranice;13;44;9;7;35;108;13;44;9;7;35;108
+2019;26062;stredisko;715.01;středisko Rudy Knotka Šumperk;Šumperk;0;135;28;43;31;237;0;135;28;43;31;237
+2019;26549;stredisko;715.03;středisko Františka Pecháčka Bludov;Bludov;0;31;6;7;15;59;0;31;6;7;15;59
+2019;26554;stredisko;715.04;středisko Bukůvka Postřelmov;Postřelmov;0;24;3;11;13;51;0;24;3;11;13;51
+2019;26592;stredisko;715.06;středisko Zábřeh;Zábřeh;6;39;5;7;17;74;6;39;5;7;18;75
+2019;26558;stredisko;715.07;středisko Skalička Zábřeh;Hoštejn;6;125;19;16;40;206;6;125;19;16;40;206
+2019;26566;stredisko;715.08;středisko Šíp Loštice;Loštice;6;71;6;4;11;98;6;71;6;4;11;98
+2019;26570;stredisko;715.10;středisko Blesk Lesnice;Lesnice;11;75;4;11;33;134;11;75;4;11;33;134
+2019;26575;stredisko;715.11;středisko Ruda nad Moravou;Ruda nad Moravou;5;109;20;23;35;192;5;109;20;23;35;192
+2019;26580;stredisko;715.13;středisko Rovensko;Rovensko;3;34;2;4;18;61;3;34;2;4;18;61
+2019;25889;stredisko;715.15;středisko Slunce Jeseník;Jeseník 1;1;57;4;18;24;104;1;57;4;18;24;104
+2019;26585;stredisko;715.18;středisko Sněžník Staré Město;Staré Město;0;48;9;9;31;97;0;48;9;9;31;97
+2019;24841;stredisko;721.01;středisko Mirka Svobody Kroměříž;Kroměříž;7;110;9;5;39;170;7;110;9;6;39;171
+2019;28467;stredisko;721.02;středisko Lipenská dvojka Lipník nad Bečvou;Týn nad Bečvou;3;29;5;5;13;55;3;29;5;5;13;55
+2019;24851;stredisko;721.03;středisko Polárka Kroměříž;Kroměříž 1;3;79;12;17;36;147;3;79;12;17;36;147
+2019;24862;stredisko;721.06;středisko Holešov;Holešov;0;58;7;9;28;102;0;58;7;9;28;102
+2019;24869;stredisko;721.07;středisko Krále Ječmínka Chropyně;Chropyně;1;22;2;7;10;42;1;22;2;7;10;42
+2019;24877;stredisko;722.01;středisko Psohlavci Uherské Hradiště;Uherské Hradiště;1;184;18;44;93;340;1;184;18;44;93;340
+2019;24886;stredisko;722.02;středisko Dvojka Staré Město;Staré Město u Uherského Hradiště;0;43;5;6;12;66;0;43;5;6;12;66
+2019;24891;stredisko;722.03;středisko Jantar Polešovice;Polešovice;0;62;13;12;47;134;0;62;13;12;47;134
+2019;24911;stredisko;722.08;středisko Uherský Brod;Uherský Brod;0;85;16;23;50;174;0;85;16;23;50;174
+2019;24919;stredisko;722.09;středisko Bojkovice;Bojkovice;0;49;7;8;6;70;0;49;7;8;6;70
+2019;24923;stredisko;722.10;středisko Suchá Loz;Suchá Loz;0;62;17;10;16;105;0;62;17;10;16;105
+2019;24927;stredisko;722.11;středisko Modrá;Modrá;17;192;26;24;56;315;17;192;26;24;56;315
+2019;24935;stredisko;723.01;středisko Vsetín;Vsetín;4;152;18;13;67;254;4;152;18;13;67;254
+2019;24950;stredisko;723.02;středisko Valašské Meziříčí;Valašské Meziříčí;7;190;26;33;36;292;7;190;26;33;36;292
+2019;24961;stredisko;723.03;středisko Lidečko;Lidečko;9;39;2;10;11;71;9;39;2;10;11;71
+2019;24969;stredisko;723.04;středisko Rožnov pod Radhoštěm;Rožnov pod Radhoštěm;0;34;3;2;12;51;0;34;3;2;12;51
+2019;24980;stredisko;723.06;středisko Kelč;Kelč;0;69;12;12;20;113;0;69;12;12;20;113
+2019;25014;stredisko;724.03;3. středisko Zlín;Březnice;5;26;7;6;15;59;5;26;7;6;15;59
+2019;25019;stredisko;724.04;středisko Impeesa Zlín;Lhota;9;148;25;30;79;291;9;148;25;30;79;291
+2019;25033;stredisko;724.06;6. středisko Zlín;Zlín;19;164;54;39;28;304;19;164;54;39;28;304
+2019;25042;stredisko;724.07;středisko Malenovice Zlín;Zlín 4;3;34;5;8;7;57;3;34;5;8;7;57
+2019;25047;stredisko;724.08;středisko Josefa Šivela Otrokovice;Otrokovice;2;61;0;11;14;88;2;61;0;11;14;88
+2019;25052;stredisko;724.09;středisko Jerry Hodného Napajedla;Napajedla;0;49;2;8;27;86;0;49;2;8;27;86
+2019;25059;stredisko;724.10;středisko Osamělý Jestřáb Luhačovice;Luhačovice;0;31;5;2;11;49;0;31;5;2;11;49
+2019;25063;stredisko;724.11;středisko A. B. Svojsíka Slavičín;Slavičín;1;32;6;9;13;61;1;32;6;12;14;65
+2019;25069;stredisko;724.12;středisko Vizovice;Vizovice;3;78;13;14;32;140;3;78;13;14;32;140
+2019;25081;stredisko;724.14;středisko Františka Matulíka Pozlovice;Pozlovice;6;54;9;11;14;94;6;54;9;11;14;94
+2019;25088;stredisko;724.15;středisko Vatra Štítná nad Vláří;Štítná nad Vláří;0;32;8;12;14;66;0;32;8;12;14;66
+2019;25096;stredisko;724.17;středisko Brumov-Bylnice;Brumov-Bylnice;0;72;11;19;23;125;0;72;11;19;23;125
+2019;25101;stredisko;724.18;středisko Slušovice;Slušovice;2;26;13;18;9;68;2;26;13;18;9;68
+2019;24843;stredisko;811.01;středisko Bruntál;Bruntál 1;1;39;4;4;22;70;1;39;4;4;22;70
+2019;24548;stredisko;811.02;středisko Krnov;Krnov;0;14;1;3;8;26;0;14;1;3;8;26
+2019;24554;stredisko;811.03;středisko Rýmařov;Rýmařov;0;35;1;1;20;57;0;35;1;1;20;57
+2019;24559;stredisko;811.04;středisko Zlaté Hory;Zlaté Hory;1;56;8;4;13;82;1;56;8;4;13;82
+2019;24564;stredisko;812.01;středisko 8. pěšího pluku Slezského Frýdek-Místek;Frýdek - Místek;3;50;6;8;24;91;3;50;6;8;24;91
+2019;24574;stredisko;812.02;středisko Kruh Frýdek-Místek;Frýdek - Místek;0;87;16;28;23;154;0;87;16;28;23;154
+2019;24589;stredisko;812.04;středisko Ondřejník Frýdlant nad Ostravicí;Frýdlant nad Ostravicí;0;62;8;9;13;92;0;62;8;9;13;92
+2019;24594;stredisko;812.05;středisko Šenov;Šenov;4;145;24;32;23;228;4;145;24;32;23;228
+2019;24601;stredisko;812.06;středisko P. Bezruče Frýdek-Místek;Frýdek-Místek 1;0;74;15;4;24;117;0;74;15;4;24;117
+2019;24605;stredisko;812.07;středisko Svatý Jiří;Staříč;1;134;32;29;50;246;1;134;32;29;50;246
+2019;24618;stredisko;812.09;středisko Štít Pražmo;Pražmo;0;73;13;6;23;115;0;73;13;6;23;115
+2019;27589;stredisko;812.10;středisko Doberčata Dobrá;Dobrá;13;113;28;15;5;174;13;113;28;15;5;174
+2019;24623;stredisko;813.01;středisko Evžena Cedivody Karviná;Rychvald;2;92;19;17;28;158;2;92;19;17;28;158
+2019;24634;stredisko;813.02;středisko Havířov;Havířov 1;2;51;25;17;25;120;2;51;25;17;25;120
+2019;24643;stredisko;813.03;středisko Hraničář Třinec;Nýdek;1;19;4;2;10;36;1;19;4;2;10;36
+2019;24649;stredisko;813.08;středisko Zlatá Orlice Český Těšín;Český Těšín 6;2;57;9;31;33;132;2;57;9;31;33;132
+2019;24657;stredisko;814.01;středisko Pagoda Nový Jičín;Nový Jičín;1;166;31;25;30;253;1;166;38;41;34;280
+2019;24667;stredisko;814.02;středisko Příbor;Příbor;2;108;22;26;27;185;2;108;22;26;27;185
+2019;24674;stredisko;814.04;středisko Kopřivnice;Kopřivnice;3;163;39;37;48;290;3;163;39;37;48;290
+2019;24686;stredisko;814.05;středisko Štramberk;Štramberk;3;44;5;5;19;76;3;44;5;5;19;76
+2019;24694;stredisko;814.06;středisko Odry;Vražné;1;122;19;18;18;178;1;122;19;18;18;178
+2019;24698;stredisko;814.07;středisko Albrechtičky;Albrechtičky;7;94;13;16;36;166;7;94;13;16;36;166
+2019;29007;stredisko;815.01;přístav Černý čáp Opava;Opava 1;5;83;10;15;15;128;5;83;10;15;15;128
+2019;24705;stredisko;815.02;středisko Zvon Opava;Opava;0;140;33;21;30;224;0;140;33;21;30;224
+2019;24710;stredisko;815.03;středisko Jih Opava;Opava;0;35;5;10;11;61;0;35;5;10;11;61
+2019;24714;stredisko;815.04;přístav Poseidon Opava;Opava 1;0;35;4;7;17;63;0;35;4;7;17;63
+2019;24720;stredisko;815.05;středisko Ostrá Hůrka Háj ve Slezsku;Štítina;0;55;11;13;31;110;0;55;11;13;31;110
+2019;24726;stredisko;815.08;středisko Salvator Dolní Životice;Dolní Životice;1;28;6;6;3;44;1;28;6;6;3;44
+2019;24732;stredisko;815.09;středisko DVOJKA Nový Jičín;Nový Jičín;0;40;6;9;22;77;0;40;6;9;22;77
+2019;29315;stredisko;816.01;středisko Ludgeřovice;Ludgeřovice;1;75;1;0;9;86;1;75;1;0;10;87
+2019;24748;stredisko;816.02;středisko Mariánské Ostrava;Ostrava - Mariánské Hory;3;25;5;7;20;60;3;25;5;7;20;60
+2019;29300;stredisko;816.03;středisko Těrlicko;Těrlicko;0;40;2;15;2;59;0;40;2;15;2;59
+2019;24757;stredisko;816.04;středisko Svatý Jiří Ostrava;Ostrava - Moravská Ostrava;1;77;18;23;12;131;1;77;18;23;12;131
+2019;24765;stredisko;816.05;středisko Strážci Ostrava;Ostrava - Svinov;0;29;5;10;13;57;0;29;5;10;13;57
+2019;24773;stredisko;816.06;středisko Ještěr Ostrava;Ostrava - Svinov;0;43;3;3;11;60;0;43;3;3;11;60
+2019;24777;stredisko;816.07;středisko Klimkovice;Klimkovice;0;28;5;7;10;50;0;28;5;7;10;50
+2019;24994;stredisko;816.08;přístav VIRIBUS UNITIS Ostrava;Ostrava - Poruba;0;42;6;6;19;73;0;42;6;6;19;73
+2019;24787;stredisko;816.09;středisko Osmačtyřicítka Ostrava;Ostrava - Zábřeh;13;84;19;26;31;173;13;84;19;26;31;173
+2019;24796;stredisko;816.10;středisko Modrý šíp Ostrava;Ostrava - Hrabůvka;0;56;14;10;18;98;0;56;14;10;18;98
+2019;24801;stredisko;816.11;středisko Zábřeh Ostrava;Ostrava - Zábřeh;2;35;7;10;9;63;2;35;7;10;9;63
+2019;24815;stredisko;816.14;přístav Eskadra Ostrava;Ostrava - Poruba;3;65;12;18;33;131;3;65;12;18;34;132
+2019;24822;stredisko;816.15;středisko Stará Bělá;Ostrava - Stará Bělá;0;62;17;17;23;119;0;62;17;17;23;119
+2019;24831;stredisko;816.16;středisko Polanka nad Odrou;Ostrava - Polanka nad Odrou;9;70;13;9;11;112;9;70;13;9;11;112
+2019;27074;zvlastniJednotka;900.01;Kapitanát vodních skautů;Praha 1;NULL;NULL;NULL;NULL;NULL;NULL;0;0;0;0;8;8
+2019;27075;zvlastniJednotka;900.02;Junácká rezervace Červený Hrádek;Praha 1;NULL;NULL;NULL;NULL;NULL;NULL;0;0;0;0;13;13
+2019;27076;zvlastniJednotka;900.03;Skautský institut;Praha 1 - Staré Město;NULL;NULL;NULL;NULL;NULL;NULL;0;0;0;7;27;34
+2019;27077;zvlastniJednotka;900.04;Skautská ochranná služba;Praha 1;NULL;NULL;NULL;NULL;NULL;NULL;0;0;4;10;26;40
+2019;27078;zvlastniJednotka;900.05;Tiskové a distribuční centrum;Praha 1;NULL;NULL;NULL;NULL;NULL;NULL;0;0;0;0;14;14
+2019;27079;zvlastniJednotka;900.06;Klub skautských sběratelů Junáka;Praha 1;0;0;0;0;0;0;0;0;0;3;68;71
+2019;27073;zvlastniJednotka;900.07;Vzdělávací středisko Gemini;Praha 1;0;0;0;0;0;0;0;0;0;0;22;22
+2019;27080;zvlastniJednotka;900.08;Hospodářská správa Kmene dospělých;Praha 1;NULL;NULL;NULL;NULL;NULL;NULL;0;0;0;0;9;9
+2019;27081;zvlastniJednotka;900.09;Skautské záchranářské středisko;Praha 1;NULL;NULL;NULL;NULL;NULL;NULL;0;0;0;5;29;34
+2019;27069;zvlastniJednotka;900.10;Krajinská České Budějovice;České Budějovice;0;0;0;0;6;6;0;0;0;0;14;14
+2019;27082;zvlastniJednotka;900.11;Centrum vzdělávání Parvula;Praha 3;NULL;NULL;NULL;NULL;NULL;NULL;0;0;0;1;23;24
+2019;27785;zvlastniJednotka;900.12;Kaprálův mlýn;Ochoz u Brna;NULL;NULL;NULL;NULL;NULL;NULL;0;0;0;0;9;9
+2019;27827;zvlastniJednotka;900.13;Skautské základny VAVÉHA;České Budějovice;0;0;0;0;1;1;0;0;0;0;12;12
+2019;28275;zvlastniJednotka;900.14;Středisko správy majetku;Praha 1;NULL;NULL;NULL;NULL;NULL;NULL;0;0;0;0;3;3
+2019;28610;zvlastniJednotka;900.15;Skautské centrum Domašov;Domašov nad Bystřicí;NULL;NULL;NULL;NULL;NULL;NULL;0;0;0;0;21;21
