@@ -17,6 +17,71 @@ source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
 plots <- list() 
 ```
 
+# Vstup do roverského věku
+
+```{r}
+if(any(hlavni_data$let_v_junaku < hlavni_data$let_v_kmeni, na.rm = TRUE)) {
+  stop("Nekdo byl dele v Junaku nez v kmeni")
+}
+
+data_vstupy <- hlavni_data %>% mutate(
+  vek_vstupu_do_kmene = if_else(kategorie_respondenta_full == "nyni_spolecenstvi", age - let_v_kmeni, NA_real_),
+  vek_vstupu_do_junaka = age - let_v_junaku)
+
+plots$vek_vstupu_do_kmene <- data_vstupy %>% filter(!is.na(vek_vstupu_do_kmene)) %>%
+  ggplot(aes(x = vek_vstupu_do_kmene)) + geom_histogram(binwidth = 1) + vodorovne_popisky_x + 
+  scale_x_continuous(breaks = c(13, 15, 18, 21, 24)) +
+  ggtitle("Věk vstupu do kmene\nJen členi společenství")
+
+plots$vek_vstupu_do_kmene
+```
+
+Věk vstupu určen z otázek "Jak dlouho jsi ve společenství" a "Věk", proto lze určit jen u těch, kdo nyní jsou ve společenství. Každopádně málokdo vstupuje do kmene později než těsně po skautském věku.
+
+Jsou problémy roveringu způsobeny tím, že nefunguje družinový systém? Dle našeho odhadu nejvýše část - slušné množství roverů přichází z oddílů, kde aspoň trochu fungoval.
+
+```{r}
+plots$fungovani_skautskeho_oddilu <- plot_summary_mc(hlavni_data, fungovani_skautskeho_oddilu, "Moje družina ve skautském věku") 
+plots$fungovani_skautskeho_oddilu
+```
+
+Zároveň většina lidí, co v Junáku "přežije" do roverského věku Mimochodem tohle je v lajně s tím, že tím, jak chybí nováčci, tak zůstává málo starších ve skautských družinách a ti jsou pak rádci/podrádci. 
+
+```{r}
+plots$co_zazil <- hlavni_data %>% plot_summary_mc(co_zazil, "Co zažili ve skautingu")
+plots$co_zazil
+```
+
+
+Ifanka: Jak jsou na tom rádci u oddílů / u družin s aktivitou (jde mi asi hlavně o ty mladší) - jak často jezdí na akce, vzdělávačky, jednoduše jak jsou aktivní?
+
+```{r}
+hlavni_data %>% filter(age < 20, role_skauting.oddilovy_radce | role_skauting.druzinovy_radce) %>%
+  plot_summary_mc(frekvence_kratkych_akci, "Frekvence krátkých akcí", subtitle = "Jen do 20ti let, oddíloví, družinoví rádci" , order_by_podil = FALSE)
+
+hlavni_data %>% filter(age < 20, role_skauting.oddilovy_radce | role_skauting.druzinovy_radce) %>%
+  plot_summary_mc(frekvence_vicedennich_akci, "Frekvence vícedenních akcí", subtitle = "Jen do 20ti let, oddíloví, družinoví rádci" , order_by_podil = FALSE)
+
+```
+
+Nezdá se, že by tu byl nějaký velký rozdíl.
+
+
+Přechod automaticky - znamená to “Bez rituálu?”
+
+```{r}
+hlavni_data %>% filter(!is.na(vyroky_o_roveringu_zazil_2)) %>%
+  rename(rover_automaticky = vyroky_o_roveringu_zazil_2.rover_automaticky, vstupni_ritual = vyroky_o_roveringu_zazil_2.vstupni_ritual) %>%
+  group_by(rover_automaticky, vstupni_ritual) %>%
+  summarise(pocet = n()) %>%
+  ungroup() %>%
+  mutate(podil = scales::percent(pocet / sum(pocet)))
+```
+
+Nezdá se, všechny varianty automaticky/rituál jsou zhruba podobně zastoupeny, jakkoliv z "automatických" jich rituálem projde více".
+
+
+
 # Životní cyklus rovera
 
 
@@ -81,24 +146,7 @@ hlavni_data %>% filter(kategorie_respondenta_full == "nyni_spolecenstvi") %>%
 ```
 
 
-```{r}
-if(any(hlavni_data$let_v_junaku < hlavni_data$let_v_kmeni, na.rm = TRUE)) {
-  stop("Nekdo byl dele v Junaku nez v kmeni")
-}
 
-data_vstupy <- hlavni_data %>% mutate(
-  vek_vstupu_do_kmene = if_else(kategorie_respondenta_full == "nyni_spolecenstvi", age - let_v_kmeni, NA_real_),
-  vek_vstupu_do_junaka = age - let_v_junaku)
-
-plots$vek_vstupu_do_kmene <- data_vstupy %>% filter(!is.na(vek_vstupu_do_kmene)) %>%
-  ggplot(aes(x = vek_vstupu_do_kmene)) + geom_histogram(binwidth = 1) + vodorovne_popisky_x + 
-  scale_x_continuous(breaks = c(13, 15, 18, 21, 24)) +
-  ggtitle("Věk vstupu do kmene\nJen členi společenství")
-
-plots$vek_vstupu_do_kmene
-```
-
-Věk vstupu určen z otázek "Jak dlouho jsi ve společenství" a "Věk", proto lze určit jen u těch, kdo nyní jsou ve společenství. Každopádně málokdo vstupuje do kmene později než těsně po skautském věku.
 
 
 
@@ -493,34 +541,6 @@ plots$problemy_necleni <- hlavni_data %>% plot_summary_mc(problemy_roveringu_str
 plots$problemy_necleni
 ```
 
-# Vstup do roverského věku
-
-Ifanka: Jak jsou na tom rádci u oddílů / u družin s aktivitou (jde mi asi hlavně o ty mladší) - jak často jezdí na akce, vzdělávačky, jednoduše jak jsou aktivní?
-
-```{r}
-hlavni_data %>% filter(age < 20, role_skauting.oddilovy_radce | role_skauting.druzinovy_radce) %>%
-  plot_summary_mc(frekvence_kratkych_akci, "Frekvence krátkých akcí", subtitle = "Jen do 20ti let, oddíloví, družinoví rádci" , order_by_podil = FALSE)
-
-hlavni_data %>% filter(age < 20, role_skauting.oddilovy_radce | role_skauting.druzinovy_radce) %>%
-  plot_summary_mc(frekvence_vicedennich_akci, "Frekvence vícedenních akcí", subtitle = "Jen do 20ti let, oddíloví, družinoví rádci" , order_by_podil = FALSE)
-
-```
-
-Nezdá se, že by tu byl nějaký velký rozdíl.
-
-
-Přechod automaticky - znamená to “Bez rituálu?”
-
-```{r}
-hlavni_data %>% filter(!is.na(vyroky_o_roveringu_zazil_2)) %>%
-  rename(rover_automaticky = vyroky_o_roveringu_zazil_2.rover_automaticky, vstupni_ritual = vyroky_o_roveringu_zazil_2.vstupni_ritual) %>%
-  group_by(rover_automaticky, vstupni_ritual) %>%
-  summarise(pocet = n()) %>%
-  ungroup() %>%
-  mutate(podil = scales::percent(pocet / sum(pocet)))
-```
-
-Nezdá se, všechny varianty automaticky/rituál jsou zhruba podobně zastoupeny, jakkoliv z "automatických" jich rituálem projde více".
 
 # Odchod z roverského věku
 
@@ -561,13 +581,15 @@ TODO: Problémy - jak se změnilo mezi lidmi, co “byli” a “jsou”
 
 # Pracující / studující
 
+```{r}
+hlavni_data %>% mutate(studuje = zivotni_faze == "studuji" | zivotni_faze =="studuji_pracuji") %>% plot_binarni_s_nejistotou("studuje", age)
+```
+
 # Rovering a středisko
 
 # Nezařazeno
 
-```{r}
-hlavni_data %>% mutate(studuje = zivotni_faze == "studuji" | zivotni_faze =="studuji_pracuji") %>% plot_binarni_s_nejistotou("studuje", age)
-```
+
 
 
 ```{r}
@@ -593,10 +615,6 @@ plots$role
 ```
 
 
-```{r}
-plots$co_zazil <- hlavni_data %>% plot_summary_mc(co_zazil, "Co zažili ve skautingu")
-plots$co_zazil
-```
 
 ```{r}
 
@@ -664,11 +682,6 @@ plots$vyroky_o_roveringu_stredisko <- plot_summary_mc(hlavni_data, vyroky_o_rove
 plots$vyroky_o_roveringu_stredisko
 ```
 
-
-```{r}
-plots$fungovani_skautskeho_oddilu <- plot_summary_mc(hlavni_data, fungovani_skautskeho_oddilu, "Moje družina ve skautském věku") 
-plots$fungovani_skautskeho_oddilu
-```
 
 
 ```{r}
