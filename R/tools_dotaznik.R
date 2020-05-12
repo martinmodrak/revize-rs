@@ -66,7 +66,11 @@ get_default_zaloha_labels <- function() {
 }
 
 popisky_voleb <- function(data, sloupec, zaloha_labels = get_default_zaloha_labels()) {
-  nazev_sloupce <- nazev_sloupce <- rlang::as_name(enquo(sloupec))
+  nazev_sloupce <- rlang::as_name(enquo(sloupec))
+  popisky_voleb_nazev(data, nazev_sloupce, zaloha_labels)
+}
+
+popisky_voleb_nazev <- function(data, nazev_sloupce, zaloha_labels = get_default_zaloha_labels()) {
   labels_attr <- attributes(data[[nazev_sloupce]])$labels
   if(!is.null(labels_attr)) {
     labels_attr
@@ -76,6 +80,7 @@ popisky_voleb <- function(data, sloupec, zaloha_labels = get_default_zaloha_labe
     NULL
   }
 }
+
 
 popisek_otazky <- function(data, sloupec, zaloha_labels = get_default_zaloha_labels()) {
   nazev_sloupce <- nazev_sloupce <- rlang::as_name(enquo(sloupec))

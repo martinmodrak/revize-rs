@@ -488,8 +488,7 @@ rozsir_mc_matrix <- function(df, nazev_sloupce, zachovat_NA = TRUE) {
     }
     return(any(v %in% polozka))
   }
-  all_attributes <- df[[nazev_sloupce]] %>% attributes()
-  col_names <- all_attributes$labels %>% as.character()
+  col_names <- popisky_voleb_nazev(df, nazev_sloupce)
   polozky <- df[[nazev_sloupce]] %>% str_split(", ")
 
   result <- matrix(NA, nrow = nrow(df), ncol = length(col_names))
