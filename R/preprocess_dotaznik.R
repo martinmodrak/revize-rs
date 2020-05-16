@@ -39,6 +39,7 @@ preprocess_dat <- function(cela_data, verbose = FALSE, vyhodit_otevrene_jine_ota
     spocitej_kategorii_respondenta() %>%
     vytvor_fa_role() %>%
     vycisti_registracni_cisla() %>%
+    dopln_rucni_registracni_cisla() %>%
     spocitej_lss() %>%
     vyhod_texty_jine(vyhodit_otevrene_jine_otazky) %>%
     nastav_nepozorne_mc_jako_na(verbose = verbose) %>%
@@ -337,6 +338,7 @@ vycisti_registracni_cisla <- function(cela_data) {
   ))
 
   # nekde tam je bug, nevim kde zatim, ale musmi pracovat
+  # Martin: to je asi jedno, máme už ručně dohledané reg. č. kde to šlo
 
   # cela_data_backup <- cela_data
   # cela_data <- cela_data %>%
@@ -351,6 +353,29 @@ vycisti_registracni_cisla <- function(cela_data) {
   cela_data
 }
 
+
+dopln_rucni_registracni_cisla <- function(cela_data) {
+  nrow_before <- nrow(cela_data)
+  reg_c_orig <- cela_data$reg_c_strediska
+  rucni_reg_cisla <- read_csv(here::here("public_data/rucne_sparovana_strediska.csv"), col_types = cols(.default = col_character()))
+  cela_data <- cela_data %>%
+    mutate(nazev_oddilu = str_trim(nazev_oddilu), nazev_strediska = str_trim(nazev_strediska)) %>%
+    left_join(rucni_reg_cisla %>% distinct(), by = c("reg_c_strediska",	"nazev_strediska", "nazev_oddilu"), na_matches = "na") %>%
+    mutate(reg_c_strediska_orig = reg_c_strediska,
+          reg_c_strediska = if_else(is.na(reg_c_manualne), reg_c_strediska, reg_c_manualne),
+           reg_c_doplneno_manualne = !is.na(reg_c_manualne)) %>%
+    select(-reg_c_manualne)
+
+  if(nrow(cela_data) != nrow_before) {
+    stop("Spatny join")
+  }
+
+  if(sum(reg_c_orig != cela_data$reg_c_strediska, na.rm = TRUE) != nrow(rucni_reg_cisla)) {
+    stop("Spatny pocet zmenenych reg.c")
+  }
+
+  cela_data
+}
 
 spocitej_lss <- function(cela_data) {
   cela_data %>%

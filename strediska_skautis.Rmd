@@ -35,7 +35,7 @@ strediska_skautis_id <- strediska_skautis %>% select(RegistrationNumber, UnitNam
 head(strediska_skautis_id)
 ```
 
-
+Kontrola: hledáme střediska, kde po namapování reg. čísla, jak ho vyplnili lidé nesedí název s tím, který je k tomu reg. č. uveden ve SkautISu.
 
 ```{r}
 replace_stredisko <- function(x) {
@@ -49,8 +49,8 @@ normalize_stredisko <- function(x) {
 }
 
 datasety_wide$pouzitelne %>% 
-  select(reg_c_strediska, nazev_strediska) %>%
-  mutate(reg_c_strediska = str_trim(reg_c_strediska)) %>%
+  select(reg_c_strediska_orig, nazev_strediska) %>%
+  mutate(reg_c_strediska = str_trim(reg_c_strediska_orig)) %>%
   distinct() %>%
   inner_join(strediska_skautis_id, by = c("reg_c_strediska" = "RegistrationNumber")) %>%
   transmute(reg_c_strediska = reg_c_strediska, nazev_strediska_dotaznik = replace_stredisko(nazev_strediska), nazev_strediska_skautis = replace_stredisko(UnitName), misto_strediska_skautis = Location, nrml_stredisko_dotaznik = normalize_stredisko(nazev_strediska), nrml_stredisko_skautis = normalize_stredisko(UnitName)) %>%
@@ -62,11 +62,17 @@ datasety_wide$pouzitelne %>%
 
 Jediné, co nesedí je předposlední řádek - "Watakí" vs. "Jablonec nad Nisou", ale to je v pořádku, protože středisko Jablonec nad Nisou vzniklo sloučením středisek Kříšťál a Watakí (http://jablonec.skauting.cz/informace-o-stredisku/)
 
+Tj. celkově můžeme říct, že tam, kde je vyplněné reg. číslo, je vyplněné správně!
+
+
 OK, jak vypadají ty, kde se reg. č. nenamapovalo
 
 ```{r}
-nesparovana <- datasety_wide$pouzitelne %>% filter(typ_id_strediska == "reg_cislo", !(str_trim(reg_c_strediska) %in% strediska_skautis_id$RegistrationNumber)) %>% select(reg_c_strediska, nazev_strediska, nazev_oddilu)
-write_csv(nesparovana, here("local_data","nesparovana_strediska.csv"))
+nesparovana <- datasety_wide$pouzitelne %>% 
+  mutate(reg_c_strediska = reg_c_strediska_orig) %>%
+  filter(typ_id_strediska == "reg_cislo", !(str_trim(reg_c_strediska) %in% strediska_skautis_id$RegistrationNumber)) %>% select(reg_c_strediska, nazev_strediska, nazev_oddilu)
+#write_csv(nesparovana, here("local_data","nesparovana_strediska.csv"))
+write.csv(nesparovana, here("local_data","nesparovana_strediska.csv"), fileEncoding = "UTF-8")
 ```
 
 ```{r}
@@ -92,4 +98,6 @@ oddily_skautis <- read_csv2(here("public_data/pocet-clenu-oddily-2019.csv"), na 
                                     Members = col_integer()
 ))
 ```
+
+
 
