@@ -45,6 +45,7 @@ preprocess_dat <- function(cela_data, verbose = FALSE, vyhodit_otevrene_jine_ota
     nastav_nepozorne_mc_jako_na(verbose = verbose) %>%
     prejmenuj_sloupce_kompetenci() %>%
     preved_haven_na_factory() %>%
+    dopln_data_z_registrace() %>%
     spocitej_odvozene_kategorie() %>%
     as_tibble()
 }
@@ -319,10 +320,10 @@ vycisti_registracni_cisla <- function(cela_data) {
     ev_c = col_character()
   ))
 
-  cela_data <-
-    cela_data %>%
+  cela_data <- cela_data %>%
     mutate(reg_c_strediska = str_trim(reg_c_strediska)) %>%
-    left_join(ico_reg_cislo, by =c("reg_c_strediska"="ic")) %>%
+    #mutate(reg_c_strediska = if_else(reg_c_strediska == "622.1" & nazev_strediska == "Mafeking", "622.10", reg_c_strediska)) %>%
+    left_join(ico_reg_cislo, by = c("reg_c_strediska" = "ic")) %>%
     mutate(reg_c_strediska = if_else(!is.na(ev_c), ev_c,reg_c_strediska)) %>%
     select(-ev_c)
 
@@ -372,6 +373,91 @@ dopln_rucni_registracni_cisla <- function(cela_data) {
 
   if(sum(reg_c_orig != cela_data$reg_c_strediska, na.rm = TRUE) != nrow(rucni_reg_cisla)) {
     stop("Spatny pocet zmenenych reg.c")
+  }
+
+  cela_data
+}
+
+dopln_data_z_registrace <- function(cela_data) {
+
+  spatna_reg_c <- cela_data %>%
+    select(reg_c_strediska) %>%
+    filter(!is.na(reg_c_strediska), !grepl("^[0-9]{2}[0-9AB]\\.[0-9]{2}$", reg_c_strediska))
+  if(nrow(spatna_reg_c) > 0) {
+    print(spatna_reg_c)
+    stop("Obsahuje spatna reg. c.")
+  }
+
+
+  strediska_skautis <- nacti_skautis_pocty_clenu(here::here("public_data/pocet-clenu-strediska-2019.csv")) %>%
+    filter(Year == 2019) %>%
+    select(-Year, -ID_Unit, -ID_UnitType, -UnitName, -Location, -starts_with("Members"))
+
+  oddily_skautis <- nacti_skautis_pocty_clenu(here::here("public_data/pocet-clenu-oddily-2019.csv")) %>%
+    filter(Year == 2019) %>%
+    select(RegistrationNumber) %>%
+    mutate(RegCStrediska = gsub("\\.[0-9]{3}(-[0-9])?$", "", RegistrationNumber))
+
+  if(!all(oddily_skautis$RegCStrediska %in% strediska_skautis$RegistrationNumber)) {
+    stop("Podivne reg.c. oddilu")
+  }
+
+  strediska_skautis_s_oddily <- strediska_skautis %>%
+    select(RegistrationNumber) %>%
+    left_join(oddily_skautis %>% rename(RegCOddilu = RegistrationNumber),
+               by = c("RegistrationNumber" = "RegCStrediska")) %>%
+    group_by(RegistrationNumber) %>%
+    summarise(pocet_oddilu_strediska_skautis = sum(!is.na(RegCOddilu)))
+
+  if(nrow(strediska_skautis_s_oddily) != nrow(strediska_skautis)) {
+    stop("Spatny join oddilu")
+  }
+
+  strediska_skautis <- strediska_skautis %>%
+    inner_join(strediska_skautis_s_oddily, by = c("RegistrationNumber"))
+
+  if(nrow(strediska_skautis_s_oddily) != nrow(strediska_skautis)) {
+    stop("Spatny join stredisek")
+  }
+
+
+  nrow_before <- nrow(cela_data)
+  cela_data <- cela_data %>%
+    left_join(strediska_skautis, by = c("reg_c_strediska" = "RegistrationNumber"))
+
+  if(nrow_before != nrow(cela_data)) {
+    stop("Spatny join")
+  }
+
+  nesparovana_strediska <- cela_data %>%
+    filter(!is.na(cela_data$reg_c_strediska) & is.na(cela_data$RegularMembers))
+  if(nrow(nesparovana_strediska) > 0) {
+    print(nesparovana_strediska)
+    stop("Nasparovana strediska")
+  }
+
+  if(any(cela_data$pocet_clenu_strediska != explicit_na_level & !is.na(cela_data$RegularMembers))) {
+    stop("Překryv SkautIS a ručně")
+  }
+
+
+  pocet_clenu_skautis_factor <- cut(cela_data$RegularMembers, breaks = c(0, 70, 100, 130, 200, 1e4),
+                                    labels = manual_codings$pocet_clenu_strediska)
+
+  spatne_100_130 <- cela_data %>% mutate(test = pocet_clenu_skautis_factor) %>%
+    filter(!is.na(RegularMembers), RegularMembers > 100 & RegularMembers < 130, is.na(test) | test != "100_130")
+  if(nrow(spatne_100_130) > 0) {
+    stop("Spatne 100_130")
+  }
+
+  cela_data <- cela_data %>%
+    mutate(pocet_clenu_strediska = if_else(!is.na(RegularMembers),
+                                           as.character(pocet_clenu_skautis_factor)
+                                           , as.character(pocet_clenu_strediska))
+           %>% factor(levels = levels(pocet_clenu_strediska)))
+
+  if(any(is.na(cela_data$pocet_clenu_strediska))) {
+    stop("NA!")
   }
 
   cela_data
