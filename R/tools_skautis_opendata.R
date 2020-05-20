@@ -39,9 +39,11 @@ nacti_strediska_kraje <- function() {
   
   strediska_skautis %>% 
     separate(RegistrationNumber, sep = "[^[:alnum:]]", into =c("reg1","reg2"),remove=F) %>% # rozsekni reg.cislo do dvou sloupcu
+    rowwise() %>% 
     mutate(RegistrationNumber_kraj = (((str_split_fixed(reg1,pattern="",n=6)[1:2]) %>% paste0(collapse = "") %>% as.numeric())*10) %>% as.character()) %>% # trochu trik, jak vyseknout prvni dve cisla, pridame nulu a zpatky na string
     rename(UnitName_stredisko = UnitName) %>% 
     left_join(kraje_skautis, by = c("RegistrationNumber_kraj"="RegistrationNumber")) %>% # joineme s krajem
+    ungroup() %>% 
     select(RegistrationNumber_kraj,RegistrationNumber,UnitName_kraj = UnitName,UnitName_stredisko) %>% ungroup() # a vratime dobre sloupce
   
   # Reg. číslo střediska, Reg. číslo kraje, Název kraje
