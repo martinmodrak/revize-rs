@@ -152,10 +152,42 @@ reprezentativnost_vek(data_skautis_jednotlivci, hlavni_data %>% filter(sex != "j
 ```
 
 
+```{r}
+strediska_kraje <- nacti_strediska_kraje()
+
+strediska_kraje %>% filter(RegistrationNumber == "625.06")
+
+nrow_before <- nrow(hlavni_data)
+#respondenti_seskupeno <- 
+hlavni_data %>% 
+  left_join(strediska_kraje, by = c("reg_c_strediska" = "RegistrationNumber")) %>%
+  filter("kraj_nazev" != "UnitName_kraj") %>%
+  select("reg_c_strediska", "kraj_nazev", "UnitName_kraj") %>%
+  distinct()
+
+
+registrace_strediska <- nacti_skautis_pocty_clenu(here("public_data/pocet-clenu-strediska-2019.csv")) %>% filter(Year == 2019) %>% mutate(RegVOJ = gsub("\\.[0-9]{2}$", "", RegistrationNumber))
+
+registrace_VOJ <- nacti_skautis_pocty_clenu(here("public_data/pocet-clenu-VOJ.csv")) %>% filter(Year == 2019, ID_UnitType == "kraj" | ID_UnitType == "okres") %>% select(RegistrationNumber, UnitName)
+
+registrace_strediska_voj <- registrace_strediska
+
+
+head(hlavni_data$kraj_nazev)
+```
+
+
 
 TODO: reprezentativnost dle kraje
 
 TODO: Je ostrý odpad lidí u vyplnění kompetencí?
+
+
+```{r}
+plots$typ_id_strediska <- 
+  plot_summary_mc(hlavni_data, typ_id_strediska, order_by_podil = FALSE, invert_color_threshold =  0.03)
+plots$typ_id_strediska
+```
 
 ```{r save_plots}
 save_list_of_plots(plots,"charakteristika_respondentu")

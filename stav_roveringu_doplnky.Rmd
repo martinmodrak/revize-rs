@@ -1,0 +1,181 @@
+---
+title: "Stav Roveringu - Doplňky a kontroly"
+output: html_notebook
+---
+
+```{r setup}
+source(here::here("R","setup_dotaznik.R"), encoding = "UTF-8")
+source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
+
+```
+
+
+```{r}
+plots <- list() 
+```
+
+
+TODO: Diskrepance: role - “člen roverského společenství” a kategorie respondenta
+
+
+```{r}
+v_kmeni_od_14ti <- sum(datasety_wide$pouzitelne$let_v_kmeni > datasety_wide$pouzitelne$age - 14, na.rm = TRUE)
+v_kmeni_od_13ti <- sum(datasety_wide$pouzitelne$let_v_kmeni > datasety_wide$pouzitelne$age - 13, na.rm = TRUE)
+```
+
+`r v_kmeni_od_14ti` respondentů bylo (dle svých odpovědí) v kmeni už ve 14ti letech, `r v_kmeni_od_13ti` dokonce ve 13ti. Otázka, jestli to není spíš znak, že to lidé vyplňovali špatně. (V hlavních datech tyto ignoruji)
+
+
+```{r}
+hlavni_data %>% filter(!is.na(let_v_kmeni)) %>%
+  group_by(let_v_kmeni, age) %>%
+  summarise(pocet = n()) %>%
+  ggplot(aes(x = let_v_kmeni, y = age, fill = pocet)) + geom_raster() + 
+  scale_fill_revize(discrete = FALSE)  + vodorovne_popisky_x
+```
+
+
+Věk vstupu do Junáka se moc neliší napříč věkovými skupinami.
+
+```{r}
+data_vstupy %>% filter(!is.na(vek_vstupu_do_junaka)) %>%
+  group_by(vek_vstupu_do_junaka, age) %>%
+  summarise(pocet = n()) %>%
+  group_by(age) %>%
+  mutate(podil_ve_vekove_skupine = pocet / sum(pocet)) %>%
+  ggplot(aes(x = vek_vstupu_do_junaka, y = age, fill = podil_ve_vekove_skupine)) + geom_raster() + 
+  scale_fill_revize(discrete = FALSE)  + vodorovne_popisky_x
+```
+
+
+```{r}
+data_vstupy %>% filter(!is.na(vek_vstupu_do_kmene)) %>%
+  group_by(vek_vstupu_do_kmene, age) %>%
+  summarise(pocet = n()) %>%
+  group_by(age) %>%
+  mutate(podil_ve_vekove_skupine = pocet / sum(pocet)) %>%
+  ggplot(aes(x = vek_vstupu_do_kmene, y = age, fill = podil_ve_vekove_skupine)) + geom_raster() + 
+  scale_fill_revize(discrete = FALSE)  + vodorovne_popisky_x
+
+```
+
+
+Rozložení věku vstupu do Junáka vychází podobně jako z registrace.
+Pozn. ti u kterých vycházel věk vstupu do Junáka menší než 5 byli vyjmuti.
+
+```{r}
+plots$vek_vstupu_do_junaka <- data_vstupy %>% filter(!is.na(vek_vstupu_do_junaka)) %>%
+  ggplot(aes(x = vek_vstupu_do_junaka)) + geom_freqpoly(binwidth = 1) + vodorovne_popisky_x
+plots$vek_vstupu_do_junaka
+```
+
+
+
+```{r}
+hlavni_data %>% filter(kategorie_respondenta == "nyni_spolecenstvi", !ma_roverskou_roli) %>% 
+  plot_summary_mc(role_skauting, title = "Role lidí ve společenství, \nkteří se necítí rovery", min_podil = 0.01)
+```
+
+### Použité nástroje
+
+Použité nástroje se moc nezmění, když se podíváme jen na současné členy společenství.
+
+
+```{r}
+plots$vychovne_nastroje_jen_soucasni <- hlavni_data %>%
+  filter(kategorie_respondenta_full == "nyni_spolecenstvi") %>% 
+  plot_summary_mc(vychovne_nastroje, "Používáme tyto výchovné nástroje", subtitle = "Jen nyní ve společenství")
+plots$vychovne_nastroje_jen_soucasni
+```
+
+Taky žádná velká změna, když se podíváme jen na lidi, co jsou ve vedení společenství (označili jako svou roli "Vedoucí roverského společenství", "Člen rady roverského kmene" nebo "(Neformální) tahoun roverského společenství".
+
+```{r}
+plots$vychovne_nastroje_jen_vedeni <- hlavni_data %>%
+  filter(role_skauting.tahoun_roveru | role_skauting.vedouci_roveru | role_skauting.clen_rady_roveru) %>% 
+  plot_summary_mc(vychovne_nastroje, "Používáme tyto výchovné nástroje", subtitle = "Jen lidé ve vedení společenství")
+plots$vychovne_nastroje_jen_vedeni
+```
+
+Zkrácené obrázky pro slidy
+
+```{r}
+plots$vychovne_nastroje_top <- plot_summary_mc(hlavni_data, vychovne_nastroje, "Nejpoužívanější výchovné nástroje", min_podil =  0.25)
+plots$vychovne_nastroje_top
+```
+
+```{r}
+plots$vychovne_nastroje_bottom <- plot_summary_mc(hlavni_data, vychovne_nastroje, "Nejméně používané výchovné nástroje", max_podil =  0.15, invert_color_threshold = 0.01)
+plots$vychovne_nastroje_bottom
+```
+
+```{r save_plots}
+save_list_of_plots(plots,"stav_roveringu")
+```
+
+
+### Organizace kmene
+
+Existují v nemalé míře v podstatě všechny kombinace formálního/neformálního vedení a (ne)organizace.
+
+```{r}
+hlavni_data %>% 
+  filter(!is.na(organizace_spolecenstvi)) %>% 
+  mutate(neformalni = organizace_spolecenstvi %contains_any_word% c("neformalni_tahoun", "neformalni_rada"),
+         je_formalni = organizace_spolecenstvi %contains_any_word% c("formalni_vudce_zhury", "formalni_vudce_demokraticky", "formalni_rada_zhury",
+               "formalni_rada_demokraticky")) %>%
+  group_by(neformalni, je_formalni, neni_organizovan) %>% summarise(pocet = n()) %>%
+  ungroup() %>%
+  mutate(podil = pocet / sum(pocet))
+```
+
+## Problémy roveringu
+
+Problémy jsou podobné mezi členy i nečleny (a i když je dáme dohromady). Akorát tam, kde není společenství je větší důraz na "nikdo nevede" a tam, kde společenství je se zdůrazňuje vytížení/odchody - ale i tak jsou to spíš menší rozdíly.
+
+```{r}
+
+plots$problemy_cleni <- hlavni_data %>% plot_summary_mc(problemy_roveringu, "Hlavní problémy roveringu \n jen členi společenství")
+
+plots$problemy_cleni
+```
+
+```{r}
+plots$problemy_necleni <- hlavni_data %>% plot_summary_mc(problemy_roveringu_stredisko, "Hlavní problémy roveringu \n jen mimo společenství")
+
+plots$problemy_necleni
+```
+
+
+```{r}
+if(any(!is.na(hlavni_data$problemy_roveringu) && !is.na(hlavni_data$problemy_roveringu_stredisko))) {
+  stop("Problemy nejsou unikatni")
+}
+plots$problemy_all <- hlavni_data %>% mutate(problemy_roveringu_all = if_else(!is.na(problemy_roveringu), problemy_roveringu, 
+                                                  problemy_roveringu_stredisko)) %>%
+  plot_summary_mc(problemy_roveringu_all, "Hlavní problémy roveringu")
+
+plots$problemy_all
+```
+
+
+## Roverští singles
+
+```{r}
+hlavni_data %>% group_by(kategorie_respondenta_full) %>% summarise(podil_ma_roverskou_roli = mean(ma_roverskou_roli, na.rm = TRUE))
+```
+
+
+```{r}
+
+hlavni_data %>% group_by(hlavni_data$role_skauting.rover_sam, kategorie_respondenta) %>% summarise(pocet = n())
+
+
+podil_rover_sam <- mean(hlavni_data$role_skauting.rover_sam, na.rm = TRUE)
+
+
+podil_roveru_sam_mezi_bez_spolecenstvi <- hlavni_data %>% filter(kategorie_respondenta == "nikdy_spolecenstvi") %>% summarise(podil = mean(role_skauting.rover_sam, na.rm = TRUE)) %>% pull(podil)
+
+
+```
+

@@ -165,9 +165,18 @@ popis_pro_plot <- function(data, sloupec) {
 plot_summary_mc <- function(cela_data, sloupec,
                             title = popis_pro_plot(cela_data, {{ sloupec }}), subtitle = NULL,
                             order_by_podil = TRUE, invert_color_threshold = 0.06,
-                            max_podil = Inf, min_podil = -Inf, exclude_values = c()) {
-  data_to_plot <- summarise_multiple_choice(cela_data, {{ sloupec }}) %>%
-    filter(podil_ano > min_podil, podil_ano < max_podil, !(id_volby %in% exclude_values))
+                            max_podil = Inf, min_podil = -Inf, exclude_values = NULL, include_values = NULL) {
+
+  mc_summary <- summarise_multiple_choice(cela_data, {{ sloupec }})
+  if(is.null(include_values)) {
+    include_values <- mc_summary %>% pull(id_volby)
+  }
+  if(!is.null(exclude_values)) {
+    include_values <- setdiff(include_values, exclude_values)
+  }
+
+  data_to_plot <- mc_summary %>%
+    filter(podil_ano > min_podil, podil_ano < max_podil, id_volby %in% include_values)
 
   n_odpovedi <- unique(data_to_plot$pocet_total)
   if(!length(n_odpovedi) == 1) {
