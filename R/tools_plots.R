@@ -212,13 +212,20 @@ plot_summary_mc <- function(cela_data, sloupec,
     plot_annotation(title = title, subtitle =  full_subtitle)
 }
 
-plot_binarni_s_nejistotou <- function(data, binarni_sloupce_nazev, by, names_prefix = "", legend_label = "Měřítko", na.rm = FALSE) {
+plot_binarni_s_nejistotou <- function(data, binarni_sloupce_nazev, by, names_prefix = "", legend_label = if_else(flip, "Skupina", "Měřítko"), na.rm = FALSE, flip = FALSE) {
   if(length(binarni_sloupce_nazev) == 1) {
+    if(flip) {
+      stop("Flip dava smysl jen kdyz je více sloupců")
+    }
     my_aes <- aes(x = {{by}}, y = podil_ano, ymin = dolni, ymax = horni, group = 1)
     my_color_scale <- NULL
     my_fill_scale <- NULL
   } else {
-    my_aes <- aes(x = {{by}}, y = podil_ano, ymin = dolni, ymax = horni, color = meritko, group = meritko, fill = meritko)
+    if(flip) {
+      my_aes <- aes(x = meritko, y = podil_ano, ymin = dolni, ymax = horni, color = {{by}}, group = {{by}}, fill = {{by}})
+    } else {
+      my_aes <- aes(x = {{by}}, y = podil_ano, ymin = dolni, ymax = horni, color = meritko, group = meritko, fill = meritko)
+    }
     my_color_scale <- scale_color_revize(name = legend_label)
     my_fill_scale <- scale_fill_revize(name = legend_label)
   }

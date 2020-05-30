@@ -47,7 +47,7 @@ plots$sluzba
 Taky vidíme, že pomoc oddílu je nejvíce zastoupeno při sebehodnocení služby respondenty (Přesná otázka byla "`r popis_pro_plot(hlavni_data, sluzba)`".). Je otázkou jestli nás nižší desítky procent pro neskautské služby mají těšit nebo deprimovat. Záměrný seberozvoj, který by měl pro roverskou kategorii být zásadní je také zastoupen spíše méně než bychom si asi přáli.
 
 
-Rozdělení služeb se příliš neliší když se podíváma zvlášť na rovery ve společenství a rovery mimo. Nejvyšší úroveň je u roverů, kteří nikdy nebyli ve společenství a jsou ještě součástí oddílu mladších členů - lze očekávat, že to je primárně rozdíl v sebehodnocení než skutečně výrazně vyšší aktivita.
+Rozdělení služeb se příliš neliší když se podíváme zvlášť na rovery ve společenství a rovery mimo. Nejvyšší úroveň je u roverů, kteří nikdy nebyli ve společenství a jsou ještě součástí oddílu mladších členů - lze očekávat, že to je primárně rozdíl v sebehodnocení než skutečně výrazně vyšší aktivita.
 
 ```{r}
 sluzba_matrix <- rozsir_mc_matrix(hlavni_data, "sluzba", zachovat_NA = TRUE) 
@@ -62,6 +62,7 @@ plots$sluzba_kategorie_respondenta <- data_sluzba %>% mutate(kategorie = if_else
 
 plots$sluzba_kategorie_respondenta
 ```
+
 
 # Životní cyklus rovera
 
@@ -86,7 +87,7 @@ plots$vek_vstupu_do_kmene
 
 Věk vstupu určen z otázek "Jak dlouho jsi ve společenství" a "Věk", proto lze určit jen u těch, kdo nyní jsou ve společenství. Každopádně málokdo vstupuje do kmene později než těsně po skautském věku.
 
-Jsou problémy roveringu způsobeny tím, že nefunguje družinový systém? Dle našeho odhadu nejvýše část - slušné množství roverů přichází z oddílů, kde aspoň trochu fungoval.
+Vícekrát jsme se setkali s doměnkou, že nefunkční družinový systém je příčinou problémů roveringu. Slušné množství roverů přichází z oddílů, kde družinový systém aspoň trochu fungoval, takže se na to nemůžeme tolik vymlouvat (jakkoliv námi položené otázky nemohou odhalit, jestli družiny skutečně fungovaly dobře).
 
 ```{r}
 plots$fungovani_skautskeho_oddilu <- plot_summary_mc(hlavni_data, fungovani_skautskeho_oddilu, "Moje družina ve skautském věku") 
@@ -100,14 +101,20 @@ TODO: korelace problémů roveringu s odpovědmi o družinovém systému
 Zároveň většina lidí, co v Junáku "přežije" do roverského věku tak byla již aktivní ve skautském věku (_pozn.: otázka se ptala, co zažili obecně, tudíž nelze vyloučit, že někteří byli rádci/podrádci či účastníci rádcovského kurzu až v roverském věku_).
 
 ```{r}
-plots$zazil_radce <- hlavni_data %>% plot_summary_mc(co_zazil, "Co zažili ve skautingu", include_values = c("radce_podradce", "radcovsky_kurz"))
+plots$zazil_radce <- hlavni_data %>% plot_summary_mc(co_zazil, "Co zažili ve skautingu", subtitle = "jen otázky k rádcování", include_values = c("radce_podradce", "radcovsky_kurz"))
 plots$zazil_radce
 ```
 
+Jak vypadá vlastní přechod do roverského věku?
 
 ```{r}
-plot_summary_mc(hlavni_data, vyroky_o_roveringu_zazil_2, "")
+plots$vyroky_zazil_vstup <- plot_summary_mc(hlavni_data, vyroky_o_roveringu_zazil_2, "Rovering, který jsem zažil", subtitle = "jen otázky ke vstupu do roverského věku", include_values = c("rover_automaticky","vstupni_ritual","snadny_prechod", "pri_prechodu_schopny"))
+plots$vyroky_zazil_vstup
 ```
+
+Tady je opět těžká interpretace: necelých 60% mělo snadný přechod. Je to úspěch nebo se máme rmoutit pro dva z pěti roverů, co to dle vlastního pocitu snadné neměli? Obdobně, když si zhruba polovina roverů myslí, že byla připravena se aspoň trochu podílet na přípravě programu rovesrkého společenství, je to hodně nebo málo?
+
+Zajímavá je taky otázka na automatičnost - vypadá to, že v hodně střediscích se jasně rozlišuje mezi roverem a členem v roverském věku.
 
 
 Přechod automaticky - znamená to “Bez rituálu?”
@@ -121,28 +128,44 @@ hlavni_data %>% filter(!is.na(vyroky_o_roveringu_zazil_2)) %>%
   mutate(podil = scales::percent(pocet / sum(pocet)))
 ```
 
-Nezdá se, všechny varianty automaticky/rituál jsou zhruba podobně zastoupeny, jakkoliv z "automatických" jich rituálem projde více".
+Nezdá se, všechny varianty automaticky/rituál jsou zhruba podobně zastoupeny, jakkoliv z "automatických" jich rituálem projde více.
+
+A co ti, co do společenství nikdy nevstoupili (ale již nejsou v oddíle mladších členů)? To je zhruba `r scales::percent(sum(hlavni_data$kategorie_respondenta_full == "nikdy_spolecenstvi_starsi") / nrow(hlavni_data))` respondentů.
 
 
 ```{r}
-plots$vyroky_o_roveringu_stredisko_informace <- plot_summary_mc(hlavni_data, vyroky_o_roveringu_stredisko, "O roverech v mém středisku platí", subtitle = "(jen ti, co již nejsou v mladším oddíle a nikdy nebyli ve společenství)", include_values = c("je_spolecenstvi","pravidelne","bez_ulohy","nejsou", "nevim"))
+plots$vyroky_o_roveringu_stredisko_informace <- plot_summary_mc(hlavni_data, vyroky_o_roveringu_stredisko, "O roverech v mém středisku platí", subtitle = "(jen ti, co již nejsou v mladším oddíle a nikdy nebyli ve společenství)", include_values = c("je_spolecenstvi","pravidelne","bez_ulohy", "vlastni_akce", "nejsou", "nevim"))
 plots$vyroky_o_roveringu_stredisko_informace
-
 
 podil_neroveru_bez_informaci <- mean(hlavni_data$vyroky_o_roveringu_stredisko.nevim, na.rm=TRUE)
 ```
 
-Z lidí v roverském věku, kteří nikdy nebyli ve společenství jich `r scales::percent(podil_neroveru_bez_informaci)` označilo, že o roverech na středisku nemá informace.
+Jen malá část lidí mimo společenství je tam, kde je funkční roverské společenství (a ví o něm). Je taky vidět, že "mít vlastní akce" je (z vnějšku) o dost menší nárok než "funkční společenství". Naopak se zdá, že nedefinovaná úloha roverů 
 
-## Aktivita kmenů
+
+Z lidí v roverském věku, kteří nikdy nebyli ve společenství jich `r scales::percent(podil_neroveru_bez_informaci)` označilo, že o roverech na středisku nemá informace. To je sice malé číslo, zároveň to je jedna z věcí, kde lze snáze něco změnit.
+
+## Život v kmeni
+
 
 ```{r}
-plots$spokojenost_rs <- hlavni_data %>% plot_summary_mc(spokojenost_clenstvim_v_rs, "Spokojenost s členstvím ve společenství")
-plots$spokojenost_rs
+plots$pocet_clenu_spolecenstvi <- plot_summary_mc(hlavni_data, pocet_clenu_spolecenstvi, order_by_podil = FALSE, invert_color_threshold =  0.03)
+plots$pocet_clenu_spolecenstvi
+
 ```
+
+Asi nepřekvapí, že většina kmenů je malá.
 
 
 Na frekvenci akcí jsme se ptali jen současných členů (nevěřili jsme, že bývalí si to budou dobře pamatovat). Hrubá čísla asi nepřekvapí - většina roverů má tu a tam nějakou akci, velmi aktivních i zcela neaktivních kmenů je málo.
+
+```{r}
+if(sum(hlavni_data$frekvence_kratkych_akci < "mesicne", na.rm = TRUE) !=
+   sum(hlavni_data$frekvence_kratkych_akci %in% c("nevyplneno", "nikdy","rocne","nekolik_rocne"), na.rm = TRUE)) {
+  stop("Neplatny ordering")
+}
+
+```
 
 ```{r}
 plots$frekvence_kratkych_akci <- plot_summary_mc(hlavni_data, frekvence_kratkych_akci, "Frekvence kratších akcí", order_by_podil = FALSE, invert_color_threshold = 0.03)
@@ -161,42 +184,6 @@ plots$frekvence_velkych_akci
 
 ```
 
-Ptali jsme se, s čím jsou roveři spokojení/nespokojení ve svém kmeni a jedna z možností byla i frekvence akcí. Vidíme, že jen menšina lidí označila, že je s frekvencí spokojena a je tu jistý klesající trend s věkem - velké výkyvy u starších roverů je třeba brát s rezervou, protože to je malý vzorek (křivka pro "nespokejen s četností akcí" je vlastně jen inverzní)
-
-```{r}
-plots$spokojenost_frekvence_akci_vek <- hlavni_data %>% 
-  filter(kategorie_respondenta == "nyni_spolecenstvi") %>%
-  plot_binarni_s_nejistotou(c("s_cim_spokojen.cetnost_akci"), age, na.rm = TRUE) + plot_annotation("Spokojen s frekvencí akcí dle věku", "Jen současní členové")
-
-plots$spokojenost_frekvence_akci_vek
-```
-
-Intuitivně asi čekáme, že většina nespokojených je nespokojena, protože akcí je málo a jen málo proto, že akcí je moc. Přímo jsme se na toto dělení neptali, ale můžeme to zodpovědět nepřímo tak, že se podíváme, jestli ti spokojení mají obecně více akcí.
-
-A skutečně, čím více akcí (jakéhokoliv druhu), tím spokojenější s frekvencí akcí. Nicméně zhruba čtvrtina současných roverů je spokojená s četností "nikdy".
-
-```{r}
-plots$spokojenost_frekvence_akci_kratke_akce <- hlavni_data %>%
-  filter(kategorie_respondenta == "nyni_spolecenstvi") %>%
-  plot_binarni_s_nejistotou("s_cim_spokojen.cetnost_akci", frekvence_kratkych_akci, na.rm = TRUE) + plot_annotation("Spokojen s frekvencí akcí dle frekvence", "Krátké akce")
-plots$spokojenost_frekvence_akci_kratke_akce  
-```
-
-```{r}
-plots$spokojenost_frekvence_akci_vicedenni_akce <- hlavni_data %>%
-  filter(kategorie_respondenta == "nyni_spolecenstvi") %>%
-  plot_binarni_s_nejistotou("s_cim_spokojen.cetnost_akci", frekvence_vicedennich_akci, na.rm = TRUE) + plot_annotation("Spokojen s frekvencí akcí dle frekvence", "Vícedenní akce")
-plots$spokojenost_frekvence_akci_vicedenni_akce  
-```
-
-```{r}
-plots$spokojenost_frekvence_akci_velke_akce <- hlavni_data %>%
-  filter(kategorie_respondenta == "nyni_spolecenstvi") %>%
-  plot_binarni_s_nejistotou("s_cim_spokojen.cetnost_akci", frekvence_velkych_akci, na.rm = TRUE) + plot_annotation("Spokojen s frekvencí akcí dle frekvence", "Velké akce")
-plots$spokojenost_frekvence_akci_velke_akce  
-```
-
-Frekvence různých druhů akcí spolu jakž takž korelují, tj. můžeme (a často budeme) brát jen jeden druh akcí, abychom neopakovali tolik stejných grafů, jak se nám to stalo výše.
 
 Následující obrázky ukazují jak časté jsou různé kombinace frekvencí krátkých, delších a velkých akcí (čím tmavší tím častější, barva pozadí znemaná, že tuto kombinaci nikdo nevyplnil). Vidíme, že "tmavé oblasti"  jsou tam, kde je buď málo všech druhů akcí nebo celkem dost všech druhů akcí.
 
@@ -227,33 +214,11 @@ plots$role_roverske
 ```
 
 
-
-
-
-```{r}
-plots$pocet_clenu_spolecenstvi <- plot_summary_mc(hlavni_data, pocet_clenu_spolecenstvi, order_by_podil = FALSE, invert_color_threshold =  0.03)
-plots$pocet_clenu_spolecenstvi
-
-```
-
+Jak jsou aktivní roveři pohledem roverů mimo společenství?
 
 ```{r}
 plots$vyroky_o_roveringu_stredisko_aktivita <- plot_summary_mc(hlavni_data, vyroky_o_roveringu_stredisko, "O roverech v mém středisku platí", subtitle = "(jen ti, co již nejsou v mladším oddíle a nikdy nebyli ve společenství)", include_values = c("je_spolecenstvi","pravidelne","vlastni_akce", "rozviji_se"))
 plots$vyroky_o_roveringu_stredisko_aktivita
-```
-
-
-TODO: spojit do jednoho obrazku - "spokojen" - "smíšené" - "nespokojen"
-
-```{r}
-plots$s_cim_spokojen <- plot_summary_mc(hlavni_data, s_cim_spokojen, title = "S čím jsi ve společenství spokojen", exclude_values = "postoj_strediska")
-plots$s_cim_spokojen
-
-
-
-plots$s_cim_nespokojen <- plot_summary_mc(hlavni_data, s_cim_nespokojen, title = "S čím jsi ve společenství NEspokojen", exclude_values = "postoj_strediska") 
-plots$s_cim_nespokojen
-
 ```
 
 Ifanka: Jak jsou na tom rádci u oddílů / u družin s aktivitou (jde mi asi hlavně o ty mladší) - jak často jezdí na akce, vzdělávačky, jednoduše jak jsou aktivní?
@@ -310,6 +275,15 @@ plots$klicove_nastroje
 
 TODO: Porovnat s průzkumem na Obroku!
 
+```{r}
+podil_roversky_program_pomaha <- mean(hlavni_data$co_pomaha_roveringu.roversky_program, na.rm=TRUE)
+```
+
+Jen `r scales::percent(podil_roversky_program_pomaha)` respondentů uvedlo, že dle jejich zkušenosti "Roverský program vydaný Junákem" roveringu "znatelně pomáhá".
+
+TODO: Přispívá RSP k nějakým problémům roveringu?
+TODO: Může RSP v principu fungovat navzdory problémům roveringu?
+
 
 #### Otázka RO:Je RSP vůbec zavedený?
 
@@ -360,8 +334,39 @@ plots$nastroje_rozdil_pohlavi_absolutne
 
 ```
 
+Potvrzuje se  zkušenost z kurzů, že na ně častěji jezdí ženy - a zde vidíme, že to nelze snadno svést na rozdílné počty roverů a rangers, společenství, kde jsou ženy, využívají roverské kurzy častěji.
+
 
 TODO: rozdíly v pohlaví A ve spokojenosti - trošku komplikované, zatím odkládám.
+
+
+### Kurzy
+
+Na kurzy se taky můžeme podívat přes otázku, co sami respondenti (tedy ne jejich společenství) zažili:
+
+```{r}
+plots$co_zazil_kurzy <- hlavni_data %>% plot_summary_mc(co_zazil, "Co zažili ve skautingu", exclude_values = c("radce_podradce", "radcovsky_kurz", "__nic"))
+plots$co_zazil_kurzy
+
+aspon_jeden_kurz <- mean(hlavni_data$co_zazil %contains_any_word% c("cekatelky","vudcovky","roversky_kurz", "jiny_kurz"), na.rm = TRUE)
+```
+
+
+Obecně vidíme, že méně lidí zažilo roverský kurz, než kolik říká, že jejich společenství využívá kurzy jako nástroj. Na druhou stranu se alespoň na čekatelky hodně jezdí (tedy ve vzorku roverů, který máme). Celých `r scales::percent(aspon_jeden_kurz)` respondentů bylo aspoň na jednom z kurzů zmíněných výše.
+
+
+Počet účastníků kurzů samozřejmě roste s věkem respondentů, takže mezi těmi, co vydží do cca 20 let už má čekatelky za sebou kolem 80% a procento složených vůdcovek je u starších také dosti vysoké.
+
+```{r}
+hlavni_data %>% filter(!is.na(co_zazil)) %>% plot_binarni_s_nejistotou(paste0("co_zazil.", c("cekatelky","vudcovky","roversky_kurz", "jiny_kurz")), by = age)
+```
+
+Stejně jako odpovědi na používané nástroje, i tato otázka potvrzuje zkušenost roverských kurzů, že ženy se hlásí častěji. Zdá se ale, že muži se častěji vydávají na všechny ostatní druhy kurzů.
+
+```{r}
+hlavni_data %>% filter(!is.na(co_zazil), sex != "jinak_neuvedeno") %>% plot_binarni_s_nejistotou(paste0("co_zazil.", c("cekatelky","vudcovky","roversky_kurz", "jiny_kurz")), by = sex, flip = TRUE)
+
+```
 
 
 #### Dotaz RO: Čekali bychom, že velké akce jsou důležité pro společenství, co není moc organizované, ale data to možná nepotvrzují.
@@ -373,68 +378,214 @@ hlavni_data %>% plot_binarni_s_nejistotou("vychovne_nastroje.velke_akce", je_org
 hlavni_data %>% plot_binarni_s_nejistotou("vychovne_nastroje.velke_akce", organizace_spolecenstvi.formalni_vudce_zhury, na.rm = TRUE)
 ```
 
-```{r}
-# plot_frekvence_by <- function(cela_data, quo_frekvence_sloupec, group) {
-#   vyplnena_data <- cela_data %>% filter(!is.na({{group}}), !is.na(!!quo_frekvence_sloupec))
-#   frekvence_matrix <- rozsir_mc_matrix(vyplnena_data, quo_frekvence_sloupec, zachovat_NA = FALSE) 
-#   frekvence_cummulative <- 1 -  t(apply(frekvence_matrix, 1,  cummax)) + frekvence_matrix
-#   
-#   names_prefix <- paste0(as_label(quo_frekvence_sloupec), "_")
-#   frekvence_names <- gsub(names_prefix, "", colnames(frekvence_cummulative), fixed = TRUE)
-#   
-#   frekvence_cummulative %>% cbind(vyplnena_data %>% select({{group}})) %>%
-#     pivot_longer(cols = colnames(frekvence_cummulative), names_to = "frekvence", names_prefix = names_prefix, values_to = "frekvence_ano") %>%
-#     mutate(frekvence = factor(frekvence, levels = frekvence_names, labels = frekvence_names)) %>%
-#     group_by({{group}}, frekvence) %>% 
-#     summarise(prumer_ano = mean(frekvence_ano)) %>%
-#       ggplot(aes(x = frekvence, y = prumer_ano, color = {{group}}, group = {{group}}, shape = {{group}})) +  geom_line() + geom_point() + theme_cowplot() + scale_x_discrete(as_label(quo_frekvence_sloupec))
-# }
-# 
-# 
-# hlavni_data %>% plot_frekvence_by(quo(frekvence_kratkych_akci), byl_na_kurzu)
-# hlavni_data %>% plot_frekvence_by(quo(frekvence_vicedennich_akci), byl_na_kurzu)
-# hlavni_data %>% plot_frekvence_by(quo(frekvence_velkych_akci), byl_na_kurzu)
 
+
+
+## Spokojenost roverů
+
+
+```{r}
+plots$spokojenost_rs <- hlavni_data %>% plot_summary_mc(spokojenost_clenstvim_v_rs, "Spokojenost s členstvím ve společenství")
+plots$spokojenost_rs
 ```
 
+TODO: životní spokojenost!
+
+TODO: spojit do jednoho obrazku - "spokojen" - "smíšené" - "nespokojen"
 
 ```{r}
-
-
-plot_frekvence_by <- function(cela_data, nazev_freknce_sloupce, group) {
-  vyplnena_data <- cela_data %>% filter(!is.na({{group}}), !is.na(!!nazev_freknce_sloupce))
-  frekvence_matrix <- rozsir_mc_matrix(vyplnena_data, nazev_freknce_sloupce, zachovat_NA = FALSE) 
-  frekvence_cummulative <- 1 -  t(apply(frekvence_matrix, 1,  cummax)) + frekvence_matrix
-  
-  names_prefix <- paste0(nazev_freknce_sloupce, "_")
-  frekvence_names <- gsub(names_prefix, "", colnames(frekvence_cummulative), fixed = TRUE)
-  
-  frekvence_cummulative %>% cbind(vyplnena_data %>% select({{group}})) %>%
-    pivot_longer(cols = colnames(frekvence_cummulative), names_to = "frekvence", names_prefix = names_prefix, values_to = "frekvence_ano") %>%
-    mutate(frekvence = factor(frekvence, levels = frekvence_names, labels = frekvence_names)) %>%
-    group_by({{group}}, frekvence) %>% 
-    summarise(prumer_ano = mean(frekvence_ano)) %>%
-      ggplot(aes(x = frekvence, y = prumer_ano, color = {{group}}, group = {{group}}, shape = {{group}})) +  geom_line() + geom_point() + scale_x_discrete(nazev_freknce_sloupce)
+data_s_cim_spokojen <- hlavni_data %>% filter(!is.na(s_cim_spokojen), !is.na(s_cim_nespokojen)) %>% select(starts_with("s_cim_spokojen"), starts_with("s_cim_nespokojen"))
+spokojen_labels <- attributes(hlavni_data$s_cim_spokojen)$labels
+for(l in spokojen_labels) {
+  spokojen <- data_s_cim_spokojen[[paste0("s_cim_spokojen.",l)]]  
+  nespokojen <- data_s_cim_spokojen[[paste0("s_cim_nespokojen.",l)]]  
+  data_s_cim_spokojen[[paste0("spokojen_combined.",l)]] <- 
+    case_when(spokojen & !nespokojen ~ "spokojen",
+              nespokojen & !spokojen ~ "nespokojen",
+              TRUE ~ "smisene"
+              )
 }
 
+labels_spokojen <- popisky_voleb(hlavni_data, s_cim_spokojen)
 
-hlavni_data %>% plot_frekvence_by("frekvence_kratkych_akci", byl_na_kurzu)
-#cela_data_rs %>% plot_frekvence_by(quo(frekvence_vicedennich_akci), byl_na_kurzu)
-#cela_data_rs %>% plot_frekvence_by(quo(frekvence_velkych_akci), byl_na_kurzu)
+data_s_cim_spokojen %>% 
+  pivot_longer(starts_with("spokojen_combined"),                                                               names_prefix = "spokojen_combined.", names_to = "kategorie", values_to = "spokojen") %>% 
+  group_by(kategorie, spokojen) %>% 
+  summarise(pocet = n()) %>%
+  group_by(kategorie) %>% 
+  mutate(podil = pocet / sum(pocet), 
+         spokojen = factor(spokojen, levels = c("nespokojen","smisene", "spokojen")),
+         y_text = case_when(spokojen == "spokojen" ~ 0.08,
+                            spokojen == "nespokojen" ~ 0.92,
+                            TRUE ~ 0.5),
+         text = if_else(spokojen == "smisene", "", scales::percent(podil, accuracy = 1)),
+         nazev_kategorie = factor(kategorie, levels = labels_spokojen, labels = names(labels_spokojen))
+         ) %>%
+  
+  ggplot(aes(x = nazev_kategorie, y = podil, fill = spokojen)) + geom_bar(stat = "identity") +
+  geom_text(aes(x = nazev_kategorie, y = y_text, color = spokojen, label = text), family = "SKAUT", size = 6) +
+  coord_flip() + discrete_scale("fill", "revize_test",palette = revize_pal(palette = "continuous")) + discrete_scale("color", "revize_test",palette = revize_pal(palette = "continuous", reverse = TRUE)) + guides(color = FALSE) + 
+  theme(axis.text.x = element_blank(), axis.title.x = element_blank()) +
+  plot_annotation("S čím jsi ve společenství (ne)spokojen ")
+
+# plots$s_cim_spokojen <- plot_summary_mc(hlavni_data, s_cim_spokojen, title = "S čím jsi ve společenství spokojen", exclude_values = "postoj_strediska")
+# plots$s_cim_spokojen
+# 
+# 
+# 
+# plots$s_cim_nespokojen <- plot_summary_mc(hlavni_data, s_cim_nespokojen, title = "S čím jsi ve společenství NEspokojen", exclude_values = "postoj_strediska") 
+# plots$s_cim_nespokojen
+
+```
+
+Ptali jsme se, s čím jsou roveři spokojení/nespokojení ve svém kmeni a jedna z možností byla i frekvence akcí. Vidíme, že jen menšina lidí označila, že je s frekvencí spokojena a je tu jistý klesající trend s věkem - velké výkyvy u starších roverů je třeba brát s rezervou, protože to je malý vzorek (křivka pro "nespokejen s četností akcí" je vlastně jen inverzní)
+
+```{r}
+plots$spokojenost_frekvence_akci_vek <- hlavni_data %>% 
+  filter(kategorie_respondenta == "nyni_spolecenstvi") %>%
+  plot_binarni_s_nejistotou(c("s_cim_spokojen.cetnost_akci"), age, na.rm = TRUE) + plot_annotation("Spokojen s frekvencí akcí dle věku", "Jen současní členové")
+
+plots$spokojenost_frekvence_akci_vek
+```
+
+Intuitivně asi čekáme, že většina nespokojených je nespokojena, protože akcí je málo a jen málo proto, že akcí je moc. Přímo jsme se na toto dělení neptali, ale můžeme to zodpovědět nepřímo tak, že se podíváme, jestli ti spokojení mají obecně více akcí.
+
+A skutečně, čím více akcí (jakéhokoliv druhu), tím spokojenější s frekvencí akcí. Nicméně zhruba čtvrtina současných roverů je spokojená s četností "nikdy".
+
+```{r}
+plots$spokojenost_frekvence_akci_kratke_akce <- hlavni_data %>%
+  filter(kategorie_respondenta == "nyni_spolecenstvi") %>%
+  plot_binarni_s_nejistotou("s_cim_spokojen.cetnost_akci", frekvence_kratkych_akci, na.rm = TRUE) + plot_annotation("Spokojen s frekvencí akcí dle frekvence", "Krátké akce")
+plots$spokojenost_frekvence_akci_kratke_akce  
+```
+
+```{r}
+plots$spokojenost_frekvence_akci_vicedenni_akce <- hlavni_data %>%
+  filter(kategorie_respondenta == "nyni_spolecenstvi") %>%
+  plot_binarni_s_nejistotou("s_cim_spokojen.cetnost_akci", frekvence_vicedennich_akci, na.rm = TRUE) + plot_annotation("Spokojen s frekvencí akcí dle frekvence", "Vícedenní akce")
+plots$spokojenost_frekvence_akci_vicedenni_akce  
+```
+
+```{r}
+plots$spokojenost_frekvence_akci_velke_akce <- hlavni_data %>%
+  filter(kategorie_respondenta == "nyni_spolecenstvi") %>%
+  plot_binarni_s_nejistotou("s_cim_spokojen.cetnost_akci", frekvence_velkych_akci, na.rm = TRUE) + plot_annotation("Spokojen s frekvencí akcí dle frekvence", "Velké akce")
+plots$spokojenost_frekvence_akci_velke_akce  
+```
+
+Frekvence různých druhů akcí spolu jakž takž korelují, tj. můžeme (a často budeme) brát jen jeden druh akcí, abychom neopakovali tolik stejných grafů, jak se nám to stalo výše.
+
+
+## Stárnutí rovera
+
+
+```{r}
+plots$roky_ve_spolecenstvi <- hlavni_data %>% filter(!is.na(let_v_kmeni)) %>% ggplot(aes( x = let_v_kmeni)) + geom_histogram(binwidth = 1) + ggtitle("Počet let ve společenství") + scale_x_continuous("Let ve společenství") + scale_y_continuous("Počet") + vodorovne_popisky_x 
+plots$roky_ve_spolecenstvi
+```
+
+Obrázek výše obsahuje ukončená i neukončená členství - je to tedy spíše dolní odhad (lidé, kteří neukončili tak ještě budou pokračovat a zvednou to). 
+
+
+```{r}
+# data_let_v_kmeni_censored <- hlavni_data %>% filter(kategorie_respondenta_full %in% c("nyni_spolecenstvi", "drive_spolecenstvi"), !is.na(let_v_kmeni)) %>%
+#   mutate(is_censored = kategorie_respondenta_full == "nyni_spolecenstvi") 
+# # Bohuzel Cox neni moc uzitecny a zaroven resit Weibull apod. je otrava...
+# fit_let_v_kmeni <- brm_with_cache(let_v_kmeni + 1 | cens(is_censored) ~ 1, family = brms::brmsfamily("cox"), data = data_let_v_kmeni_censored, cache_file = here("local_data","fits", "let_v_kmeni.rds"))
+# summary(fit_let_v_kmeni)
+```
+
+
+TODO censored model pro dobu ve společenství.
+
+```{r}
+kolik_roveru_dele_nez_tri_roky <- mean(hlavni_data$let_v_kmeni > 3, na.rm = TRUE)
+kolik_roveru_ukoncenych_dele_nez_tri_roky <- hlavni_data %>% filter(kategorie_respondenta == "drive_spolecenstvi") %>% summarise(vice_jak_tri = mean(let_v_kmeni > 3, na.rm = TRUE)) %>% pull(vice_jak_tri)
+```
+
+Cca `r scales::percent(kolik_roveru_dele_nez_tri_roky)` roverů vydrželo v kmeni více jak 3 roky.
+
+
+Celkem nepřekvapivě klesá aktivita kmenů s věkem jejich členů:
+
+```{r}
+plots$aktivita_vek <- hlavni_data %>% 
+  filter(kategorie_respondenta_full == "nyni_spolecenstvi") %>%
+  plot_binarni_s_nejistotou(c("kmen_aktivni_zaklad","kmen_aktivni_velmi"), age, names_prefix = "kmen_", na.rm = TRUE) +
+  plot_annotation("Aktivita (frekvence akcí) - věk\nJen současní členové") + scale_x_continuous("Věk")
+           
+plots$aktivita_vek
+
+```
+
+Otázkou je, jestli je to spíše věkem členů nebo délkou trvání kmene. Délku existence kmene nemáme, ale můžeme se podívat na počet let v kmeni
+
+```{r}
+plots$aktivita_let_v_kmeni <- hlavni_data %>% 
+  filter(kategorie_respondenta_full == "nyni_spolecenstvi", let_v_kmeni < 8) %>%
+  plot_binarni_s_nejistotou(c("kmen_aktivni_zaklad","kmen_aktivni_velmi"), let_v_kmeni, names_prefix = "kmen_") +
+  plot_annotation("Aktivita (frekvence akcí) - let v kmeni\nJen současní členové")
+           
+plots$aktivita_let_v_kmeni
+```
+
+Trend je výraznější u věku, takže bych spíš vsadil na věk. Nedá se to ale dobře rozlišit, protože to spolu hodně koreluje.
+
+
+Spokojenost s členstvím _velmi mírně_ klesá s věkem, těžko z toho dělat silné závěry, protože, jak jsme viděli výše, s věkem klesá frekvence akcí a frekvence akcí taky koreluje se spokojeností, takže velká otázka, co je zde příčinou a následkem.
+
+```{r}
+hlavni_data %>% filter(kategorie_respondenta_full == "nyni_spolecenstvi") %>%
+  mutate(spise_spokojen = spokojenost_clenstvim_v_rs > 4, naprosto_spokojen = spokojenost_clenstvim_v_rs > 6) %>%
+  plot_binarni_s_nejistotou(c("spise_spokojen","naprosto_spokojen"), age) + scale_x_continuous("Věk") + plot_annotation("Spokojen s členstvím v RS - Věk\nJen současní členové")
+  
+```
+
+
+## Odchod ze společenství
+
+```{r}
+plots$proc_neni_rover <- plot_summary_mc(hlavni_data, proc_neni_rover, "Proč už nejsem v roverském společenství")
+plots$proc_neni_rover
+
+#zaniklo_nefungovalo_jediny_duvod
+
+podil_jen_zaniklo_nefungovalo <- hlavni_data %>% summarise(podil = mean(proc_neni_rover == "zaniklo_nefungovalo", na.rm = TRUE)) %>% pull(podil)
+
+```
+
+Nejvíc se ochází protože společenství zanikne nebo nefunguje, málokdy (`r scales::percent(podil_jen_zaniklo_nefungovalo)`  je ale zánik/nefunkčnost uvedno jako jediný důvod.
+
+```{r}
+plots$proc_neni_rover_zaniklo <- 
+  hlavni_data %>% filter(proc_neni_rover.zaniklo_nefungovalo) %>%  plot_summary_mc(proc_neni_rover, "Proč už nejsem v roverském společenství", max_podil = 0.99, subtitle = "Jen ti, co odpověděli, že společenství zaniklo/nefungovalo")
+plots$proc_neni_rover_zaniklo
+
 
 ```
 
 ```{r}
-# Roverský program vydaný Junákem
-podil_roversky_program_pomaha <- mean(hlavni_data$co_pomaha_roveringu.roversky_program, na.rm=TRUE)
+plots$problemy_cleni_ukonceni <- hlavni_data %>% plot_summary_mc(problemy_roveringu, "Hlavní problémy roveringu \n jen členi společenství", include_values = c("vytizeni_oddily","odstehovani","vytizeni_mimo", "nevidi_smysl", "spatne_vztahy"))
+
+plots$problemy_cleni_ukonceni
+podil_odstehovani <- mean(hlavni_data$problemy_roveringu.odstehovani, na.rm = TRUE)
 ```
 
-Jen `r scales::percent(podil_roversky_program_pomaha)` respondentů uvedlo, že dle jejich zkušenosti "Roverský program vydaný Junákem" roveringu "znatelně pomáhá".
 
-TODO: Přispívá RSP k nějakým problémům roveringu?
-TODO: Může RSP v principu fungovat navzdory problémům roveringu?
+```{r}
+plots$vek_kategorie <-  hlavni_data %>% 
+  mutate(`Je ve spolecenstvi` = kategorie_respondenta == "nyni_spolecenstvi", `Byl ve spolecenstvi` = kategorie_respondenta == "drive_spolecenstvi", `Nikdy nebyl` = kategorie_respondenta == "nikdy_spolecenstvi") %>%
+  plot_binarni_s_nejistotou(c("Je ve spolecenstvi","Byl ve spolecenstvi", "Nikdy nebyl"), age, legend_label = "") +
+  scale_x_continuous("Věk")+ plot_annotation("Věkové rozložení dle kategorie")
 
-## Vedení a forma společenství
+plots$vek_kategorie
+```
+
+Výše mimochodem další důvod si myslet, že lidi nevstupují do společenství po 16tém roku, jinak by čára "Nikdy nebyl" musela jít dolů v čase. Na druhou stranu až na hraně roverského věku máme více lidí co nejsou, než co jsou (ale to může být problém našeho průzkumu).
+
+TODO: Problémy - jak se změnilo mezi lidmi, co “byli” a “jsou”
+
+# Vedení a forma společenství
 
 Nejprve hrubý přehled. Všimněme si, že rada kmene je poměrně málo zastoupená, zatímce různé formy neformálního (či žádného) vedení jsou zastoupeny poměrně bohatě.
 
@@ -485,120 +636,6 @@ plots$problemy_cleni_vedeni
 ```
 
 Vytížení je tu pro referenci, protože to je nejčastěji zmiňovaný problém.
-
-## Stárnutí rovera
-
-
-```{r}
-plots$roky_ve_spolecenstvi <- hlavni_data %>% filter(!is.na(let_v_kmeni)) %>% ggplot(aes( x = let_v_kmeni)) + geom_histogram(binwidth = 1) + ggtitle("Počet let ve společenství") + scale_x_continuous("Let ve společenství") + scale_y_continuous("Počet") + vodorovne_popisky_x 
-plots$roky_ve_spolecenstvi
-```
-
-Obrázek výše obsahuje ukončená i neukončená členství - je to tedy spíše dolní odhad (lidé, kteří neukončili tak ještě budou pokračovat a zvednou to)
-
-
-TODO censored model pro dobu ve společenství.
-
-```{r}
-kolik_roveru_dele_nez_tri_roky <- mean(hlavni_data$let_v_kmeni > 3, na.rm = TRUE)
-```
-
-Cca `r scales::percent(kolik_roveru_dele_nez_tri_roky)` roverů vydrželo v kmeni více jak 3 roky.
-
-```{r}
-if(sum(hlavni_data$frekvence_kratkych_akci < "mesicne", na.rm = TRUE) !=
-   sum(hlavni_data$frekvence_kratkych_akci %in% c("nevyplneno", "nikdy","rocne","nekolik_rocne"), na.rm = TRUE)) {
-  stop("Neplatny ordering")
-}
-
-```
-
-
-Celkem nepřekvapivě klesá aktivita kmenů s věkem jejich členů:
-
-```{r}
-plots$aktivita_vek <- hlavni_data %>% 
-  filter(kategorie_respondenta_full == "nyni_spolecenstvi") %>%
-  plot_binarni_s_nejistotou(c("kmen_aktivni_zaklad","kmen_aktivni_velmi"), age, names_prefix = "kmen_", na.rm = TRUE) +
-  plot_annotation("Aktivita (frekvence akcí) - věk\nJen současní členové") + scale_x_continuous("Věk")
-           
-plots$aktivita_vek
-
-```
-
-Otázkou je, jestli je to spíše věkem členů nebo délkou trvání kmene. Délku existence kmene nemáme, ale můžeme se podívat na počet let v kmeni
-
-```{r}
-plots$aktivita_let_v_kmeni <- hlavni_data %>% 
-  filter(kategorie_respondenta_full == "nyni_spolecenstvi", let_v_kmeni < 8) %>%
-  plot_binarni_s_nejistotou(c("kmen_aktivni_zaklad","kmen_aktivni_velmi"), let_v_kmeni, names_prefix = "kmen_") +
-  plot_annotation("Aktivita (frekvence akcí) - let v kmeni\nJen současní členové")
-           
-plots$aktivita_let_v_kmeni
-```
-
-Trend je výraznější u věku, takže bych spíš vsadil na věk. Nedá se to ale dobře rozlišit, protože to spolu hodně koreluje.
-
-
-Spokojenost s členstvím _velmi mírně_ klesá s věkem, těžko z toho dělat silné závěry, protože, jak si za chvíli ukážeme, s věkem klesá frekvence akcí a frekvence akcí taky koreluje se spokojeností, takže velká otázka, co je zde příčinou a následkem.
-
-```{r}
-hlavni_data %>% filter(kategorie_respondenta_full == "nyni_spolecenstvi") %>%
-  mutate(spise_spokojen = spokojenost_clenstvim_v_rs > 4, naprosto_spokojen = spokojenost_clenstvim_v_rs > 6) %>%
-  plot_binarni_s_nejistotou(c("spise_spokojen","naprosto_spokojen"), age) + scale_x_continuous("Věk") + plot_annotation("Spokojen s členstvím v RS - Věk\nJen současní členové")
-  
-```
-
-
-
-```{r}
-plots$co_zazil <- hlavni_data %>% plot_summary_mc(co_zazil, "Co zažili ve skautingu", exclude_values = c("radce_podradce", "radcovsky_kurz"))
-plots$co_zazil
-```
-
-
-## Odchod ze společenství
-
-```{r}
-plots$proc_neni_rover <- plot_summary_mc(hlavni_data, proc_neni_rover, "Proč už nejsem v roverském společenství")
-plots$proc_neni_rover
-
-#zaniklo_nefungovalo_jediny_duvod
-
-podil_jen_zaniklo_nefungovalo <- hlavni_data %>% summarise(podil = mean(proc_neni_rover == "zaniklo_nefungovalo", na.rm = TRUE)) %>% pull(podil)
-
-```
-
-Nejvíc se ochází protože společenství zanikne nebo nefunguje, málokdy (`r scales::percent(podil_jen_zaniklo_nefungovalo)`  je ale zánik/nefunkčnost uvedno jako jediný důvod.
-
-```{r}
-plots$proc_neni_rover_zaniklo <- 
-  hlavni_data %>% filter(proc_neni_rover.zaniklo_nefungovalo) %>%  plot_summary_mc(proc_neni_rover, "Proč už nejsem v roverském společenství", max_podil = 0.99, subtitle = "Jen ti, co odpověděli, že společenství zaniklo/nefungovalo")
-plots$proc_neni_rover_zaniklo
-
-
-```
-
-```{r}
-plots$problemy_cleni_ukonceni <- hlavni_data %>% plot_summary_mc(problemy_roveringu, "Hlavní problémy roveringu \n jen členi společenství", include_values = c("vytizeni_oddily","odstehovani","vytizeni_mimo", "nevidi_smysl", "spatne_vztahy"))
-
-plots$problemy_cleni_ukonceni
-podil_odstehovani <- mean(hlavni_data$problemy_roveringu.odstehovani, na.rm = TRUE)
-```
-
-
-```{r}
-plots$vek_kategorie <-  hlavni_data %>% 
-  mutate(`Je ve spolecenstvi` = kategorie_respondenta == "nyni_spolecenstvi", `Byl ve spolecenstvi` = kategorie_respondenta == "drive_spolecenstvi", `Nikdy nebyl` = kategorie_respondenta == "nikdy_spolecenstvi") %>%
-  plot_binarni_s_nejistotou(c("Je ve spolecenstvi","Byl ve spolecenstvi", "Nikdy nebyl"), age, legend_label = "") +
-  scale_x_continuous("Věk")+ plot_annotation("Věkové rozložení dle kategorie")
-
-plots$vek_kategorie
-```
-
-Výše mimochodem další důvod si myslet, že lidi nevstupují do společenství po 16tém roku, jinak by čára "Nikdy nebyl" musela jít dolů v čase. Na druhou stranu až na hraně roverského věku máme více lidí co nejsou, než co jsou (ale to může být problém našeho průzkumu).
-
-TODO: Problémy - jak se změnilo mezi lidmi, co “byli” a “jsou”
 
 # Roveři ve vedení oddílu
 

@@ -23,6 +23,7 @@ source(here::here("R","preprocess_dotaznik.R"), encoding = "UTF-8")
 source(here::here("R","tools_dotaznik.R"), encoding = "UTF-8")
 source(here::here("R","tools_plots.R"), encoding = "UTF-8")
 source(here::here("R","tools_skautis_opendata.R"), encoding = "UTF-8")
+source(here::here("R","tools_brms.R"), encoding = "UTF-8")
 source(here::here("R","tools_INLA.R"), encoding = "UTF-8")
 source(here::here("R","tools_fa.R"), encoding = "UTF-8")
 
