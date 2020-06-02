@@ -22,7 +22,7 @@ pocty_clenu_skautis_cols <- cols(
 
 nacti_skautis_pocty_clenu <- function(file) {
   read_delim(file, delim = ";", na = c("NULL"),
-          col_types = pocty_clenu_skautis_cols)
+          col_types = pocty_clenu_skautis_cols, locale = locale(encoding = 'ISO-8859-2'))
 }
 
 nacti_strediska_kraje <- function() {
