@@ -459,7 +459,15 @@ dopln_data_z_registrace <- function(cela_data) {
   if(any(is.na(cela_data$pocet_clenu_strediska))) {
     stop("NA!")
   }
-
+  
+  # dopln chybejici kraje
+  kraje_strediska <- nacti_strediska_kraje() %>%  mutate(UnitName_kraj = factor(uprav_nazvy_kraju(UnitName_kraj), levels = levels(cela_data$kraj)))
+  cela_data <- cela_data %>% 
+    left_join(kraje_strediska %>% 
+                select(RegistrationNumber,UnitName_kraj), by = c("reg_c_strediska" = "RegistrationNumber")) %>% 
+    mutate(kraj = if_else(is.na(kraj),UnitName_kraj,kraj)) %>% 
+    select(-UnitName_kraj)
+  
   cela_data
 }
 

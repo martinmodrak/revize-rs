@@ -49,3 +49,10 @@ nacti_strediska_kraje <- function() {
   # Reg. číslo střediska, Reg. číslo kraje, Název kraje
   
 }
+
+uprav_nazvy_kraju <- function(kraje) {
+  recode(kraje,
+         `kraj Praha`="Hlavní město Praha",
+         `kraj Vysočina`="Kraj Vysočina",
+         `Jihomoravský kraj TGM`="Jihomoravský kraj")
+}
