@@ -8,16 +8,25 @@ output:
 
 ```{r setup}
 source(here::here("R","setup_dotaznik.R"), encoding = "UTF-8")
-source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
-
 ```
 
+- TODO: Dát všude do popisku pťesnou formulaci otázky (asi vymyslet, aby byla v grafů)
+- OTHER - jiné
 
-```{r}
+```{r nacist_data, cache=TRUE}
+source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
+
 plots <- list() 
 ```
 
-# Přínosy roveringu
+# Shrnutí závěrů
+
+- Roveři jsou aktivní v organizaci...
+- TODO
+
+# Přínosy roveringu organizaci
+
+Možná nejsi přesvědčen
 
 ```{r}
 roverske_role <- c("vedouci_roveru", "clen_rady_roveru", "clen_roveru", "rover_sam", "tahoun_roveru")
@@ -67,6 +76,8 @@ plots$sluzba_kategorie_respondenta
 # Životní cyklus rovera
 
 ## Vstup do roverského věku
+
+TODO: přidat výcuc z analýzy odchodů
 
 ```{r}
 if(any(hlavni_data$let_v_junaku < hlavni_data$let_v_kmeni, na.rm = TRUE)) {
@@ -285,7 +296,7 @@ TODO: Přispívá RSP k nějakým problémům roveringu?
 TODO: Může RSP v principu fungovat navzdory problémům roveringu?
 
 
-#### Otázka RO:Je RSP vůbec zavedený?
+### Otázka RO:Je RSP vůbec zavedený?
 
 ```{r}
 podil_nepouziva_nic <- mean(hlavni_data$vychovne_nastroje.nic, na.rm = TRUE)
@@ -299,7 +310,7 @@ Hodně roverů (`r scales::percent(podil_nepouziva_nic)`) nepoužívá žádné 
 Celkově bych spíše řekl, že roverský program není zavedený.
 
 
-#### Muži a ženy 
+### Muži a ženy 
 
 Korelace rozdílů v mužsko-ženských použití nástrojů a spokojenosti ve společenství, tj. Je něco co “cpeme holkám”? 
 
@@ -369,7 +380,7 @@ hlavni_data %>% filter(!is.na(co_zazil), sex != "jinak_neuvedeno") %>% plot_bina
 ```
 
 
-#### Dotaz RO: Čekali bychom, že velké akce jsou důležité pro společenství, co není moc organizované, ale data to možná nepotvrzují.
+### Dotaz RO: Čekali bychom, že velké akce jsou důležité pro společenství, co není moc organizované, ale data to možná nepotvrzují.
 
 Skutečně se to moc nezdá, kmeny s organizací (tahoun, rada, vudce) jsou na tom skoro stejně jako kmeny bez tohoto.
 
@@ -688,8 +699,9 @@ hlavni_data %>% plot_binarni_s_nejistotou("ma_vudcovskou_roli", frekvence_vicede
 ```
 
 ```{r}
-hlavni_data %>% filter(je_rover) %>%
-  plot_ciselne_s_nejistotou("lss", ma_vudcovskou_roli) + plot_annotation("Roveři ve vůdcovské roli \n a životní spokojenost")
+# TODO: je tu bug
+# hlavni_data %>% filter(je_rover) %>%
+#   plot_ciselne_s_nejistotou("lss", ma_vudcovskou_roli) + plot_annotation("Roveři ve vůdcovské roli \n a životní spokojenost")
 ```
 
 Velmi mírný nárůst, ale může být i věkem, dalšími faktory... musíme pořádně vymodelovat :-(.
@@ -820,6 +832,6 @@ plots$problemy_cleni <- hlavni_data %>% plot_summary_mc(problemy_roveringu, "Hla
 plots$problemy_cleni
 ```
 
-
+TODO: komunitní rovering
 
 
