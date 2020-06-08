@@ -295,12 +295,13 @@ tabulka_rozdilu <- function(data_rozdil) {
   } else {
     formatter = identity
   }
-  nazev_prumer <- paste0("Průměr ", data_rozdil$popis)
+  nazev_prumer <- paste0(data_rozdil$popis, " pPrůměr)")
   data_rozdil$data %>%
     group_by(kompetence) %>%
     summarise(prumer = mean(rozdil)) %>%
     arrange(desc(prumer)) %>%
-    mutate(!!nazev_prumer := formatter(prumer))
+    mutate(!!nazev_prumer := formatter(prumer)) %>%
+    select(-prumer)
 }
 
 
