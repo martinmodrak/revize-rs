@@ -109,8 +109,8 @@ plot_kompetence_by <- function(data, kategorie, group, meritko = kompetence_odpo
     my_facet <- NULL
     kompetence_group <-  quo(1)
   } else {
-    my_facet <- facet_wrap(~ kompetence)
-    kompetence_group <- quo(kompetence)
+    my_facet <- facet_wrap(~ popis_pro_grafy)
+    kompetence_group <- quo(popis_pro_grafy)
   }
 
 
@@ -142,7 +142,7 @@ plot_kompetence_by_smooth <- function(data, kategorie, group, meritko = kompeten
   if(all_together) {
     my_facet <- NULL
   } else {
-    my_facet <- facet_wrap(~ kompetence)
+    my_facet <- facet_wrap(~ popis_pro_grafy)
   }
 
   meritko_nazev <- names(data %>% select({{meritko}})) #Blby hack, protoze neumim tidy a jsem liny se to ucit

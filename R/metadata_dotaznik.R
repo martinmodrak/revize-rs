@@ -7,6 +7,10 @@ kompetence_nazvy_sloupcu <- data.frame(kompetence) %>%
          nazev = paste(kompetence, kategorie_kompetence, sep = "."))
 
 
+kompetence_otazky <- readxl::read_excel(here::here("public_data/kompetence_otazky.xlsx")) %>%
+  mutate(ciselne_id = paste0(cislo_oblasti,".",cislo_podoblasti),
+        popis_pro_grafy = paste0(ciselne_id, " ", nazev_podoblasti))
+
 manual_codings <- list(
   kolik_casu = c("kratsi", "delsi"),
   sex = c("muz","zena","jinak_neuvedeno"),

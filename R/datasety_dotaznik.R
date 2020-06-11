@@ -22,7 +22,16 @@ if(exists("raw_data") && exists("datasety_wide") && exists("datasety_long")) {
   datasety_long <- list()
   datasety_long$pouzitelne <- datasety_wide$pouzitelne %>%
     expand_kompetence() %>%
-    filter(!is.na(kompetence_odpoved)) %>% odvozena_meritka_kompetenci()
+    filter(!is.na(kompetence_odpoved)) %>%
+    odvozena_meritka_kompetenci()
+
+  nrow_before <- nrow(datasety_long$pouzitelne)
+  datasety_long$pouzitelne <- datasety_long$pouzitelne %>%
+    inner_join(kompetence_otazky, by = c("kompetence"))
+
+  if(nrow(datasety_long$pouzitelne) != nrow_before) {
+    stop("Špatný join")
+  }
 
   datasety_long$hlavni <- datasety_long$pouzitelne %>%
     filter(age >= 15, age <= 26, dokoncil_hlavni) %>%

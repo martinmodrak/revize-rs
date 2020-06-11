@@ -6,15 +6,24 @@ output: html_notebook
 
 ```{r setup}
 source(here::here("R","setup_dotaznik.R"), encoding = "UTF-8")
-source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
 ```
 
+```{r nacist_data, cache=TRUE}
+source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
+
+plots <- list() 
+```
+
+# Na co jsme se přesně ptali?
+
+```{r}
+otazky_rmd <- kompetence_otazky %>% arrange(ciselne_id) %>% mutate(rmd = paste0("- **", popis_pro_grafy,"** (",nazev_oblasti," - ", nazev_podoblasti,")\r\n  - ", text_otazky)) %>% pull(rmd) %>% paste0(collapse = "\r\n") 
+```
+
+`r otazky_rmd`
 
 # Dle kategorie
 
-```{r}
-plots <- list()
-```
 
 # Zvládám
 
@@ -65,10 +74,11 @@ Které kompetence jsou nejčastěji nezvládané?
 
 ```{r}
 tabulka_nezvladane <- hlavni_data_long %>% filter(kategorie_kompetence == "zvladam") %>% 
-  group_by(kompetence) %>% 
+  group_by(popis_pro_grafy) %>% 
   summarise(pocet_nezvladam = sum(kompetence_odpoved <= 3), pocet_celkem = n(), podil = pocet_nezvladam/pocet_celkem) %>%
   ungroup() %>%
-  arrange(desc(pocet_nezvladam))
+  arrange(desc(pocet_nezvladam)) %>%
+  rename(kompetence = popis_pro_grafy)
 
 tabulka_nezvladane %>% mutate(podil_nezvladam = scales::percent(podil))
 
@@ -111,9 +121,11 @@ Které kompetence jsou nejčastěji nedůležité?
 
 ```{r}
 tabulka_nedulezite <- hlavni_data_long %>% filter(kategorie_kompetence == "dulezite") %>% 
-  group_by(kompetence) %>% 
+  group_by(popis_pro_grafy) %>% 
   summarise(pocet_nedulezite = sum(kompetence_odpoved <= 3), podil = mean(kompetence_odpoved <= 3), podil_nedulezite = scales::percent(podil)) %>%
-  arrange(desc(pocet_nedulezite))
+  arrange(desc(pocet_nedulezite)) %>%
+  rename(kompetence = popis_pro_grafy)
+
 
 tabulka_nedulezite
 
@@ -123,9 +135,10 @@ plots$top_nedulezite
 
 ```{r}
 tabulka_dulezite <- hlavni_data_long %>% filter(kategorie_kompetence == "dulezite") %>% 
-  group_by(kompetence) %>% 
+  group_by(popis_pro_grafy) %>% 
   summarise(pocet_dulezite = sum(kompetence_odpoved >= 7), podil = mean(kompetence_odpoved >= 7), podil_dulezite = scales::percent(podil)) %>%
-  arrange(desc(pocet_dulezite))
+  arrange(desc(pocet_dulezite)) %>%
+  rename(kompetence = popis_pro_grafy)
 
 plots$top_dulezite <- plot_tabulka_extrem(tabulka_dulezite, text_y = 0.05) + plot_annotation("Nejčastěji důležité kompetence", subtitle = "Jen 'Zcela souhlasím'")
 plots$top_dulezite
@@ -163,9 +176,10 @@ Které kompetence se nejčastěji nerozvíjí?
 
 ```{r}
 tabulka_nerozvijim <- hlavni_data_long %>% filter(kategorie_kompetence == "rozvijim") %>% 
-  group_by(kompetence) %>% 
+  group_by(popis_pro_grafy) %>% 
   summarise(pocet_nerozvijim = sum(kompetence_odpoved <= 3), podil = mean(kompetence_odpoved <= 3, podil_nerozvijim = scales::percent(podil))) %>%
-  arrange(desc(pocet_nerozvijim))
+  arrange(desc(pocet_nerozvijim)) %>%
+  rename(kompetence = popis_pro_grafy)
 
 tabulka_nerozvijim
 
@@ -204,9 +218,10 @@ Které kompetence skauting nejčastěji míjí?
 
 ```{r}
 tabulka_neskauting <- hlavni_data_long %>% filter(kategorie_kompetence == "skauting") %>% 
-  group_by(kompetence) %>% 
+  group_by(popis_pro_grafy) %>% 
   summarise(pocet_neskauting = sum(kompetence_odpoved <= 3), podil = mean(kompetence_odpoved <= 3), podil_neskauting = scales::percent(podil)) %>%
-  arrange(desc(pocet_neskauting))
+  arrange(desc(pocet_neskauting)) %>%
+  rename(kompetence = popis_pro_grafy)
 
 tabulka_neskauting
 
@@ -279,7 +294,8 @@ spocitej_data_rozdil <- function(hlavni_data_long, prvni, druhy, meritko_nazev) 
     popis <- paste0(popis_meritka(meritko_nazev),": ",nazev_prvni," - ", nazev_druhy)
   }
   
-  data_diff <- hlavni_data_long %>% select(session, kategorie_kompetence, kompetence_odpoved, kompetence, !!meritko_nazev) %>% 
+  data_diff <- hlavni_data_long %>% select(session, kategorie_kompetence, kompetence_odpoved, popis_pro_grafy, !!meritko_nazev)  %>%
+      rename(kompetence = popis_pro_grafy) %>% 
       pivot_wider(id_cols = c("session", "kompetence"), names_from = kategorie_kompetence, values_from = !!meritko_nazev) %>%
       mutate(rozdil = diff_fun({{prvni}},{{druhy}})) %>%
       filter(!is.na(rozdil))
@@ -295,13 +311,12 @@ tabulka_rozdilu <- function(data_rozdil) {
   } else {
     formatter = identity
   }
-  nazev_prumer <- paste0(data_rozdil$popis, " pPrůměr)")
+  nazev_prumer <- paste0(data_rozdil$popis, " (Průměr)")
   data_rozdil$data %>%
     group_by(kompetence) %>%
     summarise(prumer = mean(rozdil)) %>%
     arrange(desc(prumer)) %>%
-    mutate(!!nazev_prumer := formatter(prumer)) %>%
-    select(-prumer)
+    mutate(!!nazev_prumer := formatter(prumer)) 
 }
 
 
@@ -312,13 +327,15 @@ tabulka_rozdilu <- function(data_rozdil) {
 
 ```{r}
 tabulka_dulezite_zvladam <- hlavni_data_long %>% spocitej_data_rozdil(dulezite, zvladam, "kompetence_pozitivni") %>% tabulka_rozdilu()
-tabulka_dulezite_zvladam
+tabulka_dulezite_zvladam %>%
+    select(-prumer)
 
 ```
 
 ```{r}
 
-hlavni_data_long %>% spocitej_data_rozdil(dulezite, zvladam, "kompetence_odpoved") %>% tabulka_rozdilu()
+hlavni_data_long %>% spocitej_data_rozdil(dulezite, zvladam, "kompetence_odpoved") %>% tabulka_rozdilu() %>%
+    select(-prumer)
 ```
 
 
@@ -328,7 +345,8 @@ Zajímavé je, že mezi top "nerozvíjené" patří aktivni obcan, tvořivost, k
 
 ```{r}
 tabulka_dulezite_rozvijim <- hlavni_data_long %>% spocitej_data_rozdil(dulezite, rozvijim, "kompetence_pozitivni") %>% tabulka_rozdilu()
-tabulka_dulezite_rozvijim
+tabulka_dulezite_rozvijim %>%
+    select(-prumer)
 ```
 
 ```{r}
@@ -345,7 +363,8 @@ plots$dulezite_rozvijim
 Když zohledníme i velikost rozdílu, trochu se to přehází - hlavně vyplavou vztahy, svědomí a připraven na krize - opět něco, co se samo o sobě neobjevuje čast jako nerozvíjené.
 
 ```{r}
-hlavni_data_long %>% spocitej_data_rozdil(dulezite, rozvijim, "kompetence_odpoved") %>% tabulka_rozdilu()
+hlavni_data_long %>% spocitej_data_rozdil(dulezite, rozvijim, "kompetence_odpoved") %>% tabulka_rozdilu() %>%
+    select(-prumer)
 ```
 
 
@@ -356,7 +375,8 @@ Tohle velmi blízce kopíruje obecně to, kde skauting lidi nerozvíjí, takže 
 
 ```{r}
 tabulka_dulezite_skauting <-  hlavni_data_long %>% spocitej_data_rozdil(dulezite, skauting, "kompetence_pozitivni") %>% tabulka_rozdilu()
-tabulka_dulezite_skauting
+tabulka_dulezite_skauting %>%
+    select(-prumer)
 ```
 
 ```{r}
@@ -369,7 +389,8 @@ tabulka_dulezite_skauting
 Opět poměrně kopíruje jen ty věci, kde mě skauting nerozvíjí...
 
 ```{r}
-hlavni_data_long %>% spocitej_data_rozdil(rozvijim, skauting, "kompetence_pozitivni") %>% tabulka_rozdilu()
+hlavni_data_long %>% spocitej_data_rozdil(rozvijim, skauting, "kompetence_pozitivni") %>% tabulka_rozdilu() %>%
+    select(-prumer)
 
 ```
 
