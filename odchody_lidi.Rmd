@@ -39,6 +39,7 @@ library(bindrcpp)
 library(brms)
 library(knitr)
 library(cowplot)
+theme_set(theme_cowplot())
 
 source(here::here("R","data_registrace_jednotlivci.R"), encoding = "UTF-8")
 source(here::here("R","tools_odchody.R"), encoding = "UTF-8")
@@ -86,11 +87,14 @@ odchazeni_prvni <- odchazeni %>%
 
 ```
 
-Zde vidíme, jaká část členské základny Junáka daného věku odešla během sledovaného období, rozděleno na nováčky (registrují se poprvé) a ostatní. Raději příklad: kdyby za roky 2012-2017 období bylo v Junáku celkem 1000 chlapců, kteří se poprvé registrovali během svých 13ti let a z toho se jich 200 již znovu neregistrovalo, bude v grafu 0.2. Pruh kolem údajů ukazuje očekávanou nejistotu/šum (čím méně lidí v kategorii, tím méně si jsme jisti, že to co vidíme je reprezentativní). 
+Zde vidíme, jaká část členské základny Junáka daného věku odešla během sledovaného období, rozděleno na nováčky (registrují se poprvé) a ostatní. Raději příklad: kdyby za roky 2012-2018 období bylo v Junáku celkem 1000 chlapců, kteří se poprvé registrovali během svých 13ti let a z toho se jich 200 již znovu neregistrovalo, bude v grafu 0.2. Pruh kolem údajů ukazuje očekávanou nejistotu/šum (čím méně lidí v kategorii, tím méně si jsme jisti, že to co vidíme je reprezentativní). 
 
 ```{r}
 odchazeni_posledni_focus <- odchazeni_posledni %>% filter(vek >= 10, vek <= 18)
-plot_odchody(odchazeni_posledni_focus , "delka_clenstvi") + ggtitle("Podíl odchodů dle délky předchozí registrace a věku")
+plot_odchody_hlavni <- plot_odchody(odchazeni_posledni_focus , "delka_clenstvi") + ggtitle("Podíl odchodů dle délky předchozí registrace a věku")
+
+ggsave(here::here("shared_figs/odchody.png"), plot_odchody_hlavni, width = 6, height = 4)
+plot_odchody_hlavni
 ```
 
 Vysoká míra nejistoty u nováčků je daná tím, že ve vyšším věku máme už docela málo nováčků. To samé platí pro členy s 2 -3 letou zkušeností v roverském věku. Kvůli této nejistotě nelze brát příliš vážně nárůst podílu odchodů u méně zkušených členů po 17 roce. V celkovém pohledu (viz níže) je dokonce vidět pokles. Jakkoliv zde vidíme jístý nárůst ke konci skautského věku, nezdá se být příliš výrazný (max tři procentní body). 

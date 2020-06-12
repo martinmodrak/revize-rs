@@ -38,6 +38,14 @@ hlavni_data %>% filter(!is.na(let_v_kmeni)) %>%
 Věk vstupu do Junáka se moc neliší napříč věkovými skupinami.
 
 ```{r}
+data_vstupy <- hlavni_data %>% mutate(
+  vek_vstupu_do_kmene = if_else(kategorie_respondenta_full == "nyni_spolecenstvi", age - let_v_kmeni, NA_real_),
+  vek_vstupu_do_junaka = age - let_v_junaku)
+
+```
+
+
+```{r}
 data_vstupy %>% filter(!is.na(vek_vstupu_do_junaka)) %>%
   group_by(vek_vstupu_do_junaka, age) %>%
   summarise(pocet = n()) %>%
@@ -117,23 +125,6 @@ save_list_of_plots(plots,"stav_roveringu")
 ### Nástroje roverského programu
 
 ```{r}
-
-
-plot_frekvence_by <- function(cela_data, nazev_freknce_sloupce, group) {
-  vyplnena_data <- cela_data %>% filter(!is.na({{group}}), !is.na(!!nazev_freknce_sloupce))
-  frekvence_matrix <- rozsir_mc_matrix(vyplnena_data, nazev_freknce_sloupce, zachovat_NA = FALSE) 
-  frekvence_cummulative <- 1 -  t(apply(frekvence_matrix, 1,  cummax)) + frekvence_matrix
-  
-  names_prefix <- paste0(nazev_freknce_sloupce, "_")
-  frekvence_names <- gsub(names_prefix, "", colnames(frekvence_cummulative), fixed = TRUE)
-  
-  frekvence_cummulative %>% cbind(vyplnena_data %>% select({{group}})) %>%
-    pivot_longer(cols = colnames(frekvence_cummulative), names_to = "frekvence", names_prefix = names_prefix, values_to = "frekvence_ano") %>%
-    mutate(frekvence = factor(frekvence, levels = frekvence_names, labels = frekvence_names)) %>%
-    group_by({{group}}, frekvence) %>% 
-    summarise(prumer_ano = mean(frekvence_ano)) %>%
-      ggplot(aes(x = frekvence, y = prumer_ano, color = {{group}}, group = {{group}}, shape = {{group}})) +  geom_line() + geom_point() + scale_x_discrete(nazev_freknce_sloupce)
-}
 
 
 hlavni_data %>% plot_frekvence_by("frekvence_kratkych_akci", byl_na_kurzu)

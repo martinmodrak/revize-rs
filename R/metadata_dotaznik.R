@@ -9,7 +9,7 @@ kompetence_nazvy_sloupcu <- data.frame(kompetence) %>%
 
 kompetence_otazky <- readxl::read_excel(here::here("public_data/kompetence_otazky.xlsx")) %>%
   mutate(ciselne_id = paste0(cislo_oblasti,".",cislo_podoblasti),
-        popis_pro_grafy = paste0(ciselne_id, " ", nazev_podoblasti))
+        popis_pro_grafy = paste0(ciselne_id, " ", otazka_strucne))
 
 manual_codings <- list(
   kolik_casu = c("kratsi", "delsi"),
@@ -100,3 +100,6 @@ factor_sloupce  <- c("sex", "kolik_casu","kategorie_respondenta","kategorie_resp
 
 # Timto se nahradi factory, kde je NA
 explicit_na_level <- "nevyplneno"
+
+roverske_role <- c("vedouci_roveru", "clen_rady_roveru", "clen_roveru", "rover_sam", "tahoun_roveru")
+

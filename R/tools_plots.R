@@ -229,12 +229,20 @@ plot_binarni_s_nejistotou <- function(data, binarni_sloupce_nazev, by, names_pre
     my_color_scale <- scale_color_revize(name = legend_label)
     my_fill_scale <- scale_fill_revize(name = legend_label)
   }
+
+  if(names_prefix == "") {
+    meritko_levels <- binarni_sloupce_nazev
+  } else {
+    meritko_levels <- gsub(paste0("^", names_prefix), "", binarni_sloupce_nazev)
+  }
+
   data %>% filter(!is.na({{by}})) %>%
-    pivot_longer(binarni_sloupce_nazev, names_to = "meritko", values_to = "ano", names_prefix = names_prefix) %>%
+    pivot_longer(all_of(binarni_sloupce_nazev), names_to = "meritko", values_to = "ano", names_prefix = names_prefix) %>%
     #mutate(meritko = factor(meritko, levels = binarni_sloupce_nazev)) %>%
     group_by({{by}}, meritko) %>%
     summarise(podil_ano = mean(ano, na.rm = na.rm), dolni = nejistota_binarni(0.025, ano, na.rm = na.rm), horni = nejistota_binarni(0.975, ano, na.rm = na.rm)) %>%
-    ggplot(my_aes) + geom_ribbon(alpha = 0.5) + geom_line() + vodorovne_popisky_x +
+    mutate(meritko = factor(meritko, levels = meritko_levels)) %>%
+    ggplot(my_aes) + geom_ribbon(alpha = 0.5, color = FALSE) + geom_line() + vodorovne_popisky_x +
     my_color_scale  + my_fill_scale +
     scale_y_continuous("Podíl", labels = scales::percent)
 }
@@ -255,7 +263,7 @@ plot_ciselne_s_nejistotou <- function(data, ciselne_sloupce_nazev, by, names_pre
     group_by({{by}}, meritko) %>%
     summarise(prumer = mean(hodnota), sem = sd(hodnota)/sqrt(length(hodnota)),
               dolni = qnorm(0.025, prumer, sem), horni = qnorm(0.975, prumer, sem)) %>%
-    ggplot(my_aes) + geom_ribbon(alpha = 0.5) + geom_line() + vodorovne_popisky_x +
+    ggplot(my_aes) + geom_ribbon(alpha = 0.5, color = FALSE) + geom_line() + vodorovne_popisky_x +
     my_color_scale  + my_fill_scale +
     scale_y_continuous("Průměr")
 }
@@ -273,3 +281,30 @@ save_list_of_plots <- function(plot_list, local_data_subdir) {
   }
 
 }
+
+plot_frekvence_by <- function(cela_data, nazev_freknce_sloupce, group) {
+  vyplnena_data <- cela_data %>% filter(!is.na({{group}}), !is.na(!!nazev_freknce_sloupce))
+  frekvence_matrix <- rozsir_mc_matrix(vyplnena_data, nazev_freknce_sloupce, zachovat_NA = FALSE)
+  frekvence_cummulative <- 1 -  t(apply(frekvence_matrix, 1,  cummax)) + frekvence_matrix
+
+  names_prefix <- paste0(nazev_freknce_sloupce, ".")
+  frekvence_names <- gsub(names_prefix, "", colnames(frekvence_cummulative), fixed = TRUE)
+
+  frekvence_cummulative %>% cbind(vyplnena_data %>% select({{group}})) %>%
+    pivot_longer(cols = colnames(frekvence_cummulative), names_to = "frekvence", names_prefix = names_prefix, values_to = "frekvence_ano") %>%
+    mutate(frekvence = factor(frekvence, levels = frekvence_names, labels = frekvence_names)) %>%
+    group_by({{group}}, frekvence) %>%
+    summarise(prumer_ano = mean(frekvence_ano),
+              dolni = nejistota_binarni(0.025, frekvence_ano),
+              horni = nejistota_binarni(0.975, frekvence_ano)) %>%
+    ggplot(
+      aes(x = frekvence, y = prumer_ano, ymin = dolni, ymax = horni,
+          fill = {{group}}, color = {{group}}, group = {{group}},
+          shape = {{group}})) +
+    geom_line() +
+    geom_point() +
+    geom_ribbon(alpha = 0.5, color = FALSE) +
+    scale_color_revize() + scale_fill_revize() +
+    scale_x_discrete(nazev_freknce_sloupce)
+}
+
