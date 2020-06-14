@@ -59,6 +59,15 @@ scale_fill_revize <- function(discrete = TRUE, reverse = FALSE, ...) {
   }
 }
 
+title_family <- function() {
+  # if ("pdf_document" %in% rmarkdown::all_output_formats(knitr::current_input())) {
+  #   "Arial"
+  # } else {
+  #   "SKAUT Bold"
+  # }
+  "SKAUT Bold"
+}
+
 vodorovne_popisky_x <- theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 0.5))
 
 theme_revizers <- function() {
@@ -76,7 +85,7 @@ theme_revizers <- function() {
 
       plot.background = element_rect(fill = revize_cols("dark_blue"), color = FALSE),
       plot.margin = margin(t = 20, r = 20, b = 20, l = 15),
-      plot.title = element_text(family = "SKAUT", size = 35, hjust = 0.5),
+      plot.title = element_text(family = title_family(), size = 35, hjust = 0.5),
       plot.subtitle = element_text(family = "Roboto", size = 16, face = "bold", hjust = 0.5, margin = my_margin(b = 8)),
 
       panel.grid = element_blank(),
@@ -130,9 +139,9 @@ theme_revizers <- function() {
 }
 
 set_theme_revizers <- function() {
-
+  extrafont::loadfonts()
   theme_set(theme_revizers())
-  windowsFonts("SKAUT" = windowsFont("SKAUT Bold"))
+  windowsFonts("SKAUT Bold" = windowsFont("SKAUT Bold"))
   windowsFonts("Roboto" = windowsFont("Roboto"))
 
   update_geom_defaults("bar",   list(fill = "white"))
@@ -202,7 +211,7 @@ plot_summary_mc <- function(cela_data, sloupec,
   data_to_plot %>%
     ggplot(aes(x = nazev_volby, y = podil_ano, label = scales::percent(podil_ano, accuracy = 1))) +
     geom_bar(stat = "identity") +
-    geom_text(aes(color = podil_ano > invert_color_threshold, y = if_else(podil_ano > invert_color_threshold,0.01, podil_ano + 0.01)), hjust = 0, family = "SKAUT", size = 6) +
+    geom_text(aes(color = podil_ano > invert_color_threshold, y = if_else(podil_ano > invert_color_threshold,0.01, podil_ano + 0.01)), hjust = 0, family = title_family(), size = 6) +
     scale_color_manual(values = c("white", revize_cols("dark_blue")), guide = FALSE) +
     expand_limits(color = c(FALSE, TRUE)) +
     coord_flip() +
@@ -258,7 +267,7 @@ plot_ciselne_s_nejistotou <- function(data, ciselne_sloupce_nazev, by, names_pre
     my_fill_scale <- scale_fill_revize(name = legend_label)
   }
   data %>% filter(!is.na({{by}})) %>%
-    pivot_longer(ciselne_sloupce_nazev, names_to = "meritko", values_to = "hodnota", names_prefix = names_prefix) %>%
+    pivot_longer(all_of(ciselne_sloupce_nazev), names_to = "meritko", values_to = "hodnota", names_prefix = names_prefix) %>%
     #mutate(meritko = factor(meritko, levels = ciselne_sloupce_nazev)) %>%
     group_by({{by}}, meritko) %>%
     summarise(prumer = mean(hodnota), sem = sd(hodnota)/sqrt(length(hodnota)),

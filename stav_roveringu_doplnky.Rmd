@@ -133,6 +133,52 @@ hlavni_data %>% plot_frekvence_by("frekvence_kratkych_akci", byl_na_kurzu)
 
 ```
 
+#### Kurzy a pohlaví
+
+```{r}
+data_fit_co_zazil_age_sex <- hlavni_data %>% filter(!is.na(co_zazil), sex != "jinak_neuvedeno") %>%
+  group_by(age,sex) %>% summarise(pocet = n(), cekatelky = sum(co_zazil.cekatelky), vudcovky = sum(co_zazil.vudcovky), roversky_kurz = sum(co_zazil.roversky_kurz), jiny_kurz = sum(co_zazil.jiny_kurz))
+
+# brms::get_prior(mvbind(cekatelky,vudcovky,roversky_kurz, jiny_kurz) | trials(pocet) ~ s(age) + (1||sex), family = "binomial", data = data_fit_co_zazil_age_sex)
+
+prior_co_zazil_age_sex <- 
+  brms::set_prior("normal(0,1)", class = "b") +
+  #brms::set_prior("normal(0,1)", class = "sd") +
+  brms::set_prior("normal(0,1)", class = "sds")
+
+
+fits_co_zazil_age_sex <- list()
+for(co_zazil in c("cekatelky","vudcovky","roversky_kurz")) {
+
+  formula_co_zazil <- as.formula(paste0(co_zazil, " | trials(pocet) ~ s(age) + sex"))
+  fits_co_zazil_age_sex[[co_zazil]] <- brm_with_cache(cache_file = here(paste0("local_data/fits/co_zazil_age_sex_",co_zazil,".rds")), formula = formula_co_zazil, family = "binomial", data = data_fit_co_zazil_age_sex, prior = prior_co_zazil_age_sex, control = list(adapt_delta = 0.99))
+  
+  print(fits_co_zazil_age_sex[[co_zazil]])
+}
+```
+
+
+```{r}
+hlavni_data %>% filter(!is.na(co_zazil), sex != "jinak_neuvedeno") %>%
+  mutate(roversky_kurz.muz = if_else(sex == "muz", co_zazil.roversky_kurz, NA),
+         roversky_kurz.zena = if_else(sex == "zena", co_zazil.roversky_kurz, NA)) %>%
+  plot_binarni_s_nejistotou(c("roversky_kurz.muz","roversky_kurz.zena"), by = age, na.rm = TRUE)
+
+hlavni_data %>% filter(!is.na(co_zazil), sex != "jinak_neuvedeno") %>%
+  mutate(cekatelky.muz = if_else(sex == "muz", co_zazil.cekatelky, NA),
+         cekatelky.zena = if_else(sex == "zena", co_zazil.cekatelky, NA)) %>%
+  plot_binarni_s_nejistotou(c("cekatelky.muz","cekatelky.zena"), by = age, na.rm = TRUE)
+
+```
+
+
+
+
+```{r}
+hlavni_data %>% filter(!is.na(co_zazil), sex != "jinak_neuvedeno") %>% plot_binarni_s_nejistotou(paste0("co_zazil.", c("cekatelky","vudcovky","roversky_kurz", "jiny_kurz")), by = sex, flip = TRUE)
+
+```
+
 ### Organizace kmene
 
 Existují v nemalé míře v podstatě všechny kombinace formálního/neformálního vedení a (ne)organizace.
@@ -146,6 +192,38 @@ hlavni_data %>%
   group_by(neformalni, je_formalni, neni_organizovan) %>% summarise(pocet = n()) %>%
   ungroup() %>%
   mutate(podil = pocet / sum(pocet))
+```
+
+### Spokojenost roverů
+
+```{r}
+plots$spokojenost_frekvence_akci_vicedenni_akce <- hlavni_data %>%
+  filter(kategorie_respondenta == "nyni_spolecenstvi") %>%
+  plot_binarni_s_nejistotou("s_cim_spokojen.cetnost_akci", frekvence_vicedennich_akci, na.rm = TRUE) + plot_annotation("Spokojen s frekvencí akcí dle frekvence", "Vícedenní akce")
+plots$spokojenost_frekvence_akci_vicedenni_akce  
+```
+
+```{r}
+plots$spokojenost_frekvence_akci_velke_akce <- hlavni_data %>%
+  filter(kategorie_respondenta == "nyni_spolecenstvi") %>%
+  plot_binarni_s_nejistotou("s_cim_spokojen.cetnost_akci", frekvence_velkych_akci, na.rm = TRUE) + plot_annotation("Spokojen s frekvencí akcí dle frekvence", "Velké akce")
+plots$spokojenost_frekvence_akci_velke_akce  
+```
+
+```{r}
+hlavni_data %>% 
+  filter(kategorie_respondenta == "nyni_spolecenstvi") %>%
+  plot_binarni_s_nejistotou(c("s_cim_spokojen.vztahy"), age, na.rm = TRUE) + plot_annotation("Spokojen se vztahy dle věku", "Jen současní členové")
+
+hlavni_data %>% 
+  filter(kategorie_respondenta == "nyni_spolecenstvi") %>%
+  plot_binarni_s_nejistotou(c("s_cim_spokojen.kontakty"), age, na.rm = TRUE) + plot_annotation("Spokojen s kontakty s dalšími RS programu dle věku", "Jen současní členové")
+
+hlavni_data %>% 
+  filter(kategorie_respondenta == "nyni_spolecenstvi") %>%
+  plot_binarni_s_nejistotou(c("s_cim_spokojen.postoj_strediska"), age, na.rm = TRUE) + plot_annotation("Spokojen s postojem střediska dle věku", "Jen současní členové")
+
+#plots$spokojenost_frekvence_akci_vek
 ```
 
 ## Problémy roveringu

@@ -1,6 +1,8 @@
 ---
 title: "Charakteristika respondentů"
-output: html_notebook
+output:
+  pdf_document: default
+  html_notebook: default
 ---
 
 ```{r setup}
@@ -19,7 +21,7 @@ plots <- list()
 plots$odpovedi <- datasety_wide$pouzitelne %>% group_by(stav_vyplneni) %>% summarise(pocet = n()) %>%
   mutate(stav_vyplneni = factor(stav_vyplneni, levels = c("nedokoncil","dokoncil_kratsi", "rozpracoval_doplnek", "dokoncil_doplnek", "dokoncil_delsi"), labels = c("Nedokončil ale vyplnil aspoň něco", "Dokončil kratší a nepokračoval", "Dokončil kratší a nedokončil pokračování", "Dokončil kratší i pokračování", "Dokončil delší"))) %>%
   ggplot(aes(x = stav_vyplneni, y = pocet, label = pocet)) + geom_bar(stat = "identity") + 
-  geom_text(aes(color = pocet > 50), y = 50, hjust = 0, family = "SKAUT", size = 6) + 
+  geom_text(aes(color = pocet > 50), y = 50, hjust = 0, family = title_family(), size = 6) + 
               coord_flip() + vodorovne_popisky_x + expand_limits(y = 1330) +
   scale_color_manual(values = c("white", revize_cols("dark_blue")), guide = FALSE) +
     theme(axis.title = element_blank(), axis.text.x = element_blank(),
@@ -33,7 +35,7 @@ plots$odpovedi
 plots$odpovedi_15_26 <- datasety_wide$pouzitelne %>%  filter(age >= 15, age <= 26) %>% group_by(stav_vyplneni) %>% summarise(pocet = n()) %>%
   mutate(stav_vyplneni = factor(stav_vyplneni, levels = c("nedokoncil","dokoncil_kratsi", "rozpracoval_doplnek", "dokoncil_doplnek", "dokoncil_delsi"), labels = c("Nedokončil ale vyplnil aspoň něco", "Dokončil kratší a nepokračoval", "Dokončil kratší a nedokončil pokračování", "Dokončil kratší i pokračování", "Dokončil delší"))) %>%
   ggplot(aes(x = stav_vyplneni, y = pocet, label = pocet)) + geom_bar(stat = "identity") + 
-  geom_text(aes(color = pocet > 50), y = 50, hjust = 0, family = "SKAUT", size = 6) + 
+  geom_text(aes(color = pocet > 50), y = 50, hjust = 0, family = title_family(), size = 6) + 
               coord_flip() + vodorovne_popisky_x + expand_limits(y = 1330) +
   scale_color_manual(values = c("white", revize_cols("dark_blue")), guide = FALSE) +
     theme(axis.title = element_blank(), axis.text.x = element_blank(),
@@ -183,11 +185,21 @@ TODO: reprezentativnost dle kraje
 TODO: Je ostrý odpad lidí u vyplnění kompetencí?
 
 
+TODO: porovnání pohlaví napřímo je problematické kvůli rozdílnému věkovému složení!
+
 ```{r}
 plots$typ_id_strediska <- 
-  plot_summary_mc(hlavni_data, typ_id_strediska, order_by_podil = FALSE, invert_color_threshold =  0.03)
+  plot_summary_mc(hlavni_data, typ_id_strediska, order_by_podil = FALSE, invert_color_threshold =  0.03, title = "Vyplnění informací o středisku")
 plots$typ_id_strediska
 ```
+
+```{r}
+hlavni_data %>% group_by(reg_c_strediska) %>% summarise(pocet = n(), nazev = nazev_strediska[1]) %>% arrange(desc(pocet))
+```
+
+TODO: jak moc se schoduji odpovedi různých lidí ze stejného střediska?
+
+TODO: člen společenství - role vs. kategorie respondenta
 
 ```{r save_plots}
 save_list_of_plots(plots,"charakteristika_respondentu")

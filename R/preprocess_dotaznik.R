@@ -265,6 +265,8 @@ spocitej_odvozene_kategorie <- function(cela_data) {
            byl_na_kurzu = co_zazil %contains_any_word%
              c("roversky_kurz", "radcovsky_kurz", "cekatelky", "jiny_kurz", "vudcovky"),
            neni_organizovan =  organizace_spolecenstvi %contains_any_word% c("vsichni", "nikdo", "neaktivni"),
+           ma_vudce = organizace_spolecenstvi %contains_any_word%
+             c("formalni_vudce_zhury", "formalni_vudce_demokraticky"),
            je_organizovan = organizace_spolecenstvi %contains_any_word%
              c("formalni_vudce_zhury", "formalni_vudce_demokraticky", "formalni_rada_zhury",
                "formalni_rada_demokraticky", "neformalni_tahoun", "neformalni_rada"),
@@ -459,15 +461,15 @@ dopln_data_z_registrace <- function(cela_data) {
   if(any(is.na(cela_data$pocet_clenu_strediska))) {
     stop("NA!")
   }
-  
+
   # dopln chybejici kraje
   kraje_strediska <- nacti_strediska_kraje() %>%  mutate(UnitName_kraj = factor(uprav_nazvy_kraju(UnitName_kraj), levels = levels(cela_data$kraj)))
-  cela_data <- cela_data %>% 
-    left_join(kraje_strediska %>% 
-                select(RegistrationNumber,UnitName_kraj), by = c("reg_c_strediska" = "RegistrationNumber")) %>% 
-    mutate(kraj = if_else(is.na(kraj),UnitName_kraj,kraj)) %>% 
+  cela_data <- cela_data %>%
+    left_join(kraje_strediska %>%
+                select(RegistrationNumber,UnitName_kraj), by = c("reg_c_strediska" = "RegistrationNumber")) %>%
+    mutate(kraj = if_else(is.na(kraj),UnitName_kraj,kraj)) %>%
     select(-UnitName_kraj)
-  
+
   cela_data
 }
 
