@@ -270,10 +270,16 @@ spocitej_odvozene_kategorie <- function(cela_data) {
            je_organizovan = organizace_spolecenstvi %contains_any_word%
              c("formalni_vudce_zhury", "formalni_vudce_demokraticky", "formalni_rada_zhury",
                "formalni_rada_demokraticky", "neformalni_tahoun", "neformalni_rada"),
+           organizace_strucne = factor(case_when(organizace_spolecenstvi %contains_word% "neaktivni" ~ "neaktivni",
+                                                 ma_vudce ~ "ma_vudce", je_organizovan ~ "je_organizovan", TRUE ~ "neni_organizovan"),
+                                       levels = c("neaktivni", "neni_organizovan", "je_organizovan", "ma_vudce")),
            je_rover = role_skauting %contains_any_word% c("clen_roveru", "tahoun_roveru", "rover_sam", "clen_rady_roveru"),
            ma_roverskou_roli = je_rover | role_skauting %contains_word% "vedouci_roveru",
            ma_vudcovskou_roli = role_skauting %contains_any_word% c("vedouci_zastupce_oddilu",
                                                                     "clen_vedeni_oddilu","oddilovy_radce"),
+
+           pocet_klicovych_nastroju = num_words_contained(vychovne_nastroje, klicove_nastroje_id),
+
            dokoncil_hlavni = !is.na(ended.hlavni),
            stav_vyplneni = case_when(is.na(ended.hlavni) ~ "nedokoncil",
                                      kolik_casu == "delsi" ~ "dokoncil_delsi",

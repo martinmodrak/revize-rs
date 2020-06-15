@@ -69,6 +69,7 @@ title_family <- function() {
 }
 
 vodorovne_popisky_x <- theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 0.5))
+svisle_popisky_x <- theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3))
 
 theme_revizers <- function() {
   default_margin <- 2
@@ -314,6 +315,7 @@ plot_frekvence_by <- function(cela_data, nazev_freknce_sloupce, group) {
     geom_point() +
     geom_ribbon(alpha = 0.5, color = FALSE) +
     scale_color_revize() + scale_fill_revize() +
-    scale_x_discrete(nazev_freknce_sloupce)
+    scale_x_discrete(nazev_freknce_sloupce) +
+    scale_y_continuous("Podíl kmenů s danou nebo vyšší frekvencí", labels = scales::percent)
 }
 

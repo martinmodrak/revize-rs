@@ -103,3 +103,4 @@ explicit_na_level <- "nevyplneno"
 
 roverske_role <- c("vedouci_roveru", "clen_rady_roveru", "clen_roveru", "rover_sam", "tahoun_roveru")
 
+klicove_nastroje_id <- c("vyzvy", "projekty", "zacatek", "kurzy", "odborky", "putovani", "zahranici", "stezky", "velke_akce")

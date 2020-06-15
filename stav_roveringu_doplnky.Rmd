@@ -226,6 +226,15 @@ hlavni_data %>%
 #plots$spokojenost_frekvence_akci_vek
 ```
 
+```{r}
+hlavni_data %>% filter(!is.na(vychovne_nastroje), kategorie_respondenta == "nyni_spolecenstvi", !role_skauting.vedouci_roveru, !role_skauting.tahoun_roveru) %>% plot_ciselne_s_nejistotou("pocet_klicovych_nastroju", organizace_strucne) + plot_annotation("Výchovné nástroje dle organizace", subtitle =  paste0("Počet použitých klíčových nástrojů. Bez respondentů, kteří sami vedou. Za klíčové se berou:\n ", paste0(klicove_nastroje_id, collapse = ", ")))
+```
+
+```{r}
+hlavni_data %>% filter(kategorie_respondenta == "nyni_spolecenstvi", !role_skauting.vedouci_roveru, !role_skauting.tahoun_roveru) %>%plot_frekvence_by("frekvence_vicedennich_akci", organizace_strucne) + plot_annotation("Frekvence vícedenních akcí", "dle organizace kmene, jen současní členové")
+
+```
+
 ## Problémy roveringu
 
 Problémy jsou podobné mezi členy i nečleny (a i když je dáme dohromady). Akorát tam, kde není společenství je větší důraz na "nikdo nevede" a tam, kde společenství je se zdůrazňuje vytížení/odchody - ale i tak jsou to spíš menší rozdíly.

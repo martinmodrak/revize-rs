@@ -6,6 +6,15 @@
   rowSums(partial_results) > 0
 }
 
+num_words_contained <- function(x, words) {
+  partial_results <- matrix(nrow = length(x), ncol = length(words))
+  for(i in 1:length(words)) {
+    partial_results[,i] <- x %contains_word% words[i]
+  }
+  rowSums(partial_results)
+}
+
+
 test_contains_any_word <- function(x, word1, word2 = FALSE, word3 = FALSE) {
   if(identical(word3, FALSE)) {
     if(identical(word3, FALSE)) {
