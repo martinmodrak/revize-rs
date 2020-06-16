@@ -31,6 +31,9 @@ vignettes/*.pdf
 # Compiled markdown
 /*_files/
 /*.html
+/*.docx
+/*.pdf
+~$*
 
 # Notebook outputs
 *.nb.html
