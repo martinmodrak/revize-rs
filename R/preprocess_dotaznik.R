@@ -478,7 +478,7 @@ dopln_data_z_registrace <- function(cela_data) {
   }
 
   # dopln chybejici kraje
-  kraje_strediska <- nacti_strediska_kraje() %>%  mutate(UnitName_kraj = factor(uprav_nazvy_kraju(UnitName_kraj), levels = levels(cela_data$kraj)))
+  kraje_strediska <- nacti_strediska_kraje() %>%  mutate(UnitName_kraj = factor(UnitName_kraj, levels = levels(cela_data$kraj)))
   cela_data <- cela_data %>%
     left_join(kraje_strediska %>%
                 select(RegistrationNumber,UnitName_kraj), by = c("reg_c_strediska" = "RegistrationNumber")) %>%

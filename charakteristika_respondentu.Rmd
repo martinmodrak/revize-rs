@@ -157,7 +157,7 @@ reprezentativnost_vek(data_skautis_jednotlivci, hlavni_data %>% filter(sex != "j
 strediska_kraje <- nacti_strediska_kraje()
 
 registrace_strediska <- nacti_skautis_pocty_clenu(here("public_data/pocet-clenu-strediska-2019.csv")) %>% filter(Year == 2019, ID_UnitType == "stredisko") %>% inner_join(strediska_kraje, by = c("RegistrationNumber")) %>%
-  transmute(kraj = uprav_nazvy_kraju(UnitName_kraj), 
+  transmute(kraj = UnitName_kraj,
             pocet_clenu_strediska =   cut(RegularMembers, breaks = c(0, 70, 100, 130, 200, 1e4),
                                     labels = manual_codings$pocet_clenu_strediska),
             do_18 = RegularMembersTo18,
@@ -177,7 +177,7 @@ compute_reprezentativnost_data <- function(hlavni_data, registrace_strediska, co
   
   if("kraj" %in% cols) {
     respondenti_seskupeno <- respondenti_seskupeno %>%
-      filter(!is.na(kraj), kraj != "Nevím/Nejsem součástí žádného střediska")
+      filter(!is.na(kraj), !grepl("Nejsem", kraj)) #Grepl je tu místo  != "Nevím/Nejsem součástí žádného střediska" protože utf-8
   }
   if("pocet_clenu_strediska" %in% cols) {
     respondenti_seskupeno <- respondenti_seskupeno %>%
@@ -200,18 +200,24 @@ compute_reprezentativnost_data <- function(hlavni_data, registrace_strediska, co
     summarise(pocet_skautis = sum(pocet_clenu)) %>%
     ungroup()
   
-  
-  reprezentativnost_data <- respondenti_seskupeno %>% 
-    inner_join(skautis_seskupeno, by = cols) %>%
-    mutate(podil_respondentu = pocet_respondentu / sum(pocet_respondentu),
+  reprezentativnost_data <- skautis_seskupeno %>% 
+    left_join(respondenti_seskupeno, by = cols) %>%
+    ungroup() %>%
+    mutate(pocet_respondentu = if_else(is.na(pocet_respondentu), 0L, pocet_respondentu),
+           podil_respondentu = pocet_respondentu / sum(pocet_respondentu),
            podil_skautis = pocet_skautis / sum(pocet_skautis),
            conf_lower = qbinom(0.025, sum(pocet_respondentu), podil_skautis) / sum(pocet_respondentu),
            conf_upper = qbinom(0.975, sum(pocet_respondentu), podil_skautis) / sum(pocet_respondentu)
            )
   
+  if(nrow(skautis_seskupeno) != nrow(reprezentativnost_data) ||  sum(reprezentativnost_data$pocet_respondentu > 0) != nrow(respondenti_seskupeno)) {
+    cat(nrow(skautis_seskupeno), nrow(reprezentativnost_data), sum(reprezentativnost_data$pocet_respondentu > 0), nrow(respondenti_seskupeno))
+    stop("Spatny join")
+  }
+  
   if("kraj" %in% cols) {
     reprezentativnost_data <- reprezentativnost_data %>% 
-      mutate(kraj = gsub("Hlavní město | kraj", "", kraj))
+      mutate(kraj = gsub("Hlavní město | ?kraj ?", "", kraj))
   }
   
   reprezentativnost_data
@@ -252,7 +258,7 @@ compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("kraj
 
 ```{r}
 compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("pocet_clenu_strediska","kraj")) %>%
-  plot_reprezentativnost(facet_wrap( ~ pocet_clenu_strediska)) + plot_annotation("Reprezentativnost", "dle kraje, velikosti střediska")
+  plot_reprezentativnost(facet_wrap( ~ pocet_clenu_strediska, nrow = 1)) + plot_annotation("Reprezentativnost", "dle kraje, velikosti střediska")
 ```
 
 

@@ -1,6 +1,6 @@
-if(!grepl("cz|utf|Slovak", Sys.getlocale(), ignore.case = TRUE)) {
-  Sys.setlocale(locale= 'English_United States.1250')
-}
+# if(!grepl("cz|utf|Slovak", Sys.getlocale(), ignore.case = TRUE)) {
+#   Sys.setlocale(locale= 'English_United States.1250')
+# }
 library(lubridate)
 library(rlang)
 library(formr)

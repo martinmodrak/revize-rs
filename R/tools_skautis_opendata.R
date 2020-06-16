@@ -22,7 +22,7 @@ pocty_clenu_skautis_cols <- cols(
 
 nacti_skautis_pocty_clenu <- function(file) {
   read_delim(file, delim = ";", na = c("NULL"),
-          col_types = pocty_clenu_skautis_cols, locale = locale(encoding = 'ISO-8859-2'))
+          col_types = pocty_clenu_skautis_cols)
 }
 
 nacti_strediska_kraje <- function() {
@@ -31,28 +31,33 @@ nacti_strediska_kraje <- function() {
     select(RegistrationNumber,UnitName, Location)
   kraje_skautis <- nacti_skautis_pocty_clenu(here::here("public_data/pocet-clenu-VOJ.csv")) %>%
     filter(Year == 2019) %>%
-    select(ID_UnitType, RegistrationNumber, UnitName) %>% 
-    filter(ID_UnitType == "kraj") %>% 
+    select(ID_UnitType, RegistrationNumber, UnitName) %>%
+    filter(ID_UnitType == "kraj") %>%
     select(-ID_UnitType)
-  
+
   stopifnot(all(nchar(strediska_skautis$RegistrationNumber)==6))
-  
-  strediska_skautis %>% 
+
+  strediska_skautis %>%
     separate(RegistrationNumber, sep = "[^[:alnum:]]", into =c("reg1","reg2"),remove=F) %>% # rozsekni reg.cislo do dvou sloupcu
-    rowwise() %>% 
+    rowwise() %>%
     mutate(RegistrationNumber_kraj = (((str_split_fixed(reg1,pattern="",n=6)[1:2]) %>% paste0(collapse = "") %>% as.numeric())*10) %>% as.character()) %>% # trochu trik, jak vyseknout prvni dve cisla, pridame nulu a zpatky na string
-    rename(UnitName_stredisko = UnitName) %>% 
+    rename(UnitName_stredisko = UnitName) %>%
     left_join(kraje_skautis, by = c("RegistrationNumber_kraj"="RegistrationNumber")) %>% # joineme s krajem
-    ungroup() %>% 
-    select(RegistrationNumber_kraj,RegistrationNumber,UnitName_kraj = UnitName,UnitName_stredisko) %>% ungroup() # a vratime dobre sloupce
-  
+    ungroup() %>%
+    mutate(UnitName_kraj = uprav_nazvy_kraju(UnitName)) %>%
+    select(RegistrationNumber_kraj,RegistrationNumber,UnitName_kraj,UnitName_stredisko) %>% ungroup() # a vratime dobre sloupce
+
   # Reg. číslo střediska, Reg. číslo kraje, Název kraje
-  
+
 }
 
 uprav_nazvy_kraju <- function(kraje) {
-  recode(kraje,
-         `kraj Praha`="Hlavní město Praha",
-         `kraj Vysočina`="Kraj Vysočina",
-         `Jihomoravský kraj TGM`="Jihomoravský kraj")
+  mapping <- read_csv(here("public_data/kraje_skautis_dotaznik.csv"), col_types = cols(
+    kraj_skautis = col_character(),
+    kraj_dotaznik = col_character()
+  ))
+  for(n in 1:nrow(mapping)) {
+    kraje[ kraje == mapping$kraj_skautis[n] ] <- mapping$kraj_dotaznik[n]
+  }
+  kraje
 }
