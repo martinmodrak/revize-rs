@@ -64,7 +64,9 @@ manual_codings <- list(
 manual_codings$problemy_roveringu_stredisko = manual_codings$problemy_roveringu
 
 ordered_sloupce <- c("frekvence_kratkych_akci","frekvence_vicedennich_akci", "frekvence_velkych_akci",
-                     "bez_zkusenosti_setkavam_se_s_vrstevniky", "bez_zkusenosti_seberozvojovy_program", "pocet_clenu_spolecenstvi")
+                     "bez_zkusenosti_setkavam_se_s_vrstevniky", "bez_zkusenosti_seberozvojovy_program",
+                     "pocet_clenu_strediska",
+                     "pocet_clenu_spolecenstvi", "spokojenost_clenstvim_v_rs")
 
 # Metadata k multiple choice sloupcum (kde toho slo vybrat vic).
 # Pokud je explicitní možnost "Nic" a pokud respondent nic nezaškrtl, tak můžeme odpověď brát jako NA, protože
@@ -96,7 +98,8 @@ factor_sloupce  <- c("sex", "kolik_casu","kategorie_respondenta","kategorie_resp
                      "bez_zkusenosti_mladsi", "pocet_clenu_spolecenstvi", "frekvence_kratkych_akci",
                      "frekvence_vicedennich_akci", "frekvence_velkych_akci",
                      "bez_zkusenosti_setkavam_se_s_vrstevniky", "bez_zkusenosti_seberozvojovy_program",
-                     "jeste_pokracovat", "zivotni_faze", "typ_id_strediska", "pocet_clenu_strediska")
+                     "jeste_pokracovat", "zivotni_faze", "typ_id_strediska", "pocet_clenu_strediska",
+                     "spokojenost_clenstvim_v_rs")
 
 # Timto se nahradi factory, kde je NA
 explicit_na_level <- "nevyplneno"

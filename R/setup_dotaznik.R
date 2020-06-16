@@ -15,6 +15,7 @@ library(patchwork)
 
 
 options(mc.cores = parallel::detectCores())
+options(dplyr.summarise.inform = FALSE)
 
 
 source(here::here("R","tools_kompetence.R"), encoding = "UTF-8")

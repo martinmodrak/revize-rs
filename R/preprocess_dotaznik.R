@@ -89,6 +89,10 @@ sluc_hlavni_a_doplnek <- function(cela_data, verbose = FALSE) {
 
   # Sloucit .doplnek a puvodni sloupec
   cela_data_backup <- cela_data
+
+  #Hack pro sluzbu
+  attributes(cela_data$sluzba.doplnek) <- attributes(cela_data$sluzba)
+
   for(sloupec in names(cela_data)) {
     sloupec_doplnek <- paste0(sloupec, ".doplnek")
     if(sloupec_doplnek %in% names(cela_data)) {
@@ -99,8 +103,13 @@ sluc_hlavni_a_doplnek <- function(cela_data, verbose = FALSE) {
       if(sloupec %in% neslucovane_sloupce) {
         next;
       } else if(sloupec %in% kopirovane_sloupce) {
-        if(any(!is.na(cela_data[[sloupec]]) & !is.na(cela_data[[sloupec_doplnek]]) &
-               cela_data[[sloupec]] != cela_data[[sloupec_doplnek]])) {
+        hodnoty_main <- cela_data[[sloupec]]
+        hodnoty_doplnek <- cela_data[[sloupec_doplnek]]
+        if(typeof(hodnoty_main) == "double" && typeof(hodnoty_doplnek) == "character") {
+          hodnoty_doplnek = as.double(hodnoty_doplnek)
+        }
+        if(any(!is.na(hodnoty_main) & !is.na(hodnoty_doplnek) &
+               hodnoty_main != hodnoty_doplnek)) {
           stop("Kopirovany sloupec ", sloupec, " se neshoduje.")
         }
         if(verbose) {
@@ -474,7 +483,7 @@ dopln_data_z_registrace <- function(cela_data) {
     left_join(kraje_strediska %>%
                 select(RegistrationNumber,UnitName_kraj), by = c("reg_c_strediska" = "RegistrationNumber")) %>%
     mutate(kraj = if_else(is.na(kraj),UnitName_kraj,kraj)) %>%
-    select(-UnitName_kraj)
+    rename(kraj_dle_reg_c = UnitName_kraj)
 
   cela_data
 }
@@ -533,7 +542,7 @@ check_vysledky <- function(cela_data) {
 
 
 replace_coding <- function(x, new_values) {
-  if(class(x) != "haven_labelled") {
+  if(!inherits(x,  "haven_labelled")) {
     stop("Neni labelled")
   }
   all_attributes <- attributes(x)

@@ -139,7 +139,7 @@ confidence <- dle_veku %>% filter(zdroj == "Průzkum") %>%
 dle_veku %>% 
   ggplot(aes(x=vek, y = podil, color = zdroj, fill = zdroj, group = zdroj )) + 
   geom_ribbon(data = confidence, aes(ymin = conf_lower, ymax = conf_upper), alpha = 0.2, color = "transparent") +
-  geom_point() + geom_line() + scale_color_revize() + scale_fill_revize() + vodorovne_popisky_x +
+  geom_line() + scale_color_revize() + scale_fill_revize() + vodorovne_popisky_x +
   facet_wrap(~group)
 }
 
@@ -153,31 +153,118 @@ reprezentativnost_vek(data_skautis_jednotlivci, hlavni_data %>% filter(sex != "j
 
 ```
 
-
 ```{r}
 strediska_kraje <- nacti_strediska_kraje()
 
-strediska_kraje %>% filter(RegistrationNumber == "625.06")
+registrace_strediska <- nacti_skautis_pocty_clenu(here("public_data/pocet-clenu-strediska-2019.csv")) %>% filter(Year == 2019, ID_UnitType == "stredisko") %>% inner_join(strediska_kraje, by = c("RegistrationNumber")) %>%
+  transmute(kraj = uprav_nazvy_kraju(UnitName_kraj), 
+            pocet_clenu_strediska =   cut(RegularMembers, breaks = c(0, 70, 100, 130, 200, 1e4),
+                                    labels = manual_codings$pocet_clenu_strediska),
+            do_18 = RegularMembersTo18,
+            nad_18 = RegularMembersTo26
+            ) %>%
+  pivot_longer(one_of(c("do_18","nad_18")), names_to = "vekova_skupina", values_to = "pocet_clenu")
 
-nrow_before <- nrow(hlavni_data)
-#respondenti_seskupeno <- 
-hlavni_data %>% 
-  left_join(strediska_kraje, by = c("reg_c_strediska" = "RegistrationNumber")) %>%
-  filter("kraj_nazev" != "UnitName_kraj") %>%
-  select("reg_c_strediska", "kraj_nazev", "UnitName_kraj") %>%
-  distinct()
-
-
-registrace_strediska <- nacti_skautis_pocty_clenu(here("public_data/pocet-clenu-strediska-2019.csv")) %>% filter(Year == 2019) %>% mutate(RegVOJ = gsub("\\.[0-9]{2}$", "", RegistrationNumber))
-
-registrace_VOJ <- nacti_skautis_pocty_clenu(here("public_data/pocet-clenu-VOJ.csv")) %>% filter(Year == 2019, ID_UnitType == "kraj" | ID_UnitType == "okres") %>% select(RegistrationNumber, UnitName)
-
-registrace_strediska_voj <- registrace_strediska
-
-
-head(hlavni_data$kraj_nazev)
 ```
 
+
+```{r}
+
+compute_reprezentativnost_data <- function(hlavni_data, registrace_strediska, cols) {
+  respondenti_seskupeno <- hlavni_data %>%
+    mutate(vekova_skupina = if_else(age <= 18, "do_18", "nad_18")) 
+ 
+  
+  if("kraj" %in% cols) {
+    respondenti_seskupeno <- respondenti_seskupeno %>%
+      filter(!is.na(kraj), kraj != "Nevím/Nejsem součástí žádného střediska")
+  }
+  if("pocet_clenu_strediska" %in% cols) {
+    respondenti_seskupeno <- respondenti_seskupeno %>%
+      filter(pocet_clenu_strediska != explicit_na_level)
+  }
+  
+  
+  respondenti_seskupeno <- respondenti_seskupeno %>%
+    mutate(kraj = as.character(kraj)) %>%
+    group_by_at(all_of(cols)) %>%
+    summarise(pocet_respondentu = n()) %>%
+    ungroup() %>%
+    droplevels()
+    
+  
+  
+  
+  skautis_seskupeno <- registrace_strediska %>% 
+    group_by_at(all_of(cols)) %>%
+    summarise(pocet_skautis = sum(pocet_clenu)) %>%
+    ungroup()
+  
+  
+  reprezentativnost_data <- respondenti_seskupeno %>% 
+    inner_join(skautis_seskupeno, by = cols) %>%
+    mutate(podil_respondentu = pocet_respondentu / sum(pocet_respondentu),
+           podil_skautis = pocet_skautis / sum(pocet_skautis),
+           conf_lower = qbinom(0.025, sum(pocet_respondentu), podil_skautis) / sum(pocet_respondentu),
+           conf_upper = qbinom(0.975, sum(pocet_respondentu), podil_skautis) / sum(pocet_respondentu)
+           )
+  
+  if("kraj" %in% cols) {
+    reprezentativnost_data <- reprezentativnost_data %>% 
+      mutate(kraj = gsub("Hlavní město | kraj", "", kraj))
+  }
+  
+  reprezentativnost_data
+}
+
+plot_reprezentativnost <- function(reprezentativnost_data, facet = NULL, x = kraj) {
+  reprezentativnost_data %>% 
+    select(-starts_with("conf_")) %>%
+    rename(podil_SkautIS = podil_skautis, `podil_Průzkum` = podil_respondentu) %>%
+    pivot_longer(starts_with("podil_"), names_to = "zdroj", values_to = "podil", names_prefix = "podil_") %>%
+    ggplot(aes(x= {{x}}, y = podil, color = zdroj, fill = zdroj, group = zdroj ))  + 
+    geom_line()+ 
+    geom_ribbon(data = reprezentativnost_data %>% mutate(zdroj = "SkautIS", podil = podil_skautis), aes(ymin = conf_lower, ymax = conf_upper), alpha = 0.5, color = "transparent")  + scale_color_revize() + scale_fill_revize() +
+    facet
+}
+
+```
+
+
+```{r}
+reprezentativnost_data_vse <- compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("vekova_skupina","kraj", "pocet_clenu_strediska"))
+
+plot_reprezentativnost(reprezentativnost_data_vse %>% filter(vekova_skupina == "nad_18"), facet_wrap(~ pocet_clenu_strediska)) + plot_annotation("Reprezentativnost nad 18", "dle kraje a velikosti střediska")
+
+plot_reprezentativnost(reprezentativnost_data_vse %>% filter(vekova_skupina == "do_18"),  facet_wrap(~ pocet_clenu_strediska))  + plot_annotation("Reprezentativnost nad 18", "dle kraje a velikosti střediska")
+
+```
+
+```{r}
+compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("vekova_skupina","kraj")) %>%
+  plot_reprezentativnost(facet_wrap( ~ vekova_skupina)) + plot_annotation("Reprezentativnost dle kraje, věku")
+```
+
+```{r}
+compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("kraj")) %>%
+  plot_reprezentativnost() + plot_annotation("Reprezentativnost dle kraje")
+```
+
+```{r}
+compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("pocet_clenu_strediska","kraj")) %>%
+  plot_reprezentativnost(facet_wrap( ~ pocet_clenu_strediska)) + plot_annotation("Reprezentativnost", "dle kraje, velikosti střediska")
+```
+
+
+```{r}
+compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("pocet_clenu_strediska")) %>%
+  plot_reprezentativnost(x = pocet_clenu_strediska) + plot_annotation("Reprezentativnost", "dle velikosti střediska")
+```
+
+```{r}
+compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("pocet_clenu_strediska", "vekova_skupina")) %>%
+  plot_reprezentativnost(facet = facet_wrap(~ vekova_skupina),x = pocet_clenu_strediska) + plot_annotation("Reprezentativnost", "dle velikosti střediska")
+```
 
 
 TODO: reprezentativnost dle kraje

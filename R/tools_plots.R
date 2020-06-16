@@ -140,7 +140,6 @@ theme_revizers <- function() {
 }
 
 set_theme_revizers <- function() {
-  extrafont::loadfonts()
   theme_set(theme_revizers())
   windowsFonts("SKAUT Bold" = windowsFont("SKAUT Bold"))
   windowsFonts("Roboto" = windowsFont("Roboto"))
@@ -270,6 +269,7 @@ plot_ciselne_s_nejistotou <- function(data, ciselne_sloupce_nazev, by, names_pre
   data %>% filter(!is.na({{by}})) %>%
     pivot_longer(all_of(ciselne_sloupce_nazev), names_to = "meritko", values_to = "hodnota", names_prefix = names_prefix) %>%
     #mutate(meritko = factor(meritko, levels = ciselne_sloupce_nazev)) %>%
+    mutate(hodnota = as.double(hodnota)) %>%
     group_by({{by}}, meritko) %>%
     summarise(prumer = mean(hodnota), sem = sd(hodnota)/sqrt(length(hodnota)),
               dolni = qnorm(0.025, prumer, sem), horni = qnorm(0.975, prumer, sem)) %>%
