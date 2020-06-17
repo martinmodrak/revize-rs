@@ -75,19 +75,19 @@ Které kompetence jsou nejčastěji nezvládané?
 ```{r}
 tabulka_nezvladane <- hlavni_data_long %>% filter(kategorie_kompetence == "zvladam") %>% 
   group_by(popis_pro_grafy) %>% 
-  summarise(pocet_nezvladam = sum(kompetence_odpoved <= 3), pocet_celkem = n(), podil = pocet_nezvladam/pocet_celkem) %>%
+  summarise(pocet_nezvladam = sum(kompetence_nejnize), pocet_celkem = n(), podil = pocet_nezvladam/pocet_celkem) %>%
   ungroup() %>%
   arrange(desc(pocet_nezvladam)) %>%
   rename(kompetence = popis_pro_grafy)
 
 tabulka_nezvladane %>% mutate(podil_nezvladam = scales::percent(podil))
 
-plot_tabulka_extrem <- function(tabulka, indices = 5:1, text_y = 0.01) {
+plot_tabulka_extrem <- function(tabulka, indices = 5:1, text_y = 0.02) {
   tabulka[indices, ] %>% 
     mutate(kompetence = factor(kompetence, levels = kompetence)) %>% ggplot(aes(x = kompetence, y = podil, label = scales::percent(podil, accuracy = 1))) + geom_bar(stat = "identity") + coord_flip() + geom_text(y = text_y, size = 6, color = revize_cols("dark_blue")) + theme(axis.title = element_blank(), axis.ticks.x = element_blank(), axis.text.x =  element_blank())
 }
 
-plots$top_nezvladane <- plot_tabulka_extrem(tabulka_nezvladane) + plot_annotation("Nejčastěji nezvládané kompetence", subtitle = "'Spíše nesouhlasím' a hůř")
+plots$top_nezvladane <- plot_tabulka_extrem(tabulka_nezvladane) + plot_annotation("Nejčastěji nezvládané kompetence", subtitle = "Jak často je daná kompetence u respondenta 'nejhorší'")
 plots$top_nezvladane
 ```
 
@@ -122,25 +122,25 @@ Které kompetence jsou nejčastěji nedůležité?
 ```{r}
 tabulka_nedulezite <- hlavni_data_long %>% filter(kategorie_kompetence == "dulezite") %>% 
   group_by(popis_pro_grafy) %>% 
-  summarise(pocet_nedulezite = sum(kompetence_odpoved <= 3), podil = mean(kompetence_odpoved <= 3), podil_nedulezite = scales::percent(podil)) %>%
+  summarise(pocet_nedulezite = sum(kompetence_nejnize), podil = mean(kompetence_nejnize), podil_nedulezite = scales::percent(podil)) %>%
   arrange(desc(pocet_nedulezite)) %>%
   rename(kompetence = popis_pro_grafy)
 
 
 tabulka_nedulezite
 
-plots$top_nedulezite <- plot_tabulka_extrem(tabulka_nedulezite) + plot_annotation("Nejčastěji nedůležité kompetence", subtitle = "'Spíše nesouhlasím' a hůř")
+plots$top_nedulezite <- plot_tabulka_extrem(tabulka_nedulezite) + plot_annotation("Nejčastěji nedůležité kompetence", subtitle = "Jak často je daná kompetence u respondenta 'nejhorší'")
 plots$top_nedulezite
 ```
 
 ```{r}
 tabulka_dulezite <- hlavni_data_long %>% filter(kategorie_kompetence == "dulezite") %>% 
   group_by(popis_pro_grafy) %>% 
-  summarise(pocet_dulezite = sum(kompetence_odpoved >= 7), podil = mean(kompetence_odpoved >= 7), podil_dulezite = scales::percent(podil)) %>%
+  summarise(pocet_dulezite = sum(kompetence_nejvyse), podil = mean(kompetence_nejvyse), podil_dulezite = scales::percent(podil)) %>%
   arrange(desc(pocet_dulezite)) %>%
   rename(kompetence = popis_pro_grafy)
 
-plots$top_dulezite <- plot_tabulka_extrem(tabulka_dulezite, text_y = 0.05) + plot_annotation("Nejčastěji důležité kompetence", subtitle = "Jen 'Zcela souhlasím'")
+plots$top_dulezite <- plot_tabulka_extrem(tabulka_dulezite, text_y = 0.05) + plot_annotation("Nejčastěji důležité kompetence", subtitle = "Jak často je u respondenta 'nejlepší'")
 plots$top_dulezite
 
 ```
@@ -177,13 +177,13 @@ Které kompetence se nejčastěji nerozvíjí?
 ```{r}
 tabulka_nerozvijim <- hlavni_data_long %>% filter(kategorie_kompetence == "rozvijim") %>% 
   group_by(popis_pro_grafy) %>% 
-  summarise(pocet_nerozvijim = sum(kompetence_odpoved <= 3), podil = mean(kompetence_odpoved <= 3, podil_nerozvijim = scales::percent(podil))) %>%
+  summarise(pocet_nerozvijim = sum(kompetence_nejnize), podil = mean(kompetence_nejnize), podil_nerozvijim = scales::percent(podil)) %>%
   arrange(desc(pocet_nerozvijim)) %>%
   rename(kompetence = popis_pro_grafy)
 
 tabulka_nerozvijim
 
-plots$top_nerozvijim <- plot_tabulka_extrem(tabulka_nerozvijim) + plot_annotation("Nejčastěji nerozvíjené kompetence", subtitle = "'Spíše nesouhlasím' a hůř")
+plots$top_nerozvijim <- plot_tabulka_extrem(tabulka_nerozvijim) + plot_annotation("Nejčastěji nerozvíjené kompetence", subtitle = "Jak často je daná kompetence u respondenta 'nejhorší'")
 plots$top_nerozvijim
 
 ```
@@ -219,13 +219,13 @@ Které kompetence skauting nejčastěji míjí?
 ```{r}
 tabulka_neskauting <- hlavni_data_long %>% filter(kategorie_kompetence == "skauting") %>% 
   group_by(popis_pro_grafy) %>% 
-  summarise(pocet_neskauting = sum(kompetence_odpoved <= 3), podil = mean(kompetence_odpoved <= 3), podil_neskauting = scales::percent(podil)) %>%
+  summarise(pocet_neskauting = sum(kompetence_nejnize), podil = mean(kompetence_nejnize), podil_neskauting = scales::percent(podil)) %>%
   arrange(desc(pocet_neskauting)) %>%
   rename(kompetence = popis_pro_grafy)
 
 tabulka_neskauting
 
-plots$top_neskauting <- plot_tabulka_extrem(tabulka_neskauting, text_y = 0.05) + plot_annotation("Skautingem nejčastěji nerozvíjené", subtitle = "'Spíše nesouhlasím' a hůř")
+plots$top_neskauting <- plot_tabulka_extrem(tabulka_neskauting, text_y = 0.05) + plot_annotation("Skautingem nejčastěji nerozvíjené", subtitle = "Jak často je daná kompetence u respondenta 'nejhorší'")
 plots$top_neskauting
 ```
 
