@@ -793,14 +793,16 @@ hlavni_data %>% filter(kategorie_respondenta == "nyni_spolecenstvi") %>% plot_ci
 ```
 
 ```{r}
-hlavni_data %>% filter(kategorie_respondenta == "nyni_spolecenstvi") %>%plot_frekvence_by("frekvence_vicedennich_akci", organizace_strucne) + plot_annotation("Frekvence vícedenních akcí", "dle organizace kmene, jen současní členové")
-
+plots$frekvence_vicedenni_organizace <- hlavni_data %>% filter(kategorie_respondenta == "nyni_spolecenstvi") %>%plot_frekvence_by("frekvence_vicedennich_akci", organizace_strucne) + plot_annotation("Frekvence vícedenních akcí", "dle organizace kmene, jen současní členové")
+plots$frekvence_vicedenni_organizace
 ```
 
 Vyšší míra organizace společenství je také spojena s větším množstvím užívaných výchovných nástrojů.
 
 ```{r}
-hlavni_data %>% filter(!is.na(vychovne_nastroje), kategorie_respondenta == "nyni_spolecenstvi") %>% plot_ciselne_s_nejistotou("pocet_klicovych_nastroju", organizace_strucne) + plot_annotation("Výchovné nástroje dle organizace", subtitle =  paste0("Počet použitých klíčových nástrojů. Za klíčové se berou:\n ", paste0(klicove_nastroje_id, collapse = ", ")))
+plots$klicove_nastroje_organizece <- hlavni_data %>% filter(!is.na(vychovne_nastroje), kategorie_respondenta == "nyni_spolecenstvi") %>% plot_ciselne_s_nejistotou("pocet_klicovych_nastroju", organizace_strucne) + plot_annotation("Výchovné nástroje dle organizace", subtitle =  paste0("Počet použitých klíčových nástrojů. Za klíčové se berou:\n ", paste0(klicove_nastroje_id, collapse = ", ")))
+
+plots$klicove_nastroje_organizece
 ```
 
 Potenciálním problémem těchto porovnání je, že část společenství, které mají vůdce je v průzkumu reprezentována přímo těmito vůdci. Můžeme očekávat, že vůdci vnímají své společenství trochu jinak než ostatní členové. U porovnání frekvence akcí to ale nehraje velkou roli (graf vypadá téměř stejně, když odpovědi samotných vůdců vynecháme). U počtu použitých nástrojů to výsledky ovlivní - může to tedy být tím, že vůdci mají celkově lepší znalost nástrojů, ač jejich společenství ve skutečnosti více nástrojů nepoužívají.
