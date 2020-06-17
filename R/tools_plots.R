@@ -221,14 +221,23 @@ plot_summary_mc <- function(cela_data, sloupec,
     plot_annotation(title = title, subtitle =  full_subtitle)
 }
 
-plot_binarni_s_nejistotou <- function(data, binarni_sloupce_nazev, by, names_prefix = "", legend_label = if_else(flip, "Skupina", "Měřítko"), na.rm = FALSE, flip = FALSE) {
-  if(length(binarni_sloupce_nazev) == 1) {
-    if(flip) {
+plot_binarni_s_nejistotou <- function(data, binarni_sloupce_nazev, by, names_prefix = "", legend_label = if_else(flip, "Skupina", "Měřítko"), na.rm = FALSE, flip = FALSE, facet = FALSE) {
+  if(length(binarni_sloupce_nazev) == 1 || facet) {
+    if(flip & length(binarni_sloupce_nazev) == 1) {
       stop("Flip dava smysl jen kdyz je více sloupců")
     }
     my_aes <- aes(x = {{by}}, y = podil_ano, ymin = dolni, ymax = horni, group = 1)
     my_color_scale <- NULL
     my_fill_scale <- NULL
+    if(facet) {
+      if(flip) {
+        my_facet <- facet_wrap(~ {{by}})
+      } else {
+        my_facet <- facet_wrap(~meritko)
+      }
+    } else {
+      my_facet <- NULL
+    }
   } else {
     if(flip) {
       my_aes <- aes(x = meritko, y = podil_ano, ymin = dolni, ymax = horni, color = {{by}}, group = {{by}}, fill = {{by}})
@@ -237,6 +246,7 @@ plot_binarni_s_nejistotou <- function(data, binarni_sloupce_nazev, by, names_pre
     }
     my_color_scale <- scale_color_revize(name = legend_label)
     my_fill_scale <- scale_fill_revize(name = legend_label)
+    my_facet <- NULL
   }
 
   if(names_prefix == "") {
@@ -252,7 +262,7 @@ plot_binarni_s_nejistotou <- function(data, binarni_sloupce_nazev, by, names_pre
     summarise(podil_ano = mean(ano, na.rm = na.rm), dolni = nejistota_binarni(0.025, ano, na.rm = na.rm), horni = nejistota_binarni(0.975, ano, na.rm = na.rm)) %>%
     mutate(meritko = factor(meritko, levels = meritko_levels)) %>%
     ggplot(my_aes) + geom_ribbon(alpha = 0.5, color = FALSE) + geom_line() + vodorovne_popisky_x +
-    my_color_scale  + my_fill_scale +
+    my_color_scale  + my_fill_scale + my_facet +
     scale_y_continuous("Podíl", labels = scales::percent)
 }
 

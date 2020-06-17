@@ -120,8 +120,16 @@ Jak vypadá vlastní přechod do roverského věku? Tady je opět těžká inter
 Ptali jsme se též, jestli se roverem stanu "automaticky" když dovrším skautský věk. Vypadá to, že zhruba v polovině středisek tento přechod automatický není a nejspíš se tedy rozlišuje mezi "roverem" a "členem v roverském věku".
 
 ```{r}
-plots$vyroky_zazil_vstup <- plot_summary_mc(hlavni_data, vyroky_o_roveringu_zazil_2, "Rovering, který jsem zažil", subtitle = "jen otázky ke vstupu do roverského věku", include_values = c("rover_automaticky","vstupni_ritual","snadny_prechod", "pri_prechodu_schopny"))
+vyroky_vstup <- c("rover_automaticky","vstupni_ritual","snadny_prechod", "pri_prechodu_schopny")
+plots$vyroky_zazil_vstup <- plot_summary_mc(hlavni_data, vyroky_o_roveringu_zazil_2, "Rovering, který jsem zažil", subtitle = "jen otázky ke vstupu do roverského věku", include_values = vyroky_vstup)
 plots$vyroky_zazil_vstup
+```
+
+
+```{r}
+plots$vyroky_zazil_vstup_vek <- hlavni_data  %>% plot_binarni_s_nejistotou(paste0("vyroky_o_roveringu_zazil_2.",vyroky_vstup), by = age, facet = TRUE, na.rm = TRUE, names_prefix = "vyroky_o_roveringu_zazil_2.") + plot_annotation(paste0("Rovering, který jsem zažil"))
+
+plots$vyroky_zazil_vstup_vek
 ```
 
 Jedna z otázek RO byla, zda "automatický" přechod znamená též přechod “bez rituálu”. To se z dat nezdá jako pravděpodobné. Naopak všechny čtyři kombinace těchto možností jsou celkem podobně zastoupeny, jakkoliv ze členů přijatých do roveringu "automaticky" jich rituálem projde více.:
@@ -180,10 +188,18 @@ plots$vyroky_o_roveringu_zazil_zivot
 ```
 
 ```{r}
-plots$vyroky_o_roveringu_zazil_2 <- plot_summary_mc(hlavni_data, vyroky_o_roveringu_zazil_2, "Rovering, který jsem zažil 2", include_values = c("mladsi_starsi", "prechodovy_ritual", "jasne_ukonceni", "jak_dlouho_chci", "roversky_slib"), subtitle = "jen části týkající se života v kmeni")
+vyroky_zazil_obecne <- c("mladsi_starsi", "prechodovy_ritual", "jasne_ukonceni", "jak_dlouho_chci", "roversky_slib")
+plots$vyroky_o_roveringu_zazil_2 <- plot_summary_mc(hlavni_data, vyroky_o_roveringu_zazil_2, "Rovering, který jsem zažil 2", include_values = vyroky_zazil_obecne, subtitle = "jen části týkající se života v kmeni")
 plots$vyroky_o_roveringu_zazil_2
 
 ```
+
+```{r}
+plots$vyroky_zazil_obecne_vek <- hlavni_data  %>% plot_binarni_s_nejistotou(paste0("vyroky_o_roveringu_zazil_2.",vyroky_zazil_obecne), by = age, facet = TRUE, na.rm = TRUE, names_prefix = "vyroky_o_roveringu_zazil_2.") + plot_annotation(paste0("Rovering, který jsem zažil 2"))
+
+plots$vyroky_zazil_obecne_vek
+```
+
 
 ### Frekvence akcí
 
@@ -447,7 +463,9 @@ Obecně vidíme, že méně lidí zažilo roverský kurz, než kolik říká, ž
 Počet účastníků kurzů samozřejmě roste s věkem respondentů, takže mezi těmi, co vydží do cca 20 let už má čekatelky za sebou kolem 80% a procento složených vůdcovek je u starších také dosti vysoké.
 
 ```{r}
-hlavni_data %>% filter(!is.na(co_zazil)) %>% plot_binarni_s_nejistotou(paste0("co_zazil.", c("cekatelky","vudcovky","roversky_kurz", "jiny_kurz")), names_prefix = "co_zazil.", by = age) +  plot_annotation(title = "Kurzy, co zažili, dle věku")
+plots$kurzy_vek <- hlavni_data %>% filter(!is.na(co_zazil)) %>% plot_binarni_s_nejistotou(paste0("co_zazil.", c("cekatelky","vudcovky","roversky_kurz", "jiny_kurz")), names_prefix = "co_zazil.", by = age) +  plot_annotation(title = "Kurzy, co zažili, dle věku")
+
+plots$kurzy_vek
 ```
 
 Obecně se tedy dá očekávat, že kurzy jsou dobrým místem, kde lidé v roverském věku mohou být vystaveni myšlenkám roveringu - jen málo lidí v roverském věku je kurzy zcela netknuto.
@@ -633,19 +651,10 @@ hlavni_data %>% filter(kategorie_respondenta_full == "nyni_spolecenstvi") %>%
 Se stárnutím (a tím delší dobou ve společenství) se také trochu mění to, jaké problémy respondenti uvádějí. Vytížení oddíly i stěhování pryč roste mezi 15tým a cca 20tým rokem, poměrně výrazně, a zapojení roverů jako "pracovní čety" či že roveři "nevědí jak na to" v tomto období také roste, ač zdaleka ne tak výrazně. Ostatní problémy pak již spolehlivý trend nevykazují.
 
 ```{r}
-nazvy_problemy <- names(hlavni_data)[grepl("^problemy_roveringu\\.", names(hlavni_data))]
+plots$problemy_vek <- hlavni_data %>% filter(kategorie_respondenta == "nyni_spolecenstvi") %>% plot_binarni_s_nejistotou(nazvy_problemy, by = age, names_prefix = "problemy_roveringu.", facet = TRUE) + plot_annotation(paste0("Problémy roveringu dle věku "), "pouze současní členové společenství")
 
-step_size <- 4
-for(i in 1: ceiling(length(nazvy_problemy) / 4)) {
-  nazev_plot <- paste0("problemy_vek_",i)
-  indices <- ((i-1) * 4 + 1) : min((i * 4), length(nazvy_problemy))
-  plots[[nazev_plot]] <- hlavni_data %>% filter(kategorie_respondenta == "nyni_spolecenstvi") %>% plot_binarni_s_nejistotou(nazvy_problemy[indices], by = age, names_prefix = "problemy_roveringu.") + plot_annotation(paste0("Problémy roveringu dle věku ", i), "pouze současní členové společenství")
-                                                                                                              
-                                                                                                 print(plots[[nazev_plot]])
-}
+plots$problemy_vek
 ```
-
-
 
 ## Odchod ze společenství
 
@@ -962,7 +971,7 @@ plots$problemy_cleni_stredisko
 Roveři celkově nevnímají "vyšší místa" jako někoho, kdo roverům pomáhá, jakkoliv některé konkrétní věci organizované na "vyšší" úrovni (roverské akce, sociální sítě) jsou vnímány pozitivně.
 
 ```{r}
-plots$co_pomaha_roveringu_organizace <- plot_summary_mc(hlavni_data, co_pomaha_roveringu, "Roveringu dle mé vlastní\nzkušenosti znatelně pomáhá:", subtitle = "jen otázky související s s Junákem jako celkem", include_values = c("zpravodal","vyssi_mista", "akce_kratke", "akce_dlouhe", "socialni_site"))
+plots$co_pomaha_roveringu_organizace <- plot_summary_mc(hlavni_data, co_pomaha_roveringu, "Roveringu dle mé vlastní\nzkušenosti znatelně pomáhá:", subtitle = "jen otázky související s Junákem jako celkem", include_values = c("zpravodal","vyssi_mista", "akce_kratke", "akce_dlouhe", "socialni_site"))
 plots$co_pomaha_roveringu_organizace
 ```
 
@@ -988,6 +997,16 @@ plots$komunikace_hypoteticke <- hlavni_data %>% plot_summary_mc(komunikacni_kana
 plots$komunikace_hypoteticke
 
 ```
+
+```{r}
+nazvy_komunikace <- names(hlavni_data)[grepl("komunikacni_kanaly_existujici\\.", names(hlavni_data))]
+
+plots$komunikace_vek <- hlavni_data %>% plot_binarni_s_nejistotou(nazvy_komunikace, by = age, names_prefix = "komunikacni_kanaly_existujici.", na.rm = TRUE, facet = TRUE) + plot_annotation(paste0("Komunikační kanály dle věku ", i), "Kde bys nejraději sledovala aktuální informace o roveringu?")
+
+plots$komunikace_vek
+```
+
+
 
 # Přínosy roveringu organizaci
 
