@@ -1,8 +1,7 @@
 ---
 title: "Charakteristika respondentů"
 output:
-  pdf_document: default
-  html_notebook: default
+  html_document: default
 ---
 
 ```{r setup}
@@ -147,9 +146,9 @@ plots$reprezentativnost_vek <- reprezentativnost_vek(data_skautis_jednotlivci, h
 
 plots$reprezentativnost_vek
 
-reprezentativnost_vek(data_skautis_jednotlivci, hlavni_data %>% filter(sex != "jinak_neuvedeno"), additional_group = sex) + plot_annotation("Reprezentativnost dle věku a pohlaví")
+plots$reprezentativnost_vek_pohlavi <- reprezentativnost_vek(data_skautis_jednotlivci, hlavni_data %>% filter(sex != "jinak_neuvedeno"), additional_group = sex) + plot_annotation("Reprezentativnost dle věku a pohlaví")
 
-#plots$reprezentativnost_vek_pohlavi
+plots$reprezentativnost_vek_pohlavi
 
 ```
 
@@ -240,40 +239,49 @@ plot_reprezentativnost <- function(reprezentativnost_data, facet = NULL, x = kra
 ```{r}
 reprezentativnost_data_vse <- compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("vekova_skupina","kraj", "pocet_clenu_strediska"))
 
-plot_reprezentativnost(reprezentativnost_data_vse %>% filter(vekova_skupina == "nad_18"), facet_wrap(~ pocet_clenu_strediska)) + plot_annotation("Reprezentativnost nad 18", "dle kraje a velikosti střediska")
+plots$reprezentativnost_kraj_stredisko_nad18 <- plot_reprezentativnost(reprezentativnost_data_vse %>% filter(vekova_skupina == "nad_18"), facet_wrap(~ pocet_clenu_strediska)) + plot_annotation("Reprezentativnost nad 18", "dle kraje a velikosti střediska")
 
-plot_reprezentativnost(reprezentativnost_data_vse %>% filter(vekova_skupina == "do_18"),  facet_wrap(~ pocet_clenu_strediska))  + plot_annotation("Reprezentativnost nad 18", "dle kraje a velikosti střediska")
+plots$reprezentativnost_kraj_stredisko_nad18
 
+plots$reprezentativnost_kraj_stredisko_do18 <- plot_reprezentativnost(reprezentativnost_data_vse %>% filter(vekova_skupina == "do_18"),  facet_wrap(~ pocet_clenu_strediska))  + plot_annotation("Reprezentativnost nad 18", "dle kraje a velikosti střediska")
+
+plots$reprezentativnost_kraj_stredisko_do18
 ```
 
 ```{r}
-compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("vekova_skupina","kraj")) %>%
+plots$reprezentativnost_kraj_vek <- compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("vekova_skupina","kraj")) %>%
   plot_reprezentativnost(facet_wrap( ~ vekova_skupina)) + plot_annotation("Reprezentativnost dle kraje, věku")
+
+plots$reprezentativnost_kraj_vek
 ```
 
 ```{r}
-compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("kraj")) %>%
+plots$reprezentativnost_kraj <- compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("kraj")) %>%
   plot_reprezentativnost() + plot_annotation("Reprezentativnost dle kraje")
+
+plots$reprezentativnost_kraj
 ```
 
 ```{r}
-compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("pocet_clenu_strediska","kraj")) %>%
+plots$reprezentativnost_kraj_stredisko <- compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("pocet_clenu_strediska","kraj")) %>%
   plot_reprezentativnost(facet_wrap( ~ pocet_clenu_strediska, nrow = 1)) + plot_annotation("Reprezentativnost", "dle kraje, velikosti střediska")
+
+plots$reprezentativnost_kraj_stredisko
 ```
 
 
 ```{r}
-compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("pocet_clenu_strediska")) %>%
+plots$reprezentativnost_stredisko <- compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("pocet_clenu_strediska")) %>%
   plot_reprezentativnost(x = pocet_clenu_strediska) + plot_annotation("Reprezentativnost", "dle velikosti střediska")
+
+plots$reprezentativnost_stredisko
 ```
 
 ```{r}
-compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("pocet_clenu_strediska", "vekova_skupina")) %>%
+plots$reprezentativnost_vek_stredisko <- compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("pocet_clenu_strediska", "vekova_skupina")) %>%
   plot_reprezentativnost(facet = facet_wrap(~ vekova_skupina),x = pocet_clenu_strediska) + plot_annotation("Reprezentativnost", "dle velikosti střediska")
 ```
 
-
-TODO: reprezentativnost dle kraje
 
 TODO: Je ostrý odpad lidí u vyplnění kompetencí?
 
