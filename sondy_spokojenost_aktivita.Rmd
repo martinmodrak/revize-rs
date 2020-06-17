@@ -65,15 +65,15 @@ zakladni_data_pro_model <- sondy %>%
     vek = std_normalize(vek),
     pohlavi = if_else(pohlavi == "N/A", "Neuvedeno", pohlavi),
     je_ve_meste_univerzita = if_else(je_ve_meste_univerzita == "N/A", "Neuvedeno", je_ve_meste_univerzita),
-    kraj = replace_na(kraj),
-    velikost_obce = replace_na(velikost_obce),
-    pocet_obyvatel_kde_stredisko = replace_na(pocet_obyvatel_kde_stredisko),
-    studium_ve_meste_strediska = replace_na(studium_ve_meste_strediska), 
-    je_vice_rs_kmenu_ve_stredisku = replace_na(je_vice_rs_kmenu_ve_stredisku),
-    je_rs_kmen_registrovany = replace_na(je_rs_kmen_registrovany),
-    povazujes_se_za_rovera = replace_na(povazujes_se_za_rovera),
-    kdo_pripravuje_program = replace_na(kdo_pripravuje_program),
-    povazujes_se_za_rovera = replace_na(fct_recode(povazujes_se_za_rovera, Ano = "Ano, považuji se za rovera/rangers", Ne_ale_budu = "Ne, nyní se nepovažuji za rovera/rangers, ale myslím, že rover/rangers budu", Ne_ale_byl =  "Ne, nyní se nepovažuji za rovera/rangers, ale dříve jsem byl/a"))
+    kraj = my_replace_na_factor(kraj),
+    velikost_obce = my_replace_na_factor(velikost_obce),
+    pocet_obyvatel_kde_stredisko = my_replace_na_factor(pocet_obyvatel_kde_stredisko),
+    studium_ve_meste_strediska = my_replace_na_factor(studium_ve_meste_strediska), 
+    je_vice_rs_kmenu_ve_stredisku = my_replace_na_factor(je_vice_rs_kmenu_ve_stredisku),
+    je_rs_kmen_registrovany = my_replace_na_factor(je_rs_kmen_registrovany),
+    povazujes_se_za_rovera = my_replace_na_factor(povazujes_se_za_rovera),
+    kdo_pripravuje_program = my_replace_na_factor(kdo_pripravuje_program),
+    povazujes_se_za_rovera = my_replace_na_factor(fct_recode(povazujes_se_za_rovera, Ano = "Ano, považuji se za rovera/rangers", Ne_ale_budu = "Ne, nyní se nepovažuji za rovera/rangers, ale myslím, že rover/rangers budu", Ne_ale_byl =  "Ne, nyní se nepovažuji za rovera/rangers, ale dříve jsem byl/a"))
     )
 
 normalized_translator_aktivni_lide <- normalized_translator(zakladni_data_pro_model$kmen_kolik_aktivnich_lidi_orig)

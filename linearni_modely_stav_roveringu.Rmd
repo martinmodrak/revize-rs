@@ -1,0 +1,91 @@
+---
+title: "Čáry v dimenzích"
+output: html_notebook
+---
+
+```{r setup}
+source(here::here("R","setup_dotaznik.R"), encoding = "UTF-8")
+```
+
+```{r nacist_data, cache=TRUE}
+source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
+
+plots <- list() 
+```
+
+```{r}
+cache_dir <- here::here("local_data/fits")
+if(!dir.exists(cache_dir)) {
+  dir.create(cache_dir, recursive = TRUE)
+}
+
+hlavni_data_cleni <- hlavni_data %>% filter(kategorie_respondenta == "nyni_spolecenstvi") %>%
+  mutate(organizace_strucne = fct_relevel(organizace_strucne, "neni_organizovan"),
+         kraj = fct_explicit_na(kraj, na_level = levels(kraj)[15]),
+         pocet_klicovych_nastroju = replace_na(pocet_klicovych_nastroju, replace = 0),
+         role_skauting.vedouci_roveru = replace_na(role_skauting.vedouci_roveru, FALSE),
+         role_skauting.tahoun_roveru = replace_na(role_skauting.tahoun_roveru, FALSE),
+         role_skauting.vedouci_zastupce_oddilu = replace_na(role_skauting.vedouci_zastupce_oddilu, FALSE),
+         byl_na_kurzu = replace_na(byl_na_kurzu, FALSE),
+         age_norm = (age - 20.5) / 2.75) 
+
+base_formula <- ~ s(age_norm) + (1||sex) + (1||kraj) + organizace_strucne + role_skauting.vedouci_roveru + role_skauting.tahoun_roveru +  role_skauting.vedouci_zastupce_oddilu + (1||pocet_clenu_strediska) + mo(pocet_clenu_spolecenstvi) + byl_na_kurzu + (1||zivotni_faze) 
+
+base_prior <- set_prior("normal(0, 1)", class = "b") + set_prior("normal(0,1)", class = "sd") +  set_prior("normal(0,1)", class = "sds")
+
+```
+
+
+
+```{r}
+
+formula_spokojenost <- brmsformula(update.formula(base_formula,  spokojenost_clenstvim_v_rs ~ . + pocet_klicovych_nastroju) + mo(frekvence_vicedennich_akci) , family = cumulative())
+
+#get_prior(formula_spokojenost, data = hlavni_data_cleni)
+
+fit_spokojenost_rs <- hlavni_data %>% brm_with_cache(
+  formula = formula_spokojenost, data = hlavni_data_cleni,  cache_file = paste0(cache_dir, "/spokojenost_rs.rds"), prior = base_prior, control = list(adapt_delta = 0.95))
+
+fit_spokojenost_rs
+```
+
+```{r}
+fit_klicove_nastroje <- hlavni_data %>% brm_with_cache(
+  formula = brmsformula(update.formula(
+    base_formula,  
+    pocet_klicovych_nastroju + 1 ~ . + mo(frekvence_vicedennich_akci)
+    ), 
+    family = cumulative()), 
+  data = hlavni_data_cleni,  cache_file = paste0(cache_dir, "/klicove_nastroje.rds"), prior = base_prior, control = list(adapt_delta = 0.95))
+
+fit_klicove_nastroje
+```
+
+```{r}
+fit_klicove_nastroje_gaussian <- hlavni_data %>% brm_with_cache(
+  formula = brmsformula(update.formula(
+    base_formula,  
+    pocet_klicovych_nastroju + 1 ~ . + mo(frekvence_vicedennich_akci)
+    ), 
+    family = gaussian()), 
+  data = hlavni_data_cleni,  cache_file = paste0(cache_dir, "/klicove_nastroje_gaussian.rds"), prior = base_prior, control = list(adapt_delta = 0.95))
+
+fit_klicove_nastroje_gaussian
+```
+
+
+Asociace: vedení, byl na kurzu <-> nástroje, 
+
+```{r}
+fit_frekvence_vicedenni <- hlavni_data %>% brm_with_cache(
+  formula = brmsformula(update.formula(
+    base_formula,  
+    frekvence_vicedennich_akci ~ . + pocet_klicovych_nastroju
+    ), 
+    family = cumulative()), 
+  data = hlavni_data_cleni,  cache_file = paste0(cache_dir, "/frekvence_vicedenni.rds"), prior = base_prior, control = list(adapt_delta = 0.95))
+
+fit_frekvence_vicedenni
+```
+
+Frekvence akcí (tj. aktivita) je asociována vlastně se vším pozitivním. Vedení - pozitivní asociace s frekvencí akcí.  "byl_na_kurzu" negativní asociace.

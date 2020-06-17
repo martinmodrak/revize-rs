@@ -302,6 +302,8 @@ TODO: jak moc se schoduji odpovedi různých lidí ze stejného střediska?
 
 TODO: člen společenství - role vs. kategorie respondenta
 
+TODO: byla by dobrá reprezentativnost dle hotových kurzů/zkoušek (ale to by potřebovalo data ze SkautISu)
+
 ```{r save_plots}
 save_list_of_plots(plots,"charakteristika_respondentu")
 ```

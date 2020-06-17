@@ -32,7 +32,7 @@ std_normalize <- function(x) {
   (x - mean(x, na.rm = TRUE)) / sd(x, na.rm = TRUE)
 }
 
-replace_na <- function(x) {
+my_replace_na_factor <- function(x) {
   if_else(is.na(x), "Neuvedeno", as.character(x)) %>% factor()
 }
 

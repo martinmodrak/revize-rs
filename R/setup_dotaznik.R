@@ -12,6 +12,7 @@ library(vegan)
 library(tidyverse)
 library(cowplot)
 library(patchwork)
+library(brms)
 
 
 options(mc.cores = parallel::detectCores())
