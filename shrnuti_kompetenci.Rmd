@@ -1,11 +1,17 @@
 ---
 title: "Shrnutí kompetencí"
-output: html_notebook
+toc-title: "Obsah"
+abstract: "Tento dokument podává základní přehled o odpovědích na kompetenční otázky."
+output:
+  word_document:
+    toc: yes
+    reference_docx: public_data/output_template.docx
 ---
 
 
-```{r setup}
+```{r setup, message=FALSE,warning=FALSE, results="hide", echo = FALSE}
 source(here::here("R","setup_dotaznik.R"), encoding = "UTF-8")
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ```{r nacist_data, cache=TRUE}
@@ -20,12 +26,26 @@ plots <- list()
 otazky_rmd <- kompetence_otazky %>% arrange(ciselne_id) %>% mutate(rmd = paste0("- **", popis_pro_grafy,"** (",nazev_oblasti," - ", nazev_podoblasti,")\r\n  - ", text_otazky)) %>% pull(rmd) %>% paste0(collapse = "\r\n") 
 ```
 
+Tučně je zkrácený popis, který budeme používat v tabulkách a grafech, za ním v závorce odkaz, jak je tato kompetence uvedena mezi "komptencemi skautské výchovy", pod tím přesné znění otázky, jak bylo v dotazníku.
+
 `r otazky_rmd`
+
+Ke každé kompetenci jsme měli 4 otázky (kategorie):
+
+- Zvládám/ovládám to výborně.
+- Je to pro mě velmi důležité.
+- Rozvíjím se v tom.
+- Skauting mi v rozvoji významně pomáhá.
+
+Ke každé otázce vybírali odpověď na sedmibodové škále od "Zcela souhlasím" po "Zcela nesouhlasím".
+
+Část respondentů měla kratší verzi dotazníku a vyjadřovala se tak jen k náhodně vybrané polovině otázek.
 
 # Dle kategorie
 
+Zde si shrneme celkové odpovědi ke každé kategorii.
 
-# Zvládám
+## Zvládám
 
 ```{r}
 plot_kategorie_kompetence <- function(data_long, kategorie, kategorie_popis) {
@@ -48,10 +68,7 @@ plots$zvladam_celkem <-  plot_kategorie_kompetence(hlavni_data_long, "zvladam", 
 plots$zvladam_celkem
 ```
 
-Nezvládám = sloučené všechny tři negativní odpovědi
-
-
-Je spíš situace taková, že každý má nějakou slabou stránku, nebo spíš máme lidi, co všechno zvládají a lidi, co nic nezvládají?
+Je spíš situace taková, že každý má nějakou slabou stránku, nebo spíš máme lidi, co všechno zvládají a lidi, co nic nezvládají? (zde nezvládám = sloučené všechny tři negativní odpovědi)
 
 ```{r}
 data_nezvladam <- hlavni_data_long %>% filter(kategorie_kompetence == "zvladam") %>% 
@@ -60,17 +77,19 @@ data_nezvladam <- hlavni_data_long %>% filter(kategorie_kompetence == "zvladam")
   ungroup()
 
 data_nezvladam %>%
+  mutate(pocet_nezvladam = if_else(pocet_nezvladam < 5, as.character(pocet_nezvladam), "5 a více")) %>%
   group_by(pocet_nezvladam) %>%
-  summarise(pocet_respondentu = n())
+  summarise(pocet_respondentu = n()) %>% table_format()
 ```
 
+Jiný pohled na podobnou věc - když odpovědi převedeme na čísla 1-7 a zprůměrujeme za každého respondenta, jak to bude vypadat?
 
 ```{r}
-data_nezvladam %>% ggplot(aes(x = prumer_zvladam)) + geom_histogram(binwidth = 0.5) + vodorovne_popisky_x
+data_nezvladam %>% ggplot(aes(x = prumer_zvladam)) + geom_histogram(binwidth = 0.5) + vodorovne_popisky_x + plot_annotation("Průměr hodnocení Zvládám","každého respondenta")
 ```
 
 
-Které kompetence jsou nejčastěji nezvládané?
+Které kompetence jsou nejčastěji nezvládané? Abychom se vyhnuli problémům s tím, že různí lidé mají různě kalibrovanou stupnici, podíváme se, jak často je daná kompetence pro respodenta nejhorší, tj. dostala nejnižší hodnocení ze všech (pokud je jich takových více, počítáme všechny). Žebříček se ale změní jen málo, když se podíváme na průměrné hodnocení napříč všemi respondenty nebo podíl těch, kteří vybrali jednu ze tří negativních odpovědí.
 
 ```{r}
 tabulka_nezvladane <- hlavni_data_long %>% filter(kategorie_kompetence == "zvladam") %>% 
@@ -80,7 +99,7 @@ tabulka_nezvladane <- hlavni_data_long %>% filter(kategorie_kompetence == "zvlad
   arrange(desc(pocet_nezvladam)) %>%
   rename(kompetence = popis_pro_grafy)
 
-tabulka_nezvladane %>% mutate(podil_nezvladam = scales::percent(podil))
+tabulka_nezvladane %>% mutate(podil_nezvladam = scales::percent(podil)) %>% table_format()
 
 plot_tabulka_extrem <- function(tabulka, indices = 5:1, text_y = 0.02) {
   tabulka[indices, ] %>% 
@@ -92,6 +111,8 @@ plots$top_nezvladane
 ```
 
 ## Důležité
+
+A nyní to samé pro "Je to pro mě velmi důležité" - zde je vidět, že respondenti považují v podstatě vše za důležité a spektrum odpovědí je tak na rozdíl od ostatních otázek posunuté hodně "doprava".
 
 ```{r}
 plots$dulezite_celkem <- plot_kategorie_kompetence(hlavni_data_long, "dulezite", popis_pro_plot(hlavni_data, "duchovni_zivot.dulezite"))
@@ -106,8 +127,9 @@ data_nedulezite <- hlavni_data_long %>% filter(kategorie_kompetence == "dulezite
   ungroup()
 
 data_nedulezite %>%
+  mutate(pocet_nedulezite = if_else(pocet_nedulezite < 5, as.character(pocet_nedulezite), "5 a více")) %>%
   group_by(pocet_nedulezite) %>%
-  summarise(pocet_respondentu = n())
+  summarise(pocet_respondentu = n()) %>% table_format()
 ```
 
 
@@ -163,8 +185,9 @@ data_nerozvijim <- hlavni_data_long %>% filter(kategorie_kompetence == "rozvijim
   ungroup()
 
 data_nerozvijim %>%
+  mutate(pocet_nerozvijim = if_else(pocet_nerozvijim < 5, as.character(pocet_nerozvijim), "5 a více")) %>%
   group_by(pocet_nerozvijim) %>%
-  summarise(pocet_respondentu = n())
+  summarise(pocet_respondentu = n()) %>% table_format()
 ```
 
 
@@ -205,8 +228,9 @@ data_neskauting <- hlavni_data_long %>% filter(kategorie_kompetence == "skauting
   ungroup()
 
 data_neskauting %>%
+  mutate(pocet_neskauting = if_else(pocet_neskauting < 5, as.character(pocet_neskauting), "5 a více")) %>%
   group_by(pocet_neskauting) %>%
-  summarise(pocet_respondentu = n())
+  summarise(pocet_respondentu = n()) %>% table_format()
 ```
 
 
@@ -233,6 +257,17 @@ Tohle je zajímavé: rodina asi nepřekvapí, ale aktivní občasntví, duchovn�
 
 # Vývoj s věkem
 
+## Zvládám to
+
+```{r}
+plot_kompetence_by(hlavni_data_long, "zvladam", age, all_together = TRUE)
+plot_kompetence_by(hlavni_data_long, "zvladam", age)
+plots$zvladam_age_smooth <- plot_kompetence_by_smooth(hlavni_data_long, "zvladam", age)
+plots$zvladam_age_smooth
+```
+
+
+
 ## Je to pro mě důležité
 
 
@@ -246,15 +281,6 @@ plots$dulezite_age_smooth <-  plot_kompetence_by_smooth(hlavni_data_long, "dulez
 plots$dulezite_age_smooth
 ```
 
-
-## Zvládám to
-
-```{r}
-plot_kompetence_by(hlavni_data_long, "zvladam", age, all_together = TRUE)
-plot_kompetence_by(hlavni_data_long, "zvladam", age)
-plots$zvladam_age_smooth <- plot_kompetence_by_smooth(hlavni_data_long, "zvladam", age)
-plots$zvladam_age_smooth
-```
 
 
 ## Rozvijim se v tom

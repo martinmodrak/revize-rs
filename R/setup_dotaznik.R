@@ -28,6 +28,7 @@ source(here::here("R","tools_skautis_opendata.R"), encoding = "UTF-8")
 source(here::here("R","tools_brms.R"), encoding = "UTF-8")
 source(here::here("R","tools_INLA.R"), encoding = "UTF-8")
 source(here::here("R","tools_fa.R"), encoding = "UTF-8")
+source(here::here("R","tools_knitr.R"), encoding = "UTF-8")
 
 knitr::opts_chunk$set(fig.width = default_plot_width, fig.height = default_plot_height)
 
