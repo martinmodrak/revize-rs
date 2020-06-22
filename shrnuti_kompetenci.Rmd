@@ -77,7 +77,7 @@ data_nezvladam <- hlavni_data_long %>% filter(kategorie_kompetence == "zvladam")
   ungroup()
 
 data_nezvladam %>%
-  mutate(pocet_nezvladam = if_else(pocet_nezvladam < 5, as.character(pocet_nezvladam), "5 a více")) %>%
+  mutate(pocet_nezvladam = if_else(pocet_nezvladam < 7, as.character(pocet_nezvladam), "7 a více")) %>%
   group_by(pocet_nezvladam) %>%
   summarise(pocet_respondentu = n()) %>% table_format()
 ```
@@ -85,7 +85,7 @@ data_nezvladam %>%
 Jiný pohled na podobnou věc - když odpovědi převedeme na čísla 1-7 a zprůměrujeme za každého respondenta, jak to bude vypadat?
 
 ```{r}
-data_nezvladam %>% ggplot(aes(x = prumer_zvladam)) + geom_histogram(binwidth = 0.5) + vodorovne_popisky_x + plot_annotation("Průměr hodnocení Zvládám","každého respondenta")
+data_nezvladam %>% ggplot(aes(x = prumer_zvladam)) + geom_histogram(binwidth = 0.5) + vodorovne_popisky_x + plot_annotation("Průměr hodnocení Zvládám","histogram průměru jednotlivých respondentů")
 ```
 
 
@@ -134,12 +134,12 @@ data_nedulezite %>%
 
 
 ```{r}
-data_nedulezite %>% ggplot(aes(x = prumer_dulezite)) + geom_histogram(binwidth = 0.5) + vodorovne_popisky_x
+data_nedulezite %>% ggplot(aes(x = prumer_dulezite)) + geom_histogram(binwidth = 0.5) + vodorovne_popisky_x + plot_annotation("Průměr hodnocení Důležité","histogram průměru jednotlivých respondentů")
 ```
 
 
 
-Které kompetence jsou nejčastěji nedůležité?
+Které kompetence jsou nejčastěji nedůležité? Opět se díváme na to, kdy je komptence hodnocena respondentem jako nejméně důležitá ze všech, které vyplnil a opět se pořadí změní jen málo když použijeme jiné měřítko.
 
 ```{r}
 tabulka_nedulezite <- hlavni_data_long %>% filter(kategorie_kompetence == "dulezite") %>% 
@@ -149,11 +149,13 @@ tabulka_nedulezite <- hlavni_data_long %>% filter(kategorie_kompetence == "dulez
   rename(kompetence = popis_pro_grafy)
 
 
-tabulka_nedulezite
+tabulka_nedulezite %>% select(-podil) %>% table_format()
 
 plots$top_nedulezite <- plot_tabulka_extrem(tabulka_nedulezite) + plot_annotation("Nejčastěji nedůležité kompetence", subtitle = "Jak často je daná kompetence u respondenta 'nejhorší'")
 plots$top_nedulezite
 ```
+
+Pro kontrolu: pohled z druhé strany (jak často je daná kompetence hodnocena "nejvýše") nám dá celkem podobné výsledky jako obrácení předchozího žebříčku, ač třeba "4,A Rodina" je v předchozí tabulce zhruba v půlce a zde se dostane na třetí místo. Nutno říct, že vzhledem k celkově vysokým odpovědím jde v podstatě o to, jak často dostala daná kompetence u "Je to pro mě velmi důležité" odpověď "Zcela souhlasím". 
 
 ```{r}
 tabulka_dulezite <- hlavni_data_long %>% filter(kategorie_kompetence == "dulezite") %>% 
@@ -171,12 +173,15 @@ plots$top_dulezite
 
 ## Rozvíjím se v tom
 
+A ještě obdobné grafy pro "Rozvíjím se v tom"
 
 ```{r}
 plots$rozvijim_celkem <- plot_kategorie_kompetence(hlavni_data_long, "rozvijim", popis_pro_plot(hlavni_data, "duchovni_zivot.rozvijim"))
 plots$rozvijim_celkem
 
 ```
+
+V tabulce opět počet co odpověděli jednou ze tří negativních odpovědí. Velká část respondentů neměla ani jednu komptenci, kde si myslí, že se spíše nerozvíjí.
 
 ```{r}
 data_nerozvijim <- hlavni_data_long %>% filter(kategorie_kompetence == "rozvijim") %>% 
@@ -185,26 +190,26 @@ data_nerozvijim <- hlavni_data_long %>% filter(kategorie_kompetence == "rozvijim
   ungroup()
 
 data_nerozvijim %>%
-  mutate(pocet_nerozvijim = if_else(pocet_nerozvijim < 5, as.character(pocet_nerozvijim), "5 a více")) %>%
+  mutate(pocet_nerozvijim = if_else(pocet_nerozvijim < 7, as.character(pocet_nerozvijim), "7 a více")) %>%
   group_by(pocet_nerozvijim) %>%
   summarise(pocet_respondentu = n()) %>% table_format()
 ```
 
 
 ```{r}
-data_nerozvijim %>% ggplot(aes(x = prumer_rozvijim)) + geom_histogram(binwidth = 0.5) + vodorovne_popisky_x
+data_nerozvijim %>% ggplot(aes(x = prumer_rozvijim)) + geom_histogram(binwidth = 0.5) + vodorovne_popisky_x  + plot_annotation("Průměr hodnocení Rozvíjím se v tom","histogram průměru jednotlivých respondentů")
 ```
 
-Které kompetence se nejčastěji nerozvíjí?
+Které kompetence se nejčastěji nerozvíjí? (tedy jsou hodnoceny nejníže pro každého respondenta). Opět se pořadí mění jen málo, vezmeme-li jiné měřítko.
 
 ```{r}
 tabulka_nerozvijim <- hlavni_data_long %>% filter(kategorie_kompetence == "rozvijim") %>% 
   group_by(popis_pro_grafy) %>% 
   summarise(pocet_nerozvijim = sum(kompetence_nejnize), podil = mean(kompetence_nejnize), podil_nerozvijim = scales::percent(podil)) %>%
   arrange(desc(pocet_nerozvijim)) %>%
-  rename(kompetence = popis_pro_grafy)
+  rename(kompetence = popis_pro_grafy) 
 
-tabulka_nerozvijim
+tabulka_nerozvijim %>% select(-podil) %>% table_format()
 
 plots$top_nerozvijim <- plot_tabulka_extrem(tabulka_nerozvijim) + plot_annotation("Nejčastěji nerozvíjené kompetence", subtitle = "Jak často je daná kompetence u respondenta 'nejhorší'")
 plots$top_nerozvijim
@@ -220,6 +225,7 @@ plots$skauting_celkem
 
 ```
 
+Opět je hodně lidí, kteří nemají žádnou kompetenci u které by odpověděli "Spíše nesouhlasím" a hůř na otázku "Skauting mi v rozvoji významně pomáhá".
 
 ```{r}
 data_neskauting <- hlavni_data_long %>% filter(kategorie_kompetence == "skauting") %>% 
@@ -235,10 +241,13 @@ data_neskauting %>%
 
 
 ```{r}
-data_neskauting %>% ggplot(aes(x = prumer_skauting)) + geom_histogram(binwidth = 0.5) + vodorovne_popisky_x
+data_neskauting %>% ggplot(aes(x = prumer_skauting)) + geom_histogram(binwidth = 0.5) + vodorovne_popisky_x  + plot_annotation("Průměr hodnocení Skauting mi pomáhí","histogram průměru jednotlivých respondentů")
 ```
 
-Které kompetence skauting nejčastěji míjí?
+Které kompetence skauting nejčastěji míjí? (opět zde jak často je kompetence nejhůře hodnocena, opět se málo změní s jiným měřítkem toho, co znamená "špatně zhodnocena").
+
+To, že kompetence rodina není považovaná za rozvíjenou skautingem asi nepřekvapí, ale aktivní občasntví, duchovní život, svědomí nebo sebepoznání jsou věci, kde má skauting unikátní postavení.
+
 
 ```{r}
 tabulka_neskauting <- hlavni_data_long %>% filter(kategorie_kompetence == "skauting") %>% 
@@ -253,27 +262,43 @@ plots$top_neskauting <- plot_tabulka_extrem(tabulka_neskauting, text_y = 0.05) +
 plots$top_neskauting
 ```
 
-Tohle je zajímavé: rodina asi nepřekvapí, ale aktivní občasntví, duchovní život, svědomí nebo sebepoznání jsou věci, kde má skauting unikátní postavení.
 
 # Vývoj s věkem
 
+Pro jednoduchost interpretace zde budeme převádět odpovědi respondentů na čísla 1-7 a dívat se na průměr z těchto čísel. To není úplně ideální způsob, jak pracovat s tímto druhem dat, ale má tu výhodu, že je snadné výsledek interpretovat. Zároveň se trendy nezmění, když použijeme nějaké vhodnější měřítko.
+
+**Zásadní poznámka k interpretaci:** Z dat, které máme _nelze_ rozlišit dva možné původce rozdílných odpovědí dle věku: vlastní efekt stárnutí a tzv. _kohortový_ efekt, tj. vliv toho, že lidé, kterým je dnes 25 vyrůstali v jiné době a jiném kontextu (i skautském) než lidé, kterým je dnes 15 - a proto mohou mít jiné hodnoty, jinou míru sebereflexe (nebo jiný důvod, proč se vůbec dostali k našemu dotazníku). Pokud bychom tyto vlivy chtěli rozlišit, museli bychom výzkum ještě někdy zopakovat.
+
+
 ## Zvládám to
+
+Nejdříve se podíváme na průměr hodnocení "Zvládám" napříč všemi kompetencemi dle věku - je zde spíše vzestupný trend s několika zuby - ty jsou (jak uvidíme za chvíli) primárně způsobeny podivnou fluktuací v kompetenci "3.A Kamarádské vztahy". Vzestupný trend může být způsoben rozvojem v roverském věku, změnou sebehdnocení s věkem nebo tím, že ta dnešní mladá generace zvládá všechno hůř než my v jejich věku ;-). Taky je dobré si všimnout, že celý graf pokrývá jen několik desetin jednoho bodu, tj. díky velkému počtu respondentů zde máme malou nejistotu (světlý pruh), ale absolutní velikost změn je malá.
 
 ```{r}
 plot_kompetence_by(hlavni_data_long, "zvladam", age, all_together = TRUE)
+```
+
+Můžeme se podívat též na trendy pro jednotlivé kompetence - a to přímo tak, jak jsou v datech nebo mírně vyhlazené, kde jsou patrné celkové trendy. Většina kompetencí je s přibývajícím věkem hodnocena výše (v souladu s celkovým trendem z předchozího obrázku), některé zhruba setrvaly. Výjimku tvoří klesající "1.B Fyzicky zdatný" (kde pokles s věkem nepřekvapí a asi nikdo netvrdí, že současná mladá generace se hýbe více než její předchůdci) a "6.E Šetrnost" (kde může alespoň částečně jít o směs změny sebehodnocení nebo kohortový efekt). Komplikovanější trend je pak u "2.C Rozvoj osobnosti", "3.A Kamarádské vztahy" a "4.A Rodina". Lze tu trochu spekulovat o vlivu životních změn (vysoká škola, práce), ale ruku do ohně bych za to nedal.
+
+Je taky dobré si všimnout, že průměrné sebehodnocení kompetenci se zřídka liší mezi mladšími a staršími o více jak půl stupně. Nejvýraznější změna je u "3.A Kamarádské vztahy" - díky tomu, že ostatní kompetence se trochu "vyprůměrují", je tato fluktuace promítnuta i do celkového průměru.
+
+```{r}
 plot_kompetence_by(hlavni_data_long, "zvladam", age)
 plots$zvladam_age_smooth <- plot_kompetence_by_smooth(hlavni_data_long, "zvladam", age)
 plots$zvladam_age_smooth
 ```
 
-
-
 ## Je to pro mě důležité
 
+Obdobně průměrné hodnocení důležitosti. Při pohledu na celkový průměr vidíme podivné zuby, které je těžké interpetovat (tentokrát je nelze snadno svést na jednu kompetenci). Zároveň zde není znatelný celkový vzestupný nebo sestupný trend. Opět si všimněte, že největší skok (mezi 22. a 23. rokem) je 0.2 stupně, tj. velmi málo.
 
 ```{r}
 plot_kompetence_by(hlavni_data_long, "dulezite", age, all_together = TRUE)
 ```
+
+Trendy pro jednotlivé kompetence jsou v něčem hezké - klesá vnímaná důležitost "technických" kompetencí ("1.E Táboření, tým", "1.F Tvořivost, zručnost","6.E Šetrnost") a mírně roste důležitost duchovních kompetencí ("2.A1 Hledání smyslu života", "2.B1 Svědomí", "2.B2 Slib, zákon"). Pokud to je sktučeně efekt stárnutí a zrání, je to dle mého super. Pokud je to kohortový efekt (tj. že dříve se v oddílech kladl větší důraz na hodnoty než dnes a to si roveři už nesou celý život), tak je to smutné.
+
+Opět zdůrazním, že změny v průměrném sebehodnocení jsou mírné - většinou o max. půl stupně ze sedmi.
 
 ```{r}
 plot_kompetence_by(hlavni_data_long, "dulezite", age)
@@ -285,8 +310,15 @@ plots$dulezite_age_smooth
 
 ## Rozvijim se v tom
 
+Celkový trend vnímání seberozvoje je klesající a to (s ohledem na předchozí otázky) poměrně výrazně - o zhruba půl stupně. Optimistický výklad je, že jde o výsledek toho, že roveři věci čím dál lépe zvládají, pesimistický že s věkem leniví a kornatí. Je taky možné, že jde jen o střízlivější sebehodnocení u starších nebo čistě o kohortový efekt, kdy současní mladí prožívají více rozvoje, protože se změnila situace ve společnosti a skautingu, ne proto, že jsou mladší. Opět neumím vysvětlit zub mezi 22. a 23. rokem. 
+
 ```{r}
 plot_kompetence_by(hlavni_data_long, "rozvijim", age, all_together = TRUE)
+```
+
+Při pohledu na jednotlivé kompetence vidíme, že žádné průměrné sebehodnocení rozvoje neroste.
+
+```{r}
 plot_kompetence_by(hlavni_data_long, "rozvijim", age)
 plots$rozvijim_age_smooth <- plot_kompetence_by_smooth(hlavni_data_long, "rozvijim", age)
 plots$rozvijim_age_smooth
@@ -295,14 +327,23 @@ plots$rozvijim_age_smooth
 
 ## Skauting me rozviji
 
+Tak a  do čtvrtice - celkový trend je klesající, podobně jako u "Rozvíjím se v tom". V jistém smyslu je asi žádoucí, aby zde byl klesající trend - s rostoucím věkem by skauting měl v rozvoji lidí asi hrát menší a menší roli. (a ač to je otravné, stále je možné, že to je kohortový efekt)
+
 ```{r}
 plot_kompetence_by(hlavni_data_long, "skauting", age, all_together = TRUE)
+```
+
+U jednotlivých kompetencí se toho vlastně málo zajímavého děje - všechny mírně klesají, kromě pár, co zůstavají zhruba rovné: "2.B1 Svědomí", "2.B2 Slib, zákon", "4.C Členka týmu". Opět se to asi dá interpretovat optimisticky: roveři čím dál méně spoléhají na skauting ve všem kromě základních hodnot. Ale taky je možné, že to celé je jen tím, že starší lidé mají jinou míru/způsob sebereflexe. Jo a říkal jsem, že to může být kohortový efekt, kdy současný/nedávný skauting lépe rozvíjí mladé lidi než skauting před 10ti lety?
+
+```{r}
 plot_kompetence_by(hlavni_data_long, "skauting", age)
 plots$skauting_age_smooth <- plot_kompetence_by_smooth(hlavni_data_long, "skauting", age)
 plots$skauting_age_smooth 
 ```
 
 # Rozdíly a nedostatky
+
+Ještě se podíváme na rozdíly/kontrasty jednotlivých otázek.
 
 ```{r}
 spocitej_data_rozdil <- function(hlavni_data_long, prvni, druhy, meritko_nazev) {
@@ -320,9 +361,8 @@ spocitej_data_rozdil <- function(hlavni_data_long, prvni, druhy, meritko_nazev) 
     popis <- paste0(popis_meritka(meritko_nazev),": ",nazev_prvni," - ", nazev_druhy)
   }
   
-  data_diff <- hlavni_data_long %>% select(session, kategorie_kompetence, kompetence_odpoved, popis_pro_grafy, !!meritko_nazev)  %>%
-      rename(kompetence = popis_pro_grafy) %>% 
-      pivot_wider(id_cols = c("session", "kompetence"), names_from = kategorie_kompetence, values_from = !!meritko_nazev) %>%
+  data_diff <- hlavni_data_long  %>%
+      pivot_wider(id_cols = c("session", "kompetence","popis_pro_grafy", "age"), names_from = kategorie_kompetence, values_from = !!meritko_nazev) %>%
       mutate(rozdil = diff_fun({{prvni}},{{druhy}})) %>%
       filter(!is.na(rozdil))
   
@@ -339,7 +379,7 @@ tabulka_rozdilu <- function(data_rozdil) {
   }
   nazev_prumer <- paste0(data_rozdil$popis, " (Průměr)")
   data_rozdil$data %>%
-    group_by(kompetence) %>%
+    group_by(popis_pro_grafy) %>%
     summarise(prumer = mean(rozdil)) %>%
     arrange(desc(prumer)) %>%
     mutate(!!nazev_prumer := formatter(prumer)) 
@@ -363,6 +403,20 @@ tabulka_dulezite_zvladam %>%
 hlavni_data_long %>% spocitej_data_rozdil(dulezite, zvladam, "kompetence_odpoved") %>% tabulka_rozdilu() %>%
     select(-prumer)
 ```
+
+```{r}
+data_rozdil <- hlavni_data_long %>% 
+  spocitej_data_rozdil(dulezite, zvladam, "kompetence_odpoved") %>% 
+  get("data", .) %>%
+  mutate(kategorie_kompetence = "rozdil dulezite-zvladam", kompetence_odpoved = rozdil)
+
+data_rozdil %>%
+  plot_kompetence_by("rozdil dulezite-zvladam", age, all_together = TRUE)
+
+data_rozdil %>%
+  plot_kompetence_by("rozdil dulezite-zvladam", age)
+```
+
 
 
 ## Důležité vs. rozvíjím
@@ -391,6 +445,20 @@ Když zohledníme i velikost rozdílu, trochu se to přehází - hlavně vyplavo
 ```{r}
 hlavni_data_long %>% spocitej_data_rozdil(dulezite, rozvijim, "kompetence_odpoved") %>% tabulka_rozdilu() %>%
     select(-prumer)
+```
+
+
+```{r}
+data_rozdil <- hlavni_data_long %>% 
+  spocitej_data_rozdil(dulezite, rozvijim, "kompetence_odpoved") %>% 
+  get("data", .) %>%
+  mutate(kategorie_kompetence = "rozdil dulezite-rozvijim", kompetence_odpoved = rozdil)
+
+data_rozdil %>%
+  plot_kompetence_by("rozdil dulezite-rozvijim", age, all_together = TRUE)
+
+data_rozdil %>%
+  plot_kompetence_by("rozdil dulezite-rozvijim", age)
 ```
 
 

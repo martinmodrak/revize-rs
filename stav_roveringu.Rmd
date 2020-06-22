@@ -125,6 +125,7 @@ plots$vyroky_zazil_vstup <- plot_summary_mc(hlavni_data, vyroky_o_roveringu_zazi
 plots$vyroky_zazil_vstup
 ```
 
+Můžeme se též podívat, jak se odpovědi mění s věkem - zde nejspíš půjde hlavně o tzv. _kohortový efekt_, kdy lidé různého věku zažili různý skauting, ale může zde být i rozdíl v tom, jak stejnou věc hodnotí mladší a starší respondenti.
 
 ```{r}
 plots$vyroky_zazil_vstup_vek <- hlavni_data  %>% plot_binarni_s_nejistotou(paste0("vyroky_o_roveringu_zazil_2.",vyroky_vstup), by = age, facet = TRUE, na.rm = TRUE, names_prefix = "vyroky_o_roveringu_zazil_2.") + plot_annotation(paste0("Rovering, který jsem zažil"))
@@ -193,6 +194,8 @@ plots$vyroky_o_roveringu_zazil_2 <- plot_summary_mc(hlavni_data, vyroky_o_roveri
 plots$vyroky_o_roveringu_zazil_2
 
 ```
+
+Můžeme se podívat, jak se odpovědi liší s věkem. Nějaký trend je u dělení na mladší a starší a "roverem můžu být, jak dlouho chci" - zde asi hlavním mechanismem bude, že mladší roveři s roverským stárnutím nemají zkušenost. Jinak se s věkem/kohortou odpovědi příliš nemění.
 
 ```{r}
 plots$vyroky_zazil_obecne_vek <- hlavni_data  %>% plot_binarni_s_nejistotou(paste0("vyroky_o_roveringu_zazil_2.",vyroky_zazil_obecne), by = age, facet = TRUE, na.rm = TRUE, names_prefix = "vyroky_o_roveringu_zazil_2.") + plot_annotation(paste0("Rovering, který jsem zažil 2"))
@@ -460,7 +463,7 @@ podil_kurzy_nastroj <- mean(hlavni_data$vychovne_nastroje.kurzy, na.rm = TRUE)
 
 Obecně vidíme, že méně lidí zažilo roverský kurz, než kolik říká, že jejich společenství využívá kurzy jako nástroj (to bylo `r scales::percent(podil_kurzy_nastroj)`). Na kurzy - zejména čekatelky - se hodně jezdí (tedy ve vzorku roverů, který máme). Celých `r scales::percent(aspon_jeden_kurz)` respondentů bylo aspoň na jednom z kurzů zmíněných výše.
 
-Počet účastníků kurzů samozřejmě roste s věkem respondentů, takže mezi těmi, co vydží do cca 20 let už má čekatelky za sebou kolem 80% a procento složených vůdcovek je u starších také dosti vysoké.
+Počet účastníků kurzů samozřejmě roste s věkem respondentů, takže mezi těmi, co vydží do cca 20 let už má čekatelky za sebou kolem 80% a procento složených vůdcovek je u starších také dosti vysoké. Zde je nepravděpodobné, že by šlo z velké části o kohortový efekt (tj. že v době, kdy nyní staří roveři byli mladší se více jezdilo na kurzy) a čekal bych, že skutečně s věkem přibývá kvalifikovaných.
 
 ```{r}
 plots$kurzy_vek <- hlavni_data %>% filter(!is.na(co_zazil)) %>% plot_binarni_s_nejistotou(paste0("co_zazil.", c("cekatelky","vudcovky","roversky_kurz", "jiny_kurz")), names_prefix = "co_zazil.", by = age) +  plot_annotation(title = "Kurzy, co zažili, dle věku")
@@ -543,7 +546,7 @@ data_s_cim_spokojen %>%
 
 ```
 
-Pro spokojenost s frekvencí akcí je tu jistý klesající trend s věkem - velké výkyvy u starších roverů je třeba brát s rezervou, protože to je malý vzorek (křivka pro "nespokejen s četností akcí" je vlastně jen inverzní)
+Pro spokojenost s frekvencí akcí je tu jistý klesající trend s věkem - velké výkyvy u starších roverů je třeba brát s rezervou, protože to je malý vzorek (křivka pro "nespokejen s četností akcí" je vlastně jen inverzní). Taky je možné, že se jedná alespoň částečně o kohortový efekt (tj. že roveři, co jsou dnes staří, zažili jako mladí jiný skauting/rovering i svět obecně a tak jinak hodnotí svou současnou činnost).
 
 ```{r}
 # , fig.cap="Bereme zde jen současné členy, protože u bývalých členů není jasné, jak dlouho jsou již mimo společenství."
@@ -569,7 +572,7 @@ plots$spokojenost_frekvence_akci_kratke_akce
 Frekvence různých druhů akcí spolu dost korelují, takže grafy pro vícedenní a větší akce vypadají velmi podobně.
 
 
-Trend s věkem je též vidět u spokojenosti s náplní programu, ač zde dosahuje minima kolem 20tého roku věku. Možná čistě proto, že nespokojení starší členové již ve společenství nejsou.
+Trend s věkem je též vidět u spokojenosti s náplní programu, ač zde dosahuje minima kolem 20tého roku věku. Možná čistě proto, že nespokojení starší členové již ve společenství nejsou. Taky opět může jít částečně o kohortový efekt.
 
 ```{r, fig.cap="Bereme zde jen současné členy, protože u bývalých členů není jasné, jak dlouho jsou již mimo společenství."}
 hlavni_data %>% 
@@ -613,7 +616,7 @@ plots$roky_ve_spolecenstvi
 ```
 
 
-Celkem nepřekvapivě klesá aktivita kmenů s věkem jejich členů:
+Celkem nepřekvapivě klesá aktivita kmenů s věkem jejich členů (ač opět nesmíme zapomenout na možnost, že jde o kohortový efekt, tj. míra aktivity se nemusela s věkem změnit pokud nyní starší roveři byli méně aktivní už zamlada, například proto, že rovering byl tehdy méně podporován):
 
 ```{r, fig.cap = 'Pro zařazení do "Aktivní-základ" musí být buď frekvence krátkých akcí častější než měsíčně NEBO několikrát ročně krátké a vícedenní akce NEBO aspoň jednou ročně velká akce a nějaké kratší nebo vícedenní akce. Pro zařazení do "Aktivní-velmi" musí být uvedena alespoň jednou ročně velká akce A ZÁROVEŇ alespoň několik vícedenních akcí ročně A ZÁROVEŇ alespoň jednou měsíčně krátké akce.'}
 plots$aktivita_vek <- hlavni_data %>% 
@@ -639,7 +642,7 @@ plots$aktivita_let_v_kmeni
 
 
 
-Spokojenost s členstvím _velmi mírně_ klesá s věkem, těžko z toho dělat silné závěry, protože, jak jsme viděli výše, s věkem klesá frekvence akcí a frekvence akcí taky koreluje se spokojeností, takže velká otázka, co je zde příčinou a následkem.
+Spokojenost s členstvím _velmi mírně_ klesá s věkem, těžko z toho dělat silné závěry, protože, jak jsme viděli výše, s věkem klesá frekvence akcí a frekvence akcí taky koreluje se spokojeností, takže velká otázka, co je zde příčinou a následkem (a může to být jen kohortový efekt)
 
 ```{r}
 hlavni_data %>% filter(kategorie_respondenta_full == "nyni_spolecenstvi") %>%
@@ -648,9 +651,12 @@ hlavni_data %>% filter(kategorie_respondenta_full == "nyni_spolecenstvi") %>%
   
 ```
 
-Se stárnutím (a tím delší dobou ve společenství) se také trochu mění to, jaké problémy respondenti uvádějí. Vytížení oddíly i stěhování pryč roste mezi 15tým a cca 20tým rokem, poměrně výrazně, a zapojení roverů jako "pracovní čety" či že roveři "nevědí jak na to" v tomto období také roste, ač zdaleka ne tak výrazně. Ostatní problémy pak již spolehlivý trend nevykazují.
+Se stárnutím (a tím delší dobou ve společenství) se také trochu mění to, jaké problémy respondenti uvádějí. Vytížení oddíly i stěhování pryč roste mezi 15tým a cca 20tým rokem, poměrně výrazně, a zapojení roverů jako "pracovní čety" či že roveři "nevědí jak na to" v tomto období také roste, ač zdaleka ne tak výrazně. Ostatní problémy pak již spolehlivý trend nevykazují. A nezapomeňme opět na možnost, že jde o kohortový efekt, ač zde bych to považoval za spíše nepravděpodobné.
 
 ```{r}
+nazvy_problemy <- names(hlavni_data)[grepl("^problemy_roveringu\\.", names(hlavni_data))]
+
+
 plots$problemy_vek <- hlavni_data %>% filter(kategorie_respondenta == "nyni_spolecenstvi") %>% plot_binarni_s_nejistotou(nazvy_problemy, by = age, names_prefix = "problemy_roveringu.", facet = TRUE) + plot_annotation(paste0("Problémy roveringu dle věku "), "pouze současní členové společenství")
 
 plots$problemy_vek
@@ -715,9 +721,6 @@ plots$vek_kategorie
 Asi také nepřekvapí, že respondenti, kteří dříve byli ve společenství, ale již nejsou, uvádějí o svém bývalém společenství častěji v podstatě všechny problémy roveringu. Zajímavé ale je, že u skautského vytížení uvnitř středisek i mimo střediska a u zapřažení roverů jako pracovní čety je rozdíl mezi současnými a bývalými členy zanedbatelný (a u absence kvalitního programu nejspíš také). Lze to brát jako jemný náznak, že tyto problémy přispívají k odchodu roverů ze společenství spíše méně.
 
 ```{r}
-
-nazvy_problemy <- names(hlavni_data)[grepl("^problemy_roveringu\\.", names(hlavni_data))]
-
 hlavni_data %>% filter(kategorie_respondenta != "nikdy_spolecenstvi") %>% plot_binarni_s_nejistotou(nazvy_problemy, kategorie_respondenta, flip = TRUE, names_prefix = "problemy_roveringu.") + svisle_popisky_x + plot_annotation("Problémy roveringu", "současní vs. bývalí členové společenství")
 ```
 
@@ -1000,11 +1003,12 @@ plots$komunikace_hypoteticke
 
 ```
 
+Preferované kanály se mění dle věku, zde ale lze čekat silný kohortový efekt, tj.  ač třeba Facebook používají dnes spíše starší roveři, je to spíš tím, že byl populární, když byli mladší a nelze moc očekávat, že nyní mladí roveři do Facebooku "dorostou". Obdobně není jisté, že roveři dorostou do e-mailu (i když zde je efekt věku celkem pravděpodobný, protože při vstupu do práce nebo na vysokou se používání e-mailu těžko vyhnou).
+
 ```{r}
 nazvy_komunikace <- names(hlavni_data)[grepl("komunikacni_kanaly_existujici\\.", names(hlavni_data))]
 
-plots$komunikace_vek <- hlavni_data %>% plot_binarni_s_nejistotou(nazvy_komunikace, by = age, names_prefix = "komunikacni_kanaly_existujici.", na.rm = TRUE, facet = TRUE) + plot_annotation(paste0("Komunikační kanály dle věku ", i), "Kde bys nejraději sledovala aktuální informace o roveringu?")
-
+plots$komunikace_vek <- hlavni_data %>% plot_binarni_s_nejistotou(nazvy_komunikace, by = age, names_prefix = "komunikacni_kanaly_existujici.", na.rm = TRUE, facet = TRUE) + plot_annotation(paste0("Komunikační kanály dle věku"), "Kde bys nejraději sledovala aktuální informace o roveringu?")
 plots$komunikace_vek
 ```
 

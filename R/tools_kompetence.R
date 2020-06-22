@@ -66,14 +66,14 @@ odvozena_meritka_kompetenci <- function(data_long) {
     ungroup()
 }
 
-meritka_kompetence <- list(kompetence_odpoved = list(type = "ordinal"),
-                           kompetence_pozitivni = list(type = "bool"),
-                           kompetence_nad_median = list(type = "bool"),
-                           kompetence_nejvyse = list(type = "bool"),
-                           kompetence_nejnize = list(type = "bool"),
-                           kompetence_relativne_k_sobe = list(type = "interval"),
-                           kompetence_relativne_k_populaci = list(type = "interval"),
-                           kompetence_nad_prumer_populace = list(type = "bool")
+meritka_kompetence <- list(kompetence_odpoved = list(type = "ordinal", popis = "Odpověď číselně"),
+                           kompetence_pozitivni = list(type = "bool", popis = "Je pozitivní"),
+                           kompetence_nad_median = list(type = "bool", popis = "Nad medián respondenta"),
+                           kompetence_nejvyse = list(type = "bool", popis = "Nejvýše pro respondenta"),
+                           kompetence_nejnize = list(type = "bool", popis = "Nejníže pro respondenta"),
+                           kompetence_relativne_k_sobe = list(type = "interval", popis = "Číselně relativně ke svému průměru"),
+                           kompetence_relativne_k_populaci = list(type = "interval", popis = "Číselně relativně k průměru populace"),
+                           kompetence_nad_prumer_populace = list(type = "bool", popis = "Nad průměr populace")
 )
 
 popis_meritka <- function(meritko_nazev) {
@@ -125,7 +125,8 @@ plot_kompetence_by <- function(data, kategorie, group, meritko = kompetence_odpo
     ungroup() %>%
     ggplot(aes(x = {{group}}, y = prumer, ymin = dolni, ymax = horni, group = !!kompetence_group)) +
     geom_ribbon() + geom_line() + my_facet +
-    my_scale_x + my_theme + ggtitle(paste0(kategorie, " - ", meritko_nazev)) + my_theme
+    my_scale_x + my_theme + scale_y_continuous("Průměr") +
+    ggtitle(kategorie, subtitle =  meritka_kompetence[[meritko_nazev]]$popis)
 }
 
 plot_kompetence_by_smooth <- function(data, kategorie, group, meritko = kompetence_odpoved, all_together = FALSE) {
@@ -150,6 +151,7 @@ plot_kompetence_by_smooth <- function(data, kategorie, group, meritko = kompeten
     filter(kategorie_kompetence == kategorie) %>%
     ggplot(aes(x = {{group}}, y = {{ meritko }})) +
     geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"), alpha = 1) + my_facet +
-    my_scale_x + my_theme + ggtitle(paste0(kategorie, " - ", meritko_nazev), subtitle = "Vyhlazeno") + my_theme
+    my_scale_x + my_theme + scale_y_continuous("Průměr") +
+    ggtitle(kategorie, subtitle =  paste0(meritka_kompetence[[meritko_nazev]]$popis, ", vyhlazeno"))
 }
 
