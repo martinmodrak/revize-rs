@@ -6,6 +6,8 @@ output:
   word_document:
     toc: yes
     reference_docx: public_data/output_template.docx
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+
 ---
 
 
@@ -1086,6 +1088,8 @@ plots$sluzba_kategorie_respondenta
 
 
 ```{r, save_plots}
-save_list_of_plots(plots,"stav_roveringu")
+if(!document_output) {
+  save_list_of_plots(plots,"stav_roveringu")
+}
 ```
 

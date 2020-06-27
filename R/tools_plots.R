@@ -1,5 +1,11 @@
 #V palcich
-default_plot_width <- 12
+if(document_output) {
+  plot_size_multiplier <- 1
+} else {
+  plot_size_multiplier <- 1
+}
+
+default_plot_width <- 12 * plot_size_multiplier
 default_plot_height <- (default_plot_width / 16) * 9
 
 revize_colors <- c(
@@ -72,22 +78,22 @@ vodorovne_popisky_x <- theme(axis.text.x = element_text(angle = 0, hjust = 0.5, 
 svisle_popisky_x <- theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3))
 
 theme_revizers <- function() {
-  default_margin <- 2
+  default_margin <- 2 * plot_size_multiplier
   my_margin <- function(t = default_margin, r = default_margin, b = default_margin, l = default_margin) {
     margin(t = t, r = r, b = b, l = l)
   }
 
   theme_void() +
     theme(
-      text = element_text(family = "Roboto", color = "white", size = 13,
+      text = element_text(family = "Roboto", color = "white", size = 4 + 9  * plot_size_multiplier,
                           face = "plain", hjust = 0, vjust = 0.5, angle = 0, lineheight = 1, margin = my_margin(), debug = FALSE),
       line = element_line(color = "white", size = 0.5, linetype = "solid", lineend = "square"),
       rect = element_rect(color = "white", size = 1, linetype = "solid", fill = FALSE),
 
       plot.background = element_rect(fill = revize_cols("dark_blue"), color = FALSE),
-      plot.margin = margin(t = 20, r = 20, b = 20, l = 15),
-      plot.title = element_text(family = title_family(), size = 35, hjust = 0.5),
-      plot.subtitle = element_text(family = "Roboto", size = 16, face = "bold", hjust = 0.5, margin = my_margin(b = 8)),
+      plot.margin = margin(t = 20 * plot_size_multiplier, r = 20 * plot_size_multiplier, b = 20 * plot_size_multiplier, l = 15 * plot_size_multiplier),
+      plot.title = element_text(family = title_family(), size = 35  * plot_size_multiplier, hjust = 0.5),
+      plot.subtitle = element_text(family = "Roboto", size = 16 * plot_size_multiplier, face = "bold", hjust = 0.5, margin = my_margin(b = 8 * plot_size_multiplier)),
 
       panel.grid = element_blank(),
       panel.background = element_blank(),
@@ -121,7 +127,7 @@ theme_revizers <- function() {
       axis.title.x = NULL,
       axis.title.x.top = NULL,
       axis.title.y.right = NULL,
-      axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3, margin = my_margin(t = 8), inherit.blank = TRUE),
+      axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3, margin = my_margin(t = 8 * plot_size_multiplier), inherit.blank = TRUE),
       axis.text.x.top = NULL,
       axis.text.y = element_text(vjust = 0.3, hjust = 1, inherit.blank = TRUE),
       axis.text.y.right = NULL,
@@ -211,7 +217,7 @@ plot_summary_mc <- function(cela_data, sloupec,
   data_to_plot %>%
     ggplot(aes(x = nazev_volby, y = podil_ano, label = scales::percent(podil_ano, accuracy = 1))) +
     geom_bar(stat = "identity") +
-    geom_text(aes(color = podil_ano > invert_color_threshold, y = if_else(podil_ano > invert_color_threshold,0.01, podil_ano + 0.01)), hjust = 0, family = title_family(), size = 6) +
+    geom_text(aes(color = podil_ano > invert_color_threshold, y = if_else(podil_ano > invert_color_threshold,0.01, podil_ano + 0.01)), hjust = 0, family = title_family(), size = 6 * plot_size_multiplier) +
     scale_color_manual(values = c("white", revize_cols("dark_blue")), guide = FALSE) +
     expand_limits(color = c(FALSE, TRUE)) +
     coord_flip() +
