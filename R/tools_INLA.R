@@ -76,7 +76,7 @@ inla_pipeline <- function(base_data, kategorie, formula_base, uzite_mc_sloupce, 
       }
 
       list(
-        pp_samples_matrix = inla_samples_to_matrix(inla.posterior.sample(n_samples, fit)),
+        pp_samples_matrix = inla_samples_to_matrix(inla.posterior.sample(n_samples, fit, intern = TRUE)),
         marginals_summary = marginals_summary_from_fit(fit),
         summary.hyperpar = fit$summary.hyperpar,
         cache_result = cache_result
@@ -118,9 +118,9 @@ marginals_summary_from_fit <- function(fit) {
     map_dfr(fit$marginals.fixed, marginals_summary_single, .id = "marginal") %>%
     mutate(index = "")
 
-  summary_hyperpar <-
-    map_dfr(fit$marginals.hyperpar, marginals_summary_single, .id = "marginal") %>%
-    mutate(index = "")
+  # summary_hyperpar <-
+  #   map_dfr(fit$marginals.hyperpar, marginals_summary_single, .id = "marginal") %>%
+  #   mutate(index = "")
 
   rbind(summary_random, summary_fixed)
 }
@@ -165,9 +165,9 @@ make_data_for_inla <- function(base_data, kategorie, uzite_mc_sloupce) {
 
     mc_formula_str_sloupec <- paste0(
       ' + f(', colnames(ind_matrix)[1], ', ', colnames(mc_matrix)[1],
-#      ', model = "generic3", Cmatrix = list(diag(', ncol(mc_matrix), ')))')
-    ', model = "generic3", Cmatrix = list(diag(', ncol(mc_matrix),
-    ')), hyper = list(theta1 = list(prior = log_sqrt_inv_hn(1))))')
+      ', model = "generic3", Cmatrix = list(diag(', ncol(mc_matrix),
+      ')), hyper = list(theta1 = list(prior = log_sqrt_inv_hn(1))))'
+      )
 
     for(i in 2:ncol(mc_matrix)) {
       mc_formula_str_sloupec <- paste0(
@@ -216,7 +216,7 @@ my_inla_fit <- function(model_formula, data, num.threads = inla.getOption("num.t
 
   # Zatim approximuji ordinal jako beta binomial
   if(meritko_info$type == "ordinal") {
-    additional.args = list(family = "betabinomial", Ntrials = 7)
+    additional.args = list(family = "pom")
   } else if(meritko_info$type == "interval") {
     additional.args = list(family = "gaussian")
   } else if(meritko_info$type == "bool") {
@@ -247,18 +247,47 @@ pp_samples_from_matrix <- function(model_formula, pp_samples_matrix, regression_
   }
 
   if(meritko_info$type == "ordinal") {
-    overdisp_samples <- pp_samples_matrix[,"overdispersion for the betabinomial observations"]
+    n_prahu <- 6
+    nms = paste(paste0("theta", 1:n_prahu), "for POM")
+    sim.alpha = matrix(NA, dim(pp_samples_matrix)[1], n_prahu)
+    for(k in 1:n_prahu) {
+      if (k == 1) {
+        sim.alpha[, k] = pp_samples_matrix[, nms[1]]
+      } else {
+        sim.alpha[, k] = sim.alpha[, k-1] + exp(pp_samples_matrix[, nms[k]])
+      }
+    }
+    colnames(sim.alpha) = paste0("alpha", 1:n_prahu)
+    prob_greater_fun <- function(x, linpred) {
+      1/(1 + exp(x + linpred))
+    }
     res <- pp_linpred %>%
-      inner_join(tibble(sample_id = 1:n_samples, overdispersion = overdisp_samples),
-                 by = c("sample_id" = "sample_id")) %>%
-      mutate(response_prob_mean = 1/(1 + exp(-linpred)),
-             prec = 1/overdispersion + 1,
-             response_prob = rbeta(n(), response_prob_mean * prec, (1 - response_prob_mean) * prec),
-             response = rbinom(n(), size = 7, prob = response_prob))
+       inner_join(tibble(sample_id = 1:n_samples) %>% cbind(as_tibble(pp_samples_matrix[,nms]),as_tibble(sim.alpha)),
+                  by = c("sample_id" = "sample_id")) %>%
+       # mutate(across(starts_with("alpha"), .fns = prob_greater_fun, linpred, .names = "prob_{col}"),
+       #        uniform_draw = runif(n()),
+       #        response = 1 + (uniform_draw < prob_alpha1) + (uniform_draw < prob_alpha2) +
+       #          (uniform_draw < prob_alpha3) + (uniform_draw < prob_alpha4) +
+       #          (uniform_draw < prob_alpha5) + (uniform_draw < prob_alpha6)
+       #        )
+      mutate(response_latent = linpred + rlogis(n()),
+             response = 1 + (response_latent > alpha1) + (response_latent > alpha2) +
+               (response_latent > alpha3) + (response_latent > alpha4) +
+               (response_latent > alpha5) + (response_latent > alpha6)
+      )
+    # Old - beta binomial resampling
+    # overdisp_samples <- pp_samples_matrix[,"overdispersion for the betabinomial observations"]
+    # res <- pp_linpred %>%
+    #   inner_join(tibble(sample_id = 1:n_samples, overdispersion = overdisp_samples),
+    #              by = c("sample_id" = "sample_id")) %>%
+    #   mutate(response_prob_mean = 1/(1 + exp(-linpred)),
+    #          prec = 1/overdispersion + 1,
+    #          response_prob = rbeta(n(), response_prob_mean * prec, (1 - response_prob_mean) * prec),
+    #          response = rbinom(n(), size = 7, prob = response_prob))
   } else if(meritko_info$type == "interval") {
-    precision_samples <- pp_samples_matrix[,"Precision for the Gaussian observations"]
+    log_precision_samples <- pp_samples_matrix[,"Log precision for the Gaussian observations"]
     res <- pp_linpred %>%
-      inner_join(tibble(sample_id = 1:n_samples, precision = precision_samples),
+      inner_join(tibble(sample_id = 1:n_samples, precision = exp(log_precision_samples)),
                  by = c("sample_id" = "sample_id")) %>%
       mutate(response = rnorm(n(),mean = linpred, sd = sqrt(1/precision)))
   } else if(meritko_info$type == "bool") {
