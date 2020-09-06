@@ -39,7 +39,7 @@ base_prior <- set_prior("normal(0, 1)", class = "b") + set_prior("normal(0,1)", 
 
 ```{r}
 
-formula_spokojenost <- brmsformula(update.formula(base_formula,  spokojenost_clenstvim_v_rs ~ . + pocet_klicovych_nastroju) + mo(frekvence_vicedennich_akci) , family = cumulative())
+formula_spokojenost <- brmsformula(update.formula(base_formula,  spokojenost_clenstvim_v_rs ~ . + pocet_klicovych_nastroju + mo(frekvence_vicedennich_akci)) , family = cumulative())
 
 #get_prior(formula_spokojenost, data = hlavni_data_cleni)
 
