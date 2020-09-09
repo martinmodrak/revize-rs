@@ -28,6 +28,8 @@ nacti_dotaznik <- function() {
   cela_data %>% as_tibble()
 }
 
+#' @import dplyr
+#' @importFrom magrittr %>%
 preprocess_dat <- function(cela_data, verbose = FALSE, vyhodit_otevrene_jine_otazky = TRUE) {
   cela_data %>%
     odstran_zbytecne_sloupce(verbose = verbose) %>%
@@ -265,6 +267,7 @@ spocitej_kategorii_respondenta <- function(cela_data) {
   cela_data
 }
 
+#' @importFrom formr %contains_word%
 spocitej_odvozene_kategorie <- function(cela_data) {
   test_contains_any_word(cela_data$co_zazil, "roversky_kurz")
   test_contains_any_word(cela_data$co_zazil, "roversky_kurz", "radcovsky_kurz", "cekatelky")

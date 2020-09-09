@@ -12,12 +12,12 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 
 
 ```{r setup, message=FALSE,warning=FALSE, results="hide", echo = FALSE}
-source(here::here("R","setup_dotaznik.R"), encoding = "UTF-8")
+source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ```{r nacist_data, cache=TRUE}
-source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
+source(here::here("datasety_dotaznik.R"), encoding = "UTF-8")
 
 plots <- list() 
 ```

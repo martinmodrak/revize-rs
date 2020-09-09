@@ -4,9 +4,9 @@ output: html_notebook
 ---
 
 ```{r setup}
-source(here::here("R","setup_dotaznik.R"), encoding = "UTF-8")
+source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
 
-source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
+source(here::here("datasety_dotaznik.R"), encoding = "UTF-8")
 
 library(formula.tools)
 library(INLA) #Install via install.packages("INLA", repos=c(getOption("repos"), INLA="https://inla.r-inla-download.org/R/stable"), dep=TRUE)

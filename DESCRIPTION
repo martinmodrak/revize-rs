@@ -9,4 +9,19 @@ Description: More about what it does (maybe more than one line)
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-Imports: tidyverse, readxl
+Imports: 
+    readxl,
+    lubridate,
+    rlang,
+    formr,
+    RCzechia,
+    sf,
+    polycor,
+    vegan,
+    brms,
+    psych,
+    dplyr,
+    magrittr,
+    tidyr,
+    ggplot2
+RoxygenNote: 7.1.1

@@ -1,8 +1,10 @@
 library(rstan)
 library(mvtnorm)
 
-functions_to_expose <- stanc(file = here("stan","ordered_logit_rng.stan"), model_name = "functions_to_expose")
-expose_stan_functions(functions_to_expose)
+expose_simulator_functions <- function() {
+  functions_to_expose <- stanc(file = here("stan","ordered_logit_rng.stan"), model_name = "functions_to_expose")
+  expose_stan_functions(functions_to_expose)
+}
 
 # Taken from https://github.com/rmcelreath/rethinking/blob/master/R/distributions.r
 # Ben's rLKJ function

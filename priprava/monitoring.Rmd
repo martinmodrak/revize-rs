@@ -1,0 +1,351 @@
+---
+title: "Monitoring pruzkumu"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup}
+if(!grepl("cz|utf", Sys.getlocale(), ignore.case = TRUE)) {
+  Sys.setlocale(locale= 'English_United States.1250')
+}
+library(lubridate)
+library(tidyverse)
+library(formr)
+library(here)
+library(RCzechia)
+library(sf)
+library(cowplot)
+library(showtext)
+
+save_format <- ".svg"
+
+set_theme_revizers()
+source(here::here("R","data_registrace_jednotlivci.R"), encoding = "UTF-8")
+source(here::here("R","tools_plots.R"), encoding = "UTF-8")
+
+```
+
+
+```{r}
+credentials <- read_csv(here("private_data","pass.csv"), col_types = cols(.default = col_character()))
+
+formr_connect(email = credentials$email, password = credentials$pass)
+rozcestnik <- formr_raw_results("seberozvoj_rozcestnik")
+hlavni <- formr_raw_results("hlavni_dotaznik")
+doplnek <- formr_raw_results("hlavni_dotaznik_doplnek")
+
+hlavni_items <- formr_items("hlavni_dotaznik")
+formr_disconnect()
+```
+
+
+
+```{r}
+rozcestnik <- rozcestnik %>% mutate(zdroj = case_when(zdroj == "neuvedeno_redirect" ~  "nezname",
+                                                      zdroj == "" ~ "primo formr.org",
+                                                      TRUE ~ zdroj))
+
+cela_data <- rozcestnik %>% 
+  inner_join(hlavni, by = c("session" = "session"), suffix = c("",".hlavni")) %>%
+  left_join(doplnek, by = c("session" = "session"), suffix = c("",".doplnek")) %>%
+  rename(ended.rozcestnik = ended)
+```
+
+
+```{r}
+dokonceno_dlouhy <- sum(cela_data$kolik_casu == 2 & !is.na(cela_data$ended.hlavni), na.rm = TRUE)
+dokonceno_kratky <- sum(cela_data$kolik_casu == 1 & !is.na(cela_data$ended.hlavni) , na.rm = TRUE)
+prodlouzeno_kratky <- sum(cela_data$jeste_pokracovat == 1 & !is.na(cela_data$ended.doplnek), na.rm = TRUE)
+dokonceno_15_26 <- sum(!is.na(cela_data$ended.hlavni) & cela_data$age <= 26 & cela_data$age >= 15, na.rm = TRUE)
+
+jen_prvni_stranka <- sum(is.na(rozcestnik$ended))
+rozpracovano <- sum(!is.na(cela_data$ended.rozcestnik) & is.na(cela_data$ended.hlavni))
+
+cat(paste0(dokonceno_dlouhy + dokonceno_kratky, " dokončených dotazníků (z toho ",dokonceno_15_26," ve věku 15 - 26 let).\n", dokonceno_dlouhy + prodlouzeno_kratky, " vyplnilo delší verzi nebo si to pak prodloužilo.\n", rozpracovano, " se prokliklo přes první stránku, ale dotazník zatím nedokončili\n", jen_prvni_stranka, " otevření a načtení první stránky bez dalšího pokračování (určitě obsahuje roboty)"))
+```
+
+```{r pocet dotazniku v case}
+dates <- cela_data$ended.hlavni %>% ymd_hms()
+dotaznik_start <- ymd_hms("2019-11-23 00:00:00")
+
+dd <- dates-dotaznik_start
+cela_data$pocet_hodin_od_startu <- as.numeric(dd)
+
+plot_pocet_dotazniku_v_case <- cela_data %>% 
+  ggplot(aes(x = pocet_hodin_od_startu)) + 
+  geom_histogram() + geom_density()
+plot_pocet_dotazniku_v_case                                                           
+
+```
+
+```{r}
+cela_data %>% group_by(zdroj) %>% summarise(pocet = n())
+rozcestnik %>% group_by(zdroj) %>% summarise(pocet = n())
+```
+
+```{r}
+VOJfile <- here("local_data","pocet-clenu-VOJ.csv")
+if(!file.exists(VOJfile)) {
+  download.file("https://is.skaut.cz/opendata/data/unit/pocet-clenu-VOJ.csv", VOJfile)
+}
+roveri_v_krajich <- read_csv2(VOJfile, na = "NULL", locale = locale(encoding = "windows-1250"), col_types = cols(
+  Year = col_double(),
+  ID_Unit = col_double(),
+  ID_UnitType = col_character(),
+  RegistrationNumber = col_character(),
+  UnitName = col_character(),
+  Location = col_character(),
+  RegularMembersTo6 = col_double(),
+  RegularMembersTo15 = col_double(),
+  RegularMembersTo18 = col_double(),
+  RegularMembersTo26 = col_double(),
+  RegularMembersFrom26 = col_double(),
+  RegularMembers = col_double(),
+  MembersTo6 = col_double(),
+  MembersTo15 = col_double(),
+  MembersTo18 = col_double(),
+  MembersTo26 = col_double(),
+  MembersFrom26 = col_double(),
+  Members = col_double()
+)) %>% filter(ID_UnitType == "kraj", Year == 2019) %>%
+  mutate(pocet_roveru = RegularMembersTo18 + RegularMembersTo26) %>%
+  select(ID_Unit, UnitName, pocet_roveru) 
+
+
+roveri_v_krajich <- roveri_v_krajich %>% mutate(UnitName = case_when(
+  UnitName == "kraj Praha" ~ "Hlavní město Praha",
+  UnitName == "kraj Vysočina" ~ "Kraj Vysočina",
+  UnitName == "Jihomoravský kraj TGM" ~ "Jihomoravský kraj",
+  TRUE ~ UnitName
+))
+roveri_v_krajich 
+
+sum(roveri_v_krajich$pocet_roveru)
+(dokonceno_dlouhy + dokonceno_kratky)/ sum(roveri_v_krajich$pocet_roveru)
+dokonceno_15_26 / sum(roveri_v_krajich$pocet_roveru)
+
+castecne_15_26 <- sum(!is.na(cela_data$kategorie_respondenta) & cela_data$age <= 26 & cela_data$age >= 15, na.rm = TRUE)
+castecne_15_26 / sum(roveri_v_krajich$pocet_roveru)
+```
+
+
+```{r}
+kraje_dle_id <- hlavni_items$kraj$choices %>% unlist()
+cela_data <- cela_data %>% mutate(kraj = if_else(is.na(kraj), kraj.doplnek, kraj),
+                                  kraj_nazev = kraje_dle_id[kraj]) 
+extend_coef =  sum(!is.na(cela_data$ended.hlavni)) / sum(!is.na(cela_data$ended.hlavni) & !is.na(cela_data$kraj) & cela_data$kraj != 15)
+odpovedi_v_krajich <- cela_data %>% filter(!is.na(kraj), kraj != 15) %>%
+  group_by(kraj, kraj_nazev) %>% summarise(pocet_dokonceno = sum(!is.na(ended.hlavni)), pocet_dokonceno_extend = pocet_dokonceno * extend_coef, pocet_castecne = sum(!is.na(kategorie_respondenta)), pocet_castecne_extend = pocet_castecne * extend_coef)
+
+odpovedi_v_krajich_jen_roveri <- cela_data %>% filter(!is.na(kraj), kraj != 15, age >= 15, age <= 26) %>%
+  group_by(kraj, kraj_nazev) %>% summarise(pocet_dokonceno = sum(!is.na(ended.hlavni)), pocet_dokonceno_extend = pocet_dokonceno * extend_coef, pocet_castecne = sum(!is.na(kategorie_respondenta)), pocet_castecne_extend = pocet_castecne * extend_coef)
+
+odpovedi_v_krajich_jen_roveri <- odpovedi_v_krajich  %>% left_join(roveri_v_krajich, by = c("kraj_nazev" = "UnitName")) %>% 
+  mutate(ucast_dokonceno = pocet_dokonceno_extend/pocet_roveru, ucast_castecne = pocet_castecne_extend/pocet_roveru)
+```
+
+```{r}
+plot_kraje <- odpovedi_v_krajich_jen_roveri %>% 
+  inner_join(RCzechia::kraje(resolution = "low"), by = c("kraj_nazev" = "NAZ_CZNUTS3")) %>%
+  mutate(ucast = round(ucast_castecne * 100), ucast_text = paste0(ucast, "%")) %>%
+  ggplot(aes(fill = ucast, geometry = geometry)) + geom_sf(color = dark_blue_color, size = 1) + coord_sf(crs = st_crs(4156)) +
+  geom_sf_text(aes(label = ucast_text, color = ucast > 14), fill, size = 4, family = "Roboto", fontface= "bold") +
+  scale_color_manual(values = c(dark_blue_color, "white"), guide = FALSE) +
+  scale_fill_gradient("% Průzkum vyplnilo", guide = FALSE, low = "white", high = darkest_fill)  + 
+  theme(axis.text = element_blank(), axis.ticks = element_blank(), axis.line = element_blank(),
+        axis.title = element_blank(),
+        plot.title = element_text(hjust = 0.5)
+                                                                                  ) + 
+  ggtitle("Podíl roverů, kteří se zúčastnili dotazníku")
+
+ggsave(here("local_data",paste0("plot_kraje", save_format)), plot_kraje)
+plot_kraje
+```
+
+
+
+
+```{r}
+plot_kraje2 <- odpovedi_v_krajich %>% 
+  inner_join(RCzechia::kraje(resolution = "low"), by = c("kraj_nazev" = "NAZ_CZNUTS3")) %>%
+  ggplot(aes(fill = pocet_dokonceno_extend, geometry = geometry)) + geom_sf(color = dark_blue_color, size = 1) + coord_sf(crs = st_crs(4156)) +
+  geom_sf_text(aes(label = round(pocet_dokonceno_extend), color = pocet_dokonceno_extend > 150), fill, size = 4, family = "Roboto", fontface = "bold" ) +
+  scale_color_manual(values = c(dark_blue_color, "white"), guide = FALSE) +
+  scale_fill_gradient(guide = FALSE, low = "white", high = darkest_fill)  + 
+  theme(axis.text = element_blank(), axis.ticks = element_blank(), axis.line = element_blank(),
+        axis.title = element_blank(),
+        plot.title = element_text(hjust = 0.5)
+                                                                                  ) + 
+  ggtitle("Počet, kteří dokončili dotazník")
+
+ggsave(here("local_data",paste0("plot_kraje2", save_format)), plot_kraje2)
+plot_kraje2
+```
+
+
+```{r}
+cela_data %>% filter(!is.na(ended.hlavni)) %>% 
+  mutate(ended.hlavni = as_datetime(ended.hlavni), ended.rozcestnik = as_datetime(ended.rozcestnik), trvani = as.numeric(ended.hlavni - ended.rozcestnik)) %>% ggplot(aes(x = trvani)) + geom_histogram(fill = "white") + facet_wrap(~kolik_casu) + scale_x_log10()
+```
+
+
+# Statistika dle věku
+
+```{r}
+registrace <- registrace_jednotlivci() %>% rename(Sex = ID_Sex) %>% filter(Year == max(Year))
+```
+
+
+```{r}
+
+roveri_dle_veku_v_registraci <- registrace %>% 
+  filter(vek >= 15, vek <= 26) %>%
+  group_by(vek) %>%
+  summarise(pocet_v_registraci = n())
+
+sum(roveri_dle_veku_v_registraci$pocet_v_registraci)
+```
+
+
+```{r}
+
+age_breaks <- c(3,6,9)
+
+cela_data %>% summarise(mimo_rozsah = sum(!is.na(ended.hlavni) & (age < 15 | age > 26)))
+
+hist_vek <- cela_data %>% filter(!is.na(ended.hlavni), age >= 15, age <= 26) %>%
+  ggplot(aes(x = age)) + geom_histogram(binwidth = 1, fill = "white", color = dark_blue_color) +
+  scale_x_continuous("VĚK") + scale_y_continuous("POČET")
+hist_vek
+
+ggsave(here("local_data", paste0("hist_vek", save_format)), hist_vek)
+
+hist_vek_podil <- cela_data %>% filter(!is.na(ended.hlavni), age >= 15, age <= 26) %>%
+  group_by(age) %>%
+  summarise(pocet_v_dotazniku = n()) %>%
+  inner_join(roveri_dle_veku_v_registraci, by = c("age" = "vek")) %>%
+  ggplot(aes(x = factor(age), y = 100 * pocet_v_dotazniku / pocet_v_registraci)) + geom_histogram(color = "white", size = 1.5, fill = "white", stat = "identity") +
+  scale_x_discrete("VĚK") +
+  scale_y_continuous("ZÚČASTNĚNÍ/CELKEM V JUNÁKU", breaks = age_breaks, labels = paste0(age_breaks, "%"))
+
+hist_vek_podil
+ggsave(here("local_data",paste0("hist_vek_podil", save_format)))
+
+```
+
+```{r}
+# cela_data %>% 
+#   filter(!is.na(ended.rozcestnik)) %>%
+#   mutate(dokonceno = !is.na(ended.hlavni)) %>%
+#   group_by(age, dokonceno) %>%
+#   summarise(pocet = n()) %>%
+#   inner_join(vsichni_dle_veku_v_registraci, by = c("age" = "vek")) %>%
+#   pivot_wider(id_cols = age, names_from = dokonceno, names_prefix = "pocet_", values_from = pocet) %>%
+#   filter(pocet_TRUE > 10) %>%
+#   mutate(podil = pocet_FALSE / pocet_TRUE) %>%
+#   ggplot(aes(x = age, y = podil)) + geom_line(color = "white") + scale_y_log10("Nedokončeno/dokončeno") + scale_x_continuous("Věk")
+```
+
+```{r}
+df_sex <-cela_data %>% 
+  filter(!is.na(ended.rozcestnik)) %>%
+  mutate(dokonceno = !is.na(ended.hlavni)) %>% 
+  group_by(sex,dokonceno) %>% summarize(n=n())
+
+cat(paste0(df_sex %>% filter(dokonceno,sex == 1) %>% pull(n), " mužů dokončilo.\n", df_sex %>% filter(dokonceno,sex == 2) %>% pull(n), " žen dokončilo.\n",df_sex %>% filter(!dokonceno,sex == 1) %>% pull(n), " mužů nedokončilo.\n", df_sex %>% filter(!dokonceno,sex == 2) %>% pull(n), " žen dokončilo.\n", ((df_sex %>% filter(dokonceno,sex == 1) %>% pull(n))/(df_sex %>% filter(!dokonceno,sex == 1) %>% pull(n))) %>% round(2), " poměr dokončených mužů vůči nedokončeným \n", ((df_sex %>% filter(dokonceno,sex == 2) %>% pull(n))/(df_sex %>% filter(!dokonceno,sex == 2) %>% pull(n))) %>% round(2), " poměr dokončených žen vůči nedokončeným "))
+```
+
+```{r}
+pie_sex <- df_sex %>% ungroup() %>% filter(dokonceno) %>%
+  mutate(sex = factor(sex, levels = c(1,2,3), labels = c("MUŽI", "ŽENY", "NEUVEDENO")), sex = replace_na(sex, "Neuvedeno")) %>%
+  ggplot(aes(x = "", y = n, fill = sex)) + geom_bar(stat = "identity") + coord_polar("y", start = 0) + scale_fill_manual("Pohlaví", values = c("MUŽI" = "white", "ŽENY" = darkest_fill, "NEUVEDENO" = mid_fill)) + 
+  geom_text(aes(y = 2*n/3 + c(0, cumsum(n)[-length(n)]), 
+            label = paste0(round(100 * n/sum(n)), "%"), color = sex == "MUŽI"), x = 1, size=5, family = "Roboto", fontface = "bold")+
+  scale_color_manual(values = c(dark_blue_color,"white"), guide = FALSE) +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(), axis.line = element_blank(),
+        axis.title = element_blank())
+
+pie_sex
+ggsave(here("local_data", paste0("pie_sex", save_format)), pie_sex)
+```
+
+
+```{r}
+df_poradi <- readxl::read_excel("private_data/Hlavní dotazník - FormR.xlsx") %>% 
+  select(name) %>% mutate(id_order = 1:n())
+
+n_missing <- cela_data %>% 
+  filter(!is.na(ended.rozcestnik)) %>%
+  filter(is.na(ended.hlavni)) %>% 
+  select(-starts_with("background")) %>% 
+  select(-ends_with(".doplnek")) %>% 
+  summarise_all(list(~(sum(is.na(.))))) %>% gather("name")
+
+df_poradi <- df_poradi %>% 
+  left_join(n_missing, by = "name") %>% 
+  filter(!is.na(value)) %>% 
+  mutate(id_order = 1:n(), value = max(value)-value) 
+df_poradi %>% 
+  ggplot(aes(x = id_order, y = value)) + 
+  geom_bar(stat = "identity")
+
+```
+
+# Hledáme roboty
+
+Extrémní věk může prozradit robota/nekvalitní odpovědi.
+
+```{r}
+hist(hlavni$age)
+sum(hlavni$age < 15, na.rm = TRUE)
+sum(hlavni$age < 10, na.rm = TRUE)
+sum(hlavni$age > 50, na.rm = TRUE)
+mean(hlavni$age < 10 | hlavni$age > 50, na.rm = TRUE)
+```
+
+```{r}
+unique(hlavni$reg_c_strediska)
+```
+
+```{r}
+unique(hlavni$nazev_strediska)
+```
+
+
+```{r}
+for(i in 1:5) {
+  print(mean(hlavni$s_cim_spokojen %contains_word% i & hlavni$s_cim_nespokojen %contains_word% i, na.rm = TRUE))
+}
+
+mean(hlavni$s_cim_spokojen == "", na.rm = TRUE)
+mean(hlavni$s_cim_nespokojen == "", na.rm = TRUE)
+```
+
+
+```{r}
+unique(hlavni$otevrena)
+```
+
+```{r zivotni spokojenost}
+swls_normy <- readxl::read_excel("public_data/swls_german_norms.xlsx")
+cela_data <- cela_data %>% mutate(swls = mc_lss1 + mc_lss2 + mc_lss3 + mc_lss4 + mc_lss5) %>% 
+  left_join(swls_normy, by = c("swls"="HS"))
+cela_data %>% 
+  mutate(dokonceno = !is.na(ended.hlavni)) %>% 
+  summarize(m = mean(swls_norms, na.rm = T),n = n())
+cela_data %>% 
+  mutate(dokonceno = !is.na(ended.hlavni)) %>% 
+group_by(kraj_nazev,dokonceno) %>% 
+  summarize(m = mean(swls_norms, na.rm = T),n = n())
+
+x <- cela_data %>% 
+  mutate(dokonceno = !is.na(ended.hlavni)) %>% 
+  filter(dokonceno == T) %>% 
+  pull(swls_norms) %>% 
+  t.test(.,mu = 50)
+
+cela_data %>% 
+  mutate(dokonceno = !is.na(ended.hlavni)) %>% 
+  lm(swls_norms~kraj_nazev*dokonceno,.) %>% car::Anova()
+```

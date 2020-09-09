@@ -4,8 +4,8 @@ output: html_notebook
 ---
 
 ```{r setup}
-source(here::here("R","setup_dotaznik.R"), encoding = "UTF-8")
-source(here::here("R","datasety_dotaznik.R"), encoding = "UTF-8")
+source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
+source(here::here("datasety_dotaznik.R"), encoding = "UTF-8")
 
 ```
 

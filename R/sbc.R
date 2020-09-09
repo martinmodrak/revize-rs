@@ -99,5 +99,3 @@ sbc_power_plot <- function(sbc_power_res, group = 1, size_of_interest = c(0.1,0.
       scale_x_log10() +
       facet_wrap(~stat, ncol = 1)
 }
-
-sbc_power_summary

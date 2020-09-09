@@ -4,7 +4,7 @@ output: html_document
 ---
 
 ```{r setup}
-source(here::here("R","setup_dotaznik.R"), encoding = "UTF-8")
+source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
 
 pridej_pocty_mc <- function(cela_data) {
   cela_data %>%
