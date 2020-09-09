@@ -138,30 +138,31 @@ marginals_summary_single <- function(marginal) {
   ) %>% mutate(widest_ci_sign = 2 * (0.5 - cdf_at_0))
 }
 
+logical_with_na_to_factor <- function(f) {
+  forcats::fct_explicit_na( factor(f, levels = c(FALSE, TRUE), labels = c("Ne","Ano"))
+                            , explicit_na_level)
+}
+
 make_data_for_inla <- function(base_data, kategorie, uzite_mc_sloupce) {
   data_for_inla <- base_data %>%
     filter(kategorie_kompetence == kategorie) %>%
     group_by(session) %>%
     odvozena_meritka_kompetenci() %>%
-    ungroup() %>%
-    mutate(age_norm = (age - 20.5) / 2.75,
-           age_ar = age - min(age) + 1,
-           kategorie_respondenta_full = factor(kategorie_respondenta_full)
-           )
+    ungroup()
 
   mc_formula_str <- ""
   for(sloupec in uzite_mc_sloupce) {
-    obsah_sloupce <- data_for_inla %>% pull(!!sloupec)
+    obsah_sloupce <- data_for_inla[[sloupec]]
     mc_matrix <- rozsir_mc_matrix(data_for_inla, sloupec)
     if(any(is.na(obsah_sloupce))) {
       na_matrix <- matrix(data = is.na(obsah_sloupce), ncol = 1, nrow = nrow(data_for_inla))
-      colnames(na_matrix) <- paste0(as_label(sloupec),"_NA")
+      colnames(na_matrix) <- paste0(sloupec,"_NA")
       mc_matrix <- cbind(mc_matrix, na_matrix)
     }
 
     ind_matrix <- matrix(1:ncol(mc_matrix), nrow = nrow(data_for_inla), ncol = ncol(mc_matrix), byrow = TRUE)
     colnames(ind_matrix) <- paste0("id.", colnames(mc_matrix))
-    colnames(ind_matrix)[1] <- paste0("id.", as_label(sloupec))
+    colnames(ind_matrix)[1] <- paste0("id.", sloupec)
 
     mc_formula_str_sloupec <- paste0(
       ' + f(', colnames(ind_matrix)[1], ', ', colnames(mc_matrix)[1],

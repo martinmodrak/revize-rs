@@ -19,6 +19,7 @@ library(formr)
 
 
 options(mc.cores = parallel::detectCores())
+rstan::rstan_options(auto_write = TRUE)
 options(dplyr.summarise.inform = FALSE)
 
 

@@ -5,6 +5,7 @@ output: html_notebook
 
 ```{r setup}
 source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
+library(brms)
 ```
 
 ```{r nacist_data, cache=TRUE}
