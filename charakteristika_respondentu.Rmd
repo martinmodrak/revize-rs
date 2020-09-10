@@ -3,9 +3,12 @@ title: "Charakteristika respondentů"
 toc-title: "Obsah"
 abstract: "Tento dokument podává základní přehled o tom, kdo nám na otázky odpovídal."
 output:
-  word_document:
-    toc: yes
-    reference_docx: public_data/output_template.docx
+  # word_document:
+  #   toc: yes
+  #   reference_docx: public_data/output_template.docx
+  html_document:
+      toc: yes
+      number_sections: true
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 ---
 
@@ -14,7 +17,7 @@ source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-```{r nacist_data, cache=TRUE}
+```{r nacist_data, cache=TRUE, message=FALSE}
 source(here::here("datasety_dotaznik.R"), encoding = "UTF-8")
 
 plots <- list() 
@@ -320,9 +323,6 @@ plots$reprezentativnost_kraj_stredisko_do18
 
 ```{r}
 # TODO: Je ostrý odpad lidí u vyplnění kompetencí?
-# 
-# 
-# TODO: porovnání pohlaví napřímo je problematické kvůli rozdílnému věkovému složení!
 ```
 
 Celkově je reprezentativnost dat celkem dobrá, budeme tedy většinou uvádět přímo data z dotazníku a ne data "přeškálovaná" na hypotetickou kompletní populaci - neočekáváme, že by to udělalo velký rozdíl a přineslo by to další práci a možné chyby do analýzy.

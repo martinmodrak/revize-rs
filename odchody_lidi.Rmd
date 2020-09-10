@@ -1,8 +1,13 @@
 ---
 title: "Odchody lidí v roverském věku"
-output: html_document
 author: "Martin 'Orel' Modrák"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
+#output: html_document
+output: 
+  pdf_document:
+    toc: yes
+    number_sections: true
+
 ---
 
 _Kompletní kód analýzy je k nalezení na https://github.com/martinmodrak/revize-rs _

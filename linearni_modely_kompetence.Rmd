@@ -42,17 +42,17 @@ zakladni_adjustment$hodne <- update.formula(zakladni_adjustment$zaklad, . ~ . +
                                               f(kolik_casu, model = "iid", hyper = list(theta = list(prior = log_sqrt_inv_hn(1)))) +
                                               f(kategorie_respondenta_full, model = "iid", hyper = list(theta = list(prior = log_sqrt_inv_hn(1)))))
 
-mc_sloupce <- list()
+mc_sloupce_k_uziti <- list()
 dalsi_sloupce <- list()
 
-mc_sloupce$minimal <- c()
+mc_sloupce_k_uziti$minimal <- c()
 dalsi_sloupce$minimal <- ~ . + byl_na_kurzu + byl_na_rs_kurzu + 
   f(organizace_strucne, model = "iid", hyper = list(theta = list(prior = log_sqrt_inv_hn(1))))
 
-mc_sloupce$zaklad <- c("role_skauting", "co_zazil", "fungovani_skautskeho_oddilu", "organizace_spolecenstvi")
+mc_sloupce_k_uziti$zaklad <- c("role_skauting", "co_zazil", "fungovani_skautskeho_oddilu", "organizace_spolecenstvi")
 dalsi_sloupce$zaklad <- ~ . 
 
-mc_sloupce$hodne <- c(mc_sloupce$zaklad, "vyroky_o_roveringu_zazil", "vyroky_o_roveringu_zazil_2", "vychovne_nastroje", "problemy_roveringu")
+mc_sloupce_k_uziti$hodne <- c(mc_sloupce_k_uziti$zaklad, "vyroky_o_roveringu_zazil", "vyroky_o_roveringu_zazil_2", "vychovne_nastroje", "problemy_roveringu")
 dalsi_sloupce$hodne <- ~ . + f(pocet_clenu_spolecenstvi, model = "rw1", hyper = list(theta = list(prior = log_sqrt_inv_hn(1)))) +           
    f(pocet_clenu_strediska, model = "rw1", hyper = list(theta = list(prior = log_sqrt_inv_hn(1))))
 
@@ -62,18 +62,26 @@ dalsi_sloupce$hodne <- ~ . + f(pocet_clenu_spolecenstvi, model = "rw1", hyper = 
 ```{r}
 all_marginals_list <- list()
 for(kategorie in kategorie_kompetence) {
-  for(zakladni in c("zaklad", "hodne") ) {
-    for(dalsi in c("minimal", "zaklad", "hodne")) {
+  # for(zakladni in c("zaklad", "hodne") ) {
+  #   for(dalsi in c("minimal", "zaklad", "hodne")) {
+  for(zakladni in c("zaklad") ) {
+    for(dalsi in c("minimal", "zaklad")) {
       for(meritko in meritka_k_testovani) {
         
         formula <- update.formula(zakladni_adjustment[[zakladni]], 
                                   as.formula(paste0(meritko, " ", as.character(dalsi_sloupce[[dalsi]]))))
         cat("Fitting ", kategorie, " - ", meritko, ", ", zakladni, " adjustment a ", dalsi , " dalsi\n")
         print(formula)
-        results <- inla_pipeline(base_for_inla, kategorie, formula, mc_sloupce[[dalsi]], n_cores = 7)
+        results <- inla_pipeline(base_for_inla, kategorie, formula, mc_sloupce_k_uziti[[dalsi]], n_cores = 7)
         for(kompetence in names(results$processed_fits)) {
-          all_marginals_list[[length(all_marginals_list) + 1]] <- results$processed_fits[[kompetence]]$marginals_summary %>%
-            mutate(kategorie = kategorie, kompetence = kompetence, zakladni = zakladni, dalsi = dalsi, meritko = meritko)
+          processed_fit <- results$processed_fits[[kompetence]]
+          if(inherits(processed_fit, "error")) {
+            cat("Error in ", kompetence, "\n")
+            print(processed_fit)
+          } else {
+            all_marginals_list[[length(all_marginals_list) + 1]] <- processed_fit$marginals_summary %>%
+              mutate(kategorie = kategorie, kompetence = kompetence, zakladni = zakladni, dalsi = dalsi, meritko = meritko)
+          }
         }
       }
     }
@@ -91,11 +99,15 @@ all_marginals <- readRDS(file = here::here("local_data", "all_marginals.rds"))
 
 
 ```{r}
-all_mc_sloupce <- unique(do.call(c, mc_sloupce)) 
+all_mc_sloupce <- names(mc_sloupce) 
 all_marginals_processed <- all_marginals
 for(mc_sl in all_mc_sloupce) {
-  marginal_pattern <- paste0("^id\\.", mc_sl,"(_NA|\\.[a-z_]*)?$")
+  marginal_pattern <- paste0("^id\\.", mc_sl,"(_NA|\\.[a-z_1-9A-Z]*)?$")
   current_marginal <-  all_marginals_processed %>% filter(grepl(marginal_pattern, marginal))
+  
+  if(nrow(current_marginal) == 0) {
+    next;
+  }
   
   unique_res <- current_marginal %>% 
     group_by(kategorie, kompetence, zakladni, dalsi, meritko, index) %>%
@@ -135,22 +147,69 @@ for(mc_sl in all_mc_sloupce) {
   
   
   all_marginals_processed <- all_marginals_processed %>% 
-    filter(!grepl(paste0(marginal_pattern), marginal)) %>%
+    filter(!grepl(marginal_pattern, marginal)) %>%
     rbind(current_marginal_processed %>% select(-marginal_old, -expected_marginal, -index_int))
 }
 ```
 
 ```{r}
-unique(all_marginals_processed$marginal)
+all_marginals_processed %>% select(marginal, index) %>% distinct()
 ```
 
 
 ```{r}
 marginals_to_show <- all_marginals_processed %>% 
   filter(!(marginal %in% c("age_ar", "kolik_casu", "(Intercept)", "sexjinak_neuvedeno"))) %>%
-  group_by(marginal, kategorie, kompetence) %>%
+  group_by(marginal) %>%
   filter(any(abs(widest_ci_sign) > 0.9)) %>%
-  ungroup()
+  #filter(marginal == "organizace_strucne") %>%
+  ungroup() %>%
+  inner_join(kompetence_otazky %>% select(kompetence, popis_pro_grafy), by = "kompetence")
+
+
+min_ci <- -1
+max_ci <- 1
+# breaks = c(min_ci, -0.99, -0.95, -0.5, 0, 0.5,0.95, 0.99, max_ci)
+# my_logit <- function(x) { scales::logit_trans()$transform((x + 1) / 2) }
+# transformed_values <- (my_logit(breaks) - my_logit(min_ci)) / (my_logit(max_ci) - my_logit(min_ci))
+  for(m in unique(marginals_to_show$marginal)) {
+    index_vals <- marginals_to_show %>% filter(marginal == m) %>% pull(index) %>% unique()
+    for(ind in index_vals) {
+      print(
+        marginals_to_show %>%
+          filter(marginal == m, index == ind) %>%
+          mutate(model = paste(meritko, zakladni, dalsi)) %>%
+          ggplot(aes(x = model, y = popis_pro_grafy, fill = widest_ci_sign)) +
+            geom_tile() + 
+            scale_fill_gradientn(limits = c(min_ci,max_ci),
+                                 colours = c("#1b7837","#f0f0f0", "#f0f0f0", "#762a83"),
+                                 values = c(0, 0.2,0.8,1),
+                                 breaks = c(0.9, 0.7, -0.7, -0.9)) +
+            expand_limits(fill = c(min_ci,max_ci)) +
+            # scale_fill_gradientn("Widest CI", 
+            #                      #colours = c("#1b7837","#f0f0f0", "#f0f0f0", "#762a83"),
+            #                      # values = c(0, 0.25,0.75,1),  
+            #                      # limits = c(0,1), na.value = plots_na_color) +
+            #                      colours = c("#1b7837","#1b7837","#f0f0f0", "#f0f0f0", "#762a83", "#762a83"),
+            #                      values = transformed_values,
+            #                      limits = c(min_ci,max_ci),
+            #                      breaks = breaks,
+            #                      trans = my_logit) +
+            #theme(axis.text.x = element_text(angle = 90)) + 
+            theme(axis.text.x = element_blank()) + 
+            facet_wrap(~kategorie, nrow = 1) +
+            plot_annotation(m, ind)
+      )
+    }
+  }
+  
+  
+#}
+```
+
+
+
+```{r}
 
 #for(kategorie_to_show in unique(all_marginals_processed$kategorie)) {
   for(kompetence_to_show in unique(all_marginals_processed$kompetence)) {
@@ -159,10 +218,28 @@ marginals_to_show <- all_marginals_processed %>%
         filter(kompetence == kompetence_to_show) %>%
         mutate(model = paste(meritko, zakladni, dalsi)) %>%
         ggplot(aes(x = model, y = marginal, fill = widest_ci_sign)) +
-          geom_tile() + theme(axis.text.x = element_text(angle = 90)) + facet_wrap(~kategorie)
+          geom_tile() + 
+          scale_fill_gradientn(limits = c(min_ci,max_ci),
+                               colours = c("#1b7837","#f0f0f0", "#f0f0f0", "#762a83"),
+                               values = c(0, 0.2,0.8,1),
+                               breaks = c(0.9, 0.7, -0.7, -0.9)) +
+          expand_limits(fill = c(min_ci,max_ci)) +
+          # scale_fill_gradientn("Widest CI", 
+          #                      #colours = c("#1b7837","#f0f0f0", "#f0f0f0", "#762a83"),
+          #                      # values = c(0, 0.25,0.75,1),  
+          #                      # limits = c(0,1), na.value = plots_na_color) +
+          #                      colours = c("#1b7837","#1b7837","#f0f0f0", "#f0f0f0", "#762a83", "#762a83"),
+          #                      values = transformed_values,
+          #                      limits = c(min_ci,max_ci),
+          #                      breaks = breaks,
+          #                      trans = my_logit) +
+          #theme(axis.text.x = element_text(angle = 90)) + 
+          theme(axis.text.x = element_blank()) + 
+          facet_wrap(~kategorie, nrow = 1) +
+          plot_annotation(kompetence_otazky %>% filter(kompetence == kompetence_to_show) %>% pull(popis_pro_grafy))
     )
   }
-#}
+
 ```
 
 

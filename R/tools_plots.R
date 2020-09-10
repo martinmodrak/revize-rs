@@ -147,6 +147,11 @@ theme_revizers <- function() {
 
 set_theme_revizers <- function() {
   theme_set(theme_revizers())
+  # Couldn't make PDF work :-(
+  # extrafont::loadfonts(quiet = TRUE, device = "win")
+  # extrafont::loadfonts(quiet = TRUE, device = "pdf")
+  # extrafont::loadfonts(quiet = TRUE, device = "postscript")
+  # Now removed in favor of using extrafonts (requires converting SKAUT BOLD to ttf, but works in PDF)
   windowsFonts("SKAUT Bold" = windowsFont("SKAUT Bold"))
   windowsFonts("Roboto" = windowsFont("Roboto"))
 

@@ -3,9 +3,12 @@ title: "Shrnutí kompetencí"
 toc-title: "Obsah"
 abstract: "Tento dokument podává základní přehled o odpovědích na kompetenční otázky."
 output:
-  word_document:
-    toc: yes
-    reference_docx: public_data/output_template.docx
+  html_notebook:
+      toc: yes
+      number_sections: true
+  # word_document:
+  #   toc: yes
+  #   reference_docx: public_data/output_\template.docx
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 
 ---
@@ -16,7 +19,7 @@ source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-```{r nacist_data, cache=TRUE}
+```{r nacist_data, message = FALSE}
 source(here::here("datasety_dotaznik.R"), encoding = "UTF-8")
 
 plots <- list() 
@@ -285,7 +288,8 @@ Můžeme se podívat též na trendy pro jednotlivé kompetence - a to přímo t
 Je taky dobré si všimnout, že průměrné sebehodnocení kompetenci se zřídka liší mezi mladšími a staršími o více jak půl stupně. Nejvýraznější změna je u "3.A Kamarádské vztahy" - díky tomu, že ostatní kompetence se trochu "vyprůměrují", je tato fluktuace promítnuta i do celkového průměru.
 
 ```{r}
-plot_kompetence_by(hlavni_data_long, "zvladam", age)
+plots$zvladam_age <- plot_kompetence_by(hlavni_data_long, "zvladam", age)
+plots$zvladam_age
 plots$zvladam_age_smooth <- plot_kompetence_by_smooth(hlavni_data_long, "zvladam", age)
 plots$zvladam_age_smooth
 ```
@@ -303,7 +307,8 @@ Trendy pro jednotlivé kompetence jsou v něčem hezké - klesá vnímaná důle
 Opět zdůrazním, že změny v průměrném sebehodnocení jsou mírné - většinou o max. půl stupně ze sedmi.
 
 ```{r}
-plot_kompetence_by(hlavni_data_long, "dulezite", age)
+plots$dulezite_age <- plot_kompetence_by(hlavni_data_long, "dulezite", age)
+plots$dulezite_age
 plots$dulezite_age_smooth <-  plot_kompetence_by_smooth(hlavni_data_long, "dulezite", age)
 plots$dulezite_age_smooth
 ```
@@ -321,7 +326,8 @@ plot_kompetence_by(hlavni_data_long, "rozvijim", age, all_together = TRUE)
 Při pohledu na jednotlivé kompetence vidíme, že žádné průměrné sebehodnocení rozvoje neroste.
 
 ```{r}
-plot_kompetence_by(hlavni_data_long, "rozvijim", age)
+plots$rozvijim_age <- plot_kompetence_by(hlavni_data_long, "rozvijim", age)
+plots$rozvijim_age
 plots$rozvijim_age_smooth <- plot_kompetence_by_smooth(hlavni_data_long, "rozvijim", age)
 plots$rozvijim_age_smooth
 ```
@@ -338,7 +344,8 @@ plot_kompetence_by(hlavni_data_long, "skauting", age, all_together = TRUE)
 U jednotlivých kompetencí se toho vlastně málo zajímavého děje - všechny mírně klesají, kromě pár, co zůstavají zhruba rovné: "2.B1 Svědomí", "2.B2 Slib, zákon", "4.C Členka týmu". Opět se to asi dá interpretovat optimisticky: roveři čím dál méně spoléhají na skauting ve všem kromě základních hodnot. Ale taky je možné, že to celé je jen tím, že starší lidé mají jinou míru/způsob sebereflexe. Jo a říkal jsem, že to může být kohortový efekt, kdy současný/nedávný skauting lépe rozvíjí mladé lidi než skauting před 10ti lety?
 
 ```{r}
-plot_kompetence_by(hlavni_data_long, "skauting", age)
+plots$skauting_age <- plot_kompetence_by(hlavni_data_long, "skauting", age)
+plots$skauting_age
 plots$skauting_age_smooth <- plot_kompetence_by_smooth(hlavni_data_long, "skauting", age)
 plots$skauting_age_smooth 
 ```
@@ -403,6 +410,16 @@ tabulka_dulezite_zvladam %>%
 ```
 
 ```{r}
+plot_tabulka_rozdil <- function(tabulka, indices = 5:1, text_y = 0.01) {
+  tabulka[indices, ] %>%
+    mutate(popis_pro_grafy = factor(popis_pro_grafy, levels = popis_pro_grafy)) %>% ggplot(aes(x = popis_pro_grafy, y = prumer, label = scales::percent(prumer, accuracy = 1))) + geom_bar(stat = "identity") + coord_flip() + geom_text(y = text_y, size = 6, color = revize_cols("dark_blue")) + theme(axis.title = element_blank(), axis.ticks.x = element_blank(), axis.text.x =  element_blank())
+}
+
+plots$dulezite_zvladam <- plot_tabulka_rozdil(tabulka_dulezite_zvladam, text_y = 0.05) + plot_annotation("Kontrast důležité x zvládám", subtitle = "Je to důležité, ale nezvládám to")
+#plots$dulezite_zvladam 
+```
+
+```{r}
 # hlavni_data_long %>% spocitej_data_rozdil(dulezite, zvladam, "kompetence_odpoved") %>% tabulka_rozdilu() %>%
 #     select(-prumer)
 ```
@@ -435,13 +452,9 @@ tabulka_dulezite_rozvijim %>%
 ```
 
 ```{r}
-# plot_tabulka_rozdil <- function(tabulka, indices = 5:1, text_y = 0.01) {
-#   tabulka[indices, ] %>% 
-#     mutate(kompetence = factor(kompetence, levels = kompetence)) %>% ggplot(aes(x = kompetence, y = prumer, label = scales::percent(prumer, accuracy = 1))) + geom_bar(stat = "identity") + coord_flip() + geom_text(y = text_y, size = 6, color = revize_cols("dark_blue")) + theme(axis.title = element_blank(), axis.ticks.x = element_blank(), axis.text.x =  element_blank())
-# }
-# 
-# plots$dulezite_rozvijim <- tabulka_dulezite_rozvijim %>% plot_tabulka_rozdil(indices = 7:1) + plot_annotation("Kontrast důležité x rozvíjím", subtitle = "Je to důležité, ale nerozvíjím se v tom")
-# plots$dulezite_rozvijim
+
+plots$dulezite_rozvijim <- tabulka_dulezite_rozvijim %>% plot_tabulka_rozdil(indices = 7:1) + plot_annotation("Kontrast důležité x rozvíjím", subtitle = "Je to důležité, ale nerozvíjím se v tom")
+#plots$dulezite_rozvijim
 ```
 
 

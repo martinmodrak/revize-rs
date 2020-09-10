@@ -71,16 +71,22 @@ inla_pipeline <- function(base_data, kategorie, formula_base, uzite_mc_sloupce, 
       }
 
       if(is.null(fit)) {
-        fit <- my_inla_fit(formula, x$input, num.threads = 1)
-        saveRDS(list(formula = formula, input = x$input, fit = fit), file = fit_cache_filename)
+        fit <-
+          tryCatch(my_inla_fit(formula, x$input, num.threads = 1),
+                   error = function(e) { e })
+          saveRDS(list(formula = formula, input = x$input, fit = fit), file = fit_cache_filename)
       }
 
-      list(
-        pp_samples_matrix = inla_samples_to_matrix(inla.posterior.sample(n_samples, fit, intern = TRUE)),
-        marginals_summary = marginals_summary_from_fit(fit),
-        summary.hyperpar = fit$summary.hyperpar,
-        cache_result = cache_result
-      )
+      if(inherits(fit, "error")) {
+        fit
+      } else {
+        list(
+          pp_samples_matrix = inla_samples_to_matrix(inla.posterior.sample(n_samples, fit, intern = TRUE)),
+          marginals_summary = marginals_summary_from_fit(fit),
+          summary.hyperpar = fit$summary.hyperpar,
+          cache_result = cache_result
+        )
+      }
     })
     names(processed_fits) <- names(regression_inputs)
     stopCluster(cl)
@@ -97,8 +103,10 @@ inla_pipeline <- function(base_data, kategorie, formula_base, uzite_mc_sloupce, 
   # Samply pocitam vzdy, nevyplati se ukladat ani prenaset
   result$predicted_pp_checks <- list()
   for(k in kompetence_to_run) {
-    result$predicted_pp_checks[[k]] <-
-      pp_samples_from_matrix(formula, result$processed_fits[[k]]$pp_samples_matrix, regression_inputs[[k]])
+    if(!inherits(result$processed_fits[[k]], "error")) {
+      result$predicted_pp_checks[[k]] <-
+        pp_samples_from_matrix(formula, result$processed_fits[[k]]$pp_samples_matrix, regression_inputs[[k]])
+    }
   }
 
   result

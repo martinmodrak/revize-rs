@@ -3,8 +3,12 @@ title: "Stav roveringu"
 toc-title: "Obsah"
 abstract: "Tento dokument shrnuje odpovědi na všechny otázky týkající se přímo roveringu a snaží se jim dát nějaký kontext. Neřešíme zde demografické složení respondentů, ani otázky na kompetence."
 output:
+  html_document:
+    toc: yes
+    number_sections: true
   word_document:
     toc: yes
+    number_sections: true
     reference_docx: public_data/output_template.docx
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 
@@ -25,7 +29,7 @@ knitr::opts_chunk$set(echo = FALSE)
 ```
 
 
-```{r nacist_data, cache=TRUE}
+```{r nacist_data, message=FALSE}
 source(here::here("datasety_dotaznik.R"), encoding = "UTF-8")
 
 plots <- list() 
