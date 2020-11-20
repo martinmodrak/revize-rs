@@ -23,7 +23,8 @@ data %>% crossing(tibble(nastroj = nastroje)) %>% group_by(nastroj) %>%
   mutate(zna_nastroj = replace_na( grepl(unique(nastroj), `Které nástroje Roverského programu znáš?`), FALSE)) %>% 
   summarise(zna = mean(zna_nastroj), 
             zna_low = qbeta(0.025, sum(zna_nastroj) + 1, n() - sum(zna_nastroj) + 1),
-            zna_high = qbeta(0.975, sum(zna_nastroj) + 1, n() - sum(zna_nastroj) + 1)
+            zna_high = qbeta(0.975, sum(zna_nastroj) + 1, n() - sum(zna_nastroj) + 1),
+            .groups = "drop"
             ) %>%
   ggplot(aes(x = nastroj, ymin = zna_low, ymax = zna_high, y = zna )) + geom_errorbar() + geom_point() +
   theme(axis.text.x = element_text(angle = 90))
@@ -45,16 +46,16 @@ data %>% pull(`Které nástroje Roverského programu znáš?`) %>% paste0(collap
 
 ```{r}
 data %>% mutate(zna_vyzvy = grepl("Výzvy", `Které nástroje Roverského programu znáš?`)) %>% 
-  group_by(zna_vyzvy) %>% summarise(vyuziti = mean(`Jak využíváš roverské výzvy?`, na.rm = TRUE), muzou_nebyt = mean(`Dokážeš si představit že by roverské výzvy nebyly?`, na.rm = TRUE))
+  group_by(zna_vyzvy) %>% summarise(vyuziti = mean(`Jak využíváš roverské výzvy?`, na.rm = TRUE), muzou_nebyt = mean(`Dokážeš si představit že by roverské výzvy nebyly?`, na.rm = TRUE), .groups = "drop")
 
 data %>% mutate(zna_projekty = grepl("Projekty", `Které nástroje Roverského programu znáš?`)) %>% 
-  group_by(zna_projekty) %>% summarise(vyuziti = mean(`Využíváte roverské projekty ve vašem programu?`, na.rm = TRUE), muzou_nebyt = mean(`Dokážeš si představit že by roverské projekty nebyly?`, na.rm = TRUE))
+  group_by(zna_projekty) %>% summarise(vyuziti = mean(`Využíváte roverské projekty ve vašem programu?`, na.rm = TRUE), muzou_nebyt = mean(`Dokážeš si představit že by roverské projekty nebyly?`, na.rm = TRUE), .groups = "drop")
 ```
 
 Takže vysoká hodnota asi znamená "hodně využívám" nebo nějaké "Ano" ??
 
 ```{r}
-data %>% group_by(`Používáš Roverský diář?`) %>% summarise(n())
+data %>% group_by(`Používáš Roverský diář?`) %>% summarise(n(), .groups = "drop")
 ```
 
 ```{r}

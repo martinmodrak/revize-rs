@@ -331,13 +331,13 @@ my_pp_check <- function(pipeline_result, group, stat = mean, label = as_label({{
     data_predicted[[k]] <- predicted_pp_checks[[k]] %>%
       inner_join(regression_inputs[[k]] %>% select(row_id, kompetence, group_char), by = c("row_id" = "row_id")) %>%
       group_by(sample_id, kompetence,  group_char) %>%
-      summarise(response_agg = stat(response)) %>%
+      summarise(response_agg = stat(response), .groups = "drop") %>%
       group_by(kompetence, group_char) %>%
-      summarise(mid = mean(response_agg), low = quantile(response_agg, 0.025), high = quantile(response_agg, 0.975))
+      summarise(mid = mean(response_agg), low = quantile(response_agg, 0.025), high = quantile(response_agg, 0.975), .groups = "drop")
 
     regression_inputs[[k]]$meritko <- regression_inputs[[k]][[meritko_nazev]]
     data_observed[[k]] <- regression_inputs[[k]] %>% group_by(kompetence, group_char)  %>%
-      summarise(mid = stat(meritko))
+      summarise(mid = stat(meritko), .groups = "drop")
   }
 
   data_predicted_all <- do.call(rbind, data_predicted)

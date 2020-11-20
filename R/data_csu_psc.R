@@ -106,7 +106,8 @@ pripojit_csu_data <- function(data, rok = 2017) {
 
   rm(find_best_psc)
 
-  psc_pres_nazev_casti_unique <- psc_all %>% group_by(psc, nazev_casti, nazev_obec) %>% summarise(psc_id = as.integer(max(psc_id)), n_psc_id = length(psc_id))
+  psc_pres_nazev_casti_unique <- psc_all %>% group_by(psc, nazev_casti, nazev_obec) %>%
+    summarise(psc_id = as.integer(max(psc_id)), n_psc_id = length(psc_id), .groups = "drop")
 
   if(any(psc_pres_nazev_casti_unique$n_psc_id > 1)) stop("psc + cast + obec neni unikatni")
 

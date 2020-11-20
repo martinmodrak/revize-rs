@@ -1,17 +1,3 @@
----
-title: "Shrnutí kompetencí"
-toc-title: "Obsah"
-abstract: "Tento dokument podává základní přehled o odpovědích na kompetenční otázky."
-output:
-  html_notebook:
-      toc: yes
-      number_sections: true
-  # word_document:
-  #   toc: yes
-  #   reference_docx: public_data/output_\template.docx
-date: '`r format(Sys.time(), "%d %B, %Y")`'
-
----
 
 
 ```{r setup, message=FALSE,warning=FALSE, results="hide", echo = FALSE}
@@ -25,7 +11,9 @@ source(here::here("datasety_dotaznik.R"), encoding = "UTF-8")
 plots <- list() 
 ```
 
-# Na co jsme se přesně ptali?
+# Shrnutí kompetencí
+
+Na co jsme se přesně ptali v kompetenční části?
 
 ```{r}
 otazky_rmd <- kompetence_otazky %>% arrange(ciselne_id) %>% mutate(rmd = paste0("- **", popis_pro_grafy,"** (",nazev_oblasti," - ", nazev_podoblasti,")\r\n  - ", text_otazky)) %>% pull(rmd) %>% paste0(collapse = "\r\n") 
@@ -46,11 +34,11 @@ Ke každé otázce vybírali odpověď na sedmibodové škále od "Zcela souhlas
 
 Část respondentů měla kratší verzi dotazníku a vyjadřovala se tak jen k náhodně vybrané polovině otázek.
 
-# Dle kategorie
+## Dle kategorie
 
 Zde si shrneme celkové odpovědi ke každé kategorii.
 
-## Zvládám
+### Zvládám
 
 ```{r}
 plot_kategorie_kompetence <- function(data_long, kategorie, kategorie_popis) {
@@ -115,7 +103,7 @@ plots$top_nezvladane <- plot_tabulka_extrem(tabulka_nezvladane) + plot_annotatio
 plots$top_nezvladane
 ```
 
-## Důležité
+### Důležité
 
 A nyní to samé pro "Je to pro mě velmi důležité" - zde je vidět, že respondenti považují v podstatě vše za důležité a spektrum odpovědí je tak na rozdíl od ostatních otázek posunuté hodně "doprava".
 
@@ -176,7 +164,7 @@ plots$top_dulezite
 
 
 
-## Rozvíjím se v tom
+### Rozvíjím se v tom
 
 A ještě obdobné grafy pro "Rozvíjím se v tom"
 
@@ -222,7 +210,7 @@ plots$top_nerozvijim
 ```
 
 
-## Skauting mi pomáhá
+### Skauting mi pomáhá
 
 ```{r}
 plots$skauting_celkem <- plot_kategorie_kompetence(hlavni_data_long, "skauting", popis_pro_plot(hlavni_data, "duchovni_zivot.skauting")) + theme(plot.title = element_text(size = 30))
@@ -268,14 +256,14 @@ plots$top_neskauting
 ```
 
 
-# Vývoj s věkem
+## Vývoj s věkem
 
 Pro jednoduchost interpretace zde budeme převádět odpovědi respondentů na čísla 1-7 a dívat se na průměr z těchto čísel. To není úplně ideální způsob, jak pracovat s tímto druhem dat, ale má tu výhodu, že je snadné výsledek interpretovat. Zároveň se trendy nezmění, když použijeme nějaké vhodnější měřítko.
 
 **Zásadní poznámka k interpretaci:** Z dat, které máme _nelze_ rozlišit dva možné původce rozdílných odpovědí dle věku: vlastní efekt stárnutí a tzv. _kohortový_ efekt, tj. vliv toho, že lidé, kterým je dnes 25 vyrůstali v jiné době a jiném kontextu (i skautském) než lidé, kterým je dnes 15 - a proto mohou mít jiné hodnoty, jinou míru sebereflexe (nebo jiný důvod, proč se vůbec dostali k našemu dotazníku). Pokud bychom tyto vlivy chtěli rozlišit, museli bychom výzkum ještě někdy zopakovat.
 
 
-## Zvládám to
+### Zvládám to
 
 Nejdříve se podíváme na průměr hodnocení "Zvládám" napříč všemi kompetencemi dle věku - je zde spíše vzestupný trend s několika zuby - ty jsou (jak uvidíme za chvíli) primárně způsobeny podivnou fluktuací v kompetenci "3.A Kamarádské vztahy". Vzestupný trend může být způsoben rozvojem v roverském věku, změnou sebehdnocení s věkem nebo tím, že ta dnešní mladá generace zvládá všechno hůř než my v jejich věku ;-). Taky je dobré si všimnout, že celý graf pokrývá jen několik desetin jednoho bodu, tj. díky velkému počtu respondentů zde máme malou nejistotu (světlý pruh), ale absolutní velikost změn je malá.
 
@@ -294,7 +282,7 @@ plots$zvladam_age_smooth <- plot_kompetence_by_smooth(hlavni_data_long, "zvladam
 plots$zvladam_age_smooth
 ```
 
-## Je to pro mě důležité
+### Je to pro mě důležité
 
 Obdobně průměrné hodnocení důležitosti. Při pohledu na celkový průměr vidíme podivné zuby, které je těžké interpetovat (tentokrát je nelze snadno svést na jednu kompetenci). Zároveň zde není znatelný celkový vzestupný nebo sestupný trend. Opět si všimněte, že největší skok (mezi 22. a 23. rokem) je 0.2 stupně, tj. velmi málo.
 
@@ -315,7 +303,7 @@ plots$dulezite_age_smooth
 
 
 
-## Rozvijim se v tom
+### Rozvijim se v tom
 
 Celkový trend vnímání seberozvoje je klesající a to (s ohledem na předchozí otázky) poměrně výrazně - o zhruba půl stupně. Optimistický výklad je, že jde o výsledek toho, že roveři věci čím dál lépe zvládají, pesimistický že s věkem leniví a kornatí. Je taky možné, že jde jen o střízlivější sebehodnocení u starších nebo čistě o kohortový efekt, kdy současní mladí prožívají více rozvoje, protože se změnila situace ve společnosti a skautingu, ne proto, že jsou mladší. Opět neumím vysvětlit zub mezi 22. a 23. rokem. 
 
@@ -333,7 +321,7 @@ plots$rozvijim_age_smooth
 ```
 
 
-## Skauting me rozviji
+### Skauting me rozviji
 
 Tak a  do čtvrtice - celkový trend je klesající, podobně jako u "Rozvíjím se v tom". V jistém smyslu je asi žádoucí, aby zde byl klesající trend - s rostoucím věkem by skauting měl v rozvoji lidí asi hrát menší a menší roli. (a ač to je otravné, stále je možné, že to je kohortový efekt)
 
@@ -350,7 +338,7 @@ plots$skauting_age_smooth <- plot_kompetence_by_smooth(hlavni_data_long, "skauti
 plots$skauting_age_smooth 
 ```
 
-# Rozdíly a nedostatky
+## Rozdíly a nedostatky
 
 Ještě se podíváme na rozdíly/kontrasty jednotlivých otázek.
 
@@ -398,7 +386,7 @@ tabulka_rozdilu <- function(data_rozdil) {
 
 ```
 
-## Důležité vs. zvládám
+### Důležité vs. zvládám
 
 První - věci, které respondent bral jako důležité, ale myslí si, že je nezvládá:
 
@@ -439,7 +427,7 @@ plots$dulezite_zvladam <- plot_tabulka_rozdil(tabulka_dulezite_zvladam, text_y =
 
 
 
-## Důležité vs. rozvíjím
+### Důležité vs. rozvíjím
 
 Obdobně se můžeme podívat na ty, které byly označeny jako důležité, ale respondent si myslí, že se v nich nerozvíjí. 
 
@@ -482,7 +470,7 @@ plots$dulezite_rozvijim <- tabulka_dulezite_rozvijim %>% plot_tabulka_rozdil(ind
 
 
 
-## Důležité vs. skauting me rozviji
+### Důležité vs. skauting me rozviji
 
 Tohle velmi blízce kopíruje obecně to, kde skauting lidi nerozvíjí, takže nepřínáší moc další informace.
 
@@ -497,7 +485,7 @@ tabulka_dulezite_skauting %>%
 ```
 
 
-## Rozvijim se vs. skauting me rozviji
+### Rozvijim se vs. skauting me rozviji
 
 Opět poměrně kopíruje jen ty věci, kde mě skauting nerozvíjí...
 
@@ -516,7 +504,7 @@ hlavni_data_long %>% spocitej_data_rozdil(rozvijim, skauting, "kompetence_poziti
 
 
 
-# Doplňky a kontroly
+## Doplňky a kontroly
 
 Nevymyká se nějaká kompetence svým rozložením odpovědí?
 
@@ -537,7 +525,7 @@ histogram_kompetence(hlavni_data_long, "rozvijim")
 histogram_kompetence(hlavni_data_long, "skauting")
 ```
 
-# Jak se liší různá měřítka?
+## Jak se liší různá měřítka?
 
 Korelace:
 

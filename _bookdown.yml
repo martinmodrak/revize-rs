@@ -1,0 +1,8 @@
+rmd_files:
+  [ "index.Rmd"
+  , "charakteristika_respondentu.Rmd"
+  , "stav_roveringu.Rmd"
+  , "shrnuti_kompetenci.Rmd"
+  , "odchody_lidi.Rmd"
+  ]
+new_session: yes

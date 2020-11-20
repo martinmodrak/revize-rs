@@ -1,0 +1,16 @@
+---
+site: "bookdown::bookdown_site"
+title: "Revize roverského programu: Závěrečná zpráva"
+output:
+  bookdown::gitbook:
+    split_by: chapter
+  #bookdown::pdf_book: default
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+---
+
+# Úvodem
+
+Text
+
+
+_Kompletní kód analýzy je k nalezení na https://github.com/martinmodrak/revize-rs _
