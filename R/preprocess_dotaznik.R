@@ -427,7 +427,7 @@ dopln_data_z_registrace <- function(cela_data) {
     left_join(oddily_skautis %>% rename(RegCOddilu = RegistrationNumber),
                by = c("RegistrationNumber" = "RegCStrediska")) %>%
     group_by(RegistrationNumber) %>%
-    summarise(pocet_oddilu_strediska_skautis = sum(!is.na(RegCOddilu)))
+    summarise(pocet_oddilu_strediska_skautis = sum(!is.na(RegCOddilu)), .groups = "drop")
 
   if(nrow(strediska_skautis_s_oddily) != nrow(strediska_skautis)) {
     stop("Spatny join oddilu")
@@ -533,7 +533,7 @@ vyfiltruj_pouzitelne <- function(cela_data) {
 check_vysledky <- function(cela_data) {
   session_opakovane <- cela_data %>%
     group_by(session) %>%
-    summarise(pocet = n()) %>%
+    summarise(pocet = n(), .groups = "drop") %>%
     filter(pocet > 1) %>%
     nrow()
 

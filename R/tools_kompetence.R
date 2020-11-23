@@ -120,7 +120,7 @@ plot_kompetence_by <- function(data, kategorie, group, meritko = kompetence_odpo
     group_by(!!kompetence_group, {{ group }}) %>%
     summarise(prumer = mean({{meritko}}, na.rm = TRUE),
               dolni = nejistota_meritka(0.025, meritko_nazev, {{meritko}}),
-              horni = nejistota_meritka(0.975, meritko_nazev, {{meritko}})
+              horni = nejistota_meritka(0.975, meritko_nazev, {{meritko}}), .groups = "drop"
     ) %>%
     ungroup() %>%
     ggplot(aes(x = {{group}}, y = prumer, ymin = dolni, ymax = horni, group = !!kompetence_group)) +

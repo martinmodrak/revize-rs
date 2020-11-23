@@ -270,7 +270,8 @@ plot_binarni_s_nejistotou <- function(data, binarni_sloupce_nazev, by, names_pre
     pivot_longer(all_of(binarni_sloupce_nazev), names_to = "meritko", values_to = "ano", names_prefix = names_prefix) %>%
     #mutate(meritko = factor(meritko, levels = binarni_sloupce_nazev)) %>%
     group_by({{by}}, meritko) %>%
-    summarise(podil_ano = mean(ano, na.rm = na.rm), dolni = nejistota_binarni(0.025, ano, na.rm = na.rm), horni = nejistota_binarni(0.975, ano, na.rm = na.rm)) %>%
+    summarise(podil_ano = mean(ano, na.rm = na.rm), dolni = nejistota_binarni(0.025, ano, na.rm = na.rm),
+              horni = nejistota_binarni(0.975, ano, na.rm = na.rm), .groups = "drop") %>%
     mutate(meritko = factor(meritko, levels = meritko_levels)) %>%
     ggplot(my_aes) + geom_ribbon(alpha = 0.5, color = FALSE) + geom_line() + vodorovne_popisky_x +
     my_color_scale  + my_fill_scale + my_facet +
@@ -293,7 +294,7 @@ plot_ciselne_s_nejistotou <- function(data, ciselne_sloupce_nazev, by, names_pre
     mutate(hodnota = as.double(hodnota)) %>%
     group_by({{by}}, meritko) %>%
     summarise(prumer = mean(hodnota), sem = sd(hodnota)/sqrt(length(hodnota)),
-              dolni = qnorm(0.025, prumer, sem), horni = qnorm(0.975, prumer, sem)) %>%
+              dolni = qnorm(0.025, prumer, sem), horni = qnorm(0.975, prumer, sem), .groups = "drop") %>%
     ggplot(my_aes) + geom_ribbon(alpha = 0.5, color = FALSE) + geom_line() + vodorovne_popisky_x +
     my_color_scale  + my_fill_scale +
     scale_y_continuous("Průměr")
@@ -327,7 +328,7 @@ plot_frekvence_by <- function(cela_data, nazev_freknce_sloupce, group) {
     group_by({{group}}, frekvence) %>%
     summarise(prumer_ano = mean(frekvence_ano),
               dolni = nejistota_binarni(0.025, frekvence_ano),
-              horni = nejistota_binarni(0.975, frekvence_ano)) %>%
+              horni = nejistota_binarni(0.975, frekvence_ano), .groups = "drop") %>%
     ggplot(
       aes(x = frekvence, y = prumer_ano, ymin = dolni, ymax = horni,
           fill = {{group}}, color = {{group}}, group = {{group}},

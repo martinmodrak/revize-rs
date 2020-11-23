@@ -59,21 +59,21 @@ Křivky zobrazujeme zvlášť pro věkové kategorie, které máme vyexportovan�
 reprezentativnost <- function(data_skautis_, data_pruzkum_, pruzkum_nazev, seskupeni_nazev) {
   dle_veku_a_seskupeni_pruzkum <- data_pruzkum_ %>% 
     group_by(seskupeni) %>%
-    summarise(celkem = length(vek), kategorie_nad15 = sum(vek > 15, na.rm = TRUE), kategorie_16_26 = sum(vek >15 & vek <=26, na.rm = TRUE), kategorie_do15 = sum(vek <= 15, na.rm = TRUE)) %>% ungroup() %>% mutate(zdroj = pruzkum_nazev)
+    summarise(celkem = length(vek), kategorie_nad15 = sum(vek > 15, na.rm = TRUE), kategorie_16_26 = sum(vek >15 & vek <=26, na.rm = TRUE), kategorie_do15 = sum(vek <= 15, na.rm = TRUE), .groups = "drop") %>% mutate(zdroj = pruzkum_nazev)
   
   dle_veku_a_seskupeni_skautis <-  data_skautis_ %>%
     group_by(seskupeni) %>%
     summarise(celkem = sum(clenove_celkem), 
             kategorie_nad15 = sum(kategorie_16az18let + kategorie_19az26let + kategorie_nad26let), 
             kategorie_16_26 = sum(kategorie_16az18let, kategorie_19az26let),
-            kategorie_do15 = sum(kategorie_7az15let)
+            kategorie_do15 = sum(kategorie_7az15let), .groups = "drop"
             ) %>% ungroup() %>%
   mutate(zdroj = "skautis")
   
 dle_veku_a_seskupeni <- rbind(dle_veku_a_seskupeni_pruzkum, dle_veku_a_seskupeni_skautis) %>%
   gather("kategorie","clenu", -seskupeni, -zdroj)
 
-celkem <- dle_veku_a_seskupeni %>% group_by(kategorie, zdroj) %>% summarise(celkem_v_datech = sum(clenu))
+celkem <- dle_veku_a_seskupeni %>% group_by(kategorie, zdroj) %>% summarise(celkem_v_datech = sum(clenu), .groups = "drop")
 
 dle_veku_a_seskupeni <- dle_veku_a_seskupeni %>%
   inner_join(celkem, by = c("kategorie" = "kategorie", "zdroj" = "zdroj")) %>% 
@@ -164,18 +164,17 @@ reprezentativnost_vek <- function(data_skautis_, data_pruzkum_, pruzkum_nazev, m
   dle_veku_pruzkum <- data_pruzkum_ %>% mutate(vek = round(vek)) %>%
     filter(!is.na(vek), vek >= min_vek, vek <= max_vek) %>%
     group_by(vek) %>%
-    summarise(clenu = length(vek)) %>% ungroup() %>% mutate(zdroj = pruzkum_nazev)
+    summarise(clenu = length(vek), .groups = "drop") %>% mutate(zdroj = pruzkum_nazev)
   
   dle_veku_skautis <-  data_skautis_ %>%
     filter(vek >= min_vek, vek <= max_vek) %>%
     group_by(vek) %>%
-    summarise(clenu = length(vek)) %>% 
-    ungroup() %>%
+    summarise(clenu = length(vek), .groups = "drop") %>% 
     mutate(zdroj = "skautis")
   
 dle_veku <- rbind(dle_veku_pruzkum, dle_veku_skautis) 
 
-celkem <- dle_veku %>% group_by(zdroj) %>% summarise(celkem_v_datech = sum(clenu))
+celkem <- dle_veku %>% group_by(zdroj) %>% summarise(celkem_v_datech = sum(clenu), .groups = "drop")
 
 dle_veku <- dle_veku %>%
   inner_join(celkem, by = c("zdroj" = "zdroj")) %>% 

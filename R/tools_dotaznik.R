@@ -45,7 +45,7 @@ summarise_multiple_choice <- function(cela_data, sloupec) {
   ret <- volby_df %>% crossing(data_vyplneno) %>%
     group_by(id_volby, nazev_volby) %>%
     mutate(volba_ano = {{sloupec}} %contains_word% id_volby) %>%
-    summarise(pocet_ano = sum(volba_ano), podil_ano = mean(volba_ano), pocet_total = length(volba_ano)) %>%
+    summarise(pocet_ano = sum(volba_ano), podil_ano = mean(volba_ano), pocet_total = length(volba_ano), .groups = "drop") %>%
     ungroup()
 
   nazev_sloupce <- rlang::as_name(enquo(sloupec))

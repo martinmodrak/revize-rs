@@ -40,7 +40,7 @@ rozsah_clenstvi_z_registrace <- function(registrace) {
               konec_do_12_let = any(konce(Year, tolerovana_prestavka = tolerovana_prestavka) - rok_narozeni <= 12),
               konec_13_az_16_let = any(between(konce(Year, tolerovana_prestavka = tolerovana_prestavka) - rok_narozeni, 13, 16)),
               prestavky_celkem_let =  (posledni_registrace - prvni_registrace + 1) - length(unique(Year)),
-              pocet_prestavek = sum(diff(sort(Year)) > 1)
+              pocet_prestavek = sum(diff(sort(Year)) > 1), .groups = "drop"
     )
 }
 
@@ -61,7 +61,7 @@ sumar_odchodu <- function(odchazeni, by = "none") {
 
   odchazeni %>%
     group_by(vek, Sex, !! group_var) %>%
-    summarise(n_ukonceno = sum(ukonceno), pocet = length(Person_PseudoID)) %>%
+    summarise(n_ukonceno = sum(ukonceno), pocet = length(Person_PseudoID), .groups = "drop") %>%
     ungroup() %>%
     mutate(podil_odchazejicich = n_ukonceno / pocet,
            lower = qbeta(0.025, n_ukonceno + 1, pocet - n_ukonceno + 1),
@@ -105,7 +105,7 @@ sumar_prichody <- function(odchazeni, by = "none", response = podil_novych) {
 
   odchazeni %>%
     group_by(vek, Sex, !! group_var) %>%
-    summarise(n_novych = sum(prvni_registrace == Year), pocet = length(Person_PseudoID)) %>%
+    summarise(n_novych = sum(prvni_registrace == Year), pocet = length(Person_PseudoID), .groups = "drop") %>%
     ungroup() %>%
     mutate(podil_novych = n_novych / pocet
     )
@@ -143,7 +143,7 @@ sumar_pocty <- function(odchazeni, by = "none") {
 
   odchazeni %>%
     group_by(vek, Sex, !! group_var) %>%
-    summarise(pocet = length(Person_PseudoID)) %>%
+    summarise(pocet = length(Person_PseudoID), .groups = "drop") %>%
     ungroup()
 }
 
