@@ -2,7 +2,7 @@
 
 ```{r setup, message=FALSE,warning=FALSE, results="hide", echo = FALSE}
 source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, cache=TRUE)
 
 # - TODO: Dát všude do popisku pťesnou formulaci otázky (asi vymyslet, aby byla v grafů)
 # - TODO: Jsou roveři hozeni do vody? (asi rozházet po jednotlivých částech?)

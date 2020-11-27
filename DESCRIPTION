@@ -23,5 +23,6 @@ Imports:
     dplyr,
     magrittr,
     tidyr,
-    ggplot2
+    ggplot2,
+    bindrcpp
 RoxygenNote: 7.1.1

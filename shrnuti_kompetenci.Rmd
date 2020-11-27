@@ -2,7 +2,7 @@
 
 ```{r setup, message=FALSE,warning=FALSE, results="hide", echo = FALSE}
 source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
 ```
 
 ```{r nacist_data, message = FALSE}
