@@ -5,11 +5,11 @@ Ve skauting se často operuje s představou, že nízké množství roverů je d
 
 ## Shrnutí výsledků
 
-V datech z registrace za roky 2012-2018 lze v některých skupinách členů vidět mírný vzestup míry odchodů kolem 15tého roku věku. Nejsilnější takový nárust jsme pozorovali u chlapců, kteří jsou již členy Junáka alespoň 4 roky. Ve 12ti letech opouští organizaci v průměru 14% takovýchto chlapců z ročníku (tj. zhruba jeden ze sedmi), tato míra pak roste plynule až k 16ti letům, kdy jich odchází 17% z ročníku (tj. zhruba jeden z šesti). V jiných kategoriích je nárůst odchodů kolem přechodu do roverského věku nižší. V roverském věku pak míra odchodů s rostoucím věkem klesá.
+V datech z registrace za roky 2012---2018 lze v některých skupinách členů vidět mírný vzestup míry odchodů kolem 15tého roku věku. Nejsilnější takový nárust jsme pozorovali u chlapců, kteří jsou již členy Junáka alespoň 4 roky. Ve 12ti letech opouští organizaci v průměru 14% takovýchto chlapců z ročníku (tj. zhruba jeden ze sedmi), tato míra pak roste plynule až k 16ti letům, kdy jich odchází 17% z ročníku (tj. zhruba jeden z šesti). V jiných kategoriích je nárůst odchodů kolem přechodu do roverského věku nižší. V roverském věku pak míra odchodů s rostoucím věkem klesá.
 
-Jistou míru optimismu lze brát z toho, že v datech z let 2017-2018 již tento vzestup kolem 15tého roku není viditelný, jakkoliv nelze vyloučit, že to je pouze náhoda.
+Jistou míru optimismu lze brát z toho, že v datech z let 2017---2018 již tento vzestup kolem 15tého roku není viditelný, jakkoliv nelze vyloučit, že to je pouze náhoda.
 
-V každém případě data nenaznačují, že by nárůst odchodů kolem přechodu do roverského věku byl zásadní problém. Zároveň lze očekávat, že data z registrace jsou v tomto ohledu spíše pesimistická - u členů do 15ti let je velmi nezvyklé, že by nebyli registrování, zatímcu u roverských kmenů lze registrační disciplínu očekávat nižší. Na druhou stranu není v roverském věku neobvyklé, že je člen registrován, ale není aktivní - závěry z registrace nemohou bohužel mezi aktivními a neaktivními členy rozlišit.
+V každém případě data nenaznačují, že by nárůst odchodů kolem přechodu do roverského věku byl zásadní problém. Zároveň lze očekávat, že data z registrace jsou v tomto ohledu spíše pesimistická --- u členů do 15ti let je velmi nezvyklé, že by nebyli registrování, zatímcu u roverských kmenů lze registrační disciplínu očekávat nižší. Na druhou stranu není v roverském věku neobvyklé, že je člen registrován, ale není aktivní --- závěry z registrace nemohou bohužel mezi aktivními a neaktivními členy rozlišit.
 
 Nízký počet roverů je pravděpodobně více ovlivněn výrazným poklesem přílivu nováčků s rostoucím věkem a celkově vysokým "odpadem" nováčků (až 33% prvně registrovaných se neregistruje podruhé) i zkušenějších členů (až 18% z ročníku) napříč skautským věkem. Odchod člena v rovererském věku je také pro středisko závažnější, což může subjektivně vést ke zveličování počtu odchodů.
 
@@ -17,7 +17,7 @@ I pokud bychom předpokládali, že při přechodu ze skautského věku do rover
 
 Zajímavým poznatkem je také to, že dívky odcházejí obecně ve stejné nebo menší míře než chlapci. 
 
-Bylo by zajímavé se podívat zvlášť na odchody dle velikosti města/kraje - lze očekávat, že v menších obcích dochází k větší míře odchodů v souvislosti s přechodem na střední nebo vysokou školu. To v datech, které máme nelze zjistit. Nicméně jelikož v průměru k nárůstu odchodů spíše nedochází, musel by být nárůst odchodů kolem 15ti let v menších městech kompenzován snížením množství takových odchodů ve větších městech, což bych považoval za spíše nepravděpodobné.
+Bylo by zajímavé se podívat zvlášť na odchody dle velikosti města/kraje --- lze očekávat, že v menších obcích dochází k větší míře odchodů v souvislosti s přechodem na střední nebo vysokou školu. To v datech, které máme nelze zjistit. Nicméně jelikož v průměru k nárůstu odchodů spíše nedochází, musel by být nárůst odchodů kolem 15ti let v menších městech kompenzován snížením množství takových odchodů ve větších městech, což bych považoval za spíše nepravděpodobné.
 
 ## Hlavní kvantitativní výstupy
 
@@ -81,7 +81,7 @@ odchazeni_prvni <- odchazeni %>%
 
 ```
 
-Zde vidíme, jaká část členské základny Junáka daného věku odešla během sledovaného období, rozděleno na nováčky (registrují se poprvé) a ostatní. Raději příklad: kdyby za roky 2012-2018 období bylo v Junáku celkem 1000 chlapců, kteří se poprvé registrovali během svých 13ti let a z toho se jich 200 již znovu neregistrovalo, bude v grafu 0.2. Pruh kolem údajů ukazuje očekávanou nejistotu/šum (čím méně lidí v kategorii, tím méně si jsme jisti, že to co vidíme je reprezentativní). 
+Zde vidíme, jaká část členské základny Junáka daného věku odešla během sledovaného období, rozděleno na nováčky (registrují se poprvé) a ostatní. Raději příklad: kdyby za roky 2012---2018 období bylo v Junáku celkem 1000 chlapců, kteří se poprvé registrovali během svých 13ti let a z toho se jich 200 již znovu neregistrovalo, bude v grafu 0.2. Pruh kolem údajů ukazuje očekávanou nejistotu/šum (čím méně lidí v kategorii, tím méně si jsme jisti, že to co vidíme je reprezentativní). 
 
 ```{r}
 odchazeni_posledni_focus <- odchazeni_posledni %>% filter(vek >= 10, vek <= 18)
@@ -91,7 +91,7 @@ ggsave(here::here("shared_figs/odchody.png"), plot_odchody_hlavni, width = 7, he
 plot_odchody_hlavni
 ```
 
-Vysoká míra nejistoty u nováčků je daná tím, že ve vyšším věku máme už docela málo nováčků. To samé platí pro členy s 2 -3 letou zkušeností v roverském věku. Kvůli této nejistotě nelze brát příliš vážně nárůst podílu odchodů u méně zkušených členů po 17 roce. V celkovém pohledu (viz níže) je dokonce vidět pokles. Jakkoliv zde vidíme jístý nárůst ke konci skautského věku, nezdá se být příliš výrazný (max tři procentní body). 
+Vysoká míra nejistoty u nováčků je daná tím, že ve vyšším věku máme už docela málo nováčků. To samé platí pro členy s 2 ---3 letou zkušeností v roverském věku. Kvůli této nejistotě nelze brát příliš vážně nárůst podílu odchodů u méně zkušených členů po 17 roce. V celkovém pohledu (viz níže) je dokonce vidět pokles. Jakkoliv zde vidíme jístý nárůst ke konci skautského věku, nezdá se být příliš výrazný (max tři procentní body). 
 
 Nedostatek roverů lze tedy snáze vysvětlit nízkým počtem nováčků ve skautském věku:
 
@@ -132,7 +132,7 @@ V této analýze bereme neregistraci jako konec členství. Výsledky jsou ale p
 plot_odchody(odchazeni_posledni) + ggtitle("Souhrnný podíl odchodů")
 ```
 
-Asi vás překvapí, že na tomto grafu není v podstatě žádná špička kolem 15tého roku vidět - důvodem je, že mícháme dvě dost odlišné skupiny: nováčky a ostatní. Jak to, že když odchody v každé skupině zvlášť během skautského věku rostou, tak součet neroste? Důvodem je, že se s věkem zmenšuje podíl nováčků (kteří odcházejí hodně) a tím se snižuje celková míra odchodů, ač v obou skupinách zvlášť roste. To je hezká ukázka toho, jak snadné je se mýlit špatným pohledem na data.
+Asi vás překvapí, že na tomto grafu není v podstatě žádná špička kolem 15tého roku vidět --- důvodem je, že mícháme dvě dost odlišné skupiny: nováčky a ostatní. Jak to, že když odchody v každé skupině zvlášť během skautského věku rostou, tak součet neroste? Důvodem je, že se s věkem zmenšuje podíl nováčků (kteří odcházejí hodně) a tím se snižuje celková míra odchodů, ač v obou skupinách zvlášť roste. To je hezká ukázka toho, jak snadné je se mýlit špatným pohledem na data.
 
 Zdá se tedy, že z Junáka odchází během skautského věku poměrně rovnoměrně kolem 18% členů z ročníku (chlapců o něco víc). To odpovídá "poločasu rozpadu" pro skauty cca 3.5 roku. Po 15tém roce se toto číslo nezvyšuje, naopak klesá. Nezdá se tedy, že by 15tý rok byl více zlomový pro členství než jiné roky.
 
@@ -151,9 +151,9 @@ avg_16 <- odchazeni_posledni %>% filter(vek == 16, Year != 2015, Sex == "male") 
 ```
 
 
-Trend ve všech letech víceméně podobný - žádná výrazná změna kolem 15tého roku. Výjimkou je zvláštní špička v roce 2015, kdy z `r spicka_2015$pocet` šestnácti letých chlapců odešlo `r spicka_2015$n_ukonceno` zatímco při průměrné míře odchodu by to bylo cca `r round(spicka_2015$pocet * avg_16$podil)`. Tuto špičku neumím vysvětlit, ale může to být klidně jen náhoda.
+Trend ve všech letech víceméně podobný --- žádná výrazná změna kolem 15tého roku. Výjimkou je zvláštní špička v roce 2015, kdy z `r spicka_2015$pocet` šestnácti letých chlapců odešlo `r spicka_2015$n_ukonceno` zatímco při průměrné míře odchodu by to bylo cca `r round(spicka_2015$pocet * avg_16$podil)`. Tuto špičku neumím vysvětlit, ale může to být klidně jen náhoda.
 
-Data mají mírně sestupný trend v čase (tj. poslední dobou méně lidí odchází) ale nutno podotknout, že zde očekáváme sestupný trend v čase i kdyby se nic neměnilo - část lidí se do Junáka vrací a ti z posledních let kteří se v budoucnu vrátí jsou v grafu vedeni jako ztracení.
+Data mají mírně sestupný trend v čase (tj. poslední dobou méně lidí odchází) ale nutno podotknout, že zde očekáváme sestupný trend v čase i kdyby se nic neměnilo --- část lidí se do Junáka vrací a ti z posledních let kteří se v budoucnu vrátí jsou v grafu vedeni jako ztracení.
 
 ### První odchody
 
@@ -176,7 +176,7 @@ plot_odchody(odchazeni_posledni, "delka_clenstvi") + ggtitle("Podíl odchodů dl
 
 ```
 
-Vysoký míra nejistoty u zkušených členů v nízkém věku není překvapivá - jedná se malou skupinu (9ti letí, kteří se registrují počtvrté a vícté)
+Vysoký míra nejistoty u zkušených členů v nízkém věku není překvapivá --- jedná se malou skupinu (9ti letí, kteří se registrují počtvrté a vícté)
 
 Můžeme se taky na tyto segmenty podívat napříč sledovaným časem.
 
@@ -211,7 +211,7 @@ plot_prichody(odchazeni_posledni, by = "year", response = n_novych) + ggtitle("P
 
 ## Celkové počty členů
 
-A ještě se můžeme podívat na celkové počty členů - souhrný graf má vysoká čísla, protože sčítá přes všechny sledované roky.
+A ještě se můžeme podívat na celkové počty členů --- souhrný graf má vysoká čísla, protože sčítá přes všechny sledované roky.
 
 ```{r}
 

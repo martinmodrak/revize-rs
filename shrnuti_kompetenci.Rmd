@@ -16,7 +16,7 @@ plots <- list()
 Na co jsme se přesně ptali v kompetenční části?
 
 ```{r}
-otazky_rmd <- kompetence_otazky %>% arrange(ciselne_id) %>% mutate(rmd = paste0("- **", popis_pro_grafy,"** (",nazev_oblasti," - ", nazev_podoblasti,")\r\n  - ", text_otazky)) %>% pull(rmd) %>% paste0(collapse = "\r\n") 
+otazky_rmd <- kompetence_otazky %>% arrange(ciselne_id) %>% mutate(rmd = paste0("- **", popis_pro_grafy,"** (",nazev_oblasti," --- ", nazev_podoblasti,")\r\n  --- ", text_otazky)) %>% pull(rmd) %>% paste0(collapse = "\r\n") 
 ```
 
 Tučně je zkrácený popis, který budeme používat v tabulkách a grafech, za ním v závorce odkaz, jak je tato kompetence uvedena mezi "komptencemi skautské výchovy", pod tím přesné znění otázky, jak bylo v dotazníku.
@@ -75,7 +75,7 @@ data_nezvladam %>%
   summarise(pocet_respondentu = n()) %>% table_format()
 ```
 
-Jiný pohled na podobnou věc - když odpovědi převedeme na čísla 1-7 a zprůměrujeme za každého respondenta, jak to bude vypadat?
+Jiný pohled na podobnou věc --- když odpovědi převedeme na čísla 1---7 a zprůměrujeme za každého respondenta, jak to bude vypadat?
 
 ```{r}
 data_nezvladam %>% ggplot(aes(x = prumer_zvladam)) + geom_histogram(binwidth = 0.5) + vodorovne_popisky_x + plot_annotation("Průměr hodnocení Zvládám","histogram průměru jednotlivých respondentů")
@@ -105,7 +105,7 @@ plots$top_nezvladane
 
 ### Důležité
 
-A nyní to samé pro "Je to pro mě velmi důležité" - zde je vidět, že respondenti považují v podstatě vše za důležité a spektrum odpovědí je tak na rozdíl od ostatních otázek posunuté hodně "doprava".
+A nyní to samé pro "Je to pro mě velmi důležité" --- zde je vidět, že respondenti považují v podstatě vše za důležité a spektrum odpovědí je tak na rozdíl od ostatních otázek posunuté hodně "doprava".
 
 ```{r}
 plots$dulezite_celkem <- plot_kategorie_kompetence(hlavni_data_long, "dulezite", popis_pro_plot(hlavni_data, "duchovni_zivot.dulezite"))
@@ -258,22 +258,22 @@ plots$top_neskauting
 
 ## Vývoj s věkem
 
-Pro jednoduchost interpretace zde budeme převádět odpovědi respondentů na čísla 1-7 a dívat se na průměr z těchto čísel. To není úplně ideální způsob, jak pracovat s tímto druhem dat, ale má tu výhodu, že je snadné výsledek interpretovat. Zároveň se trendy nezmění, když použijeme nějaké vhodnější měřítko.
+Pro jednoduchost interpretace zde budeme převádět odpovědi respondentů na čísla 1---7 a dívat se na průměr z těchto čísel. To není úplně ideální způsob, jak pracovat s tímto druhem dat, ale má tu výhodu, že je snadné výsledek interpretovat. Zároveň se trendy nezmění, když použijeme nějaké vhodnější měřítko.
 
-**Zásadní poznámka k interpretaci:** Z dat, které máme _nelze_ rozlišit dva možné původce rozdílných odpovědí dle věku: vlastní efekt stárnutí a tzv. _kohortový_ efekt, tj. vliv toho, že lidé, kterým je dnes 25 vyrůstali v jiné době a jiném kontextu (i skautském) než lidé, kterým je dnes 15 - a proto mohou mít jiné hodnoty, jinou míru sebereflexe (nebo jiný důvod, proč se vůbec dostali k našemu dotazníku). Pokud bychom tyto vlivy chtěli rozlišit, museli bychom výzkum ještě někdy zopakovat.
+**Zásadní poznámka k interpretaci:** Z dat, které máme _nelze_ rozlišit dva možné původce rozdílných odpovědí dle věku: vlastní efekt stárnutí a tzv. _kohortový_ efekt, tj. vliv toho, že lidé, kterým je dnes 25 vyrůstali v jiné době a jiném kontextu (i skautském) než lidé, kterým je dnes 15 --- a proto mohou mít jiné hodnoty, jinou míru sebereflexe (nebo jiný důvod, proč se vůbec dostali k našemu dotazníku). Pokud bychom tyto vlivy chtěli rozlišit, museli bychom výzkum ještě někdy zopakovat.
 
 
 ### Zvládám to
 
-Nejdříve se podíváme na průměr hodnocení "Zvládám" napříč všemi kompetencemi dle věku - je zde spíše vzestupný trend s několika zuby - ty jsou (jak uvidíme za chvíli) primárně způsobeny podivnou fluktuací v kompetenci "3.A Kamarádské vztahy". Vzestupný trend může být způsoben rozvojem v roverském věku, změnou sebehdnocení s věkem nebo tím, že ta dnešní mladá generace zvládá všechno hůř než my v jejich věku ;-). Taky je dobré si všimnout, že celý graf pokrývá jen několik desetin jednoho bodu, tj. díky velkému počtu respondentů zde máme malou nejistotu (světlý pruh), ale absolutní velikost změn je malá.
+Nejdříve se podíváme na průměr hodnocení "Zvládám" napříč všemi kompetencemi dle věku --- je zde spíše vzestupný trend s několika zuby --- ty jsou (jak uvidíme za chvíli) primárně způsobeny podivnou fluktuací v kompetenci "3.A Kamarádské vztahy". Vzestupný trend může být způsoben rozvojem v roverském věku, změnou sebehdnocení s věkem nebo tím, že ta dnešní mladá generace zvládá všechno hůř než my v jejich věku ;-). Taky je dobré si všimnout, že celý graf pokrývá jen několik desetin jednoho bodu, tj. díky velkému počtu respondentů zde máme malou nejistotu (světlý pruh), ale absolutní velikost změn je malá.
 
 ```{r}
 plot_kompetence_by(hlavni_data_long, "zvladam", age, all_together = TRUE)
 ```
 
-Můžeme se podívat též na trendy pro jednotlivé kompetence - a to přímo tak, jak jsou v datech nebo mírně vyhlazené, kde jsou patrné celkové trendy. Většina kompetencí je s přibývajícím věkem hodnocena výše (v souladu s celkovým trendem z předchozího obrázku), některé zhruba setrvaly. Výjimku tvoří klesající "1.B Fyzicky zdatný" (kde pokles s věkem nepřekvapí a asi nikdo netvrdí, že současná mladá generace se hýbe více než její předchůdci) a "6.E Šetrnost" (kde může alespoň částečně jít o směs změny sebehodnocení nebo kohortový efekt). Komplikovanější trend je pak u "2.C Rozvoj osobnosti", "3.A Kamarádské vztahy" a "4.A Rodina". Lze tu trochu spekulovat o vlivu životních změn (vysoká škola, práce), ale ruku do ohně bych za to nedal.
+Můžeme se podívat též na trendy pro jednotlivé kompetence --- a to přímo tak, jak jsou v datech nebo mírně vyhlazené, kde jsou patrné celkové trendy. Většina kompetencí je s přibývajícím věkem hodnocena výše (v souladu s celkovým trendem z předchozího obrázku), některé zhruba setrvaly. Výjimku tvoří klesající "1.B Fyzicky zdatný" (kde pokles s věkem nepřekvapí a asi nikdo netvrdí, že současná mladá generace se hýbe více než její předchůdci) a "6.E Šetrnost" (kde může alespoň částečně jít o směs změny sebehodnocení nebo kohortový efekt). Komplikovanější trend je pak u "2.C Rozvoj osobnosti", "3.A Kamarádské vztahy" a "4.A Rodina". Lze tu trochu spekulovat o vlivu životních změn (vysoká škola, práce), ale ruku do ohně bych za to nedal.
 
-Je taky dobré si všimnout, že průměrné sebehodnocení kompetenci se zřídka liší mezi mladšími a staršími o více jak půl stupně. Nejvýraznější změna je u "3.A Kamarádské vztahy" - díky tomu, že ostatní kompetence se trochu "vyprůměrují", je tato fluktuace promítnuta i do celkového průměru.
+Je taky dobré si všimnout, že průměrné sebehodnocení kompetenci se zřídka liší mezi mladšími a staršími o více jak půl stupně. Nejvýraznější změna je u "3.A Kamarádské vztahy" --- díky tomu, že ostatní kompetence se trochu "vyprůměrují", je tato fluktuace promítnuta i do celkového průměru.
 
 ```{r}
 plots$zvladam_age <- plot_kompetence_by(hlavni_data_long, "zvladam", age)
@@ -290,9 +290,9 @@ Obdobně průměrné hodnocení důležitosti. Při pohledu na celkový průměr
 plot_kompetence_by(hlavni_data_long, "dulezite", age, all_together = TRUE)
 ```
 
-Trendy pro jednotlivé kompetence jsou v něčem hezké - klesá vnímaná důležitost "technických" kompetencí ("1.E Táboření, tým", "1.F Tvořivost, zručnost","6.E Šetrnost") a mírně roste důležitost duchovních kompetencí ("2.A1 Hledání smyslu života", "2.B1 Svědomí", "2.B2 Slib, zákon"). Pokud to je sktučeně efekt stárnutí a zrání, je to dle mého super. Pokud je to kohortový efekt (tj. že dříve se v oddílech kladl větší důraz na hodnoty než dnes a to si roveři už nesou celý život), tak je to smutné.
+Trendy pro jednotlivé kompetence jsou v něčem hezké --- klesá vnímaná důležitost "technických" kompetencí ("1.E Táboření, tým", "1.F Tvořivost, zručnost","6.E Šetrnost") a mírně roste důležitost duchovních kompetencí ("2.A1 Hledání smyslu života", "2.B1 Svědomí", "2.B2 Slib, zákon"). Pokud to je sktučeně efekt stárnutí a zrání, je to dle mého super. Pokud je to kohortový efekt (tj. že dříve se v oddílech kladl větší důraz na hodnoty než dnes a to si roveři už nesou celý život), tak je to smutné.
 
-Opět zdůrazním, že změny v průměrném sebehodnocení jsou mírné - většinou o max. půl stupně ze sedmi.
+Opět zdůrazním, že změny v průměrném sebehodnocení jsou mírné --- většinou o max. půl stupně ze sedmi.
 
 ```{r}
 plots$dulezite_age <- plot_kompetence_by(hlavni_data_long, "dulezite", age)
@@ -305,7 +305,7 @@ plots$dulezite_age_smooth
 
 ### Rozvijim se v tom
 
-Celkový trend vnímání seberozvoje je klesající a to (s ohledem na předchozí otázky) poměrně výrazně - o zhruba půl stupně. Optimistický výklad je, že jde o výsledek toho, že roveři věci čím dál lépe zvládají, pesimistický že s věkem leniví a kornatí. Je taky možné, že jde jen o střízlivější sebehodnocení u starších nebo čistě o kohortový efekt, kdy současní mladí prožívají více rozvoje, protože se změnila situace ve společnosti a skautingu, ne proto, že jsou mladší. Opět neumím vysvětlit zub mezi 22. a 23. rokem. 
+Celkový trend vnímání seberozvoje je klesající a to (s ohledem na předchozí otázky) poměrně výrazně --- o zhruba půl stupně. Optimistický výklad je, že jde o výsledek toho, že roveři věci čím dál lépe zvládají, pesimistický že s věkem leniví a kornatí. Je taky možné, že jde jen o střízlivější sebehodnocení u starších nebo čistě o kohortový efekt, kdy současní mladí prožívají více rozvoje, protože se změnila situace ve společnosti a skautingu, ne proto, že jsou mladší. Opět neumím vysvětlit zub mezi 22. a 23. rokem. 
 
 ```{r}
 plot_kompetence_by(hlavni_data_long, "rozvijim", age, all_together = TRUE)
@@ -323,13 +323,13 @@ plots$rozvijim_age_smooth
 
 ### Skauting me rozviji
 
-Tak a  do čtvrtice - celkový trend je klesající, podobně jako u "Rozvíjím se v tom". V jistém smyslu je asi žádoucí, aby zde byl klesající trend - s rostoucím věkem by skauting měl v rozvoji lidí asi hrát menší a menší roli. (a ač to je otravné, stále je možné, že to je kohortový efekt)
+Tak a  do čtvrtice --- celkový trend je klesající, podobně jako u "Rozvíjím se v tom". V jistém smyslu je asi žádoucí, aby zde byl klesající trend --- s rostoucím věkem by skauting měl v rozvoji lidí asi hrát menší a menší roli. (a ač to je otravné, stále je možné, že to je kohortový efekt)
 
 ```{r}
 plot_kompetence_by(hlavni_data_long, "skauting", age, all_together = TRUE)
 ```
 
-U jednotlivých kompetencí se toho vlastně málo zajímavého děje - všechny mírně klesají, kromě pár, co zůstavají zhruba rovné: "2.B1 Svědomí", "2.B2 Slib, zákon", "4.C Členka týmu". Opět se to asi dá interpretovat optimisticky: roveři čím dál méně spoléhají na skauting ve všem kromě základních hodnot. Ale taky je možné, že to celé je jen tím, že starší lidé mají jinou míru/způsob sebereflexe. Jo a říkal jsem, že to může být kohortový efekt, kdy současný/nedávný skauting lépe rozvíjí mladé lidi než skauting před 10ti lety?
+U jednotlivých kompetencí se toho vlastně málo zajímavého děje --- všechny mírně klesají, kromě pár, co zůstavají zhruba rovné: "2.B1 Svědomí", "2.B2 Slib, zákon", "4.C Členka týmu". Opět se to asi dá interpretovat optimisticky: roveři čím dál méně spoléhají na skauting ve všem kromě základních hodnot. Ale taky je možné, že to celé je jen tím, že starší lidé mají jinou míru/způsob sebereflexe. Jo a říkal jsem, že to může být kohortový efekt, kdy současný/nedávný skauting lépe rozvíjí mladé lidi než skauting před 10ti lety?
 
 ```{r}
 plots$skauting_age <- plot_kompetence_by(hlavni_data_long, "skauting", age)
@@ -388,7 +388,7 @@ tabulka_rozdilu <- function(data_rozdil) {
 
 ### Důležité vs. zvládám
 
-První - věci, které respondent bral jako důležité, ale myslí si, že je nezvládá:
+První --- věci, které respondent bral jako důležité, ale myslí si, že je nezvládá:
 
 ```{r}
 tabulka_dulezite_zvladam <- hlavni_data_long %>% spocitej_data_rozdil(dulezite, zvladam, "kompetence_pozitivni") %>% tabulka_rozdilu()
@@ -448,7 +448,7 @@ plots$dulezite_rozvijim <- tabulka_dulezite_rozvijim %>% plot_tabulka_rozdil(ind
 
 
 ```{r}
-# # Když zohledníme i velikost rozdílu (tj. odečítáme), trochu se to přehází - hlavně vyplavou vztahy, svědomí a připraven na krize - opět něco, co se samo o sobě neobjevuje čast jako nerozvíjené.
+# # Když zohledníme i velikost rozdílu (tj. odečítáme), trochu se to přehází --- hlavně vyplavou vztahy, svědomí a připraven na krize --- opět něco, co se samo o sobě neobjevuje čast jako nerozvíjené.
 # 
 # hlavni_data_long %>% spocitej_data_rozdil(dulezite, rozvijim, "kompetence_odpoved") %>% tabulka_rozdilu() %>%
 #     select(-prumer)

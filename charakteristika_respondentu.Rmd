@@ -30,7 +30,7 @@ plots$odpovedi <- datasety_wide$pouzitelne %>% group_by(stav_vyplneni) %>% summa
 plots$odpovedi
 ```
 
-V datech dále primárně analyzujeme jen respondenty ve věku 15 - 26 let, tam počty vypadaji takto:
+V datech dále primárně analyzujeme jen respondenty ve věku 15---26 let, tam počty vypadaji takto:
 
 ```{r}
 plots$odpovedi_15_26 <- datasety_wide$pouzitelne %>%  filter(age >= 15, age <= 26) %>% group_by(stav_vyplneni) %>% summarise(pocet = n(), .groups = "drop") %>%
@@ -70,7 +70,7 @@ plots$pohlavi <- hlavni_data %>%
 plots$pohlavi
 ```
 
-Takto vypadá rozložení respondentů dle věku - přerušované čáry ukazují rozmezí 15 - 26 let, tj. skupinu, kterou primárně analyzujeme.
+Takto vypadá rozložení respondentů dle věku --- přerušované čáry ukazují rozmezí 15 --- 26 let, tj. skupinu, kterou primárně analyzujeme.
 
 ```{r}
 plots$vek <- datasety_wide$pouzitelne %>% group_by(age) %>% summarise(pocet = n(), .groups = "drop") %>% mutate(podil = pocet / sum(pocet)) %>%
@@ -79,7 +79,7 @@ plots$vek <- datasety_wide$pouzitelne %>% group_by(age) %>% summarise(pocet = n(
 plots$vek
 ```
 
-Životní fáze - tady už se opět díváme jen na respondenty 15-26 let.
+Životní fáze --- tady už se opět díváme jen na respondenty 15---26 let.
 
 ```{r}
 plots$zivotni_faze <- hlavni_data %>% plot_summary_mc(zivotni_faze, "Životní fáze")
@@ -102,11 +102,11 @@ data_skautis_jednotlivci <- data_skautis_jednotlivci_raw %>%
   mutate(sex = if_else(ID_Sex == "female", "zena", "muz"))
 ```
 
-V každém obrázku níže je křivka "SkautIS", která reprezentuje podíl dané skupiny členstva v datech ze SkautISu (vůči všem registrovaným 15-26 let). Tato křivka má kolem sebe pruh vyjadřující nejistotu - jak velký rozptyl bychom čekali, kdybychom vybrali ze SkautISu náhodně tolik lidí, kolik jich bylo v daném průzkumu. Druhá křivka vyjadřuje podíl dané skupiny, který jsme viděli v průzkumu. V zásadě lze říct, že když se křivka průzkumu vejde do pruhu kolem dat ze SkautISu je výzkum v tomto ohledu slušně reprezentativní.
+V každém obrázku níže je křivka "SkautIS", která reprezentuje podíl dané skupiny členstva v datech ze SkautISu (vůči všem registrovaným 15---26 let). Tato křivka má kolem sebe pruh vyjadřující nejistotu --- jak velký rozptyl bychom čekali, kdybychom vybrali ze SkautISu náhodně tolik lidí, kolik jich bylo v daném průzkumu. Druhá křivka vyjadřuje podíl dané skupiny, který jsme viděli v průzkumu. V zásadě lze říct, že když se křivka průzkumu vejde do pruhu kolem dat ze SkautISu je výzkum v tomto ohledu slušně reprezentativní.
 
 ### Detailně dle věku
 
-Z věkových skupin máme podreprezentovány patnáctileté - to není překvapení, tím, že jsou na hraně roverského věku, čekáme, že se k nim průzkum vůbec nemusel dostat. Zato máme o něco více "prostředních roverů". Zajímavé ale je, že primárně jde o nedostatek 15ti letých roverů a naopak nadbytek roverek v "prostředním" věku. Doplním, že detailní data o věku mám jen z registrace 2018, takže tu může být jistý nesoulad se stavem k době průzkumu.
+Z věkových skupin máme podreprezentovány patnáctileté --- to není překvapení, tím, že jsou na hraně roverského věku, čekáme, že se k nim průzkum vůbec nemusel dostat. Zato máme o něco více "prostředních roverů". Zajímavé ale je, že primárně jde o nedostatek 15ti letých roverů a naopak nadbytek roverek v "prostředním" věku. Doplním, že detailní data o věku mám jen z registrace 2018, takže tu může být jistý nesoulad se stavem k době průzkumu.
 
 ```{r}
 reprezentativnost_vek <- function(data_skautis_, data_pruzkum_, min_vek = 15, max_vek = 26, additional_group = "Vše") {
@@ -166,7 +166,7 @@ plots$reprezentativnost_vek_pohlavi
 
 ### Dle kraje, velikosti střediska
 
-Zde vycházíme ze skautských Open dat - používáme data z registrace 2019, v době zpracování ještě novější nebyly k dispozici.
+Zde vycházíme ze skautských Open dat --- používáme data z registrace 2019, v době zpracování ještě novější nebyly k dispozici.
 
 ```{r}
 strediska_kraje <- nacti_strediska_kraje()
@@ -251,7 +251,7 @@ plot_reprezentativnost <- function(reprezentativnost_data, facet = NULL, x = kra
 
 ```
 
-Kraje máme poměrně dobře zastoupené - vidíme drobně nadreprezentovaný Jihomoravský a drobně podreprezentovaný Plzeňský a Zlínský, ale na zásadní problém to nevypadá.
+Kraje máme poměrně dobře zastoupené --- vidíme drobně nadreprezentovaný Jihomoravský a drobně podreprezentovaný Plzeňský a Zlínský, ale na zásadní problém to nevypadá.
 
 ```{r}
 plots$reprezentativnost_kraj <- compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("kraj")) %>%
@@ -260,7 +260,7 @@ plots$reprezentativnost_kraj <- compute_reprezentativnost_data(hlavni_data, regi
 plots$reprezentativnost_kraj
 ```
 
-Různé velikosti středisek jsou taky zastoupeny celkem rozumně, jakkoliv kategorie 70 - 100 a 100 - 130 členů jsou mírně nadreprezentovány na úkor kategorie 130 - 200.
+Různé velikosti středisek jsou taky zastoupeny celkem rozumně, jakkoliv kategorie 70 --- 100 a 100 --- 130 členů jsou mírně nadreprezentovány na úkor kategorie 130 --- 200.
 
 ```{r}
 plots$reprezentativnost_stredisko <- compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("pocet_clenu_strediska")) %>%
@@ -269,7 +269,7 @@ plots$reprezentativnost_stredisko <- compute_reprezentativnost_data(hlavni_data,
 plots$reprezentativnost_stredisko
 ```
 
-Kraj můžeme kombinovat s věkovou skupinou (SkautIS open data nám říká jen 15 - 18 a 19-26). Dalším dělením trochu ztrácíme na citlivosti (rozšiřuje se pruh nejistoty), nicméně se nezdá, že by po rozdělení podle věku data vypadala hůře.
+Kraj můžeme kombinovat s věkovou skupinou (SkautIS open data nám říká jen 15 --- 18 a 19---26). Dalším dělením trochu ztrácíme na citlivosti (rozšiřuje se pruh nejistoty), nicméně se nezdá, že by po rozdělení podle věku data vypadala hůře.
 
 ```{r}
 plots$reprezentativnost_kraj_vek <- compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("vekova_skupina","kraj")) %>%
@@ -286,7 +286,7 @@ plots$reprezentativnost_vek_stredisko <- compute_reprezentativnost_data(hlavni_d
 plots$reprezentativnost_vek_stredisko
 ```
 
-Můžeme též zkombinovat kraj a velikost střediska - opět ztrácíme citlivost, nicméně je zde vidět například to, že nadreprezentování Jihomoravského kraje je hnáno velkými středisky. Opět neukazuje na podstatný problém.
+Můžeme též zkombinovat kraj a velikost střediska --- opět ztrácíme citlivost, nicméně je zde vidět například to, že nadreprezentování Jihomoravského kraje je hnáno velkými středisky. Opět neukazuje na podstatný problém.
 
 ```{r}
 plots$reprezentativnost_kraj_stredisko <- compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("pocet_clenu_strediska","kraj")) %>%
@@ -314,7 +314,7 @@ plots$reprezentativnost_kraj_stredisko_do18
 # TODO: Je ostrý odpad lidí u vyplnění kompetencí?
 ```
 
-Celkově je reprezentativnost dat celkem dobrá, budeme tedy většinou uvádět přímo data z dotazníku a ne data "přeškálovaná" na hypotetickou kompletní populaci - neočekáváme, že by to udělalo velký rozdíl a přineslo by to další práci a možné chyby do analýzy.
+Celkově je reprezentativnost dat celkem dobrá, budeme tedy většinou uvádět přímo data z dotazníku a ne data "přeškálovaná" na hypotetickou kompletní populaci --- neočekáváme, že by to udělalo velký rozdíl a přineslo by to další práci a možné chyby do analýzy.
 
 Jedinou výjimkou z tohoto je potřeba velké opatrnosti při porovnání mezi pohlavími, protože respondenti-muži 
 jsou v průměru o něco starší než respondenti-ženy, tedy porovnání pohlaví musí vždy zohlednit věk.
@@ -343,7 +343,7 @@ hlavni_data %>% group_by(reg_c_strediska) %>% summarise(pocet = n(), nazev = naz
 ```{r}
 # TODO: jak moc se schoduji odpovedi různých lidí ze stejného střediska?
 # 
-# TODO: člen společenství - role vs. kategorie respondenta
+# TODO: člen společenství --- role vs. kategorie respondenta
 # 
 # TODO: byla by dobrá reprezentativnost dle hotových kurzů/zkoušek (ale to by potřebovalo data ze SkautISu)
 

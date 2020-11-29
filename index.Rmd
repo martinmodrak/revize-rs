@@ -2,18 +2,16 @@
 site: "bookdown::bookdown_site"
 title: "Revize roverského programu: Závěrečná zpráva"
 output:
-  bookdown::gitbook:
-    split_by: chapter
-  #bookdown::pdf_book: default
-    css: gitbook_style.css
-    pandoc_args: ["--lua-filter=avoid_letters_at_end_of_line.lua"]
+ bookdown::gitbook:
+  split_by: chapter
+  css: gitbook_style.css
+  pandoc_args: ["--lua-filter=non_breaking_policy.lua"]
+  # bookdown::pdf_book:
+  #   pandoc_args: ["--lua-filter=non_breaking_policy.lua"]
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 ---
 
 # Úvodem
 
-Text
-
-TODO pomlčka (skoro všude) místo spojovníku (jen u hyphens, a "li"). V BlockQuote nejak nefunguje single letter...
 
 _Kompletní kód analýzy je k nalezení na https://github.com/martinmodrak/revize-rs _
