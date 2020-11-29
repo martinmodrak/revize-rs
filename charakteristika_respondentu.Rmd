@@ -30,7 +30,7 @@ plots$odpovedi <- datasety_wide$pouzitelne %>% group_by(stav_vyplneni) %>% summa
 plots$odpovedi
 ```
 
-V datech dále primárně analyzujeme jen respondenty ve věku 15---26 let, tam počty vypadaji takto:
+V datech dále primárně analyzujeme jen respondenty ve věku 15&nbsp;---&nbsp;26 let, tam počty vypadaji takto:
 
 ```{r}
 plots$odpovedi_15_26 <- datasety_wide$pouzitelne %>%  filter(age >= 15, age <= 26) %>% group_by(stav_vyplneni) %>% summarise(pocet = n(), .groups = "drop") %>%
