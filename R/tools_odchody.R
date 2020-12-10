@@ -84,10 +84,12 @@ plot_odchody <- function(odchazeni, by = "none") {
 
   sumar_odchodu(odchazeni, by) %>%
     ggplot(aes(x = vek, y = podil_odchazejicich, ymin = lower, ymax = upper, fill = Sex)) +
-    geom_ribbon(alpha = 0.1) +
-    geom_vline(xintercept = 15, size = 1, linetype = "dashed", color = "gray") +
+    geom_ribbon(alpha = 0.5) +
+    geom_vline(xintercept = 15, size = 2, linetype = "dashed", color = "white") +
     geom_line(aes(color = Sex)) +
+    scale_x_continuous("Věk") + scale_y_continuous("Podíl odcházejících z ročníku") +
     expand_limits(y=0) +
+    vodorovne_popisky_x +
     facet
 
 }
@@ -125,8 +127,9 @@ plot_prichody <- function(odchazeni, by = "none", response = podil_novych) {
 
   sumar_prichody(odchazeni, by, !! response) %>%
     ggplot(aes(x = vek, y = !! response)) +
-    geom_vline(xintercept = 15, size = 1, linetype = "dashed", color = "gray") +
+    geom_vline(xintercept = 15, size = 2, linetype = "dashed", color = "white") +
     geom_line(aes(color = Sex)) +
+    scale_x_continuous("Věk") +
     expand_limits(y=0) +
     facet
 

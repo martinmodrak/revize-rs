@@ -43,7 +43,7 @@ Text je strukturován tak, že vždy uvádíme nějaká tvrzení a za nimi je gr
 
 ### Vstup do roverského věku
 
-Jedním z často zmiňovaných problémů je, že na přelomu skautského a roverského věku "ztrácíme" členy. Tuto otázku jsme samostatně analyzovali v dokumentu "odchody_lidi", zde jen zopakujeme hlavní shrnutí 
+Jedním z často zmiňovaných problémů je, že na přelomu skautského a roverského věku "ztrácíme" členy. Tuto otázku rozebíráme podrobněji v [kapitole o odchodech lidí](#odchody-lidi), zde jen zopakujeme hlavní shrnutí 
 
 > V datech z registrace za roky 2012---2018 lze v některých skupinách členů vidět mírný vzestup míry odchodů kolem 15tého roku věku. Nejsilnější takový nárust jsme pozorovali u chlapců, kteří jsou již členy Junáka alespoň 4 roky. Ve 12ti letech opouští organizaci v průměru 14% takovýchto chlapců z ročníku (tj. zhruba jeden ze sedmi), tato míra pak roste plynule až k 16ti letům, kdy jich odchází 17% z ročníku (tj. zhruba jeden z šesti). V jiných kategoriích je nárůst odchodů kolem přechodu do roverského věku nižší. V roverském věku pak míra odchodů klesá s rostoucím věkem klesá.
 
@@ -51,7 +51,7 @@ Jedním z často zmiňovaných problémů je, že na přelomu skautského a rove
 
 To lze též shrnout obrázkem:
 
-![ ](shared_figs/odchody.png){width=70%}
+![ ](shared_figs/odchody.png)
 
 _Zde vidíme, jaká část členské základny Junáka daného věku odešla během sledovaného období, rozděleno na nováčky (registrují se poprvé) a ostatní. Raději příklad: kdyby za roky 2012---2018 období bylo v Junáku celkem 1000 chlapců, kteří se poprvé registrovali během svých 13ti let a z toho se jich 200 již znovu neregistrovalo, bude v grafu 0.2. Pruh kolem údajů ukazuje očekávanou nejistotu/šum (čím méně lidí v kategorii, tím méně si jsme jisti, že to co vidíme je reprezentativní). Pozorovaný nárůst odchodů mužských členů s 2---3 letou zkušeností v roverském věku není příliš zásadní, protože absolutní počet těchto členů je nízký. _
 

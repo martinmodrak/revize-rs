@@ -72,7 +72,7 @@ for(kategorie in kategorie_kompetence) {
                                   as.formula(paste0(meritko, " ", as.character(dalsi_sloupce[[dalsi]]))))
         cat("Fitting ", kategorie, " - ", meritko, ", ", zakladni, " adjustment a ", dalsi , " dalsi\n")
         print(formula)
-        results <- inla_pipeline(base_for_inla, kategorie, formula, mc_sloupce_k_uziti[[dalsi]], n_cores = 7)
+        results <- inla_pipeline(base_for_inla, kategorie, formula, mc_sloupce_k_uziti[[dalsi]], n_cores = parallel::detectCores() - 1)
         for(kompetence in names(results$processed_fits)) {
           processed_fit <- results$processed_fits[[kompetence]]
           if(inherits(processed_fit, "error")) {
