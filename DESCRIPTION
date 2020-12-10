@@ -24,5 +24,8 @@ Imports:
     magrittr,
     tidyr,
     ggplot2,
-    bindrcpp
+    bindrcpp,
+    effsize,
+    ggcorrplot,
+    Hmisc
 RoxygenNote: 7.1.1

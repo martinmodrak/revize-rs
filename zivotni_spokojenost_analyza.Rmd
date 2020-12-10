@@ -12,10 +12,12 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 
 ---
 
+# Životní spokojenost roverů
+
 ```{r setup}
 source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
 source(here::here("datasety_dotaznik.R"), encoding = "UTF-8")
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
 
 pridej_pocty_mc <- function(cela_data) {
   cela_data %>%
@@ -41,7 +43,7 @@ hlavni_data <- hlavni_data %>% pridej_pocty_mc() %>%
          spokojenost_s_fungovanim_v_junaku = as.numeric(spokojenost_s_fungovanim_v_junaku))
 ```
 
-# Shrnutí hlavních závěrů
+## Shrnutí hlavních závěrů
 
 Zásadní závěry z této části otázek podle nás jsou:
 - roveři jsou obecně o něco spokojenější, než je průměrná populace, ale nijak to nesouvisí se spokojeností v Junáku
@@ -398,7 +400,7 @@ xxx %>% mutate(skauting = factor(var, levels = lev, ordered = T)) %>%
 ```
 
 
-## Roverske nastroje
+### Roverske nastroje
 
 ```{r roverske nastroje faktorova analyza}
 role_fa <- cela_data_role %>% select(starts_with("vychovne_nastroje."))
@@ -420,7 +422,7 @@ ggcorrplot::ggcorrplot(cr$r,hc.order = T, type = "lower", lab =T)
 ```
 
 
-## Co pomaha roveringu
+### Co pomaha roveringu
 
 ```{r}
 hlavni_data %>% select(starts_with("co_pomaha_")) %>% colnames()
@@ -440,7 +442,7 @@ Obecne lidem, co maji zkusenost s roveringem prijde, ze pomahaji neformalni setk
 
 
 
-## Lidi, co jezdi na kurzy
+### Lidi, co jezdi na kurzy
 
 
 ```{r}
@@ -504,7 +506,7 @@ hlavni_data %>%
 
 Obecně lidé, co byli na kurzech mají o něco větší spokojenost s roverským programem, ale hlavně zastávají více rolí. Není to překvapivé, neboť na kurzy typicky jezdí lidé, aby poté nějakou další roli mohli zastávat
 
-# Vek a breaking points
+## Vek a breaking points
 
 ```{r}
 cela_data1 <- hlavni_data %>% filter(age >= 15 & age <=26)
@@ -672,7 +674,7 @@ p7 <- plot_letvjunaku_loess(quo(vychovne_nastroje_nic),"vychovne_nastroje_")
 (p1|p2|p3|p4)/(p5|p6|p7)
 ```
 
-## Roveri v kmeni vs roveri bez kmene
+### Roveri v kmeni vs roveri bez kmene
 
 ```{r}
 typ_respondednta_plot <- function(var) {
@@ -691,7 +693,7 @@ typ_respondednta_plot(quo(n_s_cim_nespokojen))
 
 ```
 
-## Muzi vs zeny
+### Muzi vs zeny
 
 ```{r}
 hlavni_data %>% 

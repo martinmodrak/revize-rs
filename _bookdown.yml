@@ -2,6 +2,7 @@ rmd_files:
   [ "index.Rmd"
   , "charakteristika_respondentu.Rmd"
   , "stav_roveringu.Rmd"
+  , "zivotni_spokojenost_analyza.Rmd"
   , "shrnuti_kompetenci.Rmd"
   , "odchody_lidi.Rmd"
   ]
