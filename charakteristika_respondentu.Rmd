@@ -1,5 +1,5 @@
 
-# Charakteristika respondentů
+# Charakteristika respondentů {#charakteristika-respondentu}
 
 ```{r setup, message=FALSE,warning=FALSE, results="hide", echo = FALSE}
 source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
@@ -104,7 +104,7 @@ data_skautis_jednotlivci <- data_skautis_jednotlivci_raw %>%
 
 V každém obrázku níže je křivka "SkautIS", která reprezentuje podíl dané skupiny členstva v datech ze SkautISu (vůči všem registrovaným 15---26 let). Tato křivka má kolem sebe pruh vyjadřující nejistotu --- jak velký rozptyl bychom čekali, kdybychom vybrali ze SkautISu náhodně tolik lidí, kolik jich bylo v daném průzkumu. Druhá křivka vyjadřuje podíl dané skupiny, který jsme viděli v průzkumu. V zásadě lze říct, že když se křivka průzkumu vejde do pruhu kolem dat ze SkautISu je výzkum v tomto ohledu slušně reprezentativní.
 
-### Detailně dle věku
+### Detailně dle věku {#reprezentativnostvek}
 
 Z věkových skupin máme podreprezentovány patnáctileté --- to není překvapení, tím, že jsou na hraně roverského věku, čekáme, že se k nim průzkum vůbec nemusel dostat. Zato máme o něco více "prostředních roverů". Zajímavé ale je, že primárně jde o nedostatek 15ti letých roverů a naopak nadbytek roverek v "prostředním" věku. Doplním, že detailní data o věku mám jen z registrace 2018, takže tu může být jistý nesoulad se stavem k době průzkumu.
 

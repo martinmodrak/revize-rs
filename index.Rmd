@@ -13,5 +13,6 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 
 # Úvodem
 
+Tady toho ještě bude víc :-)
 
 _Kompletní kód analýzy je k nalezení na https://github.com/martinmodrak/revize-rs _

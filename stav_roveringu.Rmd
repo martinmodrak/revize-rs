@@ -62,9 +62,11 @@ if(any(hlavni_data$let_v_junaku < hlavni_data$let_v_kmeni, na.rm = TRUE)) {
 
 data_vstupy <- hlavni_data %>% mutate(
   vek_vstupu_do_kmene = if_else(kategorie_respondenta_full == "nyni_spolecenstvi", age - let_v_kmeni, NA_real_),
-  vek_vstupu_do_junaka = age - let_v_junaku)
+  vek_vstupu_do_junaka = age - let_v_junaku,
+  vekova_skupina = cut(age, c(14,17,20,23,26)))
 
 podile_vstoupili_do_11ti_let <- mean(data_vstupy$vek_vstupu_do_junaka < 11, na.rm = TRUE)
+
 ```
 
 
@@ -76,13 +78,26 @@ Bavíme-li se o vstupu do roverského společenství, málokdo vstupuje do kmene
 
 
 
-plots$vek_vstupu_do_kmene <- data_vstupy %>% filter(!is.na(vek_vstupu_do_kmene)) %>%
+plot_vek_vstupu_base <- data_vstupy %>% filter(!is.na(vek_vstupu_do_kmene)) %>%
   ggplot(aes(x = vek_vstupu_do_kmene)) + geom_histogram(binwidth = 1) + vodorovne_popisky_x + 
-  scale_x_continuous(breaks = c(13, 15, 18, 21, 24)) +
-  ggtitle("Věk vstupu do kmene\nJen členi společenství")
+  scale_x_continuous(breaks = c(13, 15, 18, 21, 24))
+plots$vek_vstupu_do_kmene <- plot_vek_vstupu_base +
+  ggtitle("Věk vstupu do kmene", "Jen členi společenství")
 
 plots$vek_vstupu_do_kmene
 ```
+
+Tato data jsou částečně zkreslena tím, že obecně máme hodně mladších respondentů (kteří nemohli vstoupit do kmene později), ale i u starších respondentů vidíme výraznou špičku vstupů mezi 15 a 17tým rokem.
+
+```{r}
+plots$vek_vstupu_do_kmene_skupiny <- plot_vek_vstupu_base + 
+  facet_wrap(~vekova_skupina) +   
+  ggtitle("Věk vstupu do kmene", "Jen členi společenství, rozděleno dle současného věku respondentů")
+
+plots$vek_vstupu_do_kmene_skupiny  
+
+```
+
 
 #### Čím si prošli před vstupem
 
@@ -581,25 +596,44 @@ podil_vic_jak_3_roky_v_kmeni_dokoncene <- hlavni_data %>% filter(!is.na(let_v_km
 ```
 
 
-Jen `r scales::percent(podil_vic_jak_3_roky_v_kmeni)` respondentů strávilo ve svém kmeni více jak tři roky. To je samozřejme trochu pesimistické, protože část roverů ještě v kmeni je a nějaké roky ještě dožene. 
+Jen `r scales::percent(podil_vic_jak_3_roky_v_kmeni)` respondentů strávilo ve svém kmeni více jak tři roky. To je samozřejme trochu pesimistické, protože část roverů ještě v kmeni je a nějaké roky ještě dožene, ale i když se podíváme jen na respondenty, kteří již ve společenství nejsou, tak tento podíl stoupne pouze na `r scales::percent(podil_vic_jak_3_roky_v_kmeni_dokoncene)`.  
 
 ```{r, fig.cap='Otázka: "Kolik celých let jsi strávila v roverském společenství?" --- současní i bývalí členové.'}
-plots$roky_ve_spolecenstvi <- hlavni_data %>% filter(!is.na(let_v_kmeni)) %>% ggplot(aes( x = let_v_kmeni)) + geom_histogram(binwidth = 1) + ggtitle("Počet let ve společenství") + scale_x_continuous("Let ve společenství") + scale_y_continuous("Počet") + vodorovne_popisky_x 
-plots$roky_ve_spolecenstvi
+# plots$roky_ve_spolecenstvi <- hlavni_data %>% filter(!is.na(let_v_kmeni)) %>% ggplot(aes( x = let_v_kmeni)) + geom_histogram(binwidth = 1) + ggtitle("Počet let ve společenství") + scale_x_continuous("Let ve společenství") + scale_y_continuous("Počet") + vodorovne_popisky_x 
+# plots$roky_ve_spolecenstvi
+```
+```{r}
+plots$roky_ve_spolecenstvi_zvlast <- hlavni_data %>% filter(!is.na(let_v_kmeni)) %>% 
+  mutate(kategorie_respondenta = fct_recode(kategorie_respondenta, "Již není ve společenství (ukončeno)" = "drive_spolecenstvi", "Neukončeno - ještě je ve společenství" = "nyni_spolecenstvi")) %>%
+  ggplot(aes( x = let_v_kmeni)) + geom_histogram(binwidth = 1) + ggtitle("Počet let ve společenství", "odděleně již ukončené a probíhající") + scale_x_continuous("Let ve společenství") + scale_y_continuous("Počet") + vodorovne_popisky_x + facet_wrap(~kategorie_respondenta, ncol = 1, scales = "free_y")
+plots$roky_ve_spolecenstvi_zvlast
 ```
 
 
-```{r}
-# TODO censored model pro dobu ve společenství.
+Zároveň si myslíme, že průzkum je co se týká věku respondentů jakž takž reprezentativní (viz [Kapitola \@ref(reprezentativnostvek)](#reprezentativnostvek)). A - jak [vidíme v registraci](#odchodyroveri) - odcházení lidí z Junáka se sice po 15tém roku zpomaluje, ale stále zůstává nezanedbatelné, zatímco počet nováčků je v tomto věku minimální.  
 
+
+```{r}
+# # TODO censored model pro dobu ve společenství. Moc to nefunguje, neg.binom je asi špatný rozdělení....
+# 
+# if(!dir.exists(here("local_data","fits"))) {
+#   dir.create(here("local_data","fits"))
+# }
+# 
 # data_let_v_kmeni_censored <- hlavni_data %>% filter(kategorie_respondenta_full %in% c("nyni_spolecenstvi", "drive_spolecenstvi"), !is.na(let_v_kmeni)) %>%
-#   mutate(is_censored = kategorie_respondenta_full == "nyni_spolecenstvi")
-# fit_let_v_kmeni <- brm_with_cache(let_v_kmeni | cens(is_censored) ~ 1, family = brms::brmsfamily("negbinomial"), data = data_let_v_kmeni_censored, cache_file = here("local_data","fits", "let_v_kmeni.rds"))
+#   mutate(is_censored = kategorie_respondenta_full == "nyni_spolecenstvi") %>%
+#   group_by(let_v_kmeni, is_censored) %>%
+#   summarise(pocet = n(), .groups = "drop") 
+# fit_let_v_kmeni <- brm_with_cache(let_v_kmeni | cens(is_censored) + weights(pocet) ~ 1, family = brms::brmsfamily("negbinomial"), data = data_let_v_kmeni_censored, cache_file = here("local_data","fits", "let_v_kmeni.rds"))
 # summary(fit_let_v_kmeni)
 # 
-# brms::pp_check(fit_let_v_kmeni, "bars", newdata = data_let_v_kmeni_censored %>% filter(!is_censored))
+# #brms::pp_check(fit_let_v_kmeni, "bars", newdata = data_let_v_kmeni_censored %>% filter(!is_censored))
 # 
-# let_v_kmeni_pred <- brms::posterior_predict(fit_let_v_kmeni, new_data = dat.frame(is_censored = FALSE))
+# let_v_kmeni_pred <- brms::posterior_predict(fit_let_v_kmeni, new_data = data.frame(is_censored = FALSE))
+# 
+# hist(let_v_kmeni_pred)
+# hist(hlavni_data %>% filter(kategorie_respondenta_full %in% "drive_spolecenstvi", !is.na(let_v_kmeni)) %>% pull(let_v_kmeni))
+# hist(hlavni_data %>% filter(kategorie_respondenta_full %in% "nyni_spolecenstvi", !is.na(let_v_kmeni)) %>% pull(let_v_kmeni))
 # 
 # podil_vic_jak_3_roky_v_kmeni_model <- mean(let_v_kmeni_pred > 3)
 # 
@@ -696,6 +730,12 @@ plots$problemy_cleni_ukonceni <- hlavni_data %>% plot_summary_mc(problemy_roveri
 
 plots$problemy_cleni_ukonceni
 podil_odstehovani <- mean(hlavni_data$problemy_roveringu.odstehovani, na.rm = TRUE)
+```
+
+V neposlední řadě je dobré si všimnout, že odstěhovávání se je nejčastěji problém v menších střediscích (bohužel nemáme plně zapracované informace o velikosti města, kde je středisko, ale očekáváme, že zde je korelace) - zatímco u ostatních problémů vidíme střediska různých velikostí promíchané, odstěhovávání se (druhé zleva v grafu níže) je krásně seřazeno podle velikosti střediska.
+
+```{r}
+hlavni_data %>% filter(kategorie_respondenta == "nyni_spolecenstvi") %>% plot_binarni_s_nejistotou(nazvy_problemy, pocet_clenu_strediska, flip = TRUE, names_prefix = "problemy_roveringu.") + svisle_popisky_x + plot_annotation("Problémy roveringu", "jen vybrané, dle velikosti střediska")
 ```
 
 Když se podíváme na vývoj v čase vidíme, že kolem 16tého roku jsou zhruba 3/4 respondentů ve společenství, s rostoucím věkem pak postupně klesá podíl roverů, co jsou ve společenství a srovnatelně přibývá "odpadlíků". 
@@ -812,14 +852,24 @@ podil_vedeni_rovering <- mean(hlavni_data$vyroky_o_roveringu_zazil.vedeni_je_rov
 labels_vyroky_o_roveringu_zazil <- popisky_voleb(hlavni_data, vyroky_o_roveringu_zazil)
 popis_vedeni_je_rovering <- names(labels_vyroky_o_roveringu_zazil)[labels_vyroky_o_roveringu_zazil == "vedeni_je_rovering"]
 
-podil_aspon_nejak_funkce <- hlavni_data %>%
-  filter(je_rover) %>% 
-  summarise(podil = mean(role_skauting.vedouci_zastupce_oddilu | 
+podil_funkci_v_rs <- 
+  hlavni_data %>%
+  filter(je_rover) %>%
+  mutate(role_mladsi = role_skauting.vedouci_zastupce_oddilu | 
                            role_skauting.clen_vedeni_oddilu |
-                           role_skauting.oddilovy_radce)) %>% pull(podil)
+                           role_skauting.oddilovy_radce |
+                           role_skauting.druzinovy_radce,
+         role_pomocne = role_skauting.administrativa | role_skauting.technicka | 
+           role_skauting.organizacni) %>%
+  summarise(vychova_mladsich = mean(role_mladsi),
+            pomocne_role = mean(role_pomocne),
+            nic_na_stredisku = mean(!(role_mladsi | role_pomocne | role_skauting.volena_funkce | role_skauting.tym_akce_stredisko)),
+            .groups = "drop") 
+
+podil_funkci_v_rs
 ```
 
-Překvapení: `r scales::percent(podil_vedeni_rovering)` označilo, že "`r popis_vedeni_je_rovering`". Podíváme-li se na respondenty, co sami sebe označili za rovery --- jaké mají ve skautu další role? Nejčastěji to jsou role spojené s vedením dětí. Velká část roverů (`r scales::percent(podil_aspon_nejak_funkce)`) zastává aspoň jednu funkci v oddíle mladších členů (vedoucí, zástupce, člen vedení, oddílový rádce).
+Překvapení: `r scales::percent(podil_vedeni_rovering)` označilo, že "`r popis_vedeni_je_rovering`". Podíváme-li se na respondenty, co sami sebe označili za rovery --- jaké mají ve skautu další role? Nejčastěji to jsou role spojené s vedením dětí. Velká část roverů (`r scales::percent(podil_funkci_v_rs$vychova_mladsich)`) zastává aspoň jednu funkci v oddíle mladších členů (vedoucí, zástupce, člen vedení, oddílový rádce, družinový rádce). K tomu `r scales::percent(podil_funkci_v_rs$pomocne_role)` roverů zastává technickou/administrativní či organizační roli a jen `r scales::percent(podil_funkci_v_rs$nic_na_stredisku)` nezastává žádnou roli, jež by přímo přinášela prospěch středisku (role, které jsou prospěšné Junáku jako celku - např. tým velkých akcí - zde vynecháváme).
 
 
 ```{r}
@@ -867,10 +917,14 @@ hlavni_data %>% filter(!is.na(ma_vudcovskou_roli), !is.na(spokojenost_clenstvim_
 
 
 ```{r}
-podil_roveru_mezi_bez_spolecenstvi <- hlavni_data %>% filter(kategorie_respondenta == "nikdy_spolecenstvi") %>% summarise(podil = mean(je_rover, na.rm = TRUE)) %>% pull(podil)
+roveri_bez_spolecenstvi <- hlavni_data %>% filter(kategorie_respondenta == "nikdy_spolecenstvi") %>% summarise(podil = mean(je_rover, na.rm = TRUE), pocet = sum(je_rover, na.rm = TRUE)) 
+
+pocet_roveru_ve_spolecenstvi <- hlavni_data %>% filter(kategorie_respondenta == "nyni_spolecenstvi") %>% nrow()
+
+ 
 ```
 
-`r scales::percent(podil_roveru_mezi_bez_spolecenstvi)` lidí v roverském věku, kteří jsou mimo společenství považuje "rover" za jednu ze svých rolí. Měli jsme i zvlášť otázku na roli "Rover/rangers bez společenství", ale tu vybralo i dost lidí, co označili, že jsou součástí společenství a tak jí dále ignorujeme.
+`r scales::percent(roveri_bez_spolecenstvi$podil)` lidí v roverském věku, kteří jsou mimo společenství považuje "rover" za jednu ze svých rolí. Měli jsme i zvlášť otázku na roli "Rover/rangers bez společenství", ale tu vybralo i dost lidí, co označili, že jsou součástí společenství a tak jí dále ignorujeme.
 
 V dalším jako singles bereme lidi bez společenství, i když sami sebe za rovera nepovažují.  
 
@@ -880,13 +934,16 @@ plots$spokojenost_junak <- hlavni_data %>% plot_summary_mc(spokojenost_s_fungova
 plots$spokojenost_junak
 ```
 
-Nejčastěji lidé nejsou součástí společenství, protože na středisku žádné nebylo. S velkým odstupem je pak nedostatek času kvůli podílu na vedení. Jen malé množství roverů nebylo ve společenství, protože je to nelákalo nebo v tom nevidí smysl.
+```{r}
+proc_nebyl_rover_jine_moznosti <- hlavni_data %>% summarise(podil = mean(proc_nebyl_rover.nelakalo | proc_nebyl_rover.smysl | proc_nebyl_rover.vztahy | proc_nebyl_rover.jine | proc_nebyl_rover.program, na.rm = TRUE)) %>% pull(podil)
+```
+
+
+Nejčastěji lidé nejsou součástí společenství, protože na středisku žádné nebylo. S velkým odstupem je pak nedostatek času kvůli podílu na vedení. Jen malé množství roverů nebylo ve společenství, protože je to nelákalo nebo v tom nevidí smysl. Alespoň jeden důvod jiný než absenci společenství a podíl na vedení uvedlo `r scales::percent(proc_nebyl_rover_jine_moznosti)` respondentů.
 
 ```{r}
 plots$proc_nebyl_rover <- plot_summary_mc(hlavni_data, proc_nebyl_rover, "Proč jsi nikdy nebyla\nsoučástí roverského společenství")
 plots$proc_nebyl_rover
-
-#hlavni_data %>% summarise(podil = mean(proc_nebyl_rover.nelakalo | proc_nebyl_rover.smysl | proc_nebyl_rover.smysl | proc_nebyl_rover.jine | proc_nebyl_rover.program, na.rm = TRUE)) %>% pull(podil)
                                 
 
 ```

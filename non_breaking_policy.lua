@@ -4,7 +4,7 @@ local function non_breaking_space()
   elseif FORMAT:match 'latex' then
     return(pandoc.RawInline("latex", "~"))
   else
-    error("Unsupported format for avoid_letters_at_end_of_line.lua")
+    error("Unsupported format for non_breaking_policy.lua")
   end
 end
 
