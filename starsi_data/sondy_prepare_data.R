@@ -7,7 +7,7 @@ df <- readxl::read_excel("private_data/Sondy_Kolo_7_DATA_pro_Orla.xlsx", skip = 
 glimpse(df)
 
 df <- df %>%
-  transmute(id,
+  transmute(id = id...1,
             q0_clen_junaka = `q0[1]`,  #Otazka je "jsi clen ve veku 15-26 let"
          q0_vudce_oddilu = `q0[2]`,
          q0_ve_vedeni_oddilu = `q0[3]`,

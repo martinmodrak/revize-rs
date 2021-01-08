@@ -1,7 +1,5 @@
----
-title: "Čáry v dimenzích"
-output: html_document
----
+
+# Co se pojí s
 
 ```{r setup}
 source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
@@ -16,89 +14,19 @@ library(INLA) #Install via install.packages("INLA", repos=c(getOption("repos"), 
 
 
 ```{r}
-base_for_inla <- hlavni_data_long %>% 
-  mutate(
-    sex = fct_relevel(sex, "zena"),
-    age_norm = (age - 20.5) / 2.75,
-    age_ar = age - min(age) + 1,
-    kategorie_respondenta_full = factor(kategorie_respondenta_full),
-    across(one_of(c("byl_na_kurzu", "byl_na_rs_kurzu", "je_organizovan")),     logical_with_na_to_factor)
-    )
-```
-
-
-
-```{r}
-meritka_k_testovani <- c("kompetence_odpoved", "kompetence_relativne_k_sobe")
-#meritka_k_testovani <- c("kompetence_odpoved")
-
-
-
-zakladni_adjustment <- list()
-zakladni_adjustment$zaklad <- ~ 1 + f(age_ar, model = "rw2", hyper = list(theta = list(prior = log_sqrt_inv_hn(1)))) + sex
-zakladni_adjustment$hodne <- update.formula(zakladni_adjustment$zaklad, . ~ . + 
-                                              f(kraj, model = "iid", hyper = list(theta = list(prior = log_sqrt_inv_hn(1)))) +
-                                              f(zivotni_faze, model = "iid", hyper = list(theta = list(prior = log_sqrt_inv_hn(1)))) +
-                                              f(kolik_casu, model = "iid", hyper = list(theta = list(prior = log_sqrt_inv_hn(1)))) +
-                                              f(kategorie_respondenta_full, model = "iid", hyper = list(theta = list(prior = log_sqrt_inv_hn(1)))))
-
-mc_sloupce_k_uziti <- list()
-dalsi_sloupce <- list()
-
-mc_sloupce_k_uziti$minimal <- c()
-dalsi_sloupce$minimal <- ~ . + byl_na_kurzu + byl_na_rs_kurzu + 
-  f(organizace_strucne, model = "iid", hyper = list(theta = list(prior = log_sqrt_inv_hn(1))))
-
-mc_sloupce_k_uziti$zaklad <- c("role_skauting", "co_zazil", "fungovani_skautskeho_oddilu", "organizace_spolecenstvi")
-dalsi_sloupce$zaklad <- ~ . 
-
-mc_sloupce_k_uziti$hodne <- c(mc_sloupce_k_uziti$zaklad, "vyroky_o_roveringu_zazil", "vyroky_o_roveringu_zazil_2", "vychovne_nastroje", "problemy_roveringu")
-dalsi_sloupce$hodne <- ~ . + f(pocet_clenu_spolecenstvi, model = "rw1", hyper = list(theta = list(prior = log_sqrt_inv_hn(1)))) +           
-   f(pocet_clenu_strediska, model = "rw1", hyper = list(theta = list(prior = log_sqrt_inv_hn(1))))
-
-```
-
-
-```{r}
-all_marginals_list <- list()
-for(kategorie in kategorie_kompetence) {
-  # for(zakladni in c("zaklad", "hodne") ) {
-  #   for(dalsi in c("minimal", "zaklad", "hodne")) {
-  for(zakladni in c("zaklad") ) {
-    for(dalsi in c("minimal", "zaklad")) {
-      for(meritko in meritka_k_testovani) {
-        
-        formula <- update.formula(zakladni_adjustment[[zakladni]], 
-                                  as.formula(paste0(meritko, " ", as.character(dalsi_sloupce[[dalsi]]))))
-        cat("Fitting ", kategorie, " - ", meritko, ", ", zakladni, " adjustment a ", dalsi , " dalsi\n")
-        print(formula)
-        results <- inla_pipeline(base_for_inla, kategorie, formula, mc_sloupce_k_uziti[[dalsi]], n_cores = parallel::detectCores() - 1)
-        for(kompetence in names(results$processed_fits)) {
-          processed_fit <- results$processed_fits[[kompetence]]
-          if(inherits(processed_fit, "error")) {
-            cat("Error in ", kompetence, "\n")
-            print(processed_fit)
-          } else {
-            all_marginals_list[[length(all_marginals_list) + 1]] <- processed_fit$marginals_summary %>%
-              mutate(kategorie = kategorie, kompetence = kompetence, zakladni = zakladni, dalsi = dalsi, meritko = meritko)
-          }
-        }
-      }
-    }
-  }
+all_marginals_file <- here::here("local_data", "all_marginals.rds")
+if(!file.exists(all_marginals_file)) {
+  stop("Nenalezeny spocitane fity. Spust `spocitej_INLA_kompetence.R` nebo pozadej Orla o nasdileni spocitanych vysledku.")
 }
-
-all_marginals <- do.call(rbind, all_marginals_list)
-saveRDS(all_marginals,file = here::here("local_data", "all_marginals.rds"))
-```
-
-```{r}
 all_marginals <- readRDS(file = here::here("local_data", "all_marginals.rds"))
 ```
 
 
 
 ```{r}
+base_for_inla <- get_base_for_inla(hlavni_data_long)
+
+
 all_mc_sloupce <- names(mc_sloupce) 
 all_marginals_processed <- all_marginals
 for(mc_sl in all_mc_sloupce) {
@@ -150,451 +78,122 @@ for(mc_sl in all_mc_sloupce) {
     filter(!grepl(marginal_pattern, marginal)) %>%
     rbind(current_marginal_processed %>% select(-marginal_old, -expected_marginal, -index_int))
 }
+
+organizace_strucne_processed <- all_marginals_processed %>% 
+  filter(marginal == "organizace_strucne") %>%
+  mutate(index_int = as.integer(gsub("^index\\.", "", index)),
+         index = levels(base_for_inla$organizace_strucne)[index_int]) %>%
+  select(-index_int)
+  
+
+all_marginals_processed <- all_marginals_processed %>%
+  filter(marginal != "organizace_strucne") %>%
+  rbind(organizace_strucne_processed)
+
+
+all_marginals_processed <- all_marginals_processed %>%
+  mutate(matches_mc = grepl("^id\\.[^.]*\\.[^.]*$", marginal),
+         index = if_else(matches_mc, gsub("^id\\.[^.]*\\.", "", marginal),  index),
+         marginal = if_else(matches_mc, gsub("^id\\.","", gsub("\\.[^.]*$", "", marginal)),  marginal),
+         marginal = gsub("Ano$", "", marginal),
+         )
 ```
 
-```{r}
-all_marginals_processed %>% select(marginal, index) %>% distinct()
-```
 
 
 ```{r}
 marginals_to_show <- all_marginals_processed %>% 
-  filter(!(marginal %in% c("age_ar", "kolik_casu", "(Intercept)", "sexjinak_neuvedeno"))) %>%
-  group_by(marginal) %>%
-  filter(any(abs(widest_ci_sign) > 0.9)) %>%
+  filter(!(marginal %in% c("age_ar", "kolik_casu", "(Intercept)", "sexjinak_neuvedeno")),
+         !grepl("nevyplneno$", marginal),
+         index != "NA") %>%
+  #group_by(marginal) %>%
+  #filter(any(abs(widest_ci_sign) > 0.9)) %>%
   #filter(marginal == "organizace_strucne") %>%
-  ungroup() %>%
+  #ungroup() %>%
+  mutate(index_to_show = if_else(grepl("^index.[0-9]*", index), "", index),
+         model = paste(meritko, zakladni, dalsi),
+         model_label = paste(case_when(meritko == "kompetence_odpoved" ~ "Abs.",
+                                       meritko == "kompetence_relativne_k_sobe" ~ "Rel.",
+                                       TRUE ~ meritko),
+                             if_else(zakladni == "zaklad", "", zakladni), 
+                             case_when(dalsi == "minimal" ~ "A",
+                                       dalsi == "zaklad" ~ "B",
+                                       TRUE ~ dalsi))) %>%
   inner_join(kompetence_otazky %>% select(kompetence, popis_pro_grafy), by = "kompetence")
-
 
 min_ci <- -1
 max_ci <- 1
-# breaks = c(min_ci, -0.99, -0.95, -0.5, 0, 0.5,0.95, 0.99, max_ci)
-# my_logit <- function(x) { scales::logit_trans()$transform((x + 1) / 2) }
-# transformed_values <- (my_logit(breaks) - my_logit(min_ci)) / (my_logit(max_ci) - my_logit(min_ci))
-  for(m in unique(marginals_to_show$marginal)) {
-    index_vals <- marginals_to_show %>% filter(marginal == m) %>% pull(index) %>% unique()
-    for(ind in index_vals) {
-      print(
-        marginals_to_show %>%
-          filter(marginal == m, index == ind) %>%
-          mutate(model = paste(meritko, zakladni, dalsi)) %>%
-          ggplot(aes(x = model, y = popis_pro_grafy, fill = widest_ci_sign)) +
-            geom_tile() + 
-            scale_fill_gradientn(limits = c(min_ci,max_ci),
-                                 colours = c("#1b7837","#f0f0f0", "#f0f0f0", "#762a83"),
+scale_fill_asociace <- scale_fill_gradientn("Asociace", limits = c(min_ci,max_ci),
+                                 colours = c("#762a83","#f0f0f0", "#f0f0f0", "#1b7837"),
                                  values = c(0, 0.2,0.8,1),
-                                 breaks = c(0.9, 0.7, -0.7, -0.9)) +
+                                 breaks = c(0.9, 0.7, -0.7, -0.9))
+
+plot_single_marginal <- function(marginals_to_show, m, ind, title = m){
+ data_to_plot <- marginals_to_show %>%
+          filter(marginal == m, index == ind) 
+ 
+ index_to_show <- data_to_plot$index_to_show %>% unique()
+ if(length(index_to_show) > 1) {
+   stop("Too many indices to show")
+ }
+ if(index_to_show == "") {
+   index_to_show <- NULL
+ }
+ 
+ data_to_plot %>%
+          ggplot(aes(x = model_label, y = popis_pro_grafy, fill = widest_ci_sign)) +
+            geom_tile() + 
+            scale_fill_asociace +
+            scale_y_discrete("Kompetence") +
+            scale_x_discrete("Varianty modelu") +
             expand_limits(fill = c(min_ci,max_ci)) +
-            # scale_fill_gradientn("Widest CI", 
-            #                      #colours = c("#1b7837","#f0f0f0", "#f0f0f0", "#762a83"),
-            #                      # values = c(0, 0.25,0.75,1),  
-            #                      # limits = c(0,1), na.value = plots_na_color) +
-            #                      colours = c("#1b7837","#1b7837","#f0f0f0", "#f0f0f0", "#762a83", "#762a83"),
-            #                      values = transformed_values,
-            #                      limits = c(min_ci,max_ci),
-            #                      breaks = breaks,
-            #                      trans = my_logit) +
-            #theme(axis.text.x = element_text(angle = 90)) + 
-            theme(axis.text.x = element_blank()) + 
+            #theme(axis.text.x = element_blank()) + 
             facet_wrap(~kategorie, nrow = 1) +
-            plot_annotation(m, ind)
-      )
-    }
-  }
-  
-  
-#}
+            plot_annotation(title, index_to_show)  
+}
+
+
+
 ```
 
+```{r}
+plot_single_marginal(marginals_to_show, "sexmuz", "", title = "Je muž")
+plot_single_marginal(marginals_to_show, "byl_na_kurzu", "")
+plot_single_marginal(marginals_to_show, "byl_na_rs_kurzu","")
+```
+
+
+```{r}
+other_marginals <- setdiff(unique(marginals_to_show$marginal), c("sexmuz", "byl_na_kurzu", "byl_na_rs_kurzu") )
+  for(m in other_marginals) {
+    index_vals <- marginals_to_show %>% filter(marginal == m) %>% pull(index) %>% unique()
+    for(ind in index_vals) {
+      print(plot_single_marginal(marginals_to_show, m, ind))
+    }
+  }
+```
 
 
 ```{r}
 
 #for(kategorie_to_show in unique(all_marginals_processed$kategorie)) {
-  for(kompetence_to_show in unique(all_marginals_processed$kompetence)) {
+  for(kompetence_to_show in unique(marginals_to_show$kompetence)) {
     print(
       marginals_to_show %>%
         filter(kompetence == kompetence_to_show) %>%
-        mutate(model = paste(meritko, zakladni, dalsi)) %>%
-        ggplot(aes(x = model, y = marginal, fill = widest_ci_sign)) +
+        group_by(marginal, index) %>%
+        filter(any(abs(widest_ci_sign) > 0.7)) %>%
+        ungroup() %>%
+        mutate(prediktor = paste(marginal, index), model_label = fct_reorder(model_label, dalsi == "zaklad")) %>%
+        ggplot(aes(x = model_label, y = prediktor, fill = widest_ci_sign)) +
           geom_tile() + 
-          scale_fill_gradientn(limits = c(min_ci,max_ci),
-                               colours = c("#1b7837","#f0f0f0", "#f0f0f0", "#762a83"),
-                               values = c(0, 0.2,0.8,1),
-                               breaks = c(0.9, 0.7, -0.7, -0.9)) +
+          scale_fill_asociace +
+          scale_x_discrete("Varianta modelu") +
           expand_limits(fill = c(min_ci,max_ci)) +
-          # scale_fill_gradientn("Widest CI", 
-          #                      #colours = c("#1b7837","#f0f0f0", "#f0f0f0", "#762a83"),
-          #                      # values = c(0, 0.25,0.75,1),  
-          #                      # limits = c(0,1), na.value = plots_na_color) +
-          #                      colours = c("#1b7837","#1b7837","#f0f0f0", "#f0f0f0", "#762a83", "#762a83"),
-          #                      values = transformed_values,
-          #                      limits = c(min_ci,max_ci),
-          #                      breaks = breaks,
-          #                      trans = my_logit) +
-          #theme(axis.text.x = element_text(angle = 90)) + 
-          theme(axis.text.x = element_blank()) + 
-          facet_wrap(~kategorie, nrow = 1) +
+          facet_wrap(~kategorie, nrow = 1, scales = "free_x") +
           plot_annotation(kompetence_otazky %>% filter(kompetence == kompetence_to_show) %>% pull(popis_pro_grafy))
     )
-  }
-
-```
-
-
-```
-# kategorie = "rozvijim"
-# 
-# data_for_inla <- make_data_for_inla(base_for_inla, kategorie, list(quo(role_skauting)))
-# 
-# 
-# inla_formula_base <- kompetence_relativne_k_populaci ~ 1 + age_norm + f(age_ar, model = "iid") + kategorie_respondenta_full
-# 
-# inla_formula <- update(inla_formula_base, as.formula(paste0(". ~ . ", data_for_inla$mc_formula_str)))
-# inla_formula
-# 
-# fit <- my_inla_fit(inla_formula, data_for_inla$data_for_inla)
-# # 
-# 
-# marginals_summary_from_fit(fit) %>% select(marginal, index, q0.025, q0.975) %>% filter(!grepl("id.role_skauting_", marginal ))
-
-```
-
-
-
-```
-pipeline_result$processed_fits[["skautsky_zit"]]$marginals_summary %>% select(marginal, index, q0.025, q0.975) %>% filter(!grepl("id.role_skauting_", marginal ), marginal != "row_id")
-
-pipeline_result$processed_fits[["skautsky_zit"]]$summary.hyperpar
-
-```
-
-```{r}
-plots <- list()
-```
-
-
-```{r}
-for(pipeline_result in pipeline_results) {
-  my_pp_check(pipeline_result, age) %>% print()
-}
-for(pipeline_result in pipeline_results) {
-  my_pp_check(pipeline_result, age, stat = sd) %>% print()
-}
-```
-
-```{r}
-for(pipeline_result in pipeline_results) {
-  my_pp_check(pipeline_result, kategorie_respondenta_full)  %>% print()
-}
-```
-
-
-```{r}
-for(pipeline_result in pipeline_results) {
-  my_pp_check(pipeline_result, sex) %>% print()
-}
-```
-
-
-```{r}
-for(pipeline_result in pipeline_results) {
-  my_pp_check(pipeline_result, byl_na_rs_kurzu) %>% print()
-}
-```
-
-```{r}
-for(pipeline_result in pipeline_results) {
-  my_pp_check(pipeline_result, !is.na(byl_na_kurzu) & byl_na_kurzu, label = "jakykoliv_kurz") %>% print()
-}
-```
-
-```{r}
-plots$priklad_pp_check <- pipeline_results$zvladam %>% my_pp_check(if_else(!is.na(byl_na_rs_kurzu) & byl_na_rs_kurzu, "Ano", "Ne/neuvedeno"), subset_kompetence = "duchovni_zivot", label = "Byl na RS kurzu")
-plots$priklad_pp_check
-```
-
-
-
-```{r}
-plots$zvladam_organizovan_pp_check <- pipeline_results$zvladam %>% my_pp_check(if_else(!is.na(je_organizovan) & je_organizovan, "Ano", "Ne/neuvedeno"), subset_kompetence = c("rozvoj_osobnosti", "rodina", "sebepoznani", "duchovni_zivot"), label = "Společenství je vedeno")
-plots$zvladam_organizovan_pp_check
-```
-
-
-```{r save_plots}
-save_list_of_plots(plots,"linearni_modely")
-```
-
-
-```{r}
-for(pipeline_result in pipeline_results) {
-  my_pp_check(pipeline_result, 
-                       co_zazil %contains_word% "radcovsky_kurz"
-                       | co_zazil %contains_word% "cekatelky"
-                       | co_zazil %contains_word% "jiny_kurz"
-                       | co_zazil %contains_word% "vudcovky", label = "neroversky_kurz") %>% print()
-}
-```
-
-
-
-```{r, fig.width=8, fig.height = 8}
-for(pipeline_result in pipeline_results) {
-  my_pp_check(pipeline_result, pmin(let_v_junaku, 10)) %>% print()
-}
-```
-
-
-```{r}
-for(pipeline_result in pipeline_results) {
-  my_pp_check(pipeline_result,     role_skauting %contains_word% "druzinovy_radce" 
-                                   ) %>% print()
-}
-for(pipeline_result in pipeline_results) {
-  my_pp_check(pipeline_result,     role_skauting %contains_word% "clen_roveru" 
-                                 ) %>% print()
-}
-for(pipeline_result in pipeline_results) {
-  my_pp_check(pipeline_result,     role_skauting %contains_word% "tahoun_roveru" 
-                                 ) %>% print()
-}
-
-for(pipeline_result in pipeline_results) {
-  my_pp_check(pipeline_result,     role_skauting %contains_word% "vedouci_roveru" 
-                                 )%>% print()
-}
-
-for(pipeline_result in pipeline_results) {
-  my_pp_check(pipeline_result,     role_skauting %contains_word% "clen_rady_roveru" | 
-                                 role_skauting %contains_word% "tahoun_roveru" |
-                                 role_skauting %contains_word% "clen_roveru" |
-                                 role_skauting %contains_word% "vedouci_roveru",
-                  label = "role_rover")%>% print()
-}
-
-for(pipeline_result in pipeline_results) {
-  my_pp_check(pipeline_result, 
-                              interaction(factor(
-                                 role_skauting %contains_word% "druzinovy_radce" | 
-                                 role_skauting %contains_word% "oddilovy_radce" |
-                                 role_skauting %contains_word% "vedouci_zastupce_oddilu" |
-                                 role_skauting %contains_word% "clen_vedeni_oddilu" |
-                                 role_skauting %contains_word% "technicka" |
-                                 role_skauting %contains_word% "organizacni" |
-                                 role_skauting %contains_word% "volena_funkce" |
-                                 role_skauting %contains_word% "administrativa",
-                                 levels = c(TRUE, FALSE), labels = c("v","_"))
-                              
-                               ,  factor(
-                                 role_skauting %contains_word% "clen_rady_roveru" | 
-                                 role_skauting %contains_word% "tahoun_roveru" |
-                                 role_skauting %contains_word% "clen_roveru" |
-                                 role_skauting %contains_word% "vedouci_roveru",
-                                 levels = c(TRUE, FALSE), labels = c("r","_"))
-                              )
-                               , label = "druh_role") %>% print()
-}
-
-```
-
-
-```{r}
-attributes(cela_data$organizace_spolecenstvi)
-for(pipeline_result in pipeline_results) {
-  my_pp_check(pipeline_result,     organizace_spolecenstvi %contains_word% "formalni_vudce_zhury" | 
-                                 organizace_spolecenstvi %contains_word% "formalni_vudce_demokraticky" |
-                                 organizace_spolecenstvi %contains_word% "neformalni_tahoun",
-                  label = "maji_vedouciho")%>% print()
-}
-```
-
-```{r}
-for(pipeline_result in pipeline_results) {
-  my_pp_check(pipeline_result,     organizace_spolecenstvi %contains_word% "formalni_vudce_zhury" | 
-                                 organizace_spolecenstvi %contains_word% "formalni_vudce_demokraticky" |
-                                 organizace_spolecenstvi %contains_word% "neformalni_tahoun" |
-                                 organizace_spolecenstvi %contains_word% "formalni_rada_zhury"|
-                                 organizace_spolecenstvi %contains_word% "neformalni_rada",
-              
-                  label = "nejake_vedeni")%>% print()
-}
-```
-
-
-
-```{r}
-for(pipeline_result in pipeline_results) {
-  my_pp_check(pipeline_result,  frekvence_velkych_akci)%>% print()
-}
-
-```
-
-
-```{r}
-for(pipeline_result in pipeline_results) {
-  my_pp_check(pipeline_result,     fungovani %contains_word% "druzinovy_radce" 
-                                   ) %>% print()
-}
-
-n_matches <- function(x) {
-  gre
-}
-
-head(gregexpr(",",cela_data$fungovani_skautskeho_oddilu) %>% lapply())
-length(cela_data$fungovani_skautskeho_oddilu)
-```
-
-
-
-
-```{r}
-pipeline_result$processed_fits[["duchovni_zivot"]]$marginals_summary %>% select(marginal, index, q0.025, q0.975) %>% filter(!grepl("id.role_skauting_", marginal ), marginal != "row_id")
-```
-
-
-```
-pivot_threshold <- 5
-threshold_data <- tibble(threshold = c(1:6))
-for(t in 1:6) {
-  threshold_name = paste0("c",t)
-  if(t < pivot_threshold) {
-    threshold_data <- threshold_data %>% mutate(!!threshold_name := if_else(threshold <= t, -1, 0))
-  } else if(t > pivot_threshold) {
-    threshold_data <- threshold_data %>% mutate(!!threshold_name := if_else(threshold >= t, 1, 0))
-  }
-}
-threshold_data
-```
-
-```
-
-data_for_inla <- expanded_no_NA_small %>% filter(kategorie_kompetence =="zvladam") %>%
-  crossing(threshold_data) %>%
-  mutate(over_threshold = as.integer(kompetence_odpoved > threshold))
-  # mutate(nad_median = kompetence_odpoved > median(kompetence_odpoved), nejvyse = kompetence_odpoved == max(kompetence_odpoved)) %>%
-  # mutate(nad_median = as.integer(nad_median))
-
-inla_formula <- over_threshold ~ 1 + kompetence + f(session, model="iid")
-
-for(t in 1:6) {
-  if(t != pivot_threshold) {
-    threshold_name <- paste0("c",t)
-    inla_formula <- update.formula(inla_formula, as.formula(paste0('. ~ . + f(', threshold_name, ', model = "clinear", range = c(0, Inf))')))
-  }
-}
-
-inla_formula
-
-inla_fit <- inla(inla_formula, family = "binomial", Ntrials = 1,
-       data = data_for_inla,
-       control.compute = list(config=TRUE))
-
-```
-
-
-```
-# regression_input <- data_for_inla
-# regression_input$row_id <- 1:nrow(data_for_inla)
-# 
-# observed_pp_check <- regression_input %>% select(session, row_id, kompetence, threshold)
-# 
-# predictor_tibble <- pp_samples_matrix[, samples_colnames("Predictor", observed_pp_check$row_id)] %>% as.tibble() %>% mutate(sample_id = 1:n_samples) %>%
-#   pivot_longer(-sample_id, names_to = "row_id", names_prefix = "Predictor:", values_to = "linpred") %>%
-#   mutate(row_id = as.integer(row_id))
-# 
-# predictor_tibble <- predictor_tibble %>% filter(sample_id < 5)
-# 
-# predicted_pp_check_bool <- observed_pp_check %>% 
-#   inner_join(predictor_tibble, by = c("row_id" = "row_id")) %>%
-#   group_by(session, sample_id, kompetence) %>%
-#       mutate(response_cumulative = 1/(1 + exp(-linpred)),
-#              response_prob = c(response_cumulative[threshold == 1], diff(response_cumulative[threshold]))[threshold]
-#            ) %>%
-#   ungroup()
-#   
-# 
-# predicted_pp_check <- predicted_pp_check_bool %>%
-#   group_by(session, sample_id, kompetence) %>% 
-#   summarise(prediction = sample(1:7, size = 1, prob = c(response_prob[threshold], 1 - response_cumulative[threshold == 6])))
-# 
-# hist(predicted_pp_check$prediction)
-# hist(data_for_inla$kompetence_odpoved)
-```
-
-
-
-```
-# priors <- c(#prior(normal(0,1), class = "b"),
-#             prior(normal(0,1), class = "sd"))
-# 
-# formula_jen_id <- kompetence_odpoved ~ (1| session*kategorie_kompetence)
-# get_prior(formula_jen_id, data = expanded_no_NA_small, family = cumulative())
-# #make_stancode(formula_jen_id, data = expanded_no_NA_small, family = "cumulative")
-# fit_jen_id <- brm(formula_jen_id, data = expanded_no_NA_small, family = cumulative(), prior = priors, file = paste0(fit_dir, "jen_id.rds"))
-```
-
-```
-# fit_jen_id_big <- brm(formula_jen_id, data = expanded_no_NA, family = cumulative(), prior = priors, file = paste0(fit_dir, "jen_id_big.rds"))
-```
-
-```
-#lmer(formula = formula_jen_id, data = expanded_no_NA_small)
-```
-
-
-```
-# data_for_clm <- expanded_no_NA_small %>% mutate(kompetence_odpoved = factor(kompetence_odpoved, ordered = TRUE), session = factor(session), kategorie_kompetence = factor(kategorie_kompetence), kategorie_respondenta = factor(kategorie_respondenta))
-#fit_clm <- clmm(kompetence_odpoved ~ 1 + (1| session) + (1|kategorie_kompetence) + (1 | kategorie_kompetence:session), data = data_for_clm)
-#fit_clm
-
-```
-
-```
-# library(doParallel)
-# library(foreach)
-# registerDoParallel(makeCluster(parallel::detectCores()))
-```
-
-
-```
-# vsechny_kategorie <- unique(data_for_clm$kategorie_kompetence)
-# fits_clm <-  foreach (kategorie = vsechny_kategorie) %dopar% {
-#   library(ordinal)
-#   library(tidyverse)
-#   clmm(kompetence_odpoved ~ 1 + age + kategorie_respondenta * kompetence + (1| session), data = data_for_clm %>% filter(kategorie_kompetence == kategorie))
-# }
-# names(fits_clm) <- vsechny_kategorie
-```
-
-for(kategorie in vsechny_kategorie) {
-  plot <- data_for_clm %>% 
-    filter(kategorie_kompetence == k```{r}
-ategorie) %>%
-    residual_clmm(fits_clm[[kategorie]], factor(kompetence)) + ggtitle(kategorie) #+ facet_wrap(~kompetence)
-  print(plot)
-}
-
-
-Kontrola, ze mam spravne naimplementovany prior
-
-```{r}
-log_sqrt_inv_hn_logdens <- function(log_x, sigma) {  
-  x = exp(log_x);
-  logdens = - 1.5 * log_x - log(sigma) - 0.5 * (log(2) + log(pi)) -1/(2 * sigma * sigma * x);
-  log_jacobian = log_x;
-  return(logdens + log_jacobian);  
-}
-
-
-sigma <- 2
-log_precision_vals <- log(1/(rnorm(1e6, sd = sigma)^2))
-dens_data <- data.frame(x = seq(min(c(0,log_precision_vals)),max(log_precision_vals), length.out = 100)) %>% mutate(y =  (exp(log_sqrt_inv_hn_logdens(x, sigma))))
-
-data.frame(x = log_precision_vals) %>% ggplot(aes(x = x)) +  geom_density() + geom_line(data = dens_data, aes(x = x, y = y), color = revize_cols(2), linetype = "dashed") 
-
-
+ }
 
 ```
 

@@ -1,0 +1,181 @@
+
+# Sondy 2015 - shrnutí {#sondy2015}
+
+V rámci projektu jsme též reanalyzovali data ze sond do roveringu z roku 2015, 
+protože se pokud víme nikdo nepokusil o nějaké hlubší shrnutí a interpretaci výsledků.
+V případě zájmu existuje i delší verze těchto výsledků, napište si o ni.
+
+
+```{r setup, message=FALSE, echo = FALSE}
+source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
+knitr::opts_chunk$set(echo = FALSE, cache=TRUE)
+
+```
+
+```{r}
+sondy <- nacti_sondy(pouze_roveri = FALSE)
+sondy_pouze_roveri <- nacti_sondy(pouze_roveri = TRUE)
+```
+
+
+## Zániky kmenů
+
+Respondenti, kteří uvedli, že roverské společenství na středisku zaniklo dostali otevřenou otázku na důvod zániku. 
+
+```{r}
+id_nezajem = c(2,3,4, 17, 21, 23, 27, 30, 32, 33, 34, 35, 38, 39, 41, 45, 52)  
+id_malo_casu_oddil = c(7,16, 42, 43)
+id_malo_casu_jinak = c(13, 20, 28, 36)
+id_chybi_vudce = c(5,6, 17, 26, 31)
+id_odchody_pryc = c(1, 4, 16, 21, 41, 42, 47, 50, 51, 58, 59)
+id_mezilidske_vztahy_neshody = c(1,10,12, 13, 15, 33, 38, 39, 40, 44, 47, 52)
+id_transformace = c(8, 19, 32, 34, 38, 43, 48)
+id_nebyl_program = c(12, 14, 60)
+id_neschopnost = c(24, 25)
+id_vedeni_strediska = c(9, 18)
+id_jine = c(11, 22, 29, 46, 49, 52, 54, 55, 56, 57, 58)
+id_malo_informaci = c(53)
+```
+
+
+Opakující se témata:
+
+  * nezájem (`r length(id_nezajem)`)
+  * nebyl program, neschopnost se zorganizovat (`r length(unique(c(id_nebyl_program, id_neschopnost)))`)
+  * rozpad mezilidských vztahů (`r length(id_mezilidske_vztahy_neshody)`)
+  * odchod mimo místo působení (zejména na VŠ, ale i jinam) (`r length(id_odchody_pryc)`)
+  * nedostatek času
+    * kvůli práci u oddílů (`r length(id_malo_casu_oddil)`)
+    * z jiných důvodů (`r length(id_malo_casu_jinak)`)
+  * absence vudci osobnosti (`r length(id_chybi_vudce)`)
+  * neshody s vedenim strediska (`r length(id_vedeni_strediska)`)
+  * transformace v něco jiného, stárnutí - tedy v podstate "smrt z přirozených příčin" (`r length(id_transformace)`)
+
+
+
+```{r}
+sondy %>% drop_na(kolik_let_fungoval_zanikly_rs_kmen) %>%
+  ggplot(aes(x = kolik_let_fungoval_zanikly_rs_kmen)) + geom_histogram(binwidth = 1) + vodorovne_popisky_x + ggtitle("Jak dlouho fungoval kmen než zanikl")
+```
+
+## Pouze formalne reg. kmeny
+
+V sondách byla otázka na registraci a taky na to, jestli je kmen aktivní (s možnostmi, "Ano", "Ne" a "Nevím") - tím se můžeme podívat na to,
+kolik registrovaných kmenů je ve skutečnosti neaktivních.
+
+```{r}
+sumar_formalne <- sondy %>% filter(je_rs_kmen_registrovany == "Ano") %>% summarise(pocet_registrovanych = length(id), jen_formalne = sum(je_neaktivni_rs_kmen == "Ano", na.rm = TRUE), nevim_formalne = sum(je_neaktivni_rs_kmen == "Nevím", na.rm = TRUE) + sum(is.na(je_neaktivni_rs_kmen)))
+sumar_formalne %>% knitr::kable()
+```
+
+```{r}
+cred_int_formalne = qbeta(c(0.025, 0.975), sumar_formalne$pocet_registrovanych - sumar_formalne$nevim_formalne - sumar_formalne$jen_formalne + 1, sumar_formalne$jen_formalne + 1)
+```
+
+Můžeme usuzovat, že v roce 2015 `r round(cred_int_formalne[1] * 100)`% až `r round(cred_int_formalne[2] * 100)`% registrovaných roverských kmenů vykazovalo činnost (nebyly registrované pouze formálně).
+
+## RS neformálně vedou oddíl
+
+Další zajímavou konkrétní otázkou bylo, jestli některý rover vede dětský oddíl,
+ač papírově vedení zastává někdo jiný.
+
+```{r}
+summarise_by <- function(column) {
+  column <- enquo(column)
+  sondy %>% group_by(!!column) %>% summarise(pocet = length(id))
+  
+}
+```
+
+
+```{r}
+summary_vedeni <- summarise_by(vedeni_nekdo_z_rs_detsky_oddil_ale_realne_je_vedouci_nekdo_jiny)
+summary_vedeni %>% knitr::kable()
+```
+
+```{r}
+pocty_vedeni <- summary_vedeni$pocet
+names(pocty_vedeni) <- summary_vedeni$vedeni_nekdo_z_rs_detsky_oddil_ale_realne_je_vedouci_nekdo_jiny
+cred_int_rs_neformalne_vede <- round(qbeta(c(0.025, 0.975), pocty_vedeni["Ano, a je mu/jí méně než 18 let"] + pocty_vedeni["Ano, a je mu/jí více než 18 let"] + 1, pocty_vedeni["Ne"] + 1) * 100)
+```
+
+Můžeme očekávat, že `r cred_int_rs_neformalne_vede[1]`% až `r cred_int_rs_neformalne_vede[2]`% roverských společenství mělo v roce 2015 ve svém středu někoho, kdo neformálně vedl oddíl.
+
+## Závěrečná doplňující poznámka k roveringu
+
+```{r}
+dodatky_rs <- unique(sondy %>% drop_na(dodatek_rs) %>% pull(dodatek_rs))
+
+zajimave <- c(6,8, 56, 59, 75, 85, 108, 121)
+
+vedeni_neni_rovering <- c(14, 18, 19, 31,  35, 42)
+vedeni_je_rovering <- c(23, 29, 30, 43, 58, 59, 69, 70, 72, 81) 
+
+
+spojeni_oddilova_rada_rovering <- c(23)
+
+```
+
+
+ Úvahy na téma, že rovering a vedení jsou oddělené věci se objevují `r length(vedeni_neni_rovering)` krát, úvahy, že vedení je rovering (nebo že by roveří měli v rámci činnosti s oddíly pomáhat) se objevují `r length(vedeni_je_rovering)`. Pohled, že oddílová rada vlastně je/může být roverský kmen je tam jen `r length(spojeni_oddilova_rada_rovering)`.
+
+Některé konrétní poznámky, které mi přišly zajímavé:
+
+```{r, results="asis"}
+cat(paste0("> ", gsub("\n", "\n> ", gsub("\r", "", dodatky_rs[zajimave], fixed=TRUE), fixed = TRUE), collapse = "\n\n---\n\n"))
+```
+
+
+## Další drobné věci
+
+Jak je na tom čas strávený u dětských oddílů vs. čas na samostatný rovering.
+
+```{r}
+summarise_by(podil_casu_u_detskych_oddilu_junak_celkove) %>% knitr::kable()
+```
+
+
+Sumář nějakých otázek na souhlas / nesouhlas s tvrzeními o roveringu.
+
+```{r}
+summarise_by_souhlas <- function(column) {
+  column <- enquo(column)
+  col_name <- quo_name(column)
+  sondy %>% 
+    mutate(!!col_name := factor(!!column, levels = c("Určitě nesouhlasím","Spíše nesouhlasím","Spíše souhlasím","Určitě souhlasím"))) %>%
+    group_by(!!column) %>% summarise(pocet = n()) %>%
+    group_by(is.na(!!column)) %>%
+    mutate(celkem = sum(pocet), podil = round(pocet / celkem, digits = 2)) %>%
+    ungroup() %>%
+    select(!!column, pocet, podil)
+
+}
+
+summarise_by_souhlas(souhlas_pomoc_s_detskym_oddilem_je_forma_roveringu)  %>% knitr::kable()
+summarise_by_souhlas(souhlas_rs_program_je_relaxace_od_vedeni_detskych_oddilu)  %>% knitr::kable()
+summarise_by_souhlas(souhlas_hlavni_je_vlastni_rs_cinnost_pomoc_v_oddilech_az_druhorada)  %>% knitr::kable()
+summarise_by_souhlas(souhlas_roveri_potrebuji_stezku)  %>% knitr::kable()
+summarise_by_souhlas(souhlas_roveri_potrebuji_plan_cinnosti)  %>% knitr::kable()
+summarise_by_souhlas(souhlas_roveri_potrebuji_vlastni_rs_akce)  %>% knitr::kable()
+summarise_by_souhlas(souhlas_roveri_potrebuji_letni_tabor_nebo_expedici)  %>% knitr::kable()
+summarise_by_souhlas(souhlas_roveri_potrebuji_vedouciho_kmene)  %>% knitr::kable()
+summarise_by_souhlas(souhlas_roveri_potrebuji_zastoupeni_na_strediskovych_radach)  %>% knitr::kable()
+```
+
+Jak se mění souhlas/nesouhlas s tím, že kmen potřebuje vůdce podle toho, jestli kmen vůdce skutečně má? 
+
+```{r}
+sondy %>% drop_na(souhlas_roveri_potrebuji_vedouciho_kmene) %>%
+  filter(rs_kmen_prvky_vudce != "N/A") %>%
+  group_by(rs_kmen_prvky_vudce, souhlas_roveri_potrebuji_vedouciho_kmene) %>% summarise(pocet = n()) %>% 
+  group_by(rs_kmen_prvky_vudce) %>% mutate(podil = pocet / sum(pocet)) %>%
+  mutate(druh = if_else(grepl("nesouhlasím", souhlas_roveri_potrebuji_vedouciho_kmene), "nesouhlasím", "souhlasím"),
+         sila = if_else(grepl("Určitě", souhlas_roveri_potrebuji_vedouciho_kmene), "určitě", "spíše") %>% factor(levels = c("určitě","spíše"))) %>%
+  ggplot(aes(x = rs_kmen_prvky_vudce, y = podil, color = druh, linetype = sila, group = souhlas_roveri_potrebuji_vedouciho_kmene)) + 
+  geom_point() + geom_line() + vodorovne_popisky_x + ggtitle("Pod")
+```
+
+Tj. kmeny, které vůdce mají jsou spíše nakloněny tomu, že to je dobrý nápad. Naopak téměř všichni, kteří nesouhlasí s tím, že kmen potřebuje vůdce jsou v kmeni, který vůdce nemá.
+
+
+

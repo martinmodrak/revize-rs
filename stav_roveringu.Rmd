@@ -866,7 +866,7 @@ podil_funkci_v_rs <-
             nic_na_stredisku = mean(!(role_mladsi | role_pomocne | role_skauting.volena_funkce | role_skauting.tym_akce_stredisko)),
             .groups = "drop") 
 
-podil_funkci_v_rs
+#podil_funkci_v_rs
 ```
 
 Překvapení: `r scales::percent(podil_vedeni_rovering)` označilo, že "`r popis_vedeni_je_rovering`". Podíváme-li se na respondenty, co sami sebe označili za rovery --- jaké mají ve skautu další role? Nejčastěji to jsou role spojené s vedením dětí. Velká část roverů (`r scales::percent(podil_funkci_v_rs$vychova_mladsich)`) zastává aspoň jednu funkci v oddíle mladších členů (vedoucí, zástupce, člen vedení, oddílový rádce, družinový rádce). K tomu `r scales::percent(podil_funkci_v_rs$pomocne_role)` roverů zastává technickou/administrativní či organizační roli a jen `r scales::percent(podil_funkci_v_rs$nic_na_stredisku)` nezastává žádnou roli, jež by přímo přinášela prospěch středisku (role, které jsou prospěšné Junáku jako celku - např. tým velkých akcí - zde vynecháváme).

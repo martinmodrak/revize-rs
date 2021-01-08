@@ -1,3 +1,14 @@
+get_base_for_inla <- function(hlavni_data_long) {
+  hlavni_data_long %>%
+    mutate(
+      sex = fct_relevel(sex, "zena"),
+      age_norm = (age - 20.5) / 2.75,
+      age_ar = age - min(age) + 1,
+      kategorie_respondenta_full = factor(kategorie_respondenta_full),
+      across(one_of(c("byl_na_kurzu", "byl_na_rs_kurzu", "je_organizovan")),     logical_with_na_to_factor)
+    )
+}
+
 inla_pipeline <- function(base_data, kategorie, formula_base, uzite_mc_sloupce, n_samples = 200, kompetence_to_run = kompetence,
                           n_cores = parallel::detectCores()) {
   data_for_inla <- make_data_for_inla(base_data, kategorie, uzite_mc_sloupce)

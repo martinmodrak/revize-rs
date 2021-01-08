@@ -4,6 +4,8 @@ rmd_files:
   , "stav_roveringu.Rmd"
   , "shrnuti_kompetenci.Rmd"
   , "odchody_lidi.Rmd"
+  , "sondy2015_shrnuti.Rmd"
+  , "koncepce.md"
   ]
 new_session: yes
 

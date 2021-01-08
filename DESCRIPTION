@@ -24,5 +24,6 @@ Imports:
     magrittr,
     tidyr,
     ggplot2,
-    bindrcpp
+    bindrcpp,
+    formula.tools
 RoxygenNote: 7.1.1
