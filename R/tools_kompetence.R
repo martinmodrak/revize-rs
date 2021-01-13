@@ -94,7 +94,7 @@ nejistota_meritka <- function(prob, meritko_nazev, hodnoty) {
   }
 }
 
-plot_kompetence_by <- function(data, kategorie, group, meritko = kompetence_odpoved, all_together = FALSE) {
+plot_kompetence_by <- function(data, kategorie, group, group2 = NULL, meritko = kompetence_odpoved, all_together = FALSE) {
   group_col <- data %>% pull({{group}})
   if(typeof(group_col) == "double") {
     my_scale_x <-  NULL
@@ -107,6 +107,7 @@ plot_kompetence_by <- function(data, kategorie, group, meritko = kompetence_odpo
 
   if(all_together) {
     my_facet <- NULL
+    #if(is.null(group2) == 1) {
     kompetence_group <-  quo(1)
   } else {
     my_facet <- facet_wrap(~ popis_pro_grafy)
@@ -116,20 +117,22 @@ plot_kompetence_by <- function(data, kategorie, group, meritko = kompetence_odpo
 
   meritko_nazev <- names(data %>% select({{meritko}})) #Blby hack, protoze neumim tidy a jsem liny se to ucit
   data %>%
-    filter(kategorie_kompetence == kategorie) %>%
-    group_by(!!kompetence_group, {{ group }}) %>%
+    filter(kategorie_kompetence %in% kategorie) %>%
+    group_by(!!kompetence_group, {{ group }}, {{ group2 }}) %>%
     summarise(prumer = mean({{meritko}}, na.rm = TRUE),
               dolni = nejistota_meritka(0.025, meritko_nazev, {{meritko}}),
               horni = nejistota_meritka(0.975, meritko_nazev, {{meritko}}), .groups = "drop"
     ) %>%
     ungroup() %>%
-    ggplot(aes(x = {{group}}, y = prumer, ymin = dolni, ymax = horni, group = !!kompetence_group)) +
-    geom_ribbon() + geom_line() + my_facet +
+    ggplot(aes(x = {{group}}, y = prumer, ymin = dolni, ymax = horni,
+               color = {{group2}}, fill = {{group2}}, group = {{group2}})) +
+    geom_ribbon(alpha = 0.4, color = FALSE) + geom_line(alpha = 0.8) + my_facet +
     my_scale_x + my_theme + scale_y_continuous("Průměr") +
+    scale_color_revize() + scale_fill_revize() +
     ggtitle(kategorie, subtitle =  meritka_kompetence[[meritko_nazev]]$popis)
 }
 
-plot_kompetence_by_smooth <- function(data, kategorie, group, meritko = kompetence_odpoved, all_together = FALSE) {
+plot_kompetence_by_smooth <- function(data, kategorie, group, group2 = NULL, meritko = kompetence_odpoved, all_together = FALSE) {
   group_col <- data %>% pull({{group}})
   if(typeof(group_col) == "double") {
     my_scale_x <-  NULL
@@ -149,9 +152,10 @@ plot_kompetence_by_smooth <- function(data, kategorie, group, meritko = kompeten
   meritko_nazev <- names(data %>% select({{meritko}})) #Blby hack, protoze neumim tidy a jsem liny se to ucit
   data %>%
     filter(kategorie_kompetence == kategorie) %>%
-    ggplot(aes(x = {{group}}, y = {{ meritko }})) +
-    geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"), alpha = 1) + my_facet +
+    ggplot(aes(x = {{group}}, y = {{ meritko }}, group = {{group2}}, color = {{group2}}, fill = {{group2}})) +
+    geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"), alpha = 0.5) + my_facet +
     my_scale_x + my_theme + scale_y_continuous("Průměr") +
+    scale_color_revize() + scale_fill_revize() +
     ggtitle(kategorie, subtitle =  paste0(meritka_kompetence[[meritko_nazev]]$popis, ", vyhlazeno"))
 }
 

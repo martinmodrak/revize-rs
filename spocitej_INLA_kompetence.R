@@ -25,7 +25,7 @@ mc_sloupce_k_uziti <- list()
 dalsi_sloupce <- list()
 
 mc_sloupce_k_uziti$minimal <- c()
-dalsi_sloupce$minimal <- ~ . + byl_na_kurzu + byl_na_rs_kurzu +
+dalsi_sloupce$minimal <- ~ . + byl_na_jinem_nez_rs_kurzu + byl_na_rs_kurzu +
   f(organizace_strucne, model = "iid", hyper = list(theta = list(prior = log_sqrt_inv_hn(1))))
 
 mc_sloupce_k_uziti$zaklad <- c("role_skauting", "co_zazil", "fungovani_skautskeho_oddilu", "organizace_spolecenstvi")
@@ -53,8 +53,10 @@ for(kategorie in kategorie_kompetence) {
                                   as.formula(paste0(meritko, " ", as.character(dalsi_sloupce[[dalsi]]))))
         cat("Fitting ", kategorie, " - ", meritko, ", ", zakladni, " adjustment a ", dalsi , " dalsi\n")
         print(formula)
-        n_cores <- if_else(parallel::detectCores() > 8, parallel::detectCores() - 3, parallel::detectCores() - 1)
-        results <- inla_pipeline(base_for_inla, kategorie, formula, mc_sloupce_k_uziti[[dalsi]], n_cores = n_cores)
+        n_fits_parallel <- min(parallel::detectCores() - 1, 4)
+        n_cores_per_fit <- max(floor((parallel::detectCores() - 1) / n_fits_parallel), 1)
+        results <- inla_pipeline(base_for_inla, kategorie, formula, mc_sloupce_k_uziti[[dalsi]], n_fits_parallel = n_fits_parallel,
+                                 n_cores_per_fit = n_cores_per_fit)
         for(kompetence in names(results$processed_fits)) {
           processed_fit <- results$processed_fits[[kompetence]]
           if(inherits(processed_fit, "error")) {

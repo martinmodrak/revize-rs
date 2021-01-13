@@ -10,10 +10,10 @@ get_base_for_inla <- function(hlavni_data_long) {
 }
 
 inla_pipeline <- function(base_data, kategorie, formula_base, uzite_mc_sloupce, n_samples = 200, kompetence_to_run = kompetence,
-                          n_cores = parallel::detectCores()) {
+                          n_fits_parallel, n_cores_per_fit) {
   data_for_inla <- make_data_for_inla(base_data, kategorie, uzite_mc_sloupce)
 
-  formula <- update(formula_base, as.formula(paste0(". ~ . ", data_for_inla$mc_formula_str)))
+  model_formula <- update(formula_base, as.formula(paste0(". ~ . ", data_for_inla$mc_formula_str)))
 
   regression_inputs <- list()
   for(k in kompetence_to_run) {
@@ -26,15 +26,15 @@ inla_pipeline <- function(base_data, kategorie, formula_base, uzite_mc_sloupce, 
     dir.create(fit_dir)
   }
 
-  cache_filename <- paste0(fit_dir,"/results_", kategorie, "_", formula_to_cache_name(formula),".rds")
+  cache_filename <- paste0(fit_dir,"/results_", kategorie, "_", formula_to_cache_name(model_formula),".rds")
 
 
   result <- NULL
   if(file.exists(cache_filename)) {
-    message("Cache file exists")
+    message(paste0("Cache file exists": cache_filename))
     cache_contents <- readRDS(cache_filename)
     if(identical(cache_contents$kategorie, kategorie) &&
-       identical(cache_contents$formula, formula) &&
+       identical(as.character(cache_contents$formula), as.character(model_formula)) &&
        isTRUE(all.equal(cache_contents$regression_inputs, regression_inputs, check.attributes = FALSE))) {
       if(cache_contents$n_samples < n_samples) {
         warning("N_samples larger, recomputing")
@@ -49,11 +49,11 @@ inla_pipeline <- function(base_data, kategorie, formula_base, uzite_mc_sloupce, 
   # Potrebuju spocitat
   if(is.null(result)) {
 
-    cl <- parallel::makeCluster(min(n_cores, length(kompetence_to_run)))
+    cl <- parallel::makeCluster(min(n_fits_parallel, length(kompetence_to_run)))
 
     r_basedir <- here::here("R")
     parallel::clusterExport(cl,
-                            c("formula", "fit_dir", "kategorie","r_basedir"),
+                            c("model_formula", "fit_dir", "kategorie","r_basedir", "n_cores_per_fit"),
                             envir = environment())
     parallel::clusterEvalQ(cl, {
       library(INLA); library(tidyverse); library(purrr); library(formula.tools);
@@ -66,16 +66,22 @@ inla_pipeline <- function(base_data, kategorie, formula_base, uzite_mc_sloupce, 
 
     processed_fits <- parallel::parLapplyLB(cl, inputs_and_names, function(x) {
     #processed_fits <- lapply(inputs_and_names, function(x) {
-      fit_cache_filename <- paste0(fit_dir, "/fit_", kategorie,"_",x$name,"_", formula_to_cache_name(formula), ".rds")
+      gc()
+      fit_cache_filename <- paste0(fit_dir, "/fit_", kategorie,"_",x$name,"_", formula_to_cache_name(model_formula), ".rds")
       fit <- NULL
       if(file.exists(fit_cache_filename)) {
+        cat("Cache file exists: ", fit_cache_filename, "\n")
         cache_contents <- readRDS(fit_cache_filename)
-        if(identical(cache_contents$formula, formula) &&
+        if(identical(as.character(cache_contents$formula), as.character(model_formula)) &&
            isTRUE(all.equal(cache_contents$input, x$input, check.attributes = FALSE))) {
           fit <- cache_contents$fit
           cache_result <- "Loaded"
+          cat("Cache loaded\n")
         } else {
           cache_result <- "Mismatch"
+          cat("Cache mismatch\n")
+          cat("Current:", as.character(model_formula), "\n")
+          cat("Cache:", as.character(cache_contents$formula), "\n")
         }
       } else {
         cache_result <- "Not found"
@@ -83,9 +89,9 @@ inla_pipeline <- function(base_data, kategorie, formula_base, uzite_mc_sloupce, 
 
       if(is.null(fit)) {
         fit <-
-          tryCatch(my_inla_fit(formula, x$input, num.threads = 1),
+          tryCatch(my_inla_fit(model_formula, x$input, num.threads = n_cores_per_fit),
                    error = function(e) { e })
-          saveRDS(list(formula = formula, input = x$input, fit = fit), file = fit_cache_filename)
+          saveRDS(list(formula = model_formula, input = x$input, fit = fit), file = fit_cache_filename)
       }
 
       if(inherits(fit, "error")) {
@@ -103,7 +109,7 @@ inla_pipeline <- function(base_data, kategorie, formula_base, uzite_mc_sloupce, 
     stopCluster(cl)
 
     result <- list(kategorie = kategorie,
-                   formula = formula,
+                   formula = model_formula,
          regression_inputs = regression_inputs,
          n_samples = n_samples,
          processed_fits = processed_fits)
@@ -116,15 +122,15 @@ inla_pipeline <- function(base_data, kategorie, formula_base, uzite_mc_sloupce, 
   for(k in kompetence_to_run) {
     if(!inherits(result$processed_fits[[k]], "error")) {
       result$predicted_pp_checks[[k]] <-
-        pp_samples_from_matrix(formula, result$processed_fits[[k]]$pp_samples_matrix, regression_inputs[[k]])
+        pp_samples_from_matrix(model_formula, result$processed_fits[[k]]$pp_samples_matrix, regression_inputs[[k]])
     }
   }
 
   result
 }
 
-formula_to_cache_name <- function(formula) {
-  openssl::md5(as.character(formula))
+formula_to_cache_name <- function(model_formula) {
+  openssl::md5(as.character(model_formula))
 }
 
 marginals_summary_from_fit <- function(fit) {

@@ -274,6 +274,8 @@ spocitej_odvozene_kategorie <- function(cela_data) {
   test_contains_any_word(cela_data$role_skauting, "vedouci_zastupce_oddilu", "oddilovy_radce")
   cela_data <- cela_data %>%
     mutate(byl_na_rs_kurzu = co_zazil %contains_word% "roversky_kurz",
+           byl_na_jinem_nez_rs_kurzu = co_zazil %contains_any_word%
+             c("radcovsky_kurz", "cekatelky", "jiny_kurz", "vudcovky"),
            byl_na_kurzu = co_zazil %contains_any_word%
              c("roversky_kurz", "radcovsky_kurz", "cekatelky", "jiny_kurz", "vudcovky"),
            neni_organizovan =  organizace_spolecenstvi %contains_any_word% c("vsichni", "nikdo", "neaktivni"),

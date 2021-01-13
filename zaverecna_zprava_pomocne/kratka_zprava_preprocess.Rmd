@@ -1,0 +1,84 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+kratka_zprava_html <- readLines(here::here("zaverecna_zprava_pomocne", "kratka_zprava.html"), encoding = "UTF-8")
+```
+
+```{r}
+url_decode_utf = function(x) {
+  y = urltools::url_decode(x)
+  Encoding(y) = "UTF-8"
+  y
+}
+
+a_regex <- "<a[^>]*>[^<]*</a>"
+matches <- regexec(paste0("^<([^>]*)>(([^<]|(", a_regex, "))*)</([^>]*)>$"), kratka_zprava_html)
+process_match <- function(match, string) {
+  if(length(match) != 6) {
+    NULL
+  } else {
+    match_length <- attr(match, "match.length")
+    start_tag <- substr(string, match[2], match[2] + match_length[2] - 1)
+    contents <- substr(string, match[3], match[3] + match_length[3] - 1)
+    end_tag <- substr(string, match[6], match[6] + match_length[6] - 1)
+    if(start_tag != end_tag) {
+      stop("Tag mismatch")
+    }
+    
+    contents_translated <- url_decode_utf(gsub("<a href=\"[^#]*#([^\"]*)\"*>([^<]*)</a>","[\\2](#\\1)", contents))
+
+    list(tag = start_tag, contents = contents_translated)
+  }
+}
+
+processed_matches <- purrr::map2(matches, kratka_zprava_html, process_match)
+
+state = "none"
+out <- file(here::here("zaverecna_zprava_pomocne", "kratka_zprava_generated.R"), open = "wt", encoding = "UTF-8")
+cat("kratka_zprava <- list(\n", sep = "", file = out)
+for(i in 1:length(processed_matches)) {
+  pm <- processed_matches[[i]]
+  if(is.null(pm)) {
+    print(kratka_zprava_html[i])
+    stop("Unrecognized")
+  }
+  if(pm$tag == "h1") {
+    if(state != "none") {
+      cat("\t)),\n", sep = "", file = out)
+    }
+    state <- "group_start"
+    cat("\tlist(group_name = '", pm$contents, "'", sep = "", file = out)
+  } else if(pm$tag == "h2") {
+    if(state == "group_start") {
+      cat(",\n\t\tcontents = list(\n", sep = "", file = out)
+      state <- "group_first"
+    }
+    
+    if(state %in% c("group_first", "group")) {
+      if(state != "group_first") {
+        cat(",\n", sep = "", file = out)
+      }
+      cat("\t\t\tlist(name = '", pm$contents, "',\n", sep = "", file = out)
+      state <- "statement"
+    } else {
+      print(state, i)
+      stop("Wrong state for h2")
+    }
+  } else if(pm$tag == "p") {
+    if(state == "group_start") {
+      cat(",\n\t\tgroup_comment = '", pm$contents, "'", sep = "", file = out)
+    } else if(state == "statement") {
+      cat("\t\t\t\ttext = '", pm$contents, "')\n", sep = "", file = out)
+      state <- "group"
+    }    
+  }
+}
+cat("\n)))", sep = "", file = out)
+close(out)
+```
+
+

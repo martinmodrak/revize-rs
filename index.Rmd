@@ -11,18 +11,60 @@ output:
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 ---
 
-# Úvodem {-#uvod}
+# Krátká verze {-#kratka}
 
-Text je rozdělen do dvou částí - v první, pod názvem "Co víme z dat" popisujeme výsledky
-roverského průzkumu a analýzy dalších zdrojů dat (registrace, starší roverské sondy).
-V první části bereme data jako hlavní podklad a snažíme se nedělat závěry, které z
-dat přímo nevyplývají.
+Pokud nemáte čas, nabízíme naše hlavní závěry jen jako seznam bodů. 
+Ke každému z nich pak níže nabízíme trochu delší komentář.
 
-V druhé části pod názvem "Závěry a interpretace" opouštíme omezení dat a formulujeme
-obecnější závěry, které na data navazují jen volně či se opírají primárně o úvahy a osobní zkušenosti
-nás či dalších lidí, se kterými jsme v průběhu projektu o roveringu diskutovali. 
+```{r setup, message=FALSE,warning=FALSE, results="hide", echo = FALSE}
+source(here::here("zaverecna_zprava_pomocne","kratka_zprava_generated.R"), encoding = "UTF-8")
+knitr::opts_chunk$set(echo = FALSE)
+```
 
-Tady toho ještě bude víc :-)
+```{r}
+# preprocess_kz_element <- function(element) {
+#   element$id <- 
+# }
+```
 
-_Kompletní kód analýzy je k nalezení na https://github.com/martinmodrak/revize-rs _
+
+```{r render_kratka_zprava_short, results = "asis"}
+heading_to_id <- function(heading) {
+  without_accents <- stringi::stri_trans_general(str = heading, 
+                                   id = "Latin-ASCII")
+  removed_special_chars <- gsub("[.\"|?:,/] ?", "", without_accents)
+  
+  handled_whitespace <- gsub(" ", "-", tolower(trimws(removed_special_chars)))
+  handled_whitespace
+}
+
+more_string <- "<span class='kratka_zprava_more'>Více &#9660;</span>"
+
+print_kz_element_short <- function(element) {
+  cat("\t* ", element$name," [", more_string, "](#", heading_to_id(element$name),")\n", sep = "")
+}
+
+print_kz_group_short <- function(group) {
+  cat("* **", group$group_name, "** [", more_string, "](#", heading_to_id(group$group_name),")\n", sep = "")
+  purrr::walk(group$contents, print_kz_element_short)
+  
+}
+purrr::walk(kratka_zprava, print_kz_group_short)
+```
+
+```{r render_kratka_zprava_full, results = "asis"}
+print_kz_element_full <- function(element) {
+  cat("### ", element$name, " {-#", heading_to_id(element$name), "}\n\n", element$text, "\n\n", sep = "")
+}
+
+print_kz_group_full <- function(group) {
+  cat("## ", group$group_name, " {-#", heading_to_id(group$group_name), "}\n\n", sep = "")
+  if(!is.null(group$group_comment)) {
+    cat(group$group_comment, "\n\n")
+  }
+  purrr::walk(group$contents, print_kz_element_full)
+  
+}
+purrr::walk(kratka_zprava, print_kz_group_full)
+```
 

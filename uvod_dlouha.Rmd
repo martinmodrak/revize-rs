@@ -1,0 +1,16 @@
+# Úvod k dlouhé verzi {-#uvod}
+
+Text je rozdělen do dvou částí - v první, pod názvem "Co víme z dat" popisujeme výsledky
+roverského průzkumu a analýzy dalších zdrojů dat (registrace, starší roverské sondy).
+V první části bereme data jako hlavní podklad a snažíme se nedělat závěry, které z
+dat přímo nevyplývají.
+
+V druhé části pod názvem "Závěry a interpretace" opouštíme omezení dat a formulujeme
+obecnější závěry, které na data navazují jen volně či se opírají primárně o úvahy a osobní zkušenosti
+nás či dalších lidí, se kterými jsme v průběhu projektu o roveringu diskutovali. 
+
+Tady toho ještě bude víc :-)
+
+TODO: Odkazy na Drive na to, jak vypadal dotazník a další materiály.
+
+_Kompletní kód analýzy je k nalezení na https://github.com/martinmodrak/revize-rs _
