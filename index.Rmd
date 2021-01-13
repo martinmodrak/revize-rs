@@ -6,6 +6,7 @@ output:
   split_by: chapter
   css: gitbook_style.css
   pandoc_args: ["--lua-filter=non_breaking_policy.lua"]
+  toc_depth: 3
   # bookdown::pdf_book:
   #   pandoc_args: ["--lua-filter=non_breaking_policy.lua"]
 date: '`r format(Sys.time(), "%d %B, %Y")`'
@@ -19,6 +20,7 @@ Ke každému z nich pak níže nabízíme trochu delší komentář.
 ```{r setup, message=FALSE,warning=FALSE, results="hide", echo = FALSE}
 source(here::here("zaverecna_zprava_pomocne","kratka_zprava_generated.R"), encoding = "UTF-8")
 knitr::opts_chunk$set(echo = FALSE)
+rmarkdown::find_pandoc() # Try to use version at least 2.8 to allow unlisted header elements
 ```
 
 ```{r}
@@ -54,7 +56,7 @@ purrr::walk(kratka_zprava, print_kz_group_short)
 
 ```{r render_kratka_zprava_full, results = "asis"}
 print_kz_element_full <- function(element) {
-  cat("### ", element$name, " {-#", heading_to_id(element$name), "}\n\n", element$text, "\n\n", sep = "")
+  cat("#### ", element$name, " {.unnumbered .unlisted #", heading_to_id(element$name), "}\n\n", element$text, "\n\n", sep = "")
 }
 
 print_kz_group_full <- function(group) {
