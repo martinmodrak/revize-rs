@@ -6,7 +6,7 @@ rmd_files:
   , "kompetence.Rmd"
   , "odchody_lidi.Rmd"
   , "sondy2015_shrnuti.Rmd"
-  , "koncepce.md"
+  , "koncepce.Rmd"
   ]
 new_session: yes
 

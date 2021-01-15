@@ -23,8 +23,8 @@ Bylo by zajímavé se podívat zvlášť na odchody dle velikosti města/kraje -
 
 
 ```{r setup, message=FALSE, echo = FALSE}
-devtools::load_all()
-knitr::opts_chunk$set(echo=FALSE, cache=TRUE, fig.width = default_plot_width, fig.height = default_plot_height)
+source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
+knitr::opts_chunk$set(echo=FALSE, cache=TRUE)
 
 library(lubridate)
 library(readxl)

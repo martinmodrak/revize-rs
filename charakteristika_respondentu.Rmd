@@ -1,18 +1,32 @@
 
-# (PART\*) Část I: Co víme z dat {-} 
-
-# Charakteristika respondentů {#charakteristika_respondentu}
-
 ```{r setup, message=FALSE,warning=FALSE, results="hide", echo = FALSE}
 source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
 knitr::opts_chunk$set(echo = FALSE, cache=TRUE)
 ```
+
+```{r, results='asis'}
+if(word_output) {
+  cat("# Část I: Co víme z dat {-}\n")  
+} else {
+  cat("# (PART\\*) Část I: Co víme z dat {-}\n")  
+}
+```
+
+
+# Charakteristika respondentů {#charakteristika_respondentu}
+
 
 ```{r nacist_data, cache=TRUE, message=FALSE}
 source(here::here("datasety_dotaznik.R"), encoding = "UTF-8")
 
 plots <- list() 
 ```
+
+```{r, cache = FALSE}
+# Je z nejakeho duvodu potreba, aby fungovalo get_default_zaloha_labels pri export do Wordu
+assign("zaloha_labels", zaloha_labels, envir = globalenv())
+```
+
 
 ## Celkové počty
 

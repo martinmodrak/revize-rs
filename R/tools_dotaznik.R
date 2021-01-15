@@ -74,7 +74,7 @@ zalohuj_labels <- function(data) {
 }
 
 get_default_zaloha_labels <- function() {
-  get("zaloha_labels", envir = topenv())
+  get("zaloha_labels", envir = globalenv())
 }
 
 popisky_voleb <- function(data, sloupec, zaloha_labels = get_default_zaloha_labels()) {

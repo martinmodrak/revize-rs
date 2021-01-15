@@ -11,6 +11,11 @@ source(here::here("datasety_dotaznik.R"), encoding = "UTF-8")
 plots <- list() 
 ```
 
+```{r, cache = FALSE}
+# Je z nejakeho duvodu potreba, aby fungovalo get_default_zaloha_labels pri export do Wordu
+assign("zaloha_labels", zaloha_labels, envir = globalenv())
+```
+
 # Kompetence
 
 Na co jsme se přesně ptali v kompetenční části?
@@ -620,7 +625,7 @@ all_marginals_processed <- all_marginals_processed %>%
   mutate(matches_mc = grepl("^id\\.[^.]*\\.[^.]*$", marginal),
          index = if_else(matches_mc, gsub("^id\\.[^.]*\\.", "", marginal),  index),
          marginal = if_else(matches_mc, gsub("^id\\.","", gsub("\\.[^.]*$", "", marginal)),  marginal),
-         marginal = gsub("Ano$", "", marginal),
+         marginal = gsub("(Ano$)|(TRUE)$", "", marginal),
          )
 ```
 
@@ -660,6 +665,8 @@ plot_single_marginal <- function(marginals_to_show, m, ind, title = m, subtitle 
  index_to_show <- data_to_plot$index_to_show %>% unique()
  if(length(index_to_show) > 1) {
    stop("Too many indices to show")
+ } else if(length(index_to_show) == 0) {
+   stop("Nothing found.")
  }
  if(index_to_show == "") {
    index_to_show <- NULL
@@ -698,20 +705,36 @@ Je to trochu zmatený obrázek, tak zkusím vysvětlit: každý řádek odpovíd
 
 Písmena A a B pak určují, kolik dalších faktorů bral model v potaz. Obecně, pokud je asociace "sytá" ve všech sloupečcích, je to poměrně důvěryhodný výsledek, tam, kde je "sytá" jen část sloupečků, je situace komplikovanější. 
 
-Další skupinou důvěryhodnějších asociací je mezi účastí na kurzu (libovolném) a kompetencemi. Zajímavé je, že tyto asociace jsou často i negativní (což by nebylo tak překvapivé u relativního modelu - tam musí být negativní a pozitivní zhruba vyvážené počtem, ale u absolutního to trochu překvapivé je). Zejména u "4.A Rodina", "3.C Pomáhám" a "1.F Tvořivost zručnost".
+Další skupinou důvěryhodnějších asociací je mezi účastí na kurzu (kromě roverských) a kompetencemi. Zajímavé je, že tyto asociace jsou často i negativní (což by nebylo tak překvapivé u relativního modelu - tam musí být negativní a pozitivní zhruba vyvážené počtem, ale u absolutního to trochu překvapivé je). Zejména u "4.A Rodina", "3.C Pomáhám" a "1.F Tvořivost zručnost".
 
 ```{r}
-plot_single_marginal(marginals_to_show, "byl_na_kurzu", "", title = "Byl na kurzu", subtitle = "vůdcovky/čekatelky/rádcovský/roverský")
+plot_single_marginal(marginals_to_show, "byl_na_jinem_nez_rs_kurzu", "", title = "Byl na jiném než roverském kurzu", subtitle = "vůdcovky/čekatelky/rádcovský")
+```
+Roverské kurzy mají o něco jednoznačnější výsledky ("více zelené") a jsou spojeny s absolutním nárůstem u velké části kompetencí. Rozhodně ale musíme opatrně mluvit o příčině a následku - je jisté, že lidé, kteří jezdí na RS kurzy jsou častěji ti, kteří na svém rozvoji více pracují.
+
+```{r}
+plot_single_marginal(marginals_to_show, "byl_na_rs_kurzu","", title = "Byl na roverském kurzu")
+
+```
+```{r}
+plot_all_indices <- function(marginals_to_show, m, title = m) {
+  index_vals <- marginals_to_show %>% filter(marginal == m) %>% pull(index) %>% unique()
+  for(ind in index_vals) {
+    print(plot_single_marginal(marginals_to_show, m, ind, title = title))
+  }  
+}
 ```
 
-```{r}
-plot_single_marginal(marginals_to_show, "byl_na_rs_kurzu","", title = "Byl na RS")
+Můžeme se též podívat na asociace s rolemi, které respondent právě zastává. Nejvíce pozitivních asociací
+vidíme pro roli "neformální tahoun roverů" následované "vedoucí nebo zástupce vedoucího oddílu", "formální vedoucí roverů" a "člen rady roverského kmene". Interpretace je opět trochu komplikovaná. 
 
+```{r}
+plot_all_indices(marginals_to_show, "role_skauting", title = "Současné role ve skautingu")
 ```
 
 
 ```{r}
-other_marginals <- setdiff(unique(marginals_to_show$marginal), c("sexmuz", "byl_na_kurzu", "byl_na_rs_kurzu") )
+other_marginals <- setdiff(unique(marginals_to_show$marginal), c("sexmuz", "byl_na_jinem_nez_rs_kurzu", "byl_na_rs_kurzu") )
   for(m in other_marginals) {
     index_vals <- marginals_to_show %>% filter(marginal == m) %>% pull(index) %>% unique()
     for(ind in index_vals) {

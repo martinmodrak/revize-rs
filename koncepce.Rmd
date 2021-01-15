@@ -1,0 +1,17 @@
+```{r setup}
+source(here::here("setup_knitr.R"))
+```
+
+
+
+```{r, results='asis'}
+if(word_output) {
+  cat("# Část II: Závěry a interpretace {-}\n")  
+} else {
+  cat("# (PART\\*) Část II: Závěry a interpretace {-}\n")  
+}
+```
+
+# Chybějící koncepce
+
+TODO

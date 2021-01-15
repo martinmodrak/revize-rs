@@ -66,5 +66,4 @@ if(exists("raw_data") && exists("datasety_wide") && exists("datasety_long")) {
     aplikuj_manual_codings(verbose = FALSE) %>%
     spocitej_kategorii_respondenta() %>%
     zalohuj_labels()
-
 }

@@ -8,7 +8,6 @@ knitr::opts_chunk$set(echo = FALSE, cache=TRUE)
 # - TODO: Jsou roveři hozeni do vody? (asi rozházet po jednotlivých částech?)
 # - TODO: Vždy text a pak obrázek
 # - TODO: I ti, co odpověděli, že nikdy nebyli ve společenství si občas přivlastnili roverské role... Rozmyslet, co to znamená. (asi hlavně problém kvality dat) 
-# - TODO: číslovat sekce, ať je jasné, jak to sebe patří
 # - OTHER - jiné
 
 ```
@@ -18,6 +17,10 @@ knitr::opts_chunk$set(echo = FALSE, cache=TRUE)
 source(here::here("datasety_dotaznik.R"), encoding = "UTF-8")
 
 plots <- list() 
+```
+```{r, cache = FALSE}
+# Je z nejakeho duvodu potreba, aby fungovalo get_default_zaloha_labels pri export do Wordu
+assign("zaloha_labels", zaloha_labels, envir = globalenv())
 ```
 
 # Stav roveringu

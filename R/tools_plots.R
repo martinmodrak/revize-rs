@@ -1,12 +1,4 @@
-#V palcich
-if(document_output) {
-  plot_size_multiplier <- 1
-} else {
-  plot_size_multiplier <- 1
-}
 
-default_plot_width <- 12 * plot_size_multiplier
-default_plot_height <- (default_plot_width / 16) * 9
 
 revize_colors <- c(
   white = "white",
