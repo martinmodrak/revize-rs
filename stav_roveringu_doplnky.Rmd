@@ -227,11 +227,11 @@ hlavni_data %>%
 ```
 
 ```{r}
-hlavni_data %>% filter(!is.na(vychovne_nastroje), kategorie_respondenta == "nyni_spolecenstvi", !role_skauting.vedouci_roveru, !role_skauting.tahoun_roveru) %>% plot_ciselne_s_nejistotou("pocet_klicovych_nastroju", organizace_strucne) + plot_annotation("Výchovné nástroje dle organizace", subtitle =  paste0("Počet použitých klíčových nástrojů. Bez respondentů, kteří sami vedou. Za klíčové se berou:\n ", paste0(klicove_nastroje_id, collapse = ", ")))
+hlavni_data %>% filter(!is.na(vychovne_nastroje), kategorie_respondenta == "nyni_spolecenstvi", !role_skauting.vedouci_roveru, !role_skauting.tahoun_roveru) %>% plot_ciselne_s_nejistotou("pocet_klicovych_nastroju", organizace_nejvyssi) + plot_annotation("Výchovné nástroje dle organizace", subtitle =  paste0("Počet použitých klíčových nástrojů. Bez respondentů, kteří sami vedou. Za klíčové se berou:\n ", paste0(klicove_nastroje_id, collapse = ", ")))
 ```
 
 ```{r}
-hlavni_data %>% filter(kategorie_respondenta == "nyni_spolecenstvi", !role_skauting.vedouci_roveru, !role_skauting.tahoun_roveru) %>%plot_frekvence_by("frekvence_vicedennich_akci", organizace_strucne) + plot_annotation("Frekvence vícedenních akcí", "dle organizace kmene, jen současní členové")
+hlavni_data %>% filter(kategorie_respondenta == "nyni_spolecenstvi", !role_skauting.vedouci_roveru, !role_skauting.tahoun_roveru) %>%plot_frekvence_by("frekvence_vicedennich_akci", organizace_nejvyssi) + plot_annotation("Frekvence vícedenních akcí", "dle organizace kmene, jen současní členové. Bez respondentů, kteří sami vedou.")
 
 ```
 

@@ -6,7 +6,7 @@ document_output <- (isTRUE(getOption('knitr.in.progress')) &&
                          "pdf_document" %in% rmarkdown::all_output_formats(knitr::current_input())) )
 
 word_output <- (isTRUE(getOption('knitr.in.progress')) &&
-                  "word_document" %in% rmarkdown::all_output_formats(knitr::current_input()))
+                  any(grepl("word_document", rmarkdown::all_output_formats(knitr::current_input()))) )
 
 if(document_output) {
   table_format <- knitr::kable

@@ -1,5 +1,7 @@
 kompetence <- c("samostatny", "fyzicky_zdatny", "pripraven_krize", "pripraven_bezny_zivot","resit_problemy","taboreni_tym","tvorivost_zrucnost","sebepoznani","duchovni_zivot","slib_zakon","svedomi","rozvoj_osobnosti","vztahy","komunikace","pomaham","rodina","skautsky_zit","clen_tymu","aktivni_obcan","propojenost_sveta","tolerantni","pobyt_v_prirode","vztah_k_prirode_krajine","setrnost")
 kategorie_kompetence <- c("zvladam","dulezite","rozvijim", "skauting")
+kategorie_kompetence_nazvy <- c("Zvládám/ovládám to výborně", "Je to pro mě velmi důležité", "Rozvíjím se v tom", "Skauting mi v rozvoji významně pomáhá")
+kategorie_kompetence_nazvy_kratke <- c("Zvládám", "Důležité", "Rozvíjím", "Skauting")
 
 kompetence_nazvy_sloupcu <- data.frame(kompetence) %>%
   crossing(data.frame(kategorie_kompetence)) %>%

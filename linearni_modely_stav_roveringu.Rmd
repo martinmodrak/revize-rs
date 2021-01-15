@@ -21,7 +21,7 @@ if(!dir.exists(cache_dir)) {
 }
 
 hlavni_data_cleni <- hlavni_data %>% filter(kategorie_respondenta == "nyni_spolecenstvi") %>%
-  mutate(organizace_strucne = fct_relevel(organizace_strucne, "neni_organizovan"),
+  mutate(organizace_nejvyssi = fct_relevel(organizace_nejvyssi, "neni_organizovan"),
          kraj = fct_explicit_na(kraj, na_level = levels(kraj)[15]),
          pocet_klicovych_nastroju = replace_na(pocet_klicovych_nastroju, replace = 0),
          role_skauting.vedouci_roveru = replace_na(role_skauting.vedouci_roveru, FALSE),
@@ -30,7 +30,7 @@ hlavni_data_cleni <- hlavni_data %>% filter(kategorie_respondenta == "nyni_spole
          byl_na_kurzu = replace_na(byl_na_kurzu, FALSE),
          age_norm = (age - 20.5) / 2.75) 
 
-base_formula <- ~ s(age_norm) + (1||sex) + (1||kraj) + organizace_strucne + role_skauting.vedouci_roveru + role_skauting.tahoun_roveru +  role_skauting.vedouci_zastupce_oddilu + (1||pocet_clenu_strediska) + mo(pocet_clenu_spolecenstvi) + byl_na_kurzu + (1||zivotni_faze) 
+base_formula <- ~ s(age_norm) + (1||sex) + (1||kraj) + organizace_nejvyssi + role_skauting.vedouci_roveru + role_skauting.tahoun_roveru +  role_skauting.vedouci_zastupce_oddilu + (1||pocet_clenu_strediska) + mo(pocet_clenu_spolecenstvi) + byl_na_kurzu + (1||zivotni_faze) 
 
 base_prior <- set_prior("normal(0, 1)", class = "b") + set_prior("normal(0,1)", class = "sd") +  set_prior("normal(0,1)", class = "sds")
 

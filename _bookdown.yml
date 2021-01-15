@@ -1,12 +1,12 @@
 rmd_files:
   [ "index.Rmd"
   , "uvod_dlouha.Rmd"
+  , "koncepce.Rmd"
   , "charakteristika_respondentu.Rmd"
   , "stav_roveringu.Rmd"
   , "kompetence.Rmd"
   , "odchody_lidi.Rmd"
   , "sondy2015_shrnuti.Rmd"
-  , "koncepce.Rmd"
   ]
 new_session: yes
 

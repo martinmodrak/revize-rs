@@ -5,7 +5,7 @@ get_base_for_inla <- function(hlavni_data_long) {
       age_norm = (age - 20.5) / 2.75,
       age_ar = age - min(age) + 1,
       kategorie_respondenta_full = factor(kategorie_respondenta_full),
-      across(one_of(c("byl_na_kurzu", "byl_na_rs_kurzu", "je_organizovan")),     logical_with_na_to_factor)
+      across(all_of(c("byl_na_kurzu", "byl_na_jinem_nez_rs_kurzu")),     logical_with_na_to_factor)
     )
 }
 
@@ -31,7 +31,7 @@ inla_pipeline <- function(base_data, kategorie, formula_base, uzite_mc_sloupce, 
 
   result <- NULL
   if(file.exists(cache_filename)) {
-    message(paste0("Cache file exists": cache_filename))
+    message(paste0("Cache file exists: ", cache_filename))
     cache_contents <- readRDS(cache_filename)
     if(identical(cache_contents$kategorie, kategorie) &&
        identical(as.character(cache_contents$formula), as.character(model_formula)) &&
@@ -39,6 +39,7 @@ inla_pipeline <- function(base_data, kategorie, formula_base, uzite_mc_sloupce, 
       if(cache_contents$n_samples < n_samples) {
         warning("N_samples larger, recomputing")
       } else {
+        message("Cache loaded")
         result <- cache_contents
       }
     } else {

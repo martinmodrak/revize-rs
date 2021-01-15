@@ -131,6 +131,7 @@ plot_prichody <- function(odchazeni, by = "none", response = podil_novych) {
     geom_line(aes(color = Sex)) +
     scale_x_continuous("Věk") +
     expand_limits(y=0) +
+    vodorovne_popisky_x +
     facet
 
 }
@@ -164,6 +165,7 @@ plot_pocty <- function(odchazeni, by = "none") {
     geom_vline(xintercept = 15, size = 1, linetype = "dashed", color = "gray") +
     geom_line(aes(color = Sex)) +
     expand_limits(y=0) +
+    vodorovne_popisky_x +
     facet
 
 }
@@ -200,6 +202,8 @@ porovnej_skautis_my <- function(skautis, my) {
     rename(opendata = pocet.opendata, nase = pocet.nase) %>%
     gather("zdroj","pocet", opendata, nase) %>%
     ggplot(aes(x = as.factor(rok), y = pocet, color = zdroj)) +
-      geom_point(size = 2,position = position_dodge(width = 0.2)) + facet_grid(vek_kategorie_interval ~ Sex, scales = "free")
+      geom_point(size = 2,position = position_dodge(width = 0.2)) +
+      vodorovne_popisky_x +
+      facet_grid(vek_kategorie_interval ~ Sex, scales = "free")
 
 }

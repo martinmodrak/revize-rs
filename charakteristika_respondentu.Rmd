@@ -6,9 +6,9 @@ knitr::opts_chunk$set(echo = FALSE, cache=TRUE)
 
 ```{r, results='asis'}
 if(word_output) {
-  cat("# Část I: Co víme z dat {-}\n")  
+  cat("# Část II: Co víme z dat {-}\n")  
 } else {
-  cat("# (PART\\*) Část I: Co víme z dat {-}\n")  
+  cat("# (PART\\*) Část II: Co víme z dat {-}\n")  
 }
 ```
 
@@ -18,8 +18,6 @@ if(word_output) {
 
 ```{r nacist_data, cache=TRUE, message=FALSE}
 source(here::here("datasety_dotaznik.R"), encoding = "UTF-8")
-
-plots <- list() 
 ```
 
 ```{r, cache = FALSE}
@@ -33,7 +31,7 @@ assign("zaloha_labels", zaloha_labels, envir = globalenv())
 Dotazník měl delší a kratší verzi. Těch, co vyplnili kratší jsme se pak ještě zeptali, jestli přeci jen nechtějí pokračovat a vyplnit delší :-)
 
 ```{r}
-plots$odpovedi <- datasety_wide$pouzitelne %>% group_by(stav_vyplneni) %>% summarise(pocet = n(), .groups = "drop") %>%
+datasety_wide$pouzitelne %>% group_by(stav_vyplneni) %>% summarise(pocet = n(), .groups = "drop") %>%
   mutate(stav_vyplneni = factor(stav_vyplneni, levels = c("nedokoncil","dokoncil_kratsi", "rozpracoval_doplnek", "dokoncil_doplnek", "dokoncil_delsi"), labels = c("Nedokončil ale vyplnil aspoň něco", "Dokončil kratší a nepokračoval", "Dokončil kratší a nedokončil pokračování", "Dokončil kratší i pokračování", "Dokončil delší"))) %>%
   ggplot(aes(x = stav_vyplneni, y = pocet, label = pocet)) + geom_bar(stat = "identity") + 
   geom_text(aes(color = pocet > 50), y = 50, hjust = 0, family = title_family(), size = 6) + 
@@ -43,13 +41,13 @@ plots$odpovedi <- datasety_wide$pouzitelne %>% group_by(stav_vyplneni) %>% summa
           axis.ticks.x = element_blank(), axis.line.x = element_blank()) +
   plot_annotation("Počet vyplnění", subtitle = "Všichni")
 
-plots$odpovedi
+
 ```
 
 V datech dále primárně analyzujeme jen respondenty ve věku 15&nbsp;---&nbsp;26 let, tam počty vypadaji takto:
 
 ```{r}
-plots$odpovedi_15_26 <- datasety_wide$pouzitelne %>%  filter(age >= 15, age <= 26) %>% group_by(stav_vyplneni) %>% summarise(pocet = n(), .groups = "drop") %>%
+datasety_wide$pouzitelne %>%  filter(age >= 15, age <= 26) %>% group_by(stav_vyplneni) %>% summarise(pocet = n(), .groups = "drop") %>%
   mutate(stav_vyplneni = factor(stav_vyplneni, levels = c("nedokoncil","dokoncil_kratsi", "rozpracoval_doplnek", "dokoncil_doplnek", "dokoncil_delsi"), labels = c("Nedokončil ale vyplnil aspoň něco", "Dokončil kratší a nepokračoval", "Dokončil kratší a nedokončil pokračování", "Dokončil kratší i pokračování", "Dokončil delší"))) %>%
   ggplot(aes(x = stav_vyplneni, y = pocet, label = pocet)) + geom_bar(stat = "identity") + 
   geom_text(aes(color = pocet > 50), y = 50, hjust = 0, family = title_family(), size = 6) + 
@@ -59,7 +57,7 @@ plots$odpovedi_15_26 <- datasety_wide$pouzitelne %>%  filter(age >= 15, age <= 2
           axis.ticks.x = element_blank(), axis.line.x = element_blank()) +
   plot_annotation("Počet vyplnění", subtitle = "Jen 15-26")
 
-plots$odpovedi_15_26
+
 
 ```
 
@@ -70,9 +68,10 @@ podil_z_registrovanych_roveru <- nrow(hlavni_data) / 12924
 
 Ty, kteří dotazník nedokončili budeme z většiny analýz vyřazovat. Zbývá nám tak `r nrow(hlavni_data)` vyplněných dotazníků, což je `r scales::percent(podil_z_registrovanych_roveru)` ze všech registrovaných skautů v roverském věku (nicméně někteří, co vyplňovali registrovaní nejsou).
 
+Rozložení dle pohlaví ukazuje převahu žen (což je rozdíl oproti registraci, kde v této věkové kategorii převažují muži). Členů, kteří se do binární škatulky pohlaví nezařadí máme kolem 1%, což odpovídá odhadům tohoto podílu v běžné populaci.
 
 ```{r}
-plots$pohlavi <- hlavni_data %>%
+hlavni_data %>%
   group_by(sex) %>%
   summarise(n = n(), .groups = "drop") %>%
   mutate(sex_factor = factor(sex, levels = c("jinak_neuvedeno","muz", "zena"), labels = c("Je to jinak/nepřeji si uvést","Muž","Žena"))) %>%
@@ -83,28 +82,28 @@ plots$pohlavi <- hlavni_data %>%
         axis.title = element_blank()) +
   plot_annotation("Respondenti dle pohlaví")
 
-plots$pohlavi
+
 ```
 
 Takto vypadá rozložení respondentů dle věku --- přerušované čáry ukazují rozmezí 15 --- 26 let, tj. skupinu, kterou primárně analyzujeme.
 
 ```{r}
-plots$vek <- datasety_wide$pouzitelne %>% group_by(age) %>% summarise(pocet = n(), .groups = "drop") %>% mutate(podil = pocet / sum(pocet)) %>%
+datasety_wide$pouzitelne %>% group_by(age) %>% summarise(pocet = n(), .groups = "drop") %>% mutate(podil = pocet / sum(pocet)) %>%
   ggplot(aes(x = age, y = podil, label = scales::percent(podil, accuracy = 1))) + geom_bar(stat = "identity") + #geom_text(aes(y = 0.01), color = revize_cols("dark_blue"), size = 6 ) + 
   vodorovne_popisky_x + scale_y_continuous("Podíl", labels = scales::percent) + scale_x_continuous("Věk") + plot_annotation("Věkové rozložení respondentů") + geom_vline(xintercept = 14.5) + geom_vline(xintercept = 26.5)
-plots$vek
+
 ```
 
 Životní fáze --- tady už se opět díváme jen na respondenty 15---26 let.
 
 ```{r}
-plots$zivotni_faze <- hlavni_data %>% plot_summary_mc(zivotni_faze, "Životní fáze")
-plots$zivotni_faze
+hlavni_data %>% plot_summary_mc(zivotni_faze, "Životní fáze")
+
 ```
 
 ```{r}
-plots$kategorie_respondenta <- plot_summary_mc(hlavni_data, kategorie_respondenta_full, "Roverská zkušenost")
-plots$kategorie_respondenta
+plot_summary_mc(hlavni_data, kategorie_respondenta_full, "Roverská zkušenost")
+
 ```
 
 ## Reprezentativnost
@@ -170,13 +169,13 @@ dle_veku %>%
   facet_wrap(~group) + scale_y_continuous(labels = scales::percent)
 }
 
-plots$reprezentativnost_vek <- reprezentativnost_vek(data_skautis_jednotlivci, hlavni_data) + plot_annotation("Reprezentativnost průzkumu dle věku")
+reprezentativnost_vek(data_skautis_jednotlivci, hlavni_data) + plot_annotation("Reprezentativnost průzkumu dle věku")
 
-plots$reprezentativnost_vek
 
-plots$reprezentativnost_vek_pohlavi <- reprezentativnost_vek(data_skautis_jednotlivci, hlavni_data %>% filter(sex != "jinak_neuvedeno"), additional_group = sex) + plot_annotation("Reprezentativnost dle věku a pohlaví")
 
-plots$reprezentativnost_vek_pohlavi
+reprezentativnost_vek(data_skautis_jednotlivci, hlavni_data %>% filter(sex != "jinak_neuvedeno"), additional_group = sex) + plot_annotation("Reprezentativnost dle věku a pohlaví")
+
+
 
 ```
 
@@ -270,45 +269,45 @@ plot_reprezentativnost <- function(reprezentativnost_data, facet = NULL, x = kra
 Kraje máme poměrně dobře zastoupené --- vidíme drobně nadreprezentovaný Jihomoravský a drobně podreprezentovaný Plzeňský a Zlínský, ale na zásadní problém to nevypadá.
 
 ```{r}
-plots$reprezentativnost_kraj <- compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("kraj")) %>%
+compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("kraj")) %>%
   plot_reprezentativnost() + plot_annotation("Reprezentativnost dle kraje")
 
-plots$reprezentativnost_kraj
+
 ```
 
 Různé velikosti středisek jsou taky zastoupeny celkem rozumně, jakkoliv kategorie 70 --- 100 a 100 --- 130 členů jsou mírně nadreprezentovány na úkor kategorie 130 --- 200.
 
 ```{r}
-plots$reprezentativnost_stredisko <- compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("pocet_clenu_strediska")) %>%
+compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("pocet_clenu_strediska")) %>%
   plot_reprezentativnost(x = pocet_clenu_strediska) + plot_annotation("Reprezentativnost", "dle velikosti střediska")
 
-plots$reprezentativnost_stredisko
+
 ```
 
 Kraj můžeme kombinovat s věkovou skupinou (SkautIS open data nám říká jen 15 --- 18 a 19---26). Dalším dělením trochu ztrácíme na citlivosti (rozšiřuje se pruh nejistoty), nicméně se nezdá, že by po rozdělení podle věku data vypadala hůře.
 
 ```{r}
-plots$reprezentativnost_kraj_vek <- compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("vekova_skupina","kraj")) %>%
+compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("vekova_skupina","kraj")) %>%
   plot_reprezentativnost(facet_wrap( ~ vekova_skupina)) + plot_annotation("Reprezentativnost dle kraje, věku")
 
-plots$reprezentativnost_kraj_vek
+
 ```
 
 Obdobně můžeme rozdělit reprezentativnost dle velikosti střediska. Zde to vypadá, že v kategorii nad 18 let je reprezentativnost o něco lepší.
 
 ```{r}
-plots$reprezentativnost_vek_stredisko <- compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("pocet_clenu_strediska", "vekova_skupina")) %>%
+compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("pocet_clenu_strediska", "vekova_skupina")) %>%
   plot_reprezentativnost(facet = facet_wrap(~ vekova_skupina),x = pocet_clenu_strediska) + plot_annotation("Reprezentativnost", "dle velikosti střediska")
-plots$reprezentativnost_vek_stredisko
+
 ```
 
 Můžeme též zkombinovat kraj a velikost střediska --- opět ztrácíme citlivost, nicméně je zde vidět například to, že nadreprezentování Jihomoravského kraje je hnáno velkými středisky. Opět neukazuje na podstatný problém.
 
 ```{r}
-plots$reprezentativnost_kraj_stredisko <- compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("pocet_clenu_strediska","kraj")) %>%
+compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("pocet_clenu_strediska","kraj")) %>%
   plot_reprezentativnost(facet_wrap( ~ pocet_clenu_strediska, nrow = 1)) + plot_annotation("Reprezentativnost", "dle kraje, velikosti střediska")
 
-plots$reprezentativnost_kraj_stredisko
+
 ```
 
 
@@ -317,13 +316,13 @@ A samozřejmě ještě můžeme rozdělit dle věkové skupiny (zde ve dvou obr�
 ```{r}
 reprezentativnost_data_vse <- compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("vekova_skupina","kraj", "pocet_clenu_strediska"))
 
-plots$reprezentativnost_kraj_stredisko_nad18 <- plot_reprezentativnost(reprezentativnost_data_vse %>% filter(vekova_skupina == "nad_18"), facet_wrap( ~ pocet_clenu_strediska, nrow = 1)) + plot_annotation("Reprezentativnost nad 18", "dle kraje a velikosti střediska")
+plot_reprezentativnost(reprezentativnost_data_vse %>% filter(vekova_skupina == "nad_18"), facet_wrap( ~ pocet_clenu_strediska, nrow = 1)) + plot_annotation("Reprezentativnost nad 18", "dle kraje a velikosti střediska")
 
-plots$reprezentativnost_kraj_stredisko_nad18
 
-plots$reprezentativnost_kraj_stredisko_do18 <- plot_reprezentativnost(reprezentativnost_data_vse %>% filter(vekova_skupina == "do_18"),  facet_wrap( ~ pocet_clenu_strediska, nrow = 1))  + plot_annotation("Reprezentativnost pod 18", "dle kraje a velikosti střediska")
 
-plots$reprezentativnost_kraj_stredisko_do18
+plot_reprezentativnost(reprezentativnost_data_vse %>% filter(vekova_skupina == "do_18"),  facet_wrap( ~ pocet_clenu_strediska, nrow = 1))  + plot_annotation("Reprezentativnost pod 18", "dle kraje a velikosti střediska")
+
+
 ```
 
 ```{r}
@@ -345,9 +344,9 @@ hlavni_data %>% group_by(sex) %>% summarise(prumer_vek = mean(age), .groups = "d
 Respondenti měli více způsobů jak vyplnit informace o středisku, buď přímo registrační číslo, nebo naopak odpovědět na otázky o počtu členů apod.
 
 ```{r}
-plots$typ_id_strediska <- 
+
   plot_summary_mc(hlavni_data, typ_id_strediska, order_by_podil = FALSE, invert_color_threshold =  0.03, title = "Vyplnění informací o středisku")
-plots$typ_id_strediska
+
 ```
 
 Seznam středisek ze kterých máme nejvíce respondentů asi nepřekvapí (Blaník). Toto se samozřejmě týká jen té necelé poloviny respondentů, co nám vyplnili registrační číslo.
@@ -365,9 +364,3 @@ hlavni_data %>% group_by(reg_c_strediska) %>% summarise(pocet = n(), nazev = naz
 
 ```
 
-
-```{r save_plots}
-if(!document_output) {
-  save_list_of_plots(plots,"charakteristika_respondentu")
-}
-```

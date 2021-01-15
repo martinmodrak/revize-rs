@@ -1,17 +1,5 @@
 ---
-site: "bookdown::bookdown_site"
 title: "Revize roverského programu: Závěrečná zpráva"
-output:
- # bookdown::gitbook:
- #  split_by: chapter
- #  css: gitbook_style.css
- #  pandoc_args: ["--lua-filter=non_breaking_policy.lua"]
- #  toc_depth: 3
- word_document:
-  toc_depth: 2
-  reference_docx: "public_data/output_template.docx"
-  # bookdown::pdf_book:
-  #   pandoc_args: ["--lua-filter=non_breaking_policy.lua"]
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 ---
 
@@ -24,7 +12,7 @@ Ke každému z nich pak níže nabízíme trochu delší komentář.
 source(here::here("setup_knitr.R"))
 source(here::here("zaverecna_zprava_pomocne","kratka_zprava_generated.R"), encoding = "UTF-8")
 knitr::opts_chunk$set(echo = FALSE)
-#rmarkdown::find_pandoc() # Try to use version at least 2.8 to allow unlisted header elements
+rmarkdown::find_pandoc() # Try to use version at least 2.8 to allow unlisted header elements
 ```
 
 ```{r}

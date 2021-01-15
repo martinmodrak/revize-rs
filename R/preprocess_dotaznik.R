@@ -278,15 +278,18 @@ spocitej_odvozene_kategorie <- function(cela_data) {
              c("radcovsky_kurz", "cekatelky", "jiny_kurz", "vudcovky"),
            byl_na_kurzu = co_zazil %contains_any_word%
              c("roversky_kurz", "radcovsky_kurz", "cekatelky", "jiny_kurz", "vudcovky"),
-           neni_organizovan =  organizace_spolecenstvi %contains_any_word% c("vsichni", "nikdo", "neaktivni"),
+           neni_organizovan =  organizace_spolecenstvi %contains_any_word% c("nikdo", "neaktivni"),
            ma_vudce = organizace_spolecenstvi %contains_any_word%
-             c("formalni_vudce_zhury", "formalni_vudce_demokraticky"),
-           je_organizovan = organizace_spolecenstvi %contains_any_word%
-             c("formalni_vudce_zhury", "formalni_vudce_demokraticky", "formalni_rada_zhury",
-               "formalni_rada_demokraticky", "neformalni_tahoun", "neformalni_rada"),
-           organizace_strucne = factor(case_when(organizace_spolecenstvi %contains_word% "neaktivni" ~ "neaktivni",
-                                                 ma_vudce ~ "ma_vudce", je_organizovan ~ "je_organizovan", TRUE ~ "neni_organizovan"),
-                                       levels = c("neaktivni", "neni_organizovan", "je_organizovan", "ma_vudce")),
+             c("formalni_vudce_zhury", "formalni_vudce_demokraticky", "neformalni_tahoun"),
+           ma_radu = organizace_spolecenstvi %contains_any_word%
+             c("formalni_rada_zhury", "formalni_rada_demokraticky", "neformalni_rada"),
+           organizuji_vsichni = organizace_spolecenstvi %contains_word%  "vsichni",
+           organizace_nejvyssi = factor(case_when(organizace_spolecenstvi %contains_word% "neaktivni" ~ "neaktivni",
+                                                  ma_vudce ~ "ma_vudce",
+                                                  ma_radu ~ "ma_radu",
+                                                  organizuji_vsichni ~ "vsichni",
+                                                  neni_organizovan ~ "neni_organizovan"),
+                                       levels = c("neaktivni", "neni_organizovan", "vsichni", "ma_radu", "ma_vudce")),
            je_rover = role_skauting %contains_any_word% c("clen_roveru", "tahoun_roveru", "rover_sam", "clen_rady_roveru"),
            ma_roverskou_roli = je_rover | role_skauting %contains_word% "vedouci_roveru",
            ma_vudcovskou_roli = role_skauting %contains_any_word% c("vedouci_zastupce_oddilu",
@@ -307,6 +310,10 @@ spocitej_odvozene_kategorie <- function(cela_data) {
              (frekvence_velkych_akci >= "rocne" & (frekvence_kratkych_akci >= "nekolik_rocne" | frekvence_vicedennich_akci >= "nekolik_rocne")),
            kmen_aktivni_velmi = frekvence_velkych_akci >= "rocne" & frekvence_kratkych_akci >= "mesicne" & frekvence_vicedennich_akci >= "nekolik_rocne"
   )
+
+  if(any(is.na(cela_data$organizace_nejvyssi) & !is.na(cela_data$organizace_spolecenstvi))) {
+    stop("Spatny prevod organizace")
+  }
 
   cela_data <- cela_data %>% mutate(zdroj = case_when(zdroj == "neuvedeno_redirect" ~  "nezname",
                                                              zdroj == "" ~ "primo formr.org",

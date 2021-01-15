@@ -129,7 +129,8 @@ plot_kompetence_by <- function(data, kategorie, group, group2 = NULL, meritko = 
     geom_ribbon(alpha = 0.4, color = FALSE) + geom_line(alpha = 0.8) + my_facet +
     my_scale_x + my_theme + scale_y_continuous("Průměr") +
     scale_color_revize() + scale_fill_revize() +
-    ggtitle(kategorie, subtitle =  meritka_kompetence[[meritko_nazev]]$popis)
+    ggtitle(kategorie_kompetence_nazvy[ kategorie_kompetence == kategorie ],
+            subtitle =  meritka_kompetence[[meritko_nazev]]$popis)
 }
 
 plot_kompetence_by_smooth <- function(data, kategorie, group, group2 = NULL, meritko = kompetence_odpoved, all_together = FALSE) {
@@ -156,6 +157,7 @@ plot_kompetence_by_smooth <- function(data, kategorie, group, group2 = NULL, mer
     geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"), alpha = 0.5) + my_facet +
     my_scale_x + my_theme + scale_y_continuous("Průměr") +
     scale_color_revize() + scale_fill_revize() +
-    ggtitle(kategorie, subtitle =  paste0(meritka_kompetence[[meritko_nazev]]$popis, ", vyhlazeno"))
+    ggtitle(kategorie_kompetence_nazvy[ kategorie_kompetence == kategorie ],
+            subtitle =  paste0(meritka_kompetence[[meritko_nazev]]$popis, ", vyhlazeno"))
 }
 
