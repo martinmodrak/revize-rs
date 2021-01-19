@@ -3,11 +3,6 @@ title: "Revize roverského programu: Závěrečná zpráva"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 ---
 
-# Krátká verze {-#kratka}
-
-Pokud nemáte čas, nabízíme naše hlavní závěry jen jako seznam bodů. 
-Ke každému z nich pak níže nabízíme trochu delší komentář.
-
 ```{r setup, message=FALSE,warning=FALSE, results="hide", echo = FALSE}
 source(here::here("setup_knitr.R"))
 source(here::here("zaverecna_zprava_pomocne","kratka_zprava_generated.R"), encoding = "UTF-8")
@@ -15,10 +10,28 @@ knitr::opts_chunk$set(echo = FALSE)
 rmarkdown::find_pandoc() # Try to use version at least 2.8 to allow unlisted header elements
 ```
 
+
+# Krátká verze {-#kratka}
+
+Pokud nemáte čas, nabízíme naše hlavní závěry jen jako seznam bodů. 
+Ke každému z nich pak níže nabízíme trochu delší komentář.
+
+
+
+
 ```{r}
-# preprocess_kz_element <- function(element) {
-#   element$id <- 
-# }
+preprocess_kz_element <- function(element) {
+  element$name <- gsub("<U\\+([0-9A-Fa-f]*)>", "&#x\\1;", element$name)
+  element$name <- gsub("&nbsp;$", "", element$name)
+  element
+}
+
+preprocess_kz_group <- function(group) {
+  group$contents <-  purrr::map(group$contents, preprocess_kz_element)
+  group
+}
+
+kratka_zprava <- purrr::map(kratka_zprava, preprocess_kz_group)
 ```
 
 
@@ -26,9 +39,10 @@ rmarkdown::find_pandoc() # Try to use version at least 2.8 to allow unlisted hea
 heading_to_id <- function(heading) {
   without_accents <- stringi::stri_trans_general(str = heading, 
                                    id = "Latin-ASCII")
-  removed_special_chars <- gsub("[.\"|?:,/] ?", "", without_accents)
+  removed_special_chars <- gsub("[.\"|?!:,/] ?", "", without_accents)
+  removed_entities <- gsub("&[^;]*;", "", removed_special_chars)
   
-  handled_whitespace <- gsub(" ", "-", tolower(trimws(removed_special_chars)))
+  handled_whitespace <- gsub(" ", "-", tolower(trimws(removed_entities)))
   handled_whitespace
 }
 
@@ -43,13 +57,22 @@ print_kz_element_short <- function(element) {
 print_kz_group_short <- function(group) {
 #  cat("* **", group$group_name, "** [", more_string, "](#", heading_to_id(group$group_name),")\n", sep = "")
   # cat("* **", group$group_name, "** \n", sep = "")
-  cat("* **", group$group_name, "**: ", sep = "")
+  cat("* **", gsub(":", "", group$group_name), "**: ", sep = "")
   purrr::walk(group$contents, print_kz_element_short)
   cat("\n")
   
 }
 purrr::walk(kratka_zprava, print_kz_group_short)
 ```
+
+## Kontext vzniku projektu aneb je nebo není rovering v dobrém stavu? {-}
+
+Projekt Revize roverského programu vznikl v rámci Strategie Junáka 2020. Jeho zásadní součástí byl i velký roverský průzkum, ze kterého v této zprávě hlavně vycházíme. Potřeba zjistit a kvantifikovat, v jakém stavu se rovering v ČR nachází, byla dána zejména dlouhodobým nedostatkem dat o roveringu, ze kterých by se dalo vycházet při revizi samotného Roverského programu vydaného Junákem v roce 2011.
+
+V době vzniku průzkumu kolovalo o roveringu v Junáku mnoho rozdílných tvrzení a domněnek. Při debatách o roveringu se stále dokola naráželo na důležité otázky o roveringu, na které neexistovaly jasné odpovědi. Vyhledávané byly odpovědi na otázky ‘jak pracovat s RS’ a ‘jak dělat rovering u oddílů’. Z výpovědí o zkušenostech s praktickým roveringem byla často cítit frustrace.
+
+Z celkového obrazu o roveringu pohledem zkušeností Roverského odboru a Roverských kurzů se dalo vyvodit pouze to, že rovering funguje velmi rozdílně napříč oddíly a středisky v ČR a že se pere s různě závažnými problémy. Velký roverský průzkum si dal za cíl zmapovat hlavní rysy roveringu v Junáku a vytvořit prostor pro dobře provedené zlepšení stavu roveringu. Na základě tohoto průzkumu a diskuzí, které jsme absolvovali během projektu, pak formulujeme i další, obecnější doporučení.
+
 
 ```{r render_kratka_zprava_full, results = "asis"}
 print_kz_element_full <- function(element) {

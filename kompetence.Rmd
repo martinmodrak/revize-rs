@@ -271,7 +271,7 @@ Dva hlavní faktory, které odlišují odpovědi jsou pohlaví a věk. Očekáv�
 pohlaví zde má vliv primárně skrz "gender" (tj. rozdíly ve společenském očekávání a výchově mezi
 dívkami a chlapci) a jen minimálně skrz "sex" (fundamentální biologické/genetické rozdíly), ale
 bohužel jsme v otázce na pohlaví toto úplně neupřesnili a nemáme tedy žádný nástroj, jak toto rozlišit. 
-jak se odpovědi liší dle těchto kategorií. S velkou omluvou směrem k respondentům,
+S velkou omluvou směrem k respondentům,
 kteří si nepřáli kategorizovat svoje pohlaví na muž/žena je z grafů, kde ukazujeme pohlaví zvlášť
 vynecháváme, jelikož vzhledem k malému počtu těchto respondentů mají výrazně větší rozpětí nejistoty,
 což činí grafy méně čitelnými.
@@ -296,7 +296,7 @@ Můžeme se podívat též na trendy pro jednotlivé kompetence --- a to přímo
 
 Je taky dobré si všimnout, že průměrné sebehodnocení kompetenci se zřídka liší mezi mladšími a staršími o více jak půl stupně. Nejvýraznější změna je u "3.A Kamarádské vztahy" --- díky tomu, že ostatní kompetence se trochu "vyprůměrují", je tato fluktuace promítnuta i do celkového průměru.
 
-```{r, cache.lazy=FALSE}
+```{r}
 plot_kompetence_by(hlavni_data_long_sex, "zvladam", age, group2 = sex)
 
 plot_kompetence_by_smooth(hlavni_data_long_sex, "zvladam", age, group2 = sex)
@@ -316,7 +316,7 @@ Trendy pro jednotlivé kompetence jsou v něčem hezké --- klesá vnímaná dů
 
 Opět zdůrazním, že změny v průměrném sebehodnocení jsou mírné --- většinou o max. půl stupně ze sedmi.
 
-```{r, cache.lazy = FALSE}
+```{r}
 plot_kompetence_by(hlavni_data_long_sex, "dulezite", age, group2 = sex)
 
 
@@ -528,7 +528,7 @@ hlavni_data_long %>% spocitej_data_rozdil(rozvijim, skauting, "kompetence_poziti
 
 
 
-## Asociace s dalšími částmi dotazníku
+## Asociace s dalšími částmi dotazníku {#kompetenceasociace}
 
 Tato část je trochu spekulativnější - hledáme asociace mezi různými dalšími odpovědmi
 v dotazníku a rozvojem kompetencní. Na začátku je na místě říct, že důvěryhodných asociací 
@@ -541,7 +541,7 @@ jedná jen o asociace - není vůbec jasné, jestli se jedná o příčinu a ná
 
 Pravděpodobně se ve skutečnosti jedná o nějakou kombinaci všech tří možností.
 
-```{r}
+```{r load_marginals, cache=FALSE}
 all_marginals_file <- here::here("local_data", "all_marginals.rds")
 if(!file.exists(all_marginals_file)) {
   stop("Nenalezeny spocitane fity. Spust `spocitej_INLA_kompetence.R` nebo pozadej Orla o nasdileni spocitanych vysledku.")
@@ -551,7 +551,7 @@ all_marginals <- readRDS(file = here::here("local_data", "all_marginals.rds"))
 
 
 
-```{r}
+```{r preprocess_marginals, cache =FALSE}
 base_for_inla <- get_base_for_inla(hlavni_data_long)
 
 
@@ -631,7 +631,7 @@ all_marginals_processed <- all_marginals_processed %>%
 
 
 
-```{r}
+```{r filter_marginals, cache=FALSE}
 marginals_to_show <- all_marginals_processed %>% 
   filter(!(marginal %in% c("age_ar", "kolik_casu", "(Intercept)", "sexjinak_neuvedeno")),
          !grepl("nevyplneno$", marginal),
@@ -762,15 +762,15 @@ plot_all_indices(marginals_to_show, "co_zazil", title = "Co ve skautingu zažila
 plot_all_indices(marginals_to_show, "fungovani_skautskeho_oddilu", title = "Zkušenost z doby, kdy jsi byla ve skautském věku")
 ```
 
-### Organizace společenství
+### Organizace společenství {#kompetence_organizace}
 
 Organizaci jsme (obdobně jako kurzy/zkušenosti) zpracovávali ve dvou úrovních detailu. V modelu A jsme shrnuli odpovědi do několika větších kategorií a brali "nejvyšší dosaženou" (tj. např kmen, který má vůdce i radu je zde veden jako "ma_vudce". Zde asociace vypadají takto:
 
 ```{r}
-plot_all_indices(marginals_to_show, "organizace_nejvyssi", title = "Organizace společenství - zjednodušeně")
+plot_all_indices(marginals_to_show, "organizace_nejvyssi", title = "Organizace společenství - nejvyšší dosažená")
 ```
 
-A máme i výsledky pro detailní rozpad, jak otázku respondenti vyplňovali z modelu B - zde se zohledňuje i to, že někteří respondenti zaškrtli více možností. Zde je zajímavý kontrast mezi možnostmi "Bez jasného vedení - organizují všichni" a "Bez jasného vedené - neorganizuje nikdo". 
+A máme i výsledky pro detailní rozpad, jak otázku respondenti vyplňovali z modelu B - zde se zohledňuje i to, že někteří respondenti zaškrtli více možností a taky se zároveň bere v potaz role, kterou respondent má (dá se čekat, že z kmenů, kde je vůdce odpovídá častěji přímo vůdce, u kterého očekáváme, že spíše pozitivně vyčnívá). Zde nám "Bez jasného vedení - organizují všichni" vychází nejlépe, ale efekt vůdce je rozložen mezi více kategorií, což mohlo viditelné asociace ztlumit. 
 
 ```{r}
 plot_all_indices(marginals_to_show, "organizace_spolecenstvi", title = "Kdo organizuje/organizoval tvé společenství")

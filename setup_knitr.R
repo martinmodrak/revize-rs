@@ -1,12 +1,7 @@
-document_output <- (isTRUE(getOption('knitr.in.progress')) &&
-                      ("word_document" %in% rmarkdown::all_output_formats(knitr::current_input()) ||
-                         "html_document" %in% rmarkdown::all_output_formats(knitr::current_input()) ||
-                         any(grepl("book", rmarkdown::all_output_formats(knitr::current_input()))) ||
-                         is.null(rmarkdown::all_output_formats(knitr::current_input())) || # GitBook has this, probably not great option :-)
-                         "pdf_document" %in% rmarkdown::all_output_formats(knitr::current_input())) )
-
-word_output <- (isTRUE(getOption('knitr.in.progress')) &&
-                  any(grepl("word_document", rmarkdown::all_output_formats(knitr::current_input()))) )
+# gitbook_output <- (isTRUE(getOption('knitr.in.progress')) &&
+#                      knitr::opts_knit$get('rmarkdown.pandoc.to') )
+document_output <- isTRUE(getOption('knitr.in.progress'))
+gitbook_output <- document_output && (knitr::opts_knit$get('rmarkdown.pandoc.to') == "html")
 
 if(document_output) {
   table_format <- knitr::kable
@@ -15,11 +10,7 @@ if(document_output) {
 }
 
 #V palcich
-if(document_output) {
-  plot_size_multiplier <- 1
-} else {
-  plot_size_multiplier <- 1
-}
+plot_size_multiplier <- 1
 
 default_plot_width <- 12 * plot_size_multiplier
 default_plot_height <- (default_plot_width / 16) * 9

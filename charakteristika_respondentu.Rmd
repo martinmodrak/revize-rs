@@ -4,14 +4,6 @@ source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
 knitr::opts_chunk$set(echo = FALSE, cache=TRUE)
 ```
 
-```{r, results='asis'}
-if(word_output) {
-  cat("# Část II: Co víme z dat {-}\n")  
-} else {
-  cat("# (PART\\*) Část II: Co víme z dat {-}\n")  
-}
-```
-
 
 # Charakteristika respondentů {#charakteristika_respondentu}
 
@@ -85,6 +77,11 @@ hlavni_data %>%
 
 ```
 
+S velkou omluvou směrem k respondentům,
+kteří si nepřáli kategorizovat svoje pohlaví na muž/žena je z grafů, kde ukazujeme pohlaví zvlášť
+vynecháváme, jelikož vzhledem k malému počtu těchto respondentů mají výrazně větší rozpětí nejistoty,
+což činí grafy méně čitelnými - a zároveň skutečně o této skupině nemůžeme v porovnání s ostatními kvůli tomuto malému počtu říct nic s jistotou.
+
 Takto vypadá rozložení respondentů dle věku --- přerušované čáry ukazují rozmezí 15 --- 26 let, tj. skupinu, kterou primárně analyzujeme.
 
 ```{r}
@@ -100,6 +97,8 @@ datasety_wide$pouzitelne %>% group_by(age) %>% summarise(pocet = n(), .groups = 
 hlavni_data %>% plot_summary_mc(zivotni_faze, "Životní fáze")
 
 ```
+
+A jedna z hlavních otázek, kterou charakterizujeme
 
 ```{r}
 plot_summary_mc(hlavni_data, kategorie_respondenta_full, "Roverská zkušenost")
@@ -121,7 +120,7 @@ V každém obrázku níže je křivka "SkautIS", která reprezentuje podíl dan�
 
 ### Detailně dle věku {#reprezentativnostvek}
 
-Z věkových skupin máme podreprezentovány patnáctileté --- to není překvapení, tím, že jsou na hraně roverského věku, čekáme, že se k nim průzkum vůbec nemusel dostat. Zato máme o něco více "prostředních roverů". Zajímavé ale je, že primárně jde o nedostatek 15ti letých roverů a naopak nadbytek roverek v "prostředním" věku. Doplním, že detailní data o věku mám jen z registrace 2018, takže tu může být jistý nesoulad se stavem k době průzkumu.
+Z věkových skupin máme podreprezentovány patnáctileté --- to není překvapení, tím, že jsou na hraně roverského věku, čekáme, že se k nim průzkum vůbec nemusel dostat. Zato máme o něco více "prostředních roverů". Zajímavé ale je, že primárně jde o nedostatek 15ti letých roverů (mužů) a v "prostředním" věku naopak o nadbytek roverek/rangers. Doplním, že detailní data o věku mám jen z registrace 2018, takže tu může být jistý nesoulad se stavem k době průzkumu.
 
 ```{r}
 reprezentativnost_vek <- function(data_skautis_, data_pruzkum_, min_vek = 15, max_vek = 26, additional_group = "Vše") {

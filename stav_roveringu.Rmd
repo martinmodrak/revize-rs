@@ -41,9 +41,7 @@ Pro interpretaci výsledků je potřeba připomenout, že všechny údaje jsou s
 
 Text je strukturován tak, že vždy uvádíme nějaká tvrzení a za nimi je graf/tabulka, které ukazují v čem sesbíraná data tvrzení podporují.
 
-## Životní cyklus rovera
-
-### Vstup do roverského věku {#vstup_do_rs}
+## Vstup do roverského věku {#vstup_do_rs}
 
 Jedním z často zmiňovaných problémů je, že na přelomu skautského a roverského věku "ztrácíme" členy. Tuto otázku rozebíráme podrobněji v [kapitole o odchodech lidí](#odchody-lidi), zde jen zopakujeme hlavní shrnutí 
 
@@ -74,34 +72,8 @@ podile_vstoupili_do_11ti_let <- mean(data_vstupy$vek_vstupu_do_junaka < 11, na.r
 
 Respondenti tomuto odpovídají --- `r scales::percent(podile_vstoupili_do_11ti_let)` jich vstoupilo do Junáka když jim bylo méně než 11 let.
 
-Bavíme-li se o vstupu do roverského společenství, málokdo vstupuje do kmene později než těsně po skautském věku.
 
-```{r vek_vstupu_do_kmene, fig.cap='Rozložení věku vstupu do kmene. Věk vstupu určen z otázek "Jak dlouho jsi ve společenství" a "Věk", proto lze určit jen u těch, kdo nyní jsou ve společenství.'}
-
-
-
-plot_vek_vstupu_base <- data_vstupy %>% filter(!is.na(vek_vstupu_do_kmene)) %>%
-  ggplot(aes(x = vek_vstupu_do_kmene)) + geom_histogram(binwidth = 1) + vodorovne_popisky_x + 
-  scale_x_continuous(breaks = c(13, 15, 18, 21, 24))
-
-plot_vek_vstupu_base +
-  ggtitle("Věk vstupu do kmene", "Jen členi společenství")
-
-```
-
-Tato data jsou částečně zkreslena tím, že obecně máme hodně mladších respondentů (kteří nemohli vstoupit do kmene později), ale i u starších respondentů vidíme výraznou špičku vstupů mezi 15 a 17tým rokem.
-
-```{r vek_vstupu_do_kmene_skupiny}
-plot_vek_vstupu_base + 
-  facet_wrap(~vekova_skupina) +   
-  ggtitle("Věk vstupu do kmene", "Jen členi společenství, rozděleno dle současného věku respondentů")
-
-
-
-```
-
-
-#### Čím si prošli před vstupem {#pred_vstupem}
+### Čím si prošli před vstupem {#pred_vstupem}
 
 Vícekrát jsme se setkali s doměnkou, že nefunkční družinový systém je příčinou problémů roveringu. Slušné množství roverů přichází z oddílů, kde družinový systém aspoň trochu fungoval, takže se na to nemůžeme tolik vymlouvat (jakkoliv námi položené otázky nemohou odhalit, jestli družiny skutečně fungovaly dobře). Odpovědi našich respondentů jsou ostatně velmi podobné výsledkům z nedávných sond o družinovém systému.
 
@@ -121,9 +93,54 @@ hlavni_data %>% plot_summary_mc(co_zazil, "Co zažili ve skautingu", subtitle = 
 
 ```
 
-#### Vlastní vstup
+### Věk vstupu do RS společenství {#vek_vstupu}
 
-Jak vypadá vlastní přechod do roverského věku? Tady je opět těžká interpretace: necelých 60% uvedlo, že mělo snadný přechod. Je to úspěch nebo se máme rmoutit pro dva z pěti roverů, co to dle vlastního pocitu snadné neměli? Obdobně, když si zhruba polovina roverů myslí, že byla připravena se aspoň trochu podílet na přípravě programu rovesrkého společenství, je to hodně nebo málo?
+Zdá se, že málokdo vstupuje do kmene později než těsně po skautském věku.
+
+```{r vek_vstupu_do_kmene, fig.cap='Rozložení věku vstupu do kmene. Věk vstupu určen z otázek "Jak dlouho jsi ve společenství" a "Věk", proto lze určit jen u těch, kdo nyní jsou ve společenství.'}
+
+
+
+plot_vek_vstupu_base <- data_vstupy %>% filter(!is.na(vek_vstupu_do_kmene)) %>%
+  ggplot(aes(x = vek_vstupu_do_kmene)) + geom_histogram(binwidth = 1) + vodorovne_popisky_x + 
+  scale_x_continuous(breaks = c(13, 15, 18, 21, 24))
+
+plot_vek_vstupu_base +
+  ggtitle("Věk vstupu do kmene", "Jen členi společenství")
+
+#podil_vstup_17_nad_20_let <- 
+  # data_vstupy %>% filter(!is.na(vek_vstupu_do_kmene), age == 20) %>%
+  # summarise(podil = mean(vek_vstupu_do_kmene > 17)) %>% pull(podil)
+
+```
+
+Tato data jsou ale zkreslena směrem dolů tím, že obecně máme hodně mladších respondentů (16ti letý respondent nemohl vstoupit do kmene před 16tým rokem). Můžeme se tedy na stejný graf podívat separátně pro několik věkových kategorií: 
+```{r vek_vstupu_do_kmene_skupiny}
+plot_vek_vstupu_base + 
+  facet_wrap(~vekova_skupina) +   
+  ggtitle("Věk vstupu do kmene", "Jen členi společenství, rozděleno dle současného věku respondentů")
+
+
+
+```
+
+I i u respondentů ve věku 20-23 let vidíme výraznou špičku vstupů mezi 15 a 17tým rokem. U ještě starších tato špička mizí. Tento pohled je ale zase zatížen chybou na druhou stranu - ti, kterým je dnes 25 a do společenství vstoupili v 17ti už nejspíš ve společenství nejsou a tím pádem se nám nevejdou do tohoto pohledu (protože věk vstupu víme bohužel jen u současných členů společenství).
+
+
+Nejsilnějším argumentem pro téměř výhradně rané vstupy tak je pohled na vývoj v čase: vidíme, že kolem 16tého roku jsou zhruba 3/4 respondentů ve společenství, s rostoucím věkem pak postupně klesá podíl roverů, co jsou ve společenství a srovnatelně přibývá "odpadlíků", zatímco kategorie "Nikdy nebyl ve společenství" se s věkem nijak výrazně nezmenšuje a zůstává kolem 20%. 
+
+```{r kategorie_respondenta_v_case}
+ hlavni_data %>% 
+  mutate(`Je ve spolecenstvi` = kategorie_respondenta == "nyni_spolecenstvi", `Byl ve spolecenstvi` = kategorie_respondenta == "drive_spolecenstvi", `Nikdy nebyl` = kategorie_respondenta == "nikdy_spolecenstvi") %>%
+  plot_binarni_s_nejistotou(c("Je ve spolecenstvi","Byl ve spolecenstvi", "Nikdy nebyl"), age, legend_label = "") +
+  scale_x_continuous("Věk")+ plot_annotation("Věkové rozložení dle kategorie")
+
+
+```
+
+### Vlastní vstup
+
+Jak vypadá vlastní přechod do roverského věku? Tady je opět těžká interpretace: necelých 60% uvedlo, že mělo snadný přechod. Je to úspěch nebo se máme rmoutit pro dva z pěti roverů, co to dle vlastního pocitu snadné neměli? Obdobně, když si zhruba polovina roverů myslí, že byla připravena se aspoň trochu podílet na přípravě programu roverského společenství, je to hodně nebo málo?
 
 Ptali jsme se též, jestli se roverem stanu "automaticky" když dovrším skautský věk. Vypadá to, že zhruba v polovině středisek tento přechod automatický není a nejspíš se tedy rozlišuje mezi "roverem" a "členem v roverském věku".
 
@@ -151,13 +168,14 @@ hlavni_data %>% filter(!is.na(vyroky_o_roveringu_zazil_2)) %>%
   ungroup() %>%
   mutate(podil = scales::percent(pocet / sum(pocet)),
          rover_automaticky = if_else(rover_automaticky, "Ano", "Ne"),
-         vstupni_ritual = if_else(vstupni_ritual, "Ano", "Ne"))
+         vstupni_ritual = if_else(vstupni_ritual, "Ano", "Ne")) %>%
+  table_format()
 ```
 
 A co ti, co do společenství nikdy nevstoupili (ale již nejsou v oddíle mladších členů)? To je zhruba `r scales::percent(sum(hlavni_data$kategorie_respondenta_full == "nikdy_spolecenstvi_starsi") / nrow(hlavni_data))` respondentů.
 
 
-#### Pohled nečlenů
+### Pohled nečlenů
 
 ```{r}
 podil_neroveru_bez_informaci <- mean(hlavni_data$vyroky_o_roveringu_stredisko.nevim, na.rm=TRUE)
@@ -177,7 +195,7 @@ plot_summary_mc(hlavni_data, vyroky_o_roveringu_stredisko, "O roverech v mém st
 V otázkách výše je taky vidět, že "mít vlastní akce" je (z pohledu lidí, co se na společenství dívají z vnějšku) o dost snažší naplnit než "funkční společenství". 
 
 
-### Život ve společenství
+## Život ve společenství
 
 Asi nepřekvapí, že většina roverských společenství (kmenů) je malá. Jen kolem pětiny roverů je ve společenstvích s více jak 20 členy. Zajímavé ale může být, že mikro společenství (do 5 členů) je jen minimum. _(Ač zde je možné, že někteří respondenti v malých společenství uvedli, že v žádném společenství nejsou)_.
 
@@ -212,7 +230,7 @@ hlavni_data  %>% plot_binarni_s_nejistotou(paste0("vyroky_o_roveringu_zazil_2.",
 ```
 
 
-#### Frekvence akcí
+### Frekvence akcí
 
 Ptali jsme se též na frekvenci akcí, ale jen současných členů (nevěřili jsme, že bývalí si to budou dobře pamatovat). Hrubá čísla asi nepřekvapí --- většina roverů má tu a tam nějakou akci, velmi aktivních i zcela neaktivních kmenů je málo.
 
@@ -277,7 +295,7 @@ hlavni_data %>%
 ```
 
 
-#### Jak roversky žijí rádci?
+### Jak roversky žijí rádci?
 
 Dotaz od Ifanky: Jak jsou na tom rádci u oddílů / u družin s aktivitou (jde mi asi hlavně o ty mladší) --- jak často jezdí na akce, vzdělávačky, jednoduše jak jsou aktivní?
 
@@ -312,7 +330,7 @@ data_mladsi_radce %>% rename(co_zazil.spolecenstvi_kurzy_akce = vyroky_o_roverin
 
 
 
-### Nástroje roverského programu
+## Nástroje roverského programu {#nastroje}
 
 ```{r}
 
@@ -326,6 +344,10 @@ data_klicove_nastroje_shrnuto <- data_klicove_nastroje %>%
   summarise(pocet = n()) %>%
   ungroup() %>%
   mutate(podil = pocet / sum(pocet))
+
+
+podil_kmen_alespon_jeden_klicovy <- sum(
+  data_klicove_nastroje_shrnuto %>% filter(pocet_klicovych_nastroju >= 1) %>% pull(podil))
 
 podil_kmen_max_3_nastroje <- sum(
   data_klicove_nastroje_shrnuto %>% filter(pocet_klicovych_nastroju <= 3) %>% pull(podil))
@@ -409,7 +431,7 @@ Tím, že míra zavedení (ve smyslu počtu používaných nástrojů) dost kore
 ```
 
 
-#### Muži, ženy a nástroje
+### Muži, ženy a nástroje
 
 Musíme velmi opatrně, protože muži ve vzorku jsou celkově starší než ženy.
 
@@ -452,10 +474,10 @@ data_nastroje_pohlavi %>%
 #TODO zohlednit věk
 ```
 
-Potvrzuje se  zkušenost z kurzů, že na ně častěji jezdí ženy --- a zde vidíme, že to nelze snadno svést na rozdílné počty roverů a rangers --- společenství, kde jsou ženy, využívají roverské kurzy častěji.
+Potvrzuje se  zkušenost z kurzů, že na ně častěji jezdí ženy --- a zde vidíme, že to nelze snadno svést na rozdílné počty roverů a rangers (ostatně dle registrace je v roverském věku v Junáku více mužů) --- společenství, kde jsou ženy nejspíš skutečně využívají roverské kurzy častěji.
 
 
-#### Kurzy
+### Kurzy
 
 Na kurzy se taky můžeme podívat přes otázku, co sami respondenti (tedy ne jejich společenství) zažili:
 
@@ -471,7 +493,7 @@ podil_kurzy_nastroj <- mean(hlavni_data$vychovne_nastroje.kurzy, na.rm = TRUE)
 
 Obecně vidíme, že méně lidí zažilo roverský kurz, než kolik říká, že jejich společenství využívá kurzy jako nástroj (to bylo `r scales::percent(podil_kurzy_nastroj)`). Na kurzy --- zejména čekatelky --- se hodně jezdí (tedy ve vzorku roverů, který máme). Celých `r scales::percent(aspon_jeden_kurz)` respondentů bylo aspoň na jednom z kurzů zmíněných výše.
 
-Počet účastníků kurzů samozřejmě roste s věkem respondentů, takže mezi těmi, co vydží do cca 20 let už má čekatelky za sebou kolem 80% a procento složených vůdcovek je u starších také dosti vysoké. Zde je nepravděpodobné, že by šlo z velké části o kohortový efekt (tj. že v době, kdy nyní staří roveři byli mladší se více jezdilo na kurzy) a čekal bych, že skutečně s věkem přibývá kvalifikovaných.
+Počet účastníků kurzů samozřejmě roste s věkem respondentů, takže mezi těmi, co vydrží do cca 20 let už má čekatelky za sebou kolem 80% a procento složených vůdcovek je u starších také dosti vysoké. Zde je nepravděpodobné, že by šlo z velké části o kohortový efekt (tj. že v době, kdy nyní staří roveři byli mladší se více jezdilo na kurzy) a čekal bych, že skutečně s věkem přibývá kvalifikovaných.
 
 ```{r}
 hlavni_data %>% filter(!is.na(co_zazil)) %>% plot_binarni_s_nejistotou(paste0("co_zazil.", c("cekatelky","vudcovky","roversky_kurz", "jiny_kurz")), names_prefix = "co_zazil.", by = age) +  plot_annotation(title = "Kurzy, co zažili, dle věku")
@@ -485,7 +507,7 @@ Obecně se tedy dá očekávat, že kurzy jsou dobrým místem, kde lidé v rove
 V našem vzorku též vyšlo, že ženy o něco častěji uvádějí, že zažily roverské kurzy, ale po zohlednění rozdílů ve věku se rozdíl nezdá přesvědčivý (data zde neukazujeme).
 
 
-#### Velké akce a neorganizované společenství 
+### Velké akce a neorganizované společenství 
 
 > Dotaz RO: Čekali bychom, že velké akce jsou důležité pro společenství, co není moc organizované, ale data to možná nepotvrzují.
 
@@ -497,7 +519,7 @@ plot_velke_akce_organizovan <- hlavni_data %>% plot_binarni_s_nejistotou("vychov
 plot_velke_akce_organizovan
 ```
 
-### Spokojenost roverů
+## Spokojenost roverů
 
 
 ```{r}
@@ -588,7 +610,7 @@ hlavni_data %>%
   plot_binarni_s_nejistotou(c("s_cim_spokojen.program"), age, na.rm = TRUE) + plot_annotation("Spokojen s náplní programu dle věku", "Jen současní členové")
 ```
 
-### Stárnutí rovera
+## Stárnutí rovera
 
 ```{r}
 podil_vic_jak_3_roky_v_kmeni <- hlavni_data %>% filter(!is.na(let_v_kmeni))  %>% summarise(podil = mean(let_v_kmeni > 3)) %>% pull(podil)
@@ -689,7 +711,7 @@ hlavni_data %>% filter(kategorie_respondenta == "nyni_spolecenstvi") %>% plot_bi
 
 ```
 
-### Odchod ze společenství {#odchod_z_rs}
+## Odchod ze společenství {#odchod_z_rs}
 
 ```{r}
 podil_jasne_ukonceni <- hlavni_data %>% summarise(podil = mean(vyroky_o_roveringu_zazil_2.jasne_ukonceni, na.rm = TRUE)) %>% pull(podil)
@@ -725,10 +747,10 @@ Málokdy (`r scales::percent(podil_jen_zaniklo_nefungovalo)`  je ale zánik/nefu
 
 ```
 
-Podobné výsledky nám dá, když se podíváme na to, co vidí respondenti jako hlavní problémy roveringu --- stěhování pryč je opět velmi výrazné, hned za přílišným vytížením v oddíle (vytížení v oddíle jsme bohužel opomněli dát jako možnost do otázky "Proč už nejsem rover").
+Podobné výsledky nám dá, když se podíváme na to, co vidí respondenti jako hlavní problémy roveringu --- stěhování pryč je opět velmi výrazné, hned za přílišným vytížením v oddíle (vytížení v oddíle jsme bohužel opomněli dát jako možnost do otázky "Proč už nejsem rover"). Častým problémem je také absence vedení/programu.
 
 ```{r}
-hlavni_data %>% plot_summary_mc(problemy_roveringu, "Hlavní problémy roveringu \n jen členi společenství", include_values = c("vytizeni_oddily","odstehovani","vytizeni_mimo", "nevidi_smysl", "spatne_vztahy"))
+hlavni_data %>% plot_summary_mc(problemy_roveringu, "Hlavní problémy roveringu.", subtitle = "jen členi společenství", include_values = c("vytizeni_oddily","odstehovani","vytizeni_mimo", "nevidi_smysl", "spatne_vztahy", "bez_vedeni", "soupereni_mezi_skupinami"))
 
 
 podil_odstehovani <- mean(hlavni_data$problemy_roveringu.odstehovani, na.rm = TRUE)
@@ -740,16 +762,7 @@ V neposlední řadě je dobré si všimnout, že odstěhovávání se je nejčas
 hlavni_data %>% filter(kategorie_respondenta == "nyni_spolecenstvi") %>% plot_binarni_s_nejistotou(nazvy_problemy, pocet_clenu_strediska, flip = TRUE, names_prefix = "problemy_roveringu.") + svisle_popisky_x + plot_annotation("Problémy roveringu", "jen vybrané, dle velikosti střediska")
 ```
 
-Když se podíváme na vývoj v čase vidíme, že kolem 16tého roku jsou zhruba 3/4 respondentů ve společenství, s rostoucím věkem pak postupně klesá podíl roverů, co jsou ve společenství a srovnatelně přibývá "odpadlíků". 
 
-```{r}
- hlavni_data %>% 
-  mutate(`Je ve spolecenstvi` = kategorie_respondenta == "nyni_spolecenstvi", `Byl ve spolecenstvi` = kategorie_respondenta == "drive_spolecenstvi", `Nikdy nebyl` = kategorie_respondenta == "nikdy_spolecenstvi") %>%
-  plot_binarni_s_nejistotou(c("Je ve spolecenstvi","Byl ve spolecenstvi", "Nikdy nebyl"), age, legend_label = "") +
-  scale_x_continuous("Věk")+ plot_annotation("Věkové rozložení dle kategorie")
-
-
-```
 
 Asi také nepřekvapí, že respondenti, kteří dříve byli ve společenství, ale již nejsou, uvádějí o svém bývalém společenství častěji v podstatě všechny problémy roveringu. Zajímavé ale je, že u skautského vytížení uvnitř středisek i mimo střediska a u zapřažení roverů jako pracovní čety je rozdíl mezi současnými a bývalými členy zanedbatelný (a u absence kvalitního programu nejspíš také). Lze to brát jako jemný náznak, že tyto problémy přispívají k odchodu roverů ze společenství spíše méně.
 
@@ -790,6 +803,10 @@ Taky se vyskytují skoro všechny možné kombinace vedení:
 ```
 
 
+
+
+
+
 ```{r}
 #TODO vymyslet, jak zaradit
 # hlavni_data %>% filter(kategorie_respondenta != "nikdy_spolecenstvi") %>% plot_summary_mc(role_skauting, "Role ve skautingu", subtitle = "pouze kdo byl/je ve společenství, pouze roverské role", include_values = roverske_role, exclude_values = "rover_sam")
@@ -801,7 +818,16 @@ Taky se vyskytují skoro všechny možné kombinace vedení:
 
 
 
-Pro další kroky si strukturu organizace trochu zjednoduššíme a rozdělíme respondenty na ty, jejichž kmeny mají formálního vůdce, na ty, které jsou nějak organizovány (neformální tahoun, kmenová rada) a ty, které nemají jasné vedení. Zvlášť pak vezmeme kmeny, které se označují jako neaktivní (ač třeba mají vůdce).
+Pro další kroky si strukturu organizace trochu zjednoduššíme a vezmeme "nejvyšší přítomnou organizaci" - tj. tam kde mají vůdce/tahouna řadíme pod "ma_vudce", kde nemají vůdce ale mají radu, zařadíme pod "ma_radu" - kde nemají ani, jedno, ale uvedli, že organizují všichni, necháme "vsichni" - poslední dvě možnosti jsou, že neorganizuje nikdo, nebo že kmen není aktivní. To nám změní rozložení ve prospěch vůdců (protože jakákoliv zmínka o vůdci zařadí kmen do kategorie "má vůdce").
+
+
+```{r}
+hlavni_data %>% group_by(organizace_nejvyssi) %>% summarise(pocet = n(), .groups = "drop") %>%
+  filter(!is.na(organizace_nejvyssi)) %>%
+  mutate(podil = scales::percent(pocet / sum(pocet))) %>% table_format()
+
+podil_organizace_nejvyssi_vsichni <- mean(hlavni_data$organizace_nejvyssi == "vsichni", na.rm = TRUE)
+```
 
 
 Zajímavé je, že přítomnost nějaké formy organizace je spojena jen se zanedbatelnou změnou toho, jak často respondenti uvádějí různé problémy. Jediný problém, který skutečně výrazně mizí s přítomností vedení je "Nikdo rovery neorganizuje/nevede", ale vidíme též nějaké rozdíly u "Pro rovery není kvalitní program" či "Nevíme jak na to". 
@@ -811,6 +837,7 @@ hlavni_data %>% filter(kategorie_respondenta != "nikdy_spolecenstvi") %>%
   plot_binarni_s_nejistotou(nazvy_problemy, organizace_nejvyssi, flip = TRUE, names_prefix = "problemy_roveringu.") + svisle_popisky_x + plot_annotation("Problémy roveringu", "podle formy vedení")
 
 ```
+
 
 Připomínáme, že absence kvalitního programu či obecně know-how, jak rovering dělat je častým jevem, který bychom čekali, že přítomnost vedení pomůže vyřešit.
 
@@ -822,7 +849,7 @@ hlavni_data %>% plot_summary_mc(problemy_roveringu, "Hlavní problémy roveringu
 
 
 
-V sondách do roveringu 2015 jsme našli asociaci mezi tím, že kmen má vůdce a větší spokojeností i větší aktivitou kmene. V současných datech vidíme větší spokojenost u alespoň nějak organizovaných kmenů a mírně nejvyšší je tam, kde funguje organizace všemi. Kmeny s vůdcem, radou nebo s organizací všemi mají také nejvyšší frekvenci akcí ano.
+V sondách do roveringu 2015 jsme našli asociaci mezi tím, že kmen má vůdce a větší spokojeností i větší aktivitou kmene. V současných datech vidíme větší spokojenost u alespoň nějak organizovaných kmenů a mírně nejvyšší je tam, kde funguje organizace všemi. Kmeny s vůdcem, radou nebo s organizací všemi mají také nejvyšší frekvenci akcí.
 
 ```{r}
 hlavni_data %>% filter(kategorie_respondenta == "nyni_spolecenstvi") %>% plot_ciselne_s_nejistotou("spokojenost_clenstvim_v_rs", by = organizace_nejvyssi) + plot_annotation("Spokojenost s členstvím v RS", "dle organizace kmene, jen současní členové")
@@ -841,10 +868,14 @@ hlavni_data %>% filter(!is.na(vychovne_nastroje), kategorie_respondenta == "nyni
 
 ```
 
-Potenciálním problémem těchto porovnání je, že část společenství, které mají vůdce je v průzkumu reprezentována přímo těmito vůdci. Můžeme očekávat, že vůdci vnímají své společenství trochu jinak než ostatní členové. U porovnání frekvence akcí to ale nehraje velkou roli (graf vypadá téměř stejně, když odpovědi samotných vůdců vynecháme). U počtu použitých nástrojů to výsledky ovlivní (vedení všichni, rada i vůdce jsou pak na velmi podobné úrovni, ale vyšší než neorganizované) --- může to tedy být tím, že vůdci mají celkově lepší znalost nástrojů, ač jejich společenství ve skutečnosti více nástrojů nepoužívají.
 
+Potenciálním problémem těchto porovnání je, že část společenství, které mají vůdce je v průzkumu reprezentována přímo těmito vůdci. Můžeme očekávat, že vůdci vnímají své společenství trochu jinak než ostatní členové. U porovnání frekvence akcí to ale nehraje velkou roli (graf vypadá téměř stejně, když odpovědi samotných vůdců vynecháme). U počtu použitých nástrojů to výsledky ovlivní (křivka napravo od "vsichni" již zůstává v podstatě rovná) --- může to tedy být tím, že vůdci mají celkově lepší znalost nástrojů, ač jejich společenství ve skutečnosti o tolik více nástrojů nepoužívají.
 
-## Roveři ve vedení oddílu
+Spojitostí mezi organizací společenství a naplněním kompetencí se pak zabýváme i v kapitole \@ref(kompetenceasociace) o asociaci kompetencí s dalšími charakteristikami.
+
+Celkově můžeme říct, že je hlavní, že je kmen nějak organizován. Jsou důvody považovat z dat za lepší když kmen má vůdce (spojeno s větší frekvencí akcí, více nástrojů programu), zároveň ale není jisté, že to není problém dat a že se to skutečně promítne v kompetencích či dalších zásadních výstupech. Pokud se tedy podaří kolektivní organizace, je dobré ji podpořit. Zároveň je ale podle nás určený vůdce - pokud zároveň umí dát dost prostoru ostatním --- nejspolehlivější způsob organizace. Všimněme si též, že organizace "všemi" se jen málokdy vyskytuje bez zmínky o vůdci či radě (jen `r scales::percent(podil_organizace_nejvyssi_vsichni)`), takže v praxi není k vidění příliš často, z čehož lze usuzovat, že je těžké takové společenství rozjet --- což potvrzuje i naše osobní zkušenost. 
+
+## Roveři ve vedení oddílu {#vedenioddilu}
 
 ```{r}
 if(any(!is.na(hlavni_data$vyroky_o_roveringu_stredisko) & !is.na(hlavni_data$vyroky_o_roveringu_zazil))) {
@@ -915,7 +946,7 @@ hlavni_data %>% filter(!is.na(ma_vudcovskou_roli), !is.na(spokojenost_clenstvim_
 #   plot_ciselne_s_nejistotou("lss", ma_vudcovskou_roli) + plot_annotation("Roveři ve vůdcovské roli \n a životní spokojenost")
 ```
 
-## Roverští singles
+## Roverští singles {#rssingles}
 
 
 ```{r}
@@ -993,7 +1024,7 @@ plot_summary_mc(hlavni_data, co_pomaha_roveringu, "Roveringu dle mé vlastní\nz
 # hlavni_data %>% mutate(studuje = zivotni_faze == "studuji" | zivotni_faze =="studuji_pracuji") %>% plot_binarni_s_nejistotou("studuje", age)
 ```
 
-## Rovering a středisko
+## Rovering a středisko {#rsastredisko}
 
 ```{r}
 podil_spokojen_postoj_strediska <- mean(hlavni_data$s_cim_spokojen.postoj_strediska, na.rm = TRUE)
@@ -1009,11 +1040,21 @@ plot_summary_mc(hlavni_data, vyroky_o_roveringu_zazil, "Rovering, který jsem za
 
 ```
 
+```{r}
+podil_setkavani_pomaha <- mean(hlavni_data$co_pomaha_roveringu.neformalni_setkani, na.rm = TRUE)
+```
+
+
+Zároveň ale finanční pomoc střediska nebo střediskový zpravodaj pro rovery nejsou často zmiňovány jako něco, co rovering pomáhá v porovnání např. se sociálními sítěmi, ale zase je to zmiňováno častěji než roverký program vydaný Junákem nebo celkově "vyšší místa" (nejčastěji zmiňované je neformální setkávání roverů se `r scales::percent(podil_setkavani_pomaha)` ).
+
+
 
 ```{r}
-plot_summary_mc(hlavni_data, co_pomaha_roveringu, "Roveringu dle mé vlastní\nzkušenosti znatelně pomáhá:", subtitle = "jen části týkající se střediska", include_values = c("zpravodal","financni_podpora"))
+plot_summary_mc(hlavni_data, co_pomaha_roveringu, "Roveringu dle mé vlastní\nzkušenosti znatelně pomáhá:", subtitle = "zaostřeno na středisko", include_values = c("zpravodal","financni_podpora", "roversky_program", "socialni_site"))
 
 ```
+
+Absence podpory střediskem je zmiňována jen poměrně vzácně. Necelá třetina roverů si pak myslí, že je středisko považuje za pracovní četu a je to problém.
 
 ```{r}
 hlavni_data %>% plot_summary_mc(problemy_roveringu, "Hlavní problémy roveringu", subtitle = "jen věci týkající se střediska, jen členi společenství", include_values = c("odstehovani", "vytizeni_oddily", "bez_podpory_strediska", "pracovni_ceta", "soupereni_mezi_skupinami"))

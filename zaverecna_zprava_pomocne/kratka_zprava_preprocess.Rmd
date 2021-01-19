@@ -65,7 +65,9 @@ for(i in 1:length(processed_matches)) {
       cat("\t\t\tlist(name = '", pm$contents, "',\n", sep = "", file = out)
       state <- "statement"
     } else {
-      print(state, i)
+      print(state)
+      print(i)
+      print(processed_matches[[i]])
       stop("Wrong state for h2")
     }
   } else if(pm$tag == "p") {
