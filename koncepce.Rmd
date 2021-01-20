@@ -80,7 +80,9 @@ Další naše postřehy se týkají více samotného roveringu a jeho náplně. 
 
 ## Výchova v roverském věku {#vychova}
 
-Výchova v roverském věku je pokračováním skautské výchovy (v obecném slova smyslu), která pro každého člena začíná vstupem do organizace. Má být realizována pomocí stejných metod, jako je tomu v předcházejících výchovných kategoriích: Rovering se má dělat ve společenství, má se dělat skautskou výchovnou metodou, za výchovu členů v roverském věku nese odpovědnost v první řadě oddíl/středisko, členi v roverském věku mají být vedeni (alespoň zpočátku a alespoň částečně), míra vedení a cíleného rozvoje stimulovaného zvnějšku se má postupně proměnit na sebevýchovu stimulovanou zevnitř. Má se pokračovat ve všestranném rozvoji osobnosti osvojováním kompetencí skautské výchovy na stupni úměrnému věku. Máme se naučit vědomě žít podle tří skautských principů.
+Výchova v roverském věku je pokračováním skautské výchovy (v obecném slova smyslu), která pro každého člena začíná vstupem do organizace. Má být realizována pomocí stejných metod, jako je tomu v předcházejících výchovných kategoriích: Rovering se má dělat ve společenství, má se dělat skautskou výchovnou metodou, za výchovu členů v roverském věku nese odpovědnost v první řadě oddíl či středisko --- v závislosti na přesné organizaci střediska (která se na napříč organizací značně liší).
+
+Jsem přesvědčeni, že členi v roverském věku mají být vedeni --- alespoň zpočátku a alespoň částečně. Míra vedení a cíleného rozvoje stimulovaného zvnějšku se má postupně proměnit na sebevýchovu stimulovanou zevnitř. Má se pokračovat ve všestranném rozvoji osobnosti osvojováním kompetencí skautské výchovy na stupni úměrnému věku. Máme se naučit vědomě žít podle tří skautských principů.
 
 K tomu všemu má v souladu se skautskou výchovnou metodou pomáhat a inspirovat roverský program. Verze roverského programu vydaného Junákem v roce 2011 (dále NRP) podle nás ukázala šíři roveringu a snažila se rovery podnítit k aktivitě. Ve hnutí z něj zakořenily zejména pojmy “projekty a výzvy”, které mají být hlavními nástroji seberozvoje RS. Podobně NRP začlenil mezi důležité nástroje pro roverský věk také velké akce, expedice a přinesl mnoho dalšího.
 
@@ -99,11 +101,12 @@ Tvůrci NRP argumentují tím, že model tří služeb kompetenční model obsah
 
 Další naší výtkou vůči NRP je **nekonkrétnost obsahu**. Hlavní nástroje seberozvoje roverů  - projekty a výzvy jsou pojmenováním forem. Bez konkrétní specifikace programů nevnáší do hnutí žádný směr práce s RS, nepřináší inspiraci. Roverský program tak není ani nemůže být přitažlivý sám o sobě.
 
-V kombinaci s dlouho chybějící metodikou pro práci s RS tak není divu, že roveringu se v ČR daří spíše málo. Roverský průzkum také ukázal, že **NRP není v podstatě nikde plně zaveden**. Mezi RS existuje povědomí o jeho existenci a 83% RS společenství využívá alespoň jeden z jeho nástrojů. Nicméně dva z klíčových nástrojů rozvoje RS - projekty a výzvy - jsou současně využívány jen v 18% společenství a žádný jednotlivý nástroj nepoužívá víc než 41% respondentů.  Roverský program (tedy oficiální cesta k naplnění výchovných cílů organizace pro roverský věk) vydaný Junákem v roce 2011, není v organizaci prakticky používán. Více v kapitole \@ref{nastroje}.
+V kombinaci s dlouho chybějící metodikou pro práci s RS tak není divu, že roveringu se v ČR daří spíše málo. Roverský průzkum také ukázal, že **NRP není v podstatě nikde plně zaveden**. Mezi RS existuje povědomí o jeho existenci a 83% RS společenství využívá alespoň jeden z jeho nástrojů. Nicméně dva z klíčových nástrojů rozvoje RS - projekty a výzvy - jsou současně využívány jen v 18% společenství a žádný jednotlivý nástroj nepoužívá víc než 41% respondentů.  Roverský program (tedy oficiální cesta k naplnění výchovných cílů organizace pro roverský věk) vydaný Junákem v roce 2011, není v organizaci prakticky používán. Více v kapitole \@ref(nastroje).
 
 ### Chybějící sebepřijetí 
 
 Ve všech materiálech k roveringu **chybí téma sebepřijetí**. Přitom sebepřijetí je důležitým úkolem rozvoje mladého člověka v roverském věku. Se sebepřijetím pracují do vysoké míry roverské seberozvojové kurzy a setkávají se s intenzivní odezvou. Sebepřijetí přitom pomáhá zdravému seberozvoji a je prevencí proti sebeničení (vyhoření, přetížení, rozvoji na sílu, neexistencí hranic). Ve hnutí a zejména v roverském věku však toto téma není dostatečně pojmenované a sledované, ani se o něm nemluví. Vidíme v něm nevyužitý potenciál; chybějící úhel pohledu, který může přinést zdravý a udržitelný růst jedinci i celé organizaci. 
+
 
 ### Doporučení k roverskému programu
 
@@ -118,6 +121,11 @@ Junáku doporučujeme:
     *   Životopisy roverů?
 *   Sebepřijetí
 *   ?
+
+## Odpovědnost oddílu a střediska za RS
+
+Co znamená, že za RS nese odpovědnost středisko? Zhruba lze ale říct, že nedostatečnou nabídku pro RS bychom měli řešit stejně tak, jak bychom řešili, že se nám rozpadá roj světlušek nebo že máme více odrostlých vlčat než míst u skautů. Máme oddíly pro každou kategorii zvlášť? Pak spíše čekáme, že nedostatky v roveringu bude řešit středisková rada. Máme oddíly, které sdružují více věkových kategorií? Pak asi čekáme, že není-li dohodnuto jinak, oddíly si "pohlídají" i své rovery --- ale pokud se to neděje, měla by středisková rada nabídnout pomocnou ruku. 
+To platí i o úroveň výš: vodácký přístav bez žabiček by určitě měl okres či kraj podpořit v jejich založení, stejně tak středisko bez funkčních RS. V každém případě nemůžeme RS považovat za "problém někoho jiného".
 
 ## Nejasnosti v názvosloví {#nazvoslovi}
 

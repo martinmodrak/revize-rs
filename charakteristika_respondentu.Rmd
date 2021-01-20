@@ -4,8 +4,16 @@ source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
 knitr::opts_chunk$set(echo = FALSE, cache=TRUE)
 ```
 
+```{r results='asis'}
+if(gitbook_output) {
+  cat("# (PART\\*) Výsledky průzkumu {-}\n")
+} else {
+  cat("# Výsledky průzkumu {-}\n")
+}
+```
 
-# Charakteristika respondentů {#charakteristika_respondentu}
+
+# Charakteristika respondentů {#charakteristika-respondentu}
 
 
 ```{r nacist_data, cache=TRUE, message=FALSE}
@@ -22,7 +30,7 @@ assign("zaloha_labels", zaloha_labels, envir = globalenv())
 
 Dotazník měl delší a kratší verzi. Těch, co vyplnili kratší jsme se pak ještě zeptali, jestli přeci jen nechtějí pokračovat a vyplnit delší :-)
 
-```{r}
+```{r celkove-pocty}
 datasety_wide$pouzitelne %>% group_by(stav_vyplneni) %>% summarise(pocet = n(), .groups = "drop") %>%
   mutate(stav_vyplneni = factor(stav_vyplneni, levels = c("nedokoncil","dokoncil_kratsi", "rozpracoval_doplnek", "dokoncil_doplnek", "dokoncil_delsi"), labels = c("Nedokončil ale vyplnil aspoň něco", "Dokončil kratší a nepokračoval", "Dokončil kratší a nedokončil pokračování", "Dokončil kratší i pokračování", "Dokončil delší"))) %>%
   ggplot(aes(x = stav_vyplneni, y = pocet, label = pocet)) + geom_bar(stat = "identity") + 
@@ -38,7 +46,7 @@ datasety_wide$pouzitelne %>% group_by(stav_vyplneni) %>% summarise(pocet = n(), 
 
 V datech dále primárně analyzujeme jen respondenty ve věku 15&nbsp;---&nbsp;26 let, tam počty vypadaji takto:
 
-```{r}
+```{r celkove-15-az-26}
 datasety_wide$pouzitelne %>%  filter(age >= 15, age <= 26) %>% group_by(stav_vyplneni) %>% summarise(pocet = n(), .groups = "drop") %>%
   mutate(stav_vyplneni = factor(stav_vyplneni, levels = c("nedokoncil","dokoncil_kratsi", "rozpracoval_doplnek", "dokoncil_doplnek", "dokoncil_delsi"), labels = c("Nedokončil ale vyplnil aspoň něco", "Dokončil kratší a nepokračoval", "Dokončil kratší a nedokončil pokračování", "Dokončil kratší i pokračování", "Dokončil delší"))) %>%
   ggplot(aes(x = stav_vyplneni, y = pocet, label = pocet)) + geom_bar(stat = "identity") + 
@@ -62,7 +70,7 @@ Ty, kteří dotazník nedokončili budeme z většiny analýz vyřazovat. Zbýv�
 
 Rozložení dle pohlaví ukazuje převahu žen (což je rozdíl oproti registraci, kde v této věkové kategorii převažují muži). Členů, kteří se do binární škatulky pohlaví nezařadí máme kolem 1%, což odpovídá odhadům tohoto podílu v běžné populaci.
 
-```{r}
+```{r dle-pohlavi}
 hlavni_data %>%
   group_by(sex) %>%
   summarise(n = n(), .groups = "drop") %>%
@@ -84,7 +92,7 @@ což činí grafy méně čitelnými - a zároveň skutečně o této skupině n
 
 Takto vypadá rozložení respondentů dle věku --- přerušované čáry ukazují rozmezí 15 --- 26 let, tj. skupinu, kterou primárně analyzujeme.
 
-```{r}
+```{r vekove-rozlozeni}
 datasety_wide$pouzitelne %>% group_by(age) %>% summarise(pocet = n(), .groups = "drop") %>% mutate(podil = pocet / sum(pocet)) %>%
   ggplot(aes(x = age, y = podil, label = scales::percent(podil, accuracy = 1))) + geom_bar(stat = "identity") + #geom_text(aes(y = 0.01), color = revize_cols("dark_blue"), size = 6 ) + 
   vodorovne_popisky_x + scale_y_continuous("Podíl", labels = scales::percent) + scale_x_continuous("Věk") + plot_annotation("Věkové rozložení respondentů") + geom_vline(xintercept = 14.5) + geom_vline(xintercept = 26.5)
@@ -93,14 +101,14 @@ datasety_wide$pouzitelne %>% group_by(age) %>% summarise(pocet = n(), .groups = 
 
 Životní fáze --- tady už se opět díváme jen na respondenty 15---26 let.
 
-```{r}
+```{r zivotni-faze}
 hlavni_data %>% plot_summary_mc(zivotni_faze, "Životní fáze")
 
 ```
 
 A jedna z hlavních otázek, kterou charakterizujeme
 
-```{r}
+```{r roverska-zkusenost}
 plot_summary_mc(hlavni_data, kategorie_respondenta_full, "Roverská zkušenost")
 
 ```
@@ -118,7 +126,7 @@ data_skautis_jednotlivci <- data_skautis_jednotlivci_raw %>%
 
 V každém obrázku níže je křivka "SkautIS", která reprezentuje podíl dané skupiny členstva v datech ze SkautISu (vůči všem registrovaným 15---26 let). Tato křivka má kolem sebe pruh vyjadřující nejistotu --- jak velký rozptyl bychom čekali, kdybychom vybrali ze SkautISu náhodně tolik lidí, kolik jich bylo v daném průzkumu. Druhá křivka vyjadřuje podíl dané skupiny, který jsme viděli v průzkumu. V zásadě lze říct, že když se křivka průzkumu vejde do pruhu kolem dat ze SkautISu je výzkum v tomto ohledu slušně reprezentativní.
 
-### Detailně dle věku {#reprezentativnostvek}
+### Detailně dle věku {#reprezentativnost-vek}
 
 Z věkových skupin máme podreprezentovány patnáctileté --- to není překvapení, tím, že jsou na hraně roverského věku, čekáme, že se k nim průzkum vůbec nemusel dostat. Zato máme o něco více "prostředních roverů". Zajímavé ale je, že primárně jde o nedostatek 15ti letých roverů (mužů) a v "prostředním" věku naopak o nadbytek roverek/rangers. Doplním, že detailní data o věku mám jen z registrace 2018, takže tu může být jistý nesoulad se stavem k době průzkumu.
 

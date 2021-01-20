@@ -1,22 +1,29 @@
 ---
 title: "Revize roverského programu: Závěrečná zpráva"
-date: '`r format(Sys.time(), "%d %B, %Y")`'
+author: 'Petr "Klíč" Šilhavý, Martin "Orel" Modrák, Filip "Fíďa" Děchtěrenko'
+date: 'Verze: `r format(Sys.time(), "%d %B, %Y")`'
 ---
 
 ```{r setup, message=FALSE,warning=FALSE, results="hide", echo = FALSE}
 source(here::here("setup_knitr.R"))
-source(here::here("zaverecna_zprava_pomocne","kratka_zprava_generated.R"), encoding = "UTF-8")
+source(here::here("zaverecna_zprava_pomocne","kratka_zprava_manual.R"), encoding = "UTF-8")
 knitr::opts_chunk$set(echo = FALSE)
 rmarkdown::find_pandoc() # Try to use version at least 2.8 to allow unlisted header elements
 ```
 
 
-# Krátká verze {-#kratka}
+```{r results='asis'}
+if(gitbook_output) {
+  cat("# (PART\\*) Závěry a doporučení {-}\n")
+} 
+```
 
-Pokud nemáte čas, nabízíme naše hlavní závěry jen jako seznam bodů. 
-Ke každému z nich pak níže nabízíme trochu delší komentář.
+# Hlavní závěry {#hlavni}
 
-
+Vítejte u čtení naší závěrečné zprávy. Začínáme našimi hlavními závěry, 
+další kapitoly pak poskytují širší kontext, více detailů a zdůvodnění těchto závěrů. 
+Celkově spíše nečekáme, že zprávu budete číst celou, ale že se podívat na hlavní závěry, 
+případně na konkrétní další části, které probudí vaši zvědavost.
 
 
 ```{r}
@@ -37,32 +44,33 @@ kratka_zprava <- purrr::map(kratka_zprava, preprocess_kz_group)
 
 ```{r render_kratka_zprava_short, results = "asis"}
 heading_to_id <- function(heading) {
-  without_accents <- stringi::stri_trans_general(str = heading, 
+  without_accents <- stringi::stri_trans_general(str = heading,
                                    id = "Latin-ASCII")
   removed_special_chars <- gsub("[.\"|?!:,/] ?", "", without_accents)
   removed_entities <- gsub("&[^;]*;", "", removed_special_chars)
-  
+
   handled_whitespace <- gsub(" ", "-", tolower(trimws(removed_entities)))
   handled_whitespace
 }
 
-more_string <- "<span class='kratka_zprava_more'>Více &#9660;</span>"
-
-print_kz_element_short <- function(element) {
-  # cat("\t* [", element$name, "](#", heading_to_id(element$name),")\n", sep = "")
-#  cat("\t* ", element$name," [", more_string, "](#", heading_to_id(element$name),")\n", sep = "")
-   cat(element$name, " ")
-}
-
-print_kz_group_short <- function(group) {
-#  cat("* **", group$group_name, "** [", more_string, "](#", heading_to_id(group$group_name),")\n", sep = "")
-  # cat("* **", group$group_name, "** \n", sep = "")
-  cat("* **", gsub(":", "", group$group_name), "**: ", sep = "")
-  purrr::walk(group$contents, print_kz_element_short)
-  cat("\n")
-  
-}
-purrr::walk(kratka_zprava, print_kz_group_short)
+# 
+# more_string <- "<span class='kratka_zprava_more'>Více &#9660;</span>"
+# 
+# print_kz_element_short <- function(element) {
+#   # cat("\t* [", element$name, "](#", heading_to_id(element$name),")\n", sep = "")
+# #  cat("\t* ", element$name," [", more_string, "](#", heading_to_id(element$name),")\n", sep = "")
+#    cat(element$name, " ")
+# }
+# 
+# print_kz_group_short <- function(group) {
+# #  cat("* **", group$group_name, "** [", more_string, "](#", heading_to_id(group$group_name),")\n", sep = "")
+#   # cat("* **", group$group_name, "** \n", sep = "")
+#   cat("* **", gsub(":", "", group$group_name), "**: ", sep = "")
+#   purrr::walk(group$contents, print_kz_element_short)
+#   cat("\n")
+#   
+# }
+# purrr::walk(kratka_zprava, print_kz_group_short)
 ```
 
 ## Kontext vzniku projektu aneb je nebo není rovering v dobrém stavu? {-}

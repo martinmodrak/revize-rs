@@ -65,7 +65,7 @@ kolik registrovaných kmenů je ve skutečnosti neaktivních.
 
 ```{r}
 sumar_formalne <- sondy %>% filter(je_rs_kmen_registrovany == "Ano") %>% summarise(pocet_registrovanych = length(id), jen_formalne = sum(je_neaktivni_rs_kmen == "Ano", na.rm = TRUE), nevim_formalne = sum(je_neaktivni_rs_kmen == "Nevím", na.rm = TRUE) + sum(is.na(je_neaktivni_rs_kmen)))
-sumar_formalne %>% knitr::kable()
+sumar_formalne %>% table_format()
 ```
 
 ```{r}

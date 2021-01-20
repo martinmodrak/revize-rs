@@ -22,7 +22,7 @@ source(here::here("datasety_dotaznik.R"), encoding = "UTF-8")
 assign("zaloha_labels", zaloha_labels, envir = globalenv())
 ```
 
-# Stav roveringu
+# Stav roveringu {#stav-roveringu}
 
 Zásadní závěry z této části otázek podle nás jsou:
 
@@ -634,7 +634,7 @@ hlavni_data %>% filter(!is.na(let_v_kmeni)) %>%
 ```
 
 
-Zároveň si myslíme, že průzkum je co se týká věku respondentů jakž takž reprezentativní (viz [Kapitola \@ref(reprezentativnostvek)](#reprezentativnostvek)). A - jak [vidíme v registraci](#odchodyroveri) - odcházení lidí z Junáka se sice po 15tém roku zpomaluje, ale stále zůstává nezanedbatelné, zatímco počet nováčků je v tomto věku minimální.  
+Zároveň si myslíme, že průzkum je co se týká věku respondentů jakž takž reprezentativní (viz [Kapitola \@ref(reprezentativnost-vek)](#reprezentativnost-vek)). A - jak [vidíme v registraci](#odchody-roveri) - odcházení lidí z Junáka se sice po 15tém roku zpomaluje, ale stále zůstává nezanedbatelné, zatímco počet nováčků je v tomto věku minimální.  
 
 
 ```{r}
@@ -828,6 +828,17 @@ hlavni_data %>% group_by(organizace_nejvyssi) %>% summarise(pocet = n(), .groups
 
 podil_organizace_nejvyssi_vsichni <- mean(hlavni_data$organizace_nejvyssi == "vsichni", na.rm = TRUE)
 ```
+
+```{r}
+# hlavni_data %>% filter(!is.na(organizace_nejvyssi)) %>%
+#   mutate(neaktivni = organizace_nejvyssi == "neaktivni",
+#          neni_organizovan = organizace_nejvyssi == "neni_organizovan",
+#          organizuji_vsichni = organizace_nejvyssi == "vsichni",
+#          ma_radu = organizace_nejvyssi == "ma_radu",
+#          ma_vudce = organizace_nejvyssi == "ma_vudce") %>%
+#   plot_binarni_s_nejistotou(c("neaktivni", "neni_organizovan", "organizuji_vsichni", "ma_radu", "ma_vudce"), age)
+```
+
 
 
 Zajímavé je, že přítomnost nějaké formy organizace je spojena jen se zanedbatelnou změnou toho, jak často respondenti uvádějí různé problémy. Jediný problém, který skutečně výrazně mizí s přítomností vedení je "Nikdo rovery neorganizuje/nevede", ale vidíme též nějaké rozdíly u "Pro rovery není kvalitní program" či "Nevíme jak na to". 

@@ -1,4 +1,34 @@
 
+```{r setup, message=FALSE, echo = FALSE}
+source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
+knitr::opts_chunk$set(echo=FALSE, cache=TRUE)
+
+library(lubridate)
+library(readxl)
+library(tidyverse)
+library(forcats)
+library(here)
+library(bindrcpp)
+library(brms)
+library(knitr)
+library(cowplot)
+#theme_set(theme_cowplot())
+set_theme_revizers()
+
+tolerovana_prestavka <- 0
+min_rok <- 2012
+min_vek <- 6
+max_vek <- 21
+```
+
+```{r results='asis'}
+if(gitbook_output) {
+  cat("# (PART\\*) Další zdroje dat {-}\n")
+} else {
+  cat("# Další zdroje dat {-}\n")
+}
+```
+
 # Odchody na přechodu do roverského věku {#odchody-lidi}
 
 Ve skauting se často operuje s představou, že nízké množství roverů je dáno problematickým přechodem mezi skautskou a roverskou výchovnou kategorií. Dle mého soukromého názoru převládá představa, že kolem patnáctého roku věku, při přechodu do roverské kategorie, Junák ztrácí velké množství mladých lidí. Chci tedy zjistit do jaké míry je tato zvýšená míra odchodů viditelná v datech z registrace.
@@ -22,27 +52,7 @@ Bylo by zajímavé se podívat zvlášť na odchody dle velikosti města/kraje -
 ## Hlavní kvantitativní výstupy
 
 
-```{r setup, message=FALSE, echo = FALSE}
-source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
-knitr::opts_chunk$set(echo=FALSE, cache=TRUE)
 
-library(lubridate)
-library(readxl)
-library(tidyverse)
-library(forcats)
-library(here)
-library(bindrcpp)
-library(brms)
-library(knitr)
-library(cowplot)
-#theme_set(theme_cowplot())
-set_theme_revizers()
-
-tolerovana_prestavka <- 0
-min_rok <- 2012
-min_vek <- 6
-max_vek <- 21
-```
 
 ```{r nacist_registraci, cache=TRUE}
 registrace <- registrace_jednotlivci() %>% rename(Sex = ID_Sex)
@@ -161,7 +171,7 @@ optimisticky_odhad_podilu <- optimisticky_odhad_poctu / soucasny_pocet$pocet
 
 Při optimistickém odhadu, že ve 14ti a 15ti letech zvládneme snížit odchod o `r optimisticky_odhad_zmeny *100` procentní body, tj. že z `r optimisticky_odhad_poctu_2016$pocet` čtrnáctiletých v roce 2016 a z `r optimisticky_odhad_poctu_2017$pocet` patnáctiletých v roce 2017 by vždy `r optimisticky_odhad_zmeny *100`% lidí NEodešly, pak bychom "získali" `r round(optimisticky_odhad_poctu)` šestnáctiletých roverů navíc k současnému počtu `r soucasny_pocet$pocet` (tj. `r round(optimisticky_odhad_podilu * 100)`%)
 
-## Odchody v roverském věku {#odchodyroveri}
+## Odchody v roverském věku {#odchody-roveri}
 
 Zajímá nás též, jak výrazně z organizace mizí starší členové - můžeme se tedy podívat na podíl odchodů z ročníku jen v roverském věku. Zde je vidět, že klesající trend trvá, ale podíl odchodů nikdy neklesne pod 10% a docela dlouho je větší než 15%. Tedy opět - vzhledem k absenci nováčků se i relativně malá míra odchodů posčítá a výsledkem je malý počet starších roverů v organizaci.
 
