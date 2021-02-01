@@ -44,13 +44,149 @@ h1, h2, h3 {
     font-family: skautbold,Arial,sans-serif;
 }
 
+.book .book-body .page-wrapper .page-inner section.normal h1.title {
+	/*font-size: 40pt;*/
+	text-align:center;
+}
+
 p {
     text-align: justify;
 }
 
 
+.book .book-summary,
+.book .book-body .page-wrapper .page-inner section.normal,
+.book .book-summary ul.summary li a,
+.book .book-summary ul.summary li span
+{
+	color:black;
+}
+
+.book .book-summary ul.summary li a:hover, .book .book-summary ul.summary li.active > a {
+	color:white;
+}
+
+.book .book-summary ul.summary li.chapter {
+	padding-left: 10px;
+}
+
+.book .book-summary ul.summary li.chapter li.chapter {
+	padding-left: 0px;
+}
+
+
+/*.book .book-summary ul.summary li a:hover::before, .book .book-summary ul.summary li.active > a::before {*/
+.book .book-summary ul.summary li.active::before {
+	display: block;
+	width: 15px;
+	height: 3px;
+	content: " ";
+	background-color: white;
+	position: absolute;
+	margin-left: -10px;
+	margin-top: 1.2em;
+}
+
+.book .book-summary ul.summary li li.active::before {
+	margin-left: -30px;
+}
+
+.book .book-summary ul.summary li li li.active::before {
+	margin-left: -50px;
+}
+
+
+.book .book-summary ul.summary li a:hover, .book .book-summary ul.summary li.active > a {
+}
+
+.book .book-summary {
+	background-color: rgb(242, 223, 240);
+}
+
+.book .book-summary ul.summary li span {
+	opacity:1;
+	filter: none;
+}
+
+
+.book .book-header .btn {
+	color:black;
+}
+
+.book .book-body .page-wrapper .page-inner section.normal a {
+	/*color:  rgb(29,128,90);*/
+	color: rgb(214,0,171);
+	font-weight: 600;
+}
+
+.book .book-body .page-wrapper .page-inner section.normal h1.title {
+	font-size: 2.5em;
+}
+
 /* Kratka verze */
-.kratka_zprava_more {
-    font-size:80%;
-    font-style:italic;
+.book .book-body .page-wrapper .page-inner section.normal .kz_heading h4 {
+  color:  rgb(29,128,90);
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+  cursor: pointer;
+}
+
+.book .book-body .page-wrapper .page-inner section.normal .kz_heading h4 a,
+.book .book-body .page-wrapper .page-inner section.normal .kz_group a,
+.book .book-body .page-wrapper .page-inner section.normal .kz_intro a{
+  color:  rgb(29,128,90);
+}
+
+.kz_heading h4::before, .rozbalit_vse::before {
+  content: "\2013";
+  padding-right: 0.2em;
+}
+
+div.collapsed.kz_heading h4::before, .rozbalit_vse.collapsed::before {
+  content: "+";
+}
+
+.book .book-body .page-wrapper .page-inner section.normal .kz_group h2,
+.book .book-body .page-wrapper .page-inner section.normal .kz_intro h2{
+  margin-bottom: 0;
+}
+
+.book .book-body .page-wrapper .page-inner section.normal .kz_subtitle {
+  margin-top: 0;
+  font-size: 1.5em;
+  font-family: skautbold;
+  margin-bottom: 0.85em;
+}
+
+.kz_subtitle::before {
+  content: "| ";
+}
+
+.book .book-body .page-wrapper .page-inner section.normal .kz_group p {
+  margin-bottom: 0;
+}
+
+.book .book-body .page-wrapper .page-inner section.normal .kz_intro .kz_heading p,
+.book .book-body .page-wrapper .page-inner section.normal .kz_group .kz_heading p {
+  margin-bottom: .85em;
+}
+
+.rozbalit_vse {
+  color:  rgb(29,128,90);
+  cursor: pointer;
+  text-align: right;
+  display: block;
+  font-size: 1.4rem;
+}
+
+.rozbalit_vse.hidden {
+  display:none;
+}
+
+.summary .part:first-child {
+	background-color:rgb(179,221,211);
+}
+
+.summary .chapter[data-level="1"], .summary .chapter[data-level="2"] {
+	background-color:rgb(179,221,211);
 }

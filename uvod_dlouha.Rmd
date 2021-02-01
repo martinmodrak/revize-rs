@@ -1,24 +1,44 @@
-# Úvod k dalším kapitolám {#uvod}
+```{r, message=FALSE, echo = FALSE}
+source(here::here("setup_knitr.R"))
 
-Zásadní částí projektu byl velký průzkum mezi rovery, nechceme se ale omezit jen na tento samotný průzkum. 
+```
 
-- V kapitole \@ref(koncepce) - ["Děravá koncepce roveringu"](#koncepce) představujeme
-obecnější závěry ke koncepci roveringu a roverského programu, které navazují na data volněji či se opírají primárně o úvahy a osobní zkušenosti
-nás či dalších lidí, se kterými jsme v průběhu projektu o roveringu diskutovali. 
-Tyto závěry nám osobně přijdou pro Junák důležitější než výstupy z dat, ale zase jsme si vědomi toho, 
-že stojí na méně pevné půdě.
 
-- V kapitolách \@ref(charakteristika-respondentu) - \@ref(kompetence) se věnujeme detailní analýze dat z velkého průzkumu. 
+```{r results='asis'}
+if(gitbook_output) {
+  cat("# (PART\\*) Data {-}\n")
+} else {
+  cat("# Data {-}\n")
+}
+```
+
+# Použité zdroje dat {#uvod-data}
+
+Zásadní částí projektu byl velký průzkum mezi rovery, neomezovali jsme se ale jen na tento samotný průzkum.
+Celkově je cílem dalších kapitol poskytnout detaily tomu, koho to zajímá a ukázat, 
+jak jsme dospěli k našim hlavním závěrům. 
+
+## Velký průzkum
+
+V kapitolách \@ref(charakteristika-respondentu) - \@ref(kompetence) se věnujeme detailní analýze dat z velkého průzkumu. 
 Začínáme [charakteristikou respondentů](#charakteristika-respondentu), 
 pak se věnujeme první části dotazníku, která se dívala na [stav roveringu](#stav-roveringu) 
 a končíme rozborem asi nejambicioznější části otázek, která se věnovala [kompetencím](#kompetence).
 
-- Kapitole \@ref(odchody-lidi) se podíváme detailně na data z registrace o [odchodech členů](#odchody-lidi) s
-hlavním důrazem na přechod ze skautského do roverského věku.
-
-- Kapitola \@ref(sondy2015) se pak vrací k datům ze [sond do roveringu z roku 2015](#sondy2015), která nebyla dříve příliš využita. 
-
+Průzkum probíhal od 24. 11. do 12. 10. 2019 online na platformě [FormR](http://formr.org/). 
+Propagovali jsme ho osobně mezi známými i na skautských akcích (hlavně ÚLŠ), 
+pomocí roverských Facebookových skupin a též e-maily ze SkautISu. 
+Po vyplnění jsme žádali respondenty, aby průzkum dále sdíleli (což se i dělo).  
 
 TODO: Odkazy na Drive na to, jak vypadal dotazník a další materiály.
+
+## Další zdroje dat
+
+V kapitole \@ref(odchody-lidi) se podíváme detailně na data z registrace o [odchodech členů](#odchody-lidi) s
+hlavním důrazem na přechod ze skautského do roverského věku.
+
+Kapitola \@ref(sondy2015) se pak vrací k datům ze [sond do roveringu z roku 2015](#sondy2015), která nebyla dříve příliš využita. 
+
+
 
 _Kompletní kód všech analýz je k nalezení na https://github.com/martinmodrak/revize-rs _

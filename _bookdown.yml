@@ -1,7 +1,7 @@
 rmd_files:
   [ "index.Rmd"
-  , "uvod_dlouha.Rmd"
   , "koncepce.Rmd"
+  , "uvod_dlouha.Rmd"
   , "charakteristika_respondentu.Rmd"
   , "stav_roveringu.Rmd"
   , "kompetence.Rmd"

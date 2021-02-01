@@ -74,7 +74,7 @@ kratka_zprava <- list(
 			list(name = 'I v základním RS názvosloví máme nejasnosti.',
 				text = 'Neshodneme se, komu říkat rover - je člověk ve vedení vždy též roverem? Není shoda, jak říkat dívkám a dámám v roverském věku - rangers neb roverky? Zahrnuje označení “roveři” nebo “roverský věk” všechna pohlaví? Existuje “rangerský věk”? Kdy je skupina roverů již roverský kmen? A proč si některá roverská společenství nechtějí říkat “kmen”? To nejsou samo o sobě zásadní problémy - a shoda napříč organizací se bude hledat velmi těžko - ale je to trochu příznakem nejasností ohledně koncepce samotného roveringu v Junáku. [Více o názvosloví...](#nazvoslovi)')
 	)),
-	list(group_name = 'S čím nesouhlasíme',
+	list(group_name = 'S čím nesouhlasíme:',
 		group_comment = 'Chceme se také vyjádřit k několika postojům, které si myslíme, že v organizaci mají nezanedbatelnou podporu, ale se kterými nesouhlasíme.',
 		contents = list(
 			list(name = '<U+274C> “Rovering by už neměl být výchovnou kategorií.”',
@@ -95,14 +95,7 @@ kratka_zprava <- list(
 				text = 'Ke zlepšení stavu roveringu může přispět na svojí úrovni a svým dosahem každý RS či vedoucí. Podstatou změny k lepšímu je změna ve smýšlení o roveringu a navrácení jeho výchovného místa a významu v organizaci. Roveringu přispívá každý, kdo se jej snaží pochopit, snaží se o vlastní rozvoj, přináší téma roveringu do svého oddílu či střediska a připomíná, že mají odpovědnost za rozvoj svých členů v RS věku.')
 ,
 			list(name = 'Přečíst si nové materiály o roveringu.&nbsp;',
-				text = 'Junák nezahálí a pracuje na změnách v roveringu. Nové materiály pomáhají narovnat nejasnosti v roveringu a přináší nejnovější poznatky.
-Co je nebo brzy má být k dispozici?
-
-*	Projevy kompetencí pro mladší RS věk.
-* Metodika pro roverský věk (pro starší RS a vedoucí či průvodce).
-* Rovering ve 20 bodech (krátké shrnutí podstaty roveringu).
-* V budoucnu: Nový roverský začátek, projevy kompetence pro starší RS věk.
-				')
+				text = 'Junák nezahálí a pracuje na změnách v roveringu. Nové materiály pomáhají narovnat nejasnosti v roveringu a přináší nejnovější poznatky. Co je nebo brzy má být k dispozici?')
 ,
 			list(name = 'Oddíl má být zodpovědný za rozvoj roverů.',
 				text = 'Toto je klíčová teze pro uchopení práce s rovery. Stejně jako od oddílu očekáváme, že bude řešit když by chyběl odpovídající program/vedoucí či jiné zajištění pro výchovu mladších kategorií v oddílech, nemělo by zapomenout ani na rovery.')

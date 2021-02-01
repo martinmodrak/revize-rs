@@ -76,7 +76,12 @@ for(i in 1:length(processed_matches)) {
     } else if(state == "statement") {
       cat("\t\t\t\ttext = '", pm$contents, "')\n", sep = "", file = out)
       state <- "group"
-    }    
+    } else {
+      cat("Wrong state - group:\n")
+      cat(pm$contents, "\n")
+    }   
+  } else {
+    stop("Wrong tag")
   }
 }
 cat("\n)))", sep = "", file = out)

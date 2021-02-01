@@ -1,5 +1,6 @@
 kratka_zprava <- list(
-	list(group_name = 'Současný stav roveringu | fakta o roveringu',
+	list(group_name = 'Současný stav roveringu',
+	     group_subheading = "fakta o roveringu",
 		contents = list(
 			list(name = 'Do roverského věku přechází “elita” skautského věku.',
 				text = 'Většina RS, kteří vstupují do roverského věku, za sebou má “dobrou skautskou kariéru”. Působili ve funkcích družinových či oddílových rádců (79%) a zúčastnili se rádcovských kurzů (59%). [Více o vstupu do roverského věku...](#vstup_do_rs)')
@@ -28,7 +29,8 @@ kratka_zprava <- list(
 			list(name = 'RS mimo roverská společenství by ve společenství chtěli být.',
 				text = 'Nejčastější odpovědí na otázku “Proč nejsi nikdy nebyla součástí roverského společenství” je “Na středisku nebylo žádné roverské společenství” (74%), naopak možnosti jako “nelákalo mě to” či “nesedla jsem si ostatními členy” vybralo méně než 12% respondentů. [Více o RS singles...](#rssingles)')
 	)),
-	list(group_name = 'Problémy roveringu | skutečné i domnělé',
+	list(group_name = 'Problémy roveringu',
+	     group_subheading = "skutečné i domnělé",
 		contents = list(
 			list(name = 'Samotný přechod k roverům není zásadní problém.',
 				text = 'Pro většinu RS (59%) byl vstup do roverského věku snadný. Necelá polovina RS se rovery stala automaticky (47%) a cítí se být připraveni na tvorbu vlastního programu pro sebe a své společenství (46%). [Více o vstupu do RS...](#vstup_do_rs)')
@@ -54,7 +56,8 @@ kratka_zprava <- list(
 			list(name = 'RS odcházejí za prací a školou.',
 				text = 'Problém s odchody RS od oddílů za školou či prací se týká téměř poloviny (48%) respondentů, kteří nyní jsou v roverském společenství. Střediskům odchází generace RS s nejvyšším potenciálem pro předávání vedení a zkušeností mezi generacemi. Mnoho středisek tak funguje díky obětavému dojíždění vysokoškoláků či dlouhé službě starších generací. Bohužel s tím nejde mnoho udělat. Více &nbsp;&nbsp;&nbsp; v [kapitole o odchodech z RS](#odchod_z_rs).')
 	)),
-	list(group_name = 'Děravá koncepce našeho roveringu | co nefunguje a mohlo by',
+	list(group_name = 'Děravá koncepce našeho roveringu',
+	     group_subheading = "co nefunguje a mohlo by",
 		contents = list(
 			list(name = 'Chybí odpovědi na základní koncepční otázky o roveringu.',
 				text = 'Hnutí se posledních skoro 10 let potýká se stále stejnými otázkami, jejichž odpovědi leží v nejasně stanovené koncepci. (Např. Jsem rover, když vedu mladší členy? Je vedení mladších členů plnohodnotnou náplní roveringu? Co jsou cíle výchovy RS? Kdo odpovídá za rozvoj roverů? RS se přece mají vést sami, nebo ne? Je možné dělat rovering bez roverského kmene?, ...). Junák též nemá uchopen celostní pohled na výchovu od benjamínka k dospělému. [Více o chybějící koncepci...](#koncepce)')
@@ -89,7 +92,8 @@ kratka_zprava <- list(
 			list(name = '<U+274C> “Hledání smyslu roveringu je smysl roveringu.”',
 				text = 'Jsme přesvědčeni, že lidé na prahu roverského věku se v praxi často v přílišné volnosti “dělejte si nějak rovering” ztrácí a myslíme si, že Junák by měl nabídnout (nikoliv vnucovat) alespoň základní šablonu, které se mohou roveři na této cestě chytnout.&nbsp;')
 	)),
-	list(group_name = 'Co můžeme udělat? | Každý může něco udělat pro lepší rovering',
+	list(group_name = 'Co můžeme udělat?',
+	  group_subheading = "Každý může něco udělat pro lepší rovering",
 		contents = list(
 			list(name = 'Neopomíjet RS, nezapomenout na seberozvoj.',
 				text = 'Ke zlepšení stavu roveringu může přispět na svojí úrovni a svým dosahem každý RS či vedoucí. Podstatou změny k lepšímu je změna ve smýšlení o roveringu a navrácení jeho výchovného místa a významu v organizaci. Roveringu přispívá každý, kdo se jej snaží pochopit, snaží se o vlastní rozvoj, přináší téma roveringu do svého oddílu či střediska a připomíná, že mají odpovědnost za rozvoj svých členů v RS věku.')

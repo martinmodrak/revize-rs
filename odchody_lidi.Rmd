@@ -21,15 +21,7 @@ min_vek <- 6
 max_vek <- 21
 ```
 
-```{r results='asis'}
-if(gitbook_output) {
-  cat("# (PART\\*) Další zdroje dat {-}\n")
-} else {
-  cat("# Další zdroje dat {-}\n")
-}
-```
-
-# Odchody na přechodu do roverského věku {#odchody-lidi}
+# Odchody na přechodu do RS {#odchody-lidi}
 
 Ve skauting se často operuje s představou, že nízké množství roverů je dáno problematickým přechodem mezi skautskou a roverskou výchovnou kategorií. Dle mého soukromého názoru převládá představa, že kolem patnáctého roku věku, při přechodu do roverské kategorie, Junák ztrácí velké množství mladých lidí. Chci tedy zjistit do jaké míry je tato zvýšená míra odchodů viditelná v datech z registrace.
 

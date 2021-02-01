@@ -4,17 +4,12 @@ source(here::here("setup_dotaznik.R"), encoding = "UTF-8")
 knitr::opts_chunk$set(echo = FALSE, cache=TRUE)
 ```
 
-```{r results='asis'}
-if(gitbook_output) {
-  cat("# (PART\\*) Výsledky průzkumu {-}\n")
-} else {
-  cat("# Výsledky průzkumu {-}\n")
-}
-```
 
+# Velký průzkum - kdo odpovídal? {#charakteristika-respondentu}
 
-# Charakteristika respondentů {#charakteristika-respondentu}
-
+V této kapitole se věnujeme obecným charakteristikám respondentů a klademe si otázku, 
+jak moc může být průzkum (ne)reprezentativní vůči naší cílové populaci, 
+tedy všem členům a členkám Junáka ve věku 15-26 let.
 
 ```{r nacist_data, cache=TRUE, message=FALSE}
 source(here::here("datasety_dotaznik.R"), encoding = "UTF-8")
