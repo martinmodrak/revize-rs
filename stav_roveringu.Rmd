@@ -1084,7 +1084,7 @@ plot_summary_mc(hlavni_data, co_pomaha_roveringu, "Roveringu dle mé vlastní\nz
 
 ### Registrace {#registrace}
 
-Registrace nám bohužel nemůže dát dobrý pohled na roverská společenství --- jen třetina roverů uvádí, že jejich společenství je registrováno jako roverský kmen a většina členů je registrována u dětských oddílů.
+Registrace nám bohužel nemůže dát dobrý pohled na roverská společenství --- jen třetina roverů uvádí, že jejich společenství je registrováno jako roverský kmen a většina členů je registrována u dětských oddílů. Nehledě na to, že v oddílech se běžně nesprávně přiřazují všechny věkové kategorie a roveři nejčastě (dle zkušeností Roverského odboru).
 
 
 ```{r}
