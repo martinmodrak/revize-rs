@@ -28,16 +28,16 @@ Zásadní závěry z této části otázek podle nás jsou:
 
 - Přechod ze skautského do roverského věku není sám o sobě zásadní překážkou pro udržení členů
 - Nový roverský program není v podstatě nikde ve větší míře používán
-- To, že kmen má určeného vůdce koreluje s celou řadou pozitivních charakteristik. Naopak absence vedení/programu nebo roverského know-how je často zmiňovaným problémem.
+- To, že kmen má funkční organizaci koreluje s celou řadou pozitivních charakteristik. Naopak absence vedení/programu nebo roverského know-how je často zmiňovaným problémem.
 - Nejčastějším důvodem, proč roveři nejsou ve společenství je, že v jejich středisku není žádné funkční společenství. I tak se roveři bez společenství zapojují do aktivit, které jsou roverské.
 - Registrace nám nemůže dát dobrou informaci o počtu roverských společenství
-- Roveři jsou obecně velmi aktivní v organizaci.
+- Roveři jsou v Junáku obecně velmi aktivní.
 
 Detaily a zdůvodnění lze nalézt v příslušných částech dokumentu.
 
 ## Jak interpretovat tato data
 
-Pro interpretaci výsledků je potřeba připomenout, že všechny údaje jsou sebehodnocení a samozřejmě se lidé mohou lišit v tom, jak "přísní" na sebe a svá roverská společenství jsou. Nesmíme také zapomenout na možnou nepozornost nebo únavu při vyplňování --- proto zejména odpovědi, kde s něčím (ne)souhlasí jen malá procenta respondentů nelze brát příliš doslova --- je velmi těžké napsat otázku, kde se všichni shodnou (příkladem: jen 89% respondentů jednoho amerického průzkumu uvedlo, že "Férové volby jsou pro demokracii důležité") .
+Pro interpretaci výsledků je potřeba připomenout, že všechny údaje jsou sebehodnocením a samozřejmě se lidé mohou lišit v tom, jak "přísní" na sebe a svá roverská společenství jsou. Nesmíme také zapomenout na možnou nepozornost nebo únavu při vyplňování. Proto zejména odpovědi, kde s něčím (ne)souhlasí jen malá procenta respondentů nelze brát příliš doslova. Je totiž velmi těžké napsat otázku, kde se  shodnou všichni. Například: jen 89% respondentů jednoho amerického průzkumu uvedlo, že "Férové volby jsou pro demokracii důležité".
 
 Text je strukturován tak, že vždy uvádíme nějaká tvrzení a za nimi je graf/tabulka, které ukazují v čem sesbíraná data tvrzení podporují.
 
@@ -45,15 +45,15 @@ Text je strukturován tak, že vždy uvádíme nějaká tvrzení a za nimi je gr
 
 Jedním z často zmiňovaných problémů je, že na přelomu skautského a roverského věku "ztrácíme" členy. Tuto otázku rozebíráme podrobněji v [kapitole o odchodech lidí](#odchody-lidi), zde jen zopakujeme hlavní shrnutí 
 
-> V datech z registrace za roky 2012---2018 lze v některých skupinách členů vidět mírný vzestup míry odchodů kolem 15tého roku věku. Nejsilnější takový nárust jsme pozorovali u chlapců, kteří jsou již členy Junáka alespoň 4 roky. Ve 12ti letech opouští organizaci v průměru 14% takovýchto chlapců z ročníku (tj. zhruba jeden ze sedmi), tato míra pak roste plynule až k 16ti letům, kdy jich odchází 17% z ročníku (tj. zhruba jeden z šesti). V jiných kategoriích je nárůst odchodů kolem přechodu do roverského věku nižší. V roverském věku pak míra odchodů klesá s rostoucím věkem klesá.
+> V datech z registrace za roky 2012---2018 lze v některých skupinách členů vidět mírný vzestup míry odchodů kolem 15tého roku věku. Nejsilnější takový nárůst jsme pozorovali u chlapců, kteří jsou již členy Junáka alespoň 4 roky. Ve 12ti letech opouští organizaci v průměru 14% takovýchto chlapců z ročníku (tj. zhruba jeden ze sedmi). Tato míra pak roste plynule až k 16ti letům, kdy jich odchází 17% z ročníku (tj. zhruba jeden z šesti). V jiných kategoriích je nárůst odchodů kolem přechodu do roverského věku nižší. V roverském věku pak míra odchodů s rostoucím věkem klesá.
 
-> Data neukazují masivní exodus začátkem roverského věku. Nízký počet roverů je pravděpodobně více ovlivněn výrazným poklesem přílivu nováčků s rostoucím věkem a celkově vysokým "odpadem" nováčků (až 33% prvně registrovaných se neregistruje podruhé) i zkušenějších členů (až 18% z ročníku) napříč skautským věkem. Odchod člena v rovererském věku je také pro středisko závažnější, což může subjektivně vést ke zveličování počtu odchodů.
+> Data neukazují masivní exodus začátkem roverského věku. Nízký počet roverů je pravděpodobně více ovlivněn výrazným poklesem přílivu nováčků s rostoucím věkem a celkově vysokým "odpadem" nováčků --- až 33% prvně registrovaných se neregistruje podruhé. Velká míra odchodů je ale vidět i u zkušenějších členů napříč skautským věkem --- každý rok odchází až 18% zkušenějších členů. Odchod člena v rovererském věku je také pro středisko závažnější, což může subjektivně vést ke zveličování počtu odchodů.
 
-To lze též shrnout obrázkem:
+Totéž lze shrnout obrázkem:
 
 ![ ](shared_figs/odchody.png)
 
-_Zde vidíme, jaká část členské základny Junáka daného věku odešla během sledovaného období, rozděleno na nováčky (registrují se poprvé) a ostatní. Raději příklad: kdyby za roky 2012---2018 období bylo v Junáku celkem 1000 chlapců, kteří se poprvé registrovali během svých 13ti let a z toho se jich 200 již znovu neregistrovalo, bude v grafu 0.2. Pruh kolem údajů ukazuje očekávanou nejistotu/šum (čím méně lidí v kategorii, tím méně si jsme jisti, že to co vidíme je reprezentativní). Pozorovaný nárůst odchodů mužských členů s 2---3 letou zkušeností v roverském věku není příliš zásadní, protože absolutní počet těchto členů je nízký. _
+_Na obrázku vidíme, jaká část členské základny Junáka daného věku odešla během sledovaného období, rozděleno na nováčky (registrují se poprvé) a ostatní. Raději příklad: Kdyby za roky 2012---2018 bylo v Junáku celkem 1000 chlapců, kteří se poprvé registrovali během svých 13ti let a z toho se jich 200 již znovu neregistrovalo, bude v grafu 0.2. Pruh kolem údajů ukazuje očekávanou nejistotu/šum (čím méně lidí v kategorii, tím méně si jsme jisti, že to co vidíme je reprezentativní). Pozorovaný nárůst odchodů mužských členů s 2---3 letou zkušeností v roverském věku není příliš zásadní, protože absolutní počet těchto členů je nízký. _
 
 ```{r}
 if(any(hlavni_data$let_v_junaku < hlavni_data$let_v_kmeni, na.rm = TRUE)) {
@@ -75,7 +75,7 @@ Respondenti tomuto odpovídají --- `r scales::percent(podile_vstoupili_do_11ti_
 
 ### Čím si prošli před vstupem {#pred_vstupem}
 
-Vícekrát jsme se setkali s doměnkou, že nefunkční družinový systém je příčinou problémů roveringu. Slušné množství roverů přichází z oddílů, kde družinový systém aspoň trochu fungoval, takže se na to nemůžeme tolik vymlouvat (jakkoliv námi položené otázky nemohou odhalit, jestli družiny skutečně fungovaly dobře). Odpovědi našich respondentů jsou ostatně velmi podobné výsledkům z nedávných sond o družinovém systému.
+Vícekrát jsme se setkali s domněnkou, že nefunkční družinový systém je příčinou problémů roveringu. Slušné množství roverů přichází z oddílů, kde družinový systém aspoň trochu fungoval, takže se na to nemůžeme tolik vymlouvat --- jakkoliv námi položené otázky nemohou přímo odhalit, jestli družiny skutečně fungovaly dobře. Odpovědi našich respondentů jsou ostatně velmi podobné výsledkům z nedávných [sond o družinovém systému](https://krizovatka.skaut.cz/balicky-ustredi/950-balicek-leden-2020/4907-vysledky-sond-k-tematu-druzinovy-system-v-oddilech).
 
 ```{r fungovani_skautskeho_oddilu}
 plot_summary_mc(hlavni_data, fungovani_skautskeho_oddilu, "Moje družina ve skautském věku") 
@@ -86,18 +86,18 @@ plot_summary_mc(hlavni_data, fungovani_skautskeho_oddilu, "Moje družina ve skau
 
 
 
-Zároveň většina lidí, co v Junáku vytrvala až do roverského věku,  byla výrazně aktivní již ve skautském věku (_pozn.: otázka v průzkumu se ptala, co zažili --- bez upřesnění kdy, tudíž nelze vyloučit, že někteří byli rádci/podrádci či účastníci rádcovského kurzu až v roverském věku_).
+Zároveň většina lidí, co v Junáku vytrvala až do roverského věku,  byla výrazně aktivní již ve skautském věku (_Pozn.: Otázka v průzkumu se ptala, co zažili --- bez upřesnění kdy. Tudíž nelze vyloučit, že někteří byli rádci/podrádci či účastníci rádcovského kurzu až v roverském věku_).
 
 ```{r zazil_radce}
 hlavni_data %>% plot_summary_mc(co_zazil, "Co zažili ve skautingu", subtitle = "jen otázky k rádcování", include_values = c("radce_podradce", "radcovsky_kurz"))
 
 ```
 
-### Věk vstupu do RS společenství {#vek_vstupu}
+### Věk vstupu do roverských společenství {#vek_vstupu}
 
 Zdá se, že málokdo vstupuje do kmene později než těsně po skautském věku.
 
-```{r vek_vstupu_do_kmene, fig.cap='Rozložení věku vstupu do kmene. Věk vstupu určen z otázek "Jak dlouho jsi ve společenství" a "Věk", proto lze určit jen u těch, kdo nyní jsou ve společenství.'}
+```{r vek_vstupu_do_kmene, fig.cap='Rozložení věku vstupu do kmene. Věk vstupu je určen z otázek "Jak dlouho jsi ve společenství" a "Věk". Proto lze určit jen u těch, kteří byli v době průzkumu ve společenství.'}
 
 
 
@@ -114,7 +114,8 @@ plot_vek_vstupu_base +
 
 ```
 
-Tato data jsou ale zkreslena směrem dolů tím, že obecně máme hodně mladších respondentů (16ti letý respondent nemohl vstoupit do kmene před 16tým rokem). Můžeme se tedy na stejný graf podívat separátně pro několik věkových kategorií: 
+Tato data jsou ale zkreslená směrem dolů tím, že obecně máme hodně mladších respondentů (16ti letý respondent nemohl vstoupit do kmene před 16tým rokem). Můžeme se tedy na stejný graf podívat separátně pro několik věkových kategorií: 
+
 ```{r vek_vstupu_do_kmene_skupiny}
 plot_vek_vstupu_base + 
   facet_wrap(~vekova_skupina) +   
@@ -124,10 +125,10 @@ plot_vek_vstupu_base +
 
 ```
 
-I i u respondentů ve věku 20-23 let vidíme výraznou špičku vstupů mezi 15 a 17tým rokem. U ještě starších tato špička mizí. Tento pohled je ale zase zatížen chybou na druhou stranu - ti, kterým je dnes 25 a do společenství vstoupili v 17ti už nejspíš ve společenství nejsou a tím pádem se nám nevejdou do tohoto pohledu (protože věk vstupu víme bohužel jen u současných členů společenství).
+I i u respondentů ve věku 20 --- 23 let vidíme výraznou špičku vstupů mezi 15 a 17tým rokem. U ještě starších tato špička mizí. Tento pohled je ale zase zatížen chybou na druhou stranu. Ti, kterým je dnes 25 a do společenství vstoupili v 17ti už nejspíš ve společenství nejsou a tím pádem se nám nevejdou do tohoto pohledu, protože věk vstupu víme bohužel jen u současných členů společenství.
 
 
-Nejsilnějším argumentem pro téměř výhradně rané vstupy tak je pohled na vývoj v čase: vidíme, že kolem 16tého roku jsou zhruba 3/4 respondentů ve společenství, s rostoucím věkem pak postupně klesá podíl roverů, co jsou ve společenství a srovnatelně přibývá "odpadlíků", zatímco kategorie "Nikdy nebyl ve společenství" se s věkem nijak výrazně nezmenšuje a zůstává kolem 20%. 
+Hlavním důvodem, proč jsme přesvědčeni, že pozdější vstupy do roverského společenství jsou vzácné je pohled na vývoj v čase: Vidíme, že kolem 16tého roku jsou zhruba 3/4 respondentů ve společenství. S rostoucím věkem pak postupně klesá podíl roverů, co jsou ve společenství a srovnatelně přibývá "odpadlíků", zatímco kategorie "Nikdy nebyl ve společenství" se s věkem nijak výrazně nezmenšuje a zůstává kolem 20%. 
 
 ```{r kategorie_respondenta_v_case}
  hlavni_data %>% 
@@ -477,7 +478,7 @@ data_nastroje_pohlavi %>%
 Potvrzuje se  zkušenost z kurzů, že na ně častěji jezdí ženy --- a zde vidíme, že to nelze snadno svést na rozdílné počty roverů a rangers (ostatně dle registrace je v roverském věku v Junáku více mužů) --- společenství, kde jsou ženy nejspíš skutečně využívají roverské kurzy častěji.
 
 
-### Kurzy
+### Kurzy {#kurzy}
 
 Na kurzy se taky můžeme podívat přes otázku, co sami respondenti (tedy ne jejich společenství) zažili:
 

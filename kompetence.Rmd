@@ -713,7 +713,7 @@ Další skupinou důvěryhodnějších asociací je mezi účastí na kurzu (kro
 ```{r}
 plot_single_marginal(marginals_to_show, "byl_na_jinem_nez_rs_kurzu", "", title = "Byl na jiném než roverském kurzu", subtitle = "vůdcovky/čekatelky/rádcovský")
 ```
-Roverské kurzy mají o něco jednoznačnější výsledky ("více zelené") a jsou spojeny s absolutním nárůstem u velké části kompetencí. Rozhodně ale musíme opatrně mluvit o příčině a následku - je jisté, že lidé, kteří jezdí na RS kurzy jsou častěji ti, kteří na svém rozvoji více pracují.
+Roverské kurzy mají o něco jednoznačnější výsledky ("více zelené") a jsou spojeny s absolutním nárůstem u velké části kompetencí. Rozhodně ale musíme opatrně mluvit o příčině a následku - je jisté, že lidé, kteří jezdí na roverské kurzy jsou častěji ti, kteří na svém rozvoji více pracují.
 
 ```{r}
 plot_single_marginal(marginals_to_show, "byl_na_rs_kurzu","", title = "Byl na roverském kurzu")

@@ -20,10 +20,7 @@ if(gitbook_output) {
 
 # Hlavní závěry {#hlavni}
 
-Vítejte u čtení naší závěrečné zprávy. Začínáme našimi hlavními závěry, 
-další kapitoly pak poskytují širší kontext, více detailů a zdůvodnění těchto závěrů. 
-A jakkoliv budeme rádi, když si zprávu přečtete celou, spíše čekáme, že se podívate na hlavní závěry, 
-případně na konkrétní další části, které probudí vaši zvědavost --- celá zpráva je totiž celkem dlouhá :-). 
+Začínáme našimi hlavními závěry, další kapitoly pak poskytují širší kontext, více detailů a zdůvodnění těchto závěrů. Celkově spíše nečekáme, že zprávu budete číst celou, ale že se podívate na hlavní závěry, případně na konkrétní další části, které probudí vaši zvědavost. V textu užíváme zkratku “RS” ve smyslu “všichni členové i členky Junáka v roverském věku”.
 
 
 ```{r}
@@ -54,27 +51,20 @@ heading_to_id <- function(heading) {
 }
 ```
 
-## Kontext vzniku projektu {.kz_intro}
-
-<div class='kz_subtitle'>Je nebo není rovering v dobrém stavu?</div>
-
-
-Projekt Revize roverského programu vznikl v rámci Strategie Junáka 2020. Jeho zásadní součástí byl i velký roverský průzkum, ze kterého v této zprávě hlavně vycházíme. Potřeba zjistit a kvantifikovat, v jakém stavu se rovering v ČR nachází, byla dána zejména dlouhodobým nedostatkem dat o roveringu, ze kterých by se dalo vycházet při revizi samotného Roverského programu vydaného Junákem v roce 2011.
-
-V době vzniku průzkumu kolovalo o roveringu v Junáku mnoho rozdílných tvrzení a domněnek. Při debatách o roveringu se stále dokola naráželo na důležité otázky o roveringu, na které neexistovaly jasné odpovědi. Vyhledávané byly odpovědi na otázky ‘jak pracovat s RS’ a ‘jak dělat rovering u oddílů’. Z výpovědí o zkušenostech s praktickým roveringem byla často cítit frustrace.
-
-Z celkového obrazu o roveringu pohledem zkušeností Roverského odboru a Roverských kurzů se dalo vyvodit pouze to, že rovering funguje velmi rozdílně napříč oddíly a středisky v ČR a že se pere s různě závažnými problémy. Velký roverský průzkum si dal za cíl zmapovat hlavní rysy roveringu v Junáku a vytvořit prostor pro dobře provedené zlepšení stavu roveringu. Na základě tohoto průzkumu a diskuzí, které jsme absolvovali během projektu, pak formulujeme i další, obecnější doporučení.
-
 
 ```{r render_kratka_zprava_full, results = "asis"}
 print_kz_element_full <- function(element) {
-  cat("#### ", element$name, " {.unnumbered .unlisted .kz_heading #", heading_to_id(element$name), "}\n\n", element$text, "\n\n", sep = "")
+  cat("#### ", element$name, " {.unnumbered .unlisted .kz_heading #", heading_to_id(element$name), "}\n\n", trimws(element$text), "\n\n", sep = "")
 }
 
 print_kz_group_full <- function(group) {
   cat("## ", group$group_name, " {.kz_group #", heading_to_id(group$group_name), "}\n\n", sep = "")
   if(!is.null(group$group_subheading)) {
-    cat("<div class='kz_subtitle'>", group$group_subheading, "</div>\n\n")
+    if(gitbook_output) {
+      cat("<div class='kz_subtitle'>", group$group_subheading, "</div>\n\n")
+    } else {
+      cat("**| ", group$group_subheading, "**\n\n")
+    }
   }
   cat("<span class='rozbalit_vse hidden' id='rozbalit_vse_", heading_to_id(group$group_name) ,"'></span>\n\n", sep = "")
   if(!is.null(group$group_comment)) {

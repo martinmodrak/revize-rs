@@ -23,7 +23,7 @@ assign("zaloha_labels", zaloha_labels, envir = globalenv())
 
 ## Celkové počty
 
-Dotazník měl delší a kratší verzi. Těch, co vyplnili kratší jsme se pak ještě zeptali, jestli přeci jen nechtějí pokračovat a vyplnit delší :-)
+Dotazník měl delší a kratší verzi. Těch, co vyplnili verzi kratší jsme se pak ještě zeptali, jestli přeci jen nechtějí pokračovat a vyplnit delší :-)
 
 ```{r celkove-pocty}
 datasety_wide$pouzitelne %>% group_by(stav_vyplneni) %>% summarise(pocet = n(), .groups = "drop") %>%
@@ -61,7 +61,7 @@ datasety_wide$pouzitelne %>%  filter(age >= 15, age <= 26) %>% group_by(stav_vyp
 podil_z_registrovanych_roveru <- nrow(hlavni_data) / 12924
 ```
 
-Ty, kteří dotazník nedokončili budeme z většiny analýz vyřazovat. Zbývá nám tak `r nrow(hlavni_data)` vyplněných dotazníků, což je `r scales::percent(podil_z_registrovanych_roveru)` ze všech registrovaných skautů v roverském věku (nicméně někteří, co vyplňovali registrovaní nejsou).
+Ty, kteří dotazník nedokončili budeme z většiny analýz vyřazovat. Zbývá nám tak `r nrow(hlavni_data)` vyplněných dotazníků, což je `r scales::percent(podil_z_registrovanych_roveru)` ze všech registrovaných skautů v roverském věku (nicméně někteří z těch, kteří dotazník vyplnili, nejsou  registrovaní).
 
 Rozložení dle pohlaví ukazuje převahu žen (což je rozdíl oproti registraci, kde v této věkové kategorii převažují muži). Členů, kteří se do binární škatulky pohlaví nezařadí máme kolem 1%, což odpovídá odhadům tohoto podílu v běžné populaci.
 
@@ -81,9 +81,7 @@ hlavni_data %>%
 ```
 
 S velkou omluvou směrem k respondentům,
-kteří si nepřáli kategorizovat svoje pohlaví na muž/žena je z grafů, kde ukazujeme pohlaví zvlášť
-vynecháváme, jelikož vzhledem k malému počtu těchto respondentů mají výrazně větší rozpětí nejistoty,
-což činí grafy méně čitelnými - a zároveň skutečně o této skupině nemůžeme v porovnání s ostatními kvůli tomuto malému počtu říct nic s jistotou.
+kteří si nepřáli kategorizovat svoje pohlaví na muž/žena je z grafů, ve kterých ukazujeme pohlaví zvlášť, vynecháváme. Vzhledem k malému počtu těchto respondentů mají výrazně větší rozpětí nejistoty, což činí grafy méně čitelnými. Zároveň skutečně o této skupině nemůžeme v porovnání s ostatními kvůli tomuto malému počtu říct nic s jistotou.
 
 Takto vypadá rozložení respondentů dle věku --- přerušované čáry ukazují rozmezí 15 --- 26 let, tj. skupinu, kterou primárně analyzujeme.
 
@@ -101,7 +99,7 @@ hlavni_data %>% plot_summary_mc(zivotni_faze, "Životní fáze")
 
 ```
 
-A jedna z hlavních otázek, kterou charakterizujeme
+A jedna z hlavních otázek, kterou charakterizujeme respondenty je jejich dosavadní roverská zkušenost.
 
 ```{r roverska-zkusenost}
 plot_summary_mc(hlavni_data, kategorie_respondenta_full, "Roverská zkušenost")
@@ -119,11 +117,13 @@ data_skautis_jednotlivci <- data_skautis_jednotlivci_raw %>%
   mutate(sex = if_else(ID_Sex == "female", "zena", "muz"))
 ```
 
-V každém obrázku níže je křivka "SkautIS", která reprezentuje podíl dané skupiny členstva v datech ze SkautISu (vůči všem registrovaným 15---26 let). Tato křivka má kolem sebe pruh vyjadřující nejistotu --- jak velký rozptyl bychom čekali, kdybychom vybrali ze SkautISu náhodně tolik lidí, kolik jich bylo v daném průzkumu. Druhá křivka vyjadřuje podíl dané skupiny, který jsme viděli v průzkumu. V zásadě lze říct, že když se křivka průzkumu vejde do pruhu kolem dat ze SkautISu je výzkum v tomto ohledu slušně reprezentativní.
+V každém obrázku níže je křivka "SkautIS", která reprezentuje podíl dané skupiny členstva v datech ze SkautISu (vůči všem registrovaným 15---26 let). Tato křivka má kolem sebe pruh vyjadřující nejistotu --- jak velký rozptyl bychom čekali, kdybychom vybrali ze SkautISu náhodně tolik lidí, kolik jich bylo v daném průzkumu. Druhá křivka vyjadřuje podíl dané skupiny, který jsme viděli v průzkumu. V zásadě lze říct, že když se křivka průzkumu vejde do pruhu kolem dat ze SkautISu, je výzkum v tomto ohledu slušně reprezentativní.
+
+Jak uvidíme níže, většina křivek se nám hezky překrývá, ale máme několik --- dle našeho názoru spíše méně zásadních --- odchylek od skautské populace dle registrace.
 
 ### Detailně dle věku {#reprezentativnost-vek}
 
-Z věkových skupin máme podreprezentovány patnáctileté --- to není překvapení, tím, že jsou na hraně roverského věku, čekáme, že se k nim průzkum vůbec nemusel dostat. Zato máme o něco více "prostředních roverů". Zajímavé ale je, že primárně jde o nedostatek 15ti letých roverů (mužů) a v "prostředním" věku naopak o nadbytek roverek/rangers. Doplním, že detailní data o věku mám jen z registrace 2018, takže tu může být jistý nesoulad se stavem k době průzkumu.
+Z věkových skupin máme podreprezentovány patnáctileté. To není překvapení. Tím, že jsou na hraně roverského věku, čekáme, že se k nim průzkum vůbec nemusel dostat. Zato máme o něco více “prostředních roverů”. Zajímavé ale je, že primárně jde o nedostatek 15ti letých roverů (mužů) a v “prostředním” věku naopak o nadbytek rangers/roverek. Doplním, že detailní data o věku máme jen z registrace 2018, takže tu může být jistý nesoulad se stavem k době průzkumu.
 
 ```{r}
 reprezentativnost_vek <- function(data_skautis_, data_pruzkum_, min_vek = 15, max_vek = 26, additional_group = "Vše") {
@@ -183,7 +183,7 @@ reprezentativnost_vek(data_skautis_jednotlivci, hlavni_data %>% filter(sex != "j
 
 ### Dle kraje, velikosti střediska
 
-Zde vycházíme ze skautských Open dat --- používáme data z registrace 2019, v době zpracování ještě novější nebyly k dispozici.
+Zde vycházíme z open dat ze SkautISu --- používáme data z registrace 2019, v době zpracování ještě novější nebyly k dispozici.
 
 ```{r}
 strediska_kraje <- nacti_strediska_kraje()
@@ -303,7 +303,7 @@ compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("poce
 
 ```
 
-Můžeme též zkombinovat kraj a velikost střediska --- opět ztrácíme citlivost, nicméně je zde vidět například to, že nadreprezentování Jihomoravského kraje je hnáno velkými středisky. Opět neukazuje na podstatný problém.
+Můžeme též zkombinovat kraj a velikost střediska --- opět ztrácíme citlivost. Nicméně je zde vidět například to, že nadreprezentování Jihomoravského kraje je hnáno velkými středisky. Opět neukazuje na podstatný problém s reprezentativností dat.
 
 ```{r}
 compute_reprezentativnost_data(hlavni_data, registrace_strediska, cols = c("pocet_clenu_strediska","kraj")) %>%
@@ -331,10 +331,10 @@ plot_reprezentativnost(reprezentativnost_data_vse %>% filter(vekova_skupina == "
 # TODO: Je ostrý odpad lidí u vyplnění kompetencí?
 ```
 
-Celkově je reprezentativnost dat celkem dobrá, budeme tedy většinou uvádět přímo data z dotazníku a ne data "přeškálovaná" na hypotetickou kompletní populaci --- neočekáváme, že by to udělalo velký rozdíl a přineslo by to další práci a možné chyby do analýzy.
+Celkově je reprezentativnost dat celkem dobrá. Budeme tedy většinou uvádět přímo data z dotazníku a ne data "přeškálovaná" na hypotetickou kompletní populaci --- neočekáváme, že by to udělalo velký rozdíl a přineslo by to další práci a možné chyby do analýzy.
 
 Jedinou výjimkou z tohoto je potřeba velké opatrnosti při porovnání mezi pohlavími, protože respondenti-muži 
-jsou v průměru o něco starší než respondenti-ženy, tedy porovnání pohlaví musí vždy zohlednit věk.
+jsou v průměru o něco starší než respondenti-ženy. Tedy porovnání pohlaví musí vždy zohlednit věk.
 
 ```{r}
 hlavni_data %>% group_by(sex) %>% summarise(prumer_vek = mean(age), .groups = "drop") %>% table_format()
@@ -343,15 +343,17 @@ hlavni_data %>% group_by(sex) %>% summarise(prumer_vek = mean(age), .groups = "d
 
 ## Střediska
 
-Respondenti měli více způsobů jak vyplnit informace o středisku, buď přímo registrační číslo, nebo naopak odpovědět na otázky o počtu členů apod.
+Respondenti měli více způsobů jak vyplnit informace o středisku --- buď přímo registrační číslo, nebo naopak odpovědět na otázky o počtu členů apod.
 
 ```{r}
 
   plot_summary_mc(hlavni_data, typ_id_strediska, order_by_podil = FALSE, invert_color_threshold =  0.03, title = "Vyplnění informací o středisku")
 
+pocet_vyplnenych_reg_c <- sum(!is.na(hlavni_data$reg_c_strediska))
+
 ```
 
-Seznam středisek ze kterých máme nejvíce respondentů asi nepřekvapí (Blaník). Toto se samozřejmě týká jen té necelé poloviny respondentů, co nám vyplnili registrační číslo.
+Seznam středisek ze kterých máme nejvíce respondentů asi nepřekvapí (Blaník). Čísla je navíc potřeba brát s ohledem na to, že detailní informace o středisku nám vyplnilo jen `r pocet_vyplnenych_reg_c` respondentů (tj. necelá polovina).
 
 ```{r}
 hlavni_data %>% group_by(reg_c_strediska) %>% summarise(pocet = n(), nazev = nazev_strediska[1], .groups = "drop") %>% filter(!is.na(reg_c_strediska), pocet > 8) %>% arrange(desc(pocet)) %>% table_format
