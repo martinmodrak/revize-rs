@@ -79,7 +79,7 @@ Koncepce v první řadě konkretizuje cíl a cestu k jeho naplnění. Junák je 
     *	Aktivně se zasadit o změnu vnímání roveringu v hnutí.
 *	Aktualizovat a osvěžovat pohled na rovering:
     *	Přistupovat k němu v duchu posledních trendů vývojové psychologie.
-    *	Přispůsobovat jeho obsah s ohledem na měnící se dobu a měnící se generace.
+    *	Přizpůsobovat jeho obsah s ohledem na měnící se dobu a měnící se generace.
     *	Přistupovat k němu vizionářsky, přinášet aktuální témata.
 
 Další naše postřehy se týkají více samotného roveringu a jeho náplně. Mají nižší návaznost na celek výchovy ve hnutí.
@@ -120,7 +120,7 @@ Roverská metodika klade nemalý důraz na sebepoznání. Sebepoznání je důle
 Sebepřijetí má přímý vztah i k cílům skautské výchovy: Dá se žít v souladu s nejvyšší Láskou, aniž bych měl rád a přijal sám sebe? Mohu se důkladně znát, ale i přesto --- nebo i právě proto --- se nemusím přijímat. Inspirování myšlenkami přejatými od Ericha Fromma (např. Kniha Umění milovat) si troufáme tvrdit, že přijetí nejvyšší Lásky ve svém životě se projeví Láskou k sobě. Nebo možná láska k sobě se projeví přijetím lásky Nejvyšší. Nejspíš jde oboje ruku v ruce.
 
 
-V současných materiálech pro roverský věk včetně metodiky 2020 téma sebepřijetí chybí. Přitom v projevech kompetencí skautské výchovy pro skautský věk je sebepřijetí trochu zmiňováno (“Váží si sám/sama sebe”, “Učí se důvěřovat –-- sobě, druhým, světu, Lásce.”,  “Je schopen/schopna si své city uvědomovat a přijímat”, “Učí se přijímat úspěch i neúspěch.”). Toto téma je v metodice “Kdo jsem” rozepsáno tak, jak ho vnímáme my. Metodika “Kdo jsem” zdůrazňuje, že podpora sebepřijetí ve skautském věku závisí hlavně na příkladu vedoucích a na tom, aby vedoucí jasně dávali najevo členům, že je přijímají a mají rádi. Nejspíš z tohoto důvodu se téma sebepřijetí v podstatě nedostalo do nové skautské stezky --- body stezky vztahující se k výše zmíněným projevům mají důraz spíše na sebepoznání. Bohužel to ale znamená, že vedoucí (nebo člen), který materiály ke kompetencím/stezce nezná do hloubky, může toto téma ve skautském věku minout.  Navíc, oproti skautskému věku, kdy je téma sebepřijetí předáváno spíše “mezi řádky”, lze se sebepřijetím v roverském věku pracovat “napřímo”. Sebepřijetí tak určitě patří mezi témata, pro jejichž zpracování je roverském věku ta nejlepší příležitost.
+V současných materiálech pro roverský věk včetně metodiky 2020 téma sebepřijetí chybí. Přitom v projevech kompetencí skautské výchovy pro skautský věk je sebepřijetí trochu zmiňováno (“Váží si sám/sama sebe”, “Učí se důvěřovat --- sobě, druhým, světu, Lásce.”,  “Je schopen/schopna si své city uvědomovat a přijímat”, “Učí se přijímat úspěch i neúspěch.”). Toto téma je v metodice “Kdo jsem” rozepsáno tak, jak ho vnímáme my. Metodika “Kdo jsem” zdůrazňuje, že podpora sebepřijetí ve skautském věku závisí hlavně na příkladu vedoucích a na tom, aby vedoucí jasně dávali najevo členům, že je přijímají a mají rádi. Nejspíš z tohoto důvodu se téma sebepřijetí v podstatě nedostalo do nové skautské stezky --- body stezky vztahující se k výše zmíněným projevům mají důraz spíše na sebepoznání. Bohužel to ale znamená, že vedoucí (nebo člen), který materiály ke kompetencím/stezce nezná do hloubky, může toto téma ve skautském věku minout.  Navíc, oproti skautskému věku, kdy je téma sebepřijetí předáváno spíše “mezi řádky”, lze se sebepřijetím v roverském věku pracovat “napřímo”. Sebepřijetí tak určitě patří mezi témata, pro jejichž zpracování je roverském věku ta nejlepší příležitost.
 
 
 Myslíme si, že sebepřijetí by se mělo objevit v projevech kompetencí pro roverský věk, metodice a měly by vzniknout náměty na programy pro RS, které s tímto tématem pracují.
@@ -130,21 +130,38 @@ Myslíme si, že sebepřijetí by se mělo objevit v projevech kompetencí pro r
 
 Věříme však, že Junák má potenciál (a má mít i ambici) přinést svým členům v roverském věku kvalitní a atraktivní program. Takový, který by v jejich životech nadále znamenal podobné milníky jako první skautský tábor, výprava, dobrodužství a sdílené přátelství. Věříme, že může přinést inspiraci, mít konkrétní pozitivní dopad na rozvoj a život jednotlivce, může znovu vzbudit napjaté očekávání a touhu na sobě pracovat, protože to stojí zato.
 
-Junáku doporučujeme (tohle je ještě TODO, čeká se na rozhovar s Rozárkou):
+Junáku doporučujeme:
 
+* Pomáhat cílům roverského věku a zakončení skautské výchovy
+* Směr vytyčený roverskou metodikou považujeme za vhodný, zejména stavební kameny roverského programu
+  * Metodice však chybí téma sebepřijetí
+* Roverský věk mám mít jasné zakončení. Je zároveň zakončením cílené výchovy Junáka. Je to důležitý předěl. Možná mluvit jako o nástroji, implementaci do nástrojů. Pracovat se zakončením...
+* Implementace sebepřijetí (do metodiky, ale i jinam)
+* Tvořit roverský program spolu s lidmi z roverských seberozvojových kurzů (FONS, Fonticulus, Svatoplukovy Pruty, ...)
+* Ke stávajícím nástrojům --- budou-li zachovány
+  * Výzvy a projekty 
+    * naplnit konkrétnějším obsahem
+  * Velké akce 
+    * pracovat s přechodem od rozvoje k seberozvoji
+    * pomoci skloubit roli vedoucího a rovera
+    * pracovat s “prostředím” seberozvoje (viz níže)
+  * Roverské kurzy, tábory
+    * Účast na seberozvojových kurzech nebo roverských táborech by měla být běžnější součástí roverské zkušenosti a Junák by ji měl podporovat. Zde nemluvíme jen o finanční podpoře (která je poměrně štědrá), ale také o “vážnost”, která se takové účasti (ne)přikládá. Zejména v kontextu současného hladu po kvalifikačních kurzech by přínos seberozvojových akcí pro naplnění cílů skautské výchovy neměl být opomenut.
+* Junák má mít konkrétně zpracovaný začátek roveringu (odhadem minimálně první dva roky)
+* Vedle programu, je pro rozvoj roverů důležité - ne-li mnohem důležitější - i prostředí, ve kterém se program odehrává. Seberozvoj, práce na sobě, hledání života podle tří skautských principů má být tématem a “kulturou” prostředí, ve kterém RS rostou - ať už se jedná společenství vedoucích, RS kmene, oddílovou radu, kmen dospělých, ...
+  * Podle nás je dobré, aby RS na začátku roverského věku dostali do takového prostředí. Aby viděli, že ostatní starší skauti ve svém životě vytváří prostor vlastní růst. Aby cítili, že se to od nich očekává a že je seberozvoj součástí běžného “skautského života” od roverského věku až do smrti. (Pokud neumřeli, rozvíjí se dodnes.)
+  * Obecně považujeme (v duchu skautské výchovné metody) kontakt se staršími skauty i neskauty, kteří jsou otevření a ochotní mluvit o svém životě a o životních otázkách, které roveři právě začínají řešit, za velmi důležitý.
+* Situace a “úroveň” na konci skautského věku je začátkem roverského věku. Ačkoli vstupem do roverského věku všichni dostávají stejnou “nálepku” RS, začíná rovering v každém oddíle/středisku/kmeni na jiné výchozí pozici, jiné úrovni. Výrazný rozdíl působí například funkčnost družinového systému. RS, kteří prošli skautským věkem v důsledném družinovém systému na tom budou určitě jinak, než ti, kteří pořádný družinový systém nezažili. Adekvátně situaci, která je na výstupu ze skautského věku, je třeba přizpůsobit začátek roverského programu. 
+* Rovering bude snáze fungovat tam, kde je fungující družinový systém a silná členská základna ve ve starším skautském věku. Podpora kvalitní práce s družinami a získávání starších nováčků je tak i pomocí roveringu.
+
+***
 
 *  Přinést konkrétní cestu roverským věkem (minimálně) pro mladší roverský věk. Program by měl na jedné straně obsahovat konkrétní cestu a programy směřující ke skautské dospělosti. 
-
 * Na druhé straně má za úkol vést mladého rovera k uchopení vlastního rozvoje do svých rukou, naučit jej práci s vlastní motivací, připravit jej na závěrečnou fázi roveringu, kdy už se má plně projevit samostatný seberozvoj a život podle tří principů skautingu.
-
 * Starší roverský věk už má podle nás projít rover spíše sám. Očekává se, že v něm naplní cíle roverského věk a rovering ukončí. 
-
 * Přinášet do RP aktuální témata, udržovat rovering na špici práce s mladými lidmi, inspirativní, motivační - jako tomu nejspíš bylo při založení roveringu RBP. (Toto by měla dělat programová část roverského odboru?)
-
 * Stavět roverský program dle aktuální vývojové psychologie.
-
 * Začlenit chybějící téma sebepřijetí do metodiky pro RS a do kompetencí skautské výchovy.
-
 * Měl by mladší rover pracovat se druhým stupněm mladší stezky, pokud to neudělal?
 * Programů pro rovery na míru novým situacím (oddílová rada jako roverský kmen?)
 * Životopisy roverů?
