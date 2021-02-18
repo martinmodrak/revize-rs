@@ -1,14 +1,21 @@
 bookdown::gitbook:
   split_by: chapter
-  css: gitbook_style.css
+  css: gitbook_visual/gitbook_style.css
+  template: gitbook_visual/gitbook_template.html
   pandoc_args: ["--lua-filter=non_breaking_policy.lua"]
   toc_depth: 3
   config:
     toc:
       collapse: section
+    sharing:
+      facebook: true
+      twitter: false
+      all: []
+    info: false
+    fontsettings: false
+
 bookdown::word_document2:
   toc_depth: 2
   reference_docx: "public_data/output_template.docx"
-  #pandoc_args: ["--lua-filter=word_img_fix.lua"]
 # bookdown::pdf_book:
 #   pandoc_args: ["--lua-filter=non_breaking_policy.lua"]

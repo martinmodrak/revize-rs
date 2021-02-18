@@ -51,7 +51,7 @@ Jedním z často zmiňovaných problémů je, že na přelomu skautského a rove
 
 Totéž lze shrnout obrázkem:
 
-![ ](shared_figs/odchody.png)
+![Podíl odchodů dle délky předchozí registrace a věku](shared_figs/odchody.png)
 
 _Na obrázku vidíme, jaká část členské základny Junáka daného věku odešla během sledovaného období, rozděleno na nováčky (registrují se poprvé) a ostatní. Raději příklad: Kdyby za roky 2012---2018 bylo v Junáku celkem 1000 chlapců, kteří se poprvé registrovali během svých 13ti let a z toho se jich 200 již znovu neregistrovalo, bude v grafu 0.2. Pruh kolem údajů ukazuje očekávanou nejistotu/šum (čím méně lidí v kategorii, tím méně si jsme jisti, že to co vidíme je reprezentativní). Pozorovaný nárůst odchodů mužských členů s 2---3 letou zkušeností v roverském věku není příliš zásadní, protože absolutní počet těchto členů je nízký. _
 

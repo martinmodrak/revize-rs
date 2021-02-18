@@ -53,6 +53,10 @@ p {
     text-align: justify;
 }
 
+.book .book-header h1 {
+  opacity: 1;
+}
+
 
 .book .book-summary,
 .book .book-body .page-wrapper .page-inner section.normal,
@@ -122,7 +126,20 @@ p {
 
 .book .book-body .page-wrapper .page-inner section.normal h1.title {
 	font-size: 2.5em;
+	color:  rgb(29,128,90);
 }
+
+.book .book-body .page-wrapper .page-inner section.normal p.author, .book .book-body .page-wrapper .page-inner section.normal p.date{
+	color:  rgb(29,128,90);
+	text-align: center;
+	margin-bottom: 0;
+	font-size:90%;
+}
+
+.book .book-body .page-wrapper .page-inner section.normal p.author em, .book .book-body .page-wrapper .page-inner section.normal p.date em{
+	font-style: normal;
+}
+
 
 /* Kratka verze */
 .book .book-body .page-wrapper .page-inner section.normal .kz_heading h4 {

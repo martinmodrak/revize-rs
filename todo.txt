@@ -6,3 +6,17 @@
 - Data ke zveřejnění
 
 - Možná bílý blok na konec stránek
+
+- Lišta nahoře:
+  - Hamburger, vyhledávání, sdílení
+  - Schovat info a velikost fontu (jestli lze)
+  - Nechat nadpis vždy vidět
+  - Sdílení
+    - FB
+
+- Šipky na konci kapitoly při úzkém se objeví jen na konci stránky - měl by být výraznější
+  - Možná dát šipky vždy jen dolů
+  
+5.13. poslední obrázek má divně nadpis
+
+- Umět skrýt horní lištu, když skroluju dolu??? (a zobrazit při scroll nahoru)

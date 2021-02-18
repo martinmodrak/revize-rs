@@ -1,0 +1,160 @@
+---
+title: "Revize roverského programu: Závěrečná zpráva"
+author: 'Petr "Klíč" Šilhavý, Martin "Orel" Modrák, Filip "Fíďa" Děchtěrenko'
+date: 'Verze: `r format(Sys.time(), "%d %B, %Y")`'
+---
+
+```{r setup, message=FALSE,warning=FALSE, results="hide", echo = FALSE}
+source(here::here("setup_knitr.R"))
+source(here::here("zaverecna_zprava_pomocne","kratka_zprava_manual.R"), encoding = "UTF-8")
+knitr::opts_chunk$set(echo = FALSE)
+rmarkdown::find_pandoc() # Try to use version at least 2.8 to allow unlisted header elements
+```
+
+
+```{r results='asis'}
+if(gitbook_output) {
+  cat("# (PART\\*) Závěry a doporučení {-}\n")
+} 
+```
+
+# Hlavní závěry {#hlavni}
+
+Vítejte u čtení naší závěrečné zprávy. Začínáme našimi hlavními závěry, 
+další kapitoly pak poskytují širší kontext, více detailů a zdůvodnění těchto závěrů. 
+A jakkoliv budeme rádi, když si zprávu přečtete celou, spíše čekáme, že se podívate na hlavní závěry, 
+případně na konkrétní další části, které probudí vaši zvědavost --- celá zpráva je totiž celkem dlouhá :-). 
+
+
+```{r}
+preprocess_kz_element <- function(element) {
+  element$name <- gsub("<U\\+([0-9A-Fa-f]*)>", "&#x\\1;", element$name)
+  element$name <- gsub("&nbsp;$", "", element$name)
+  element
+}
+
+preprocess_kz_group <- function(group) {
+  group$contents <-  purrr::map(group$contents, preprocess_kz_element)
+  group
+}
+
+kratka_zprava <- purrr::map(kratka_zprava, preprocess_kz_group)
+```
+
+
+```{r render_kratka_zprava_short, results = "asis"}
+heading_to_id <- function(heading) {
+  without_accents <- stringi::stri_trans_general(str = heading,
+                                   id = "Latin-ASCII")
+  removed_special_chars <- gsub("[.\"|?!:,/] ?", "", without_accents)
+  removed_entities <- gsub("&[^;]*;", "", removed_special_chars)
+
+  handled_whitespace <- gsub(" ", "-", tolower(trimws(removed_entities)))
+  handled_whitespace
+}
+
+# 
+# more_string <- "<span class='kratka_zprava_more'>Více &#9660;</span>"
+# 
+# print_kz_element_short <- function(element) {
+#   # cat("\t* [", element$name, "](#", heading_to_id(element$name),")\n", sep = "")
+# #  cat("\t* ", element$name," [", more_string, "](#", heading_to_id(element$name),")\n", sep = "")
+#    cat(element$name, " ")
+# }
+# 
+# print_kz_group_short <- function(group) {
+# #  cat("* **", group$group_name, "** [", more_string, "](#", heading_to_id(group$group_name),")\n", sep = "")
+#   # cat("* **", group$group_name, "** \n", sep = "")
+#   cat("* **", gsub(":", "", group$group_name), "**: ", sep = "")
+#   purrr::walk(group$contents, print_kz_element_short)
+#   cat("\n")
+#   
+# }
+# purrr::walk(kratka_zprava, print_kz_group_short)
+```
+
+## Kontext vzniku projektu aneb je nebo není rovering v dobrém stavu? 
+
+Projekt Revize roverského programu vznikl v rámci Strategie Junáka 2020. Jeho zásadní součástí byl i velký roverský průzkum, ze kterého v této zprávě hlavně vycházíme. Potřeba zjistit a kvantifikovat, v jakém stavu se rovering v ČR nachází, byla dána zejména dlouhodobým nedostatkem dat o roveringu, ze kterých by se dalo vycházet při revizi samotného Roverského programu vydaného Junákem v roce 2011.
+
+V době vzniku průzkumu kolovalo o roveringu v Junáku mnoho rozdílných tvrzení a domněnek. Při debatách o roveringu se stále dokola naráželo na důležité otázky o roveringu, na které neexistovaly jasné odpovědi. Vyhledávané byly odpovědi na otázky ‘jak pracovat s RS’ a ‘jak dělat rovering u oddílů’. Z výpovědí o zkušenostech s praktickým roveringem byla často cítit frustrace.
+
+Z celkového obrazu o roveringu pohledem zkušeností Roverského odboru a Roverských kurzů se dalo vyvodit pouze to, že rovering funguje velmi rozdílně napříč oddíly a středisky v ČR a že se pere s různě závažnými problémy. Velký roverský průzkum si dal za cíl zmapovat hlavní rysy roveringu v Junáku a vytvořit prostor pro dobře provedené zlepšení stavu roveringu. Na základě tohoto průzkumu a diskuzí, které jsme absolvovali během projektu, pak formulujeme i další, obecnější doporučení.
+
+
+```{r render_kratka_zprava_full, results = "asis"}
+print_kz_element_full <- function(element) {
+  cat("#### ", element$name, " {.unnumbered .unlisted .kz_heading #", heading_to_id(element$name), "}\n\n", element$text, "\n\n", sep = "")
+}
+
+print_kz_group_full <- function(group) {
+  cat("## ", group$group_name, " {.kz_group #", heading_to_id(group$group_name), "}\n\n", sep = "")
+  cat("<span class='rozbalit_vse' id='rozbalit_vse_", heading_to_id(group$group_name) ,"'>Rozbalit vše</span>\n\n", sep = "")
+  if(!is.null(group$group_comment)) {
+    cat(group$group_comment, "\n\n")
+  }
+  purrr::walk(group$contents, print_kz_element_full)
+  
+}
+purrr::walk(kratka_zprava, print_kz_group_full)
+```
+
+<script>
+function toggleKratkaZpravaContents(parentElement) {
+  parentElement.classList.toggle("collapsed");
+  for(i = 1; i < parentElement.children.length; i++) {
+    var c = parentElement.children[i];
+    if(c.style.display == "none") {
+      c.style.display = "block";
+    } else {
+      c.style.display = "none";
+    }
+  }
+}
+
+
+function initKratkaZpravaElement(elementId) {
+  var elem = document.getElementById(elementId);
+  var heading = elem.children[0];
+  heading.onclick = function() { toggleKratkaZpravaContents(elem); };
+  for(i = 1; i < elem.children.length; i++) {
+    elem.children[i].style.display = "none";
+  }
+  elem.classList.add("collapsed");
+}
+
+function initKratkaZpravaGroup(rozbalitElementId, elementIds) {
+  var elem = document.getElementById(rozbalitElementId);
+  elem.onclick = function() {
+      for(eid =0; eid < elementIds.length; eid++) {
+        parentElement = document.getElementById(elementIds[eid])
+        parentElement.classList.remove("collapsed");
+        for(i = 1; i < parentElement.children.length; i++) {
+          var c = parentElement.children[i];
+          c.style.display = "block";
+        }
+    }
+  }
+}
+
+function initKratkaZprava() {
+```{r rozbalovaciscript, results="asis"}
+print_kz_element_script <- function(element) {
+  cat("  initKratkaZpravaElement('", heading_to_id(element$name), "');\n", sep = "")
+}
+
+print_kz_group_script <- function(group) {
+  purrr::walk(group$contents, print_kz_element_script)
+  
+  elementIds <- as.character(purrr::map(group$contents, ~ heading_to_id(.x$name)))
+  elementString <- paste0("['", paste0(elementIds, collapse = "', \n    '"),  "']")
+  cat("  initKratkaZpravaGroup('rozbalit_vse_", heading_to_id(group$group_name) ,"', ", elementString, ");\n", sep = "")
+}
+purrr::walk(kratka_zprava, print_kz_group_script)
+
+```
+}
+
+
+window.addEventListener("load", initKratkaZprava, false);
+</script>

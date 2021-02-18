@@ -2,6 +2,11 @@
 title: "Revize roverského programu: Závěrečná zpráva"
 author: 'Petr "Klíč" Šilhavý, Martin "Orel" Modrák, Filip "Fíďa" Děchtěrenko'
 date: 'Verze: `r format(Sys.time(), "%Y-%m-%d")`'
+favicon: gitbook_visual/favicon.png
+apple-touch-icon: gitbook_visual/favicon.png
+cover-image: gitbook_visual/cover.jpg
+url: https://roverskypruzkum.skaut.cz
+github-repo: martinmodrak/revize-rs
 ---
 
 ```{r setup, message=FALSE,warning=FALSE, results="hide", echo = FALSE}
