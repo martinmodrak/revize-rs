@@ -61,14 +61,20 @@ p {
 .book .book-summary,
 .book .book-body .page-wrapper .page-inner section.normal,
 .book .book-summary ul.summary li a,
-.book .book-summary ul.summary li span
+.book .book-summary ul.summary li span,
+.book .book-body .navigation
 {
 	color:black;
 }
 
-.book .book-summary ul.summary li a:hover, .book .book-summary ul.summary li.active > a {
+.book .book-summary ul.summary li a:hover, .book .book-summary ul.summary li.active > a,
+.book .book-body .navigation:hover {
   font-weight: bold;
 	color:#003ca5;
+}
+
+.book .book-body .navigation:hover {
+	font-size: 43px;
 }
 
 .book .book-summary ul.summary li.chapter {
@@ -149,6 +155,21 @@ p {
   cursor: pointer;
 }
 
+/*
+.book .book-body .page-wrapper .page-inner section.normal .kz_heading * {
+  transition: all 350ms ease;
+}
+*/
+
+
+.book .book-body .page-wrapper .page-inner section.normal .kz_heading .kz_hidden {
+/*  max-height: 0;
+  overflow:hidden;
+  */
+  display:none;
+}
+
+
 .book .book-body .page-wrapper .page-inner section.normal .kz_heading h4 a,
 .book .book-body .page-wrapper .page-inner section.normal .kz_group a,
 .book .book-body .page-wrapper .page-inner section.normal .kz_intro a{
@@ -208,4 +229,17 @@ div.collapsed.kz_heading h4::before, .rozbalit_vse.collapsed::before {
 
 .summary .chapter[data-level="1"], .summary .chapter[data-level="2"] {
 	background-color:rgb(179,221,211);
+}
+
+/* Force navigation always on bottom*/
+.book .book-body .navigation{position:static;top:auto;max-width:50%;width:50%;display:inline-block;float:left}
+
+.book .book-body .navigation.navigation-unique{
+	max-width:100%;
+	width:100%;
+	padding-top: 60px;
+}
+
+.book .book-body .page-wrapper .page-inner {
+	padding-bottom:0;
 }
