@@ -60,7 +60,7 @@ Z naší zkušenosti je zejména pro mladší RS důležité zaměření na sebe
 				Více v [kapitole o odchodech z RS](#odchod_z_rs), o  komunitním roveringu píšeme v [kapitole o RS singles](#rssingles).')
 	)),
 	list(group_name = 'Děravá koncepce našeho roveringu',
-	     group_subheading = "Co nefunguje a mohlo by",
+	     group_subheading = "Co nefunguje a mělo by",
 		contents = list(
 		  list(name = 'Junák nevnímá RS jako důležitou výchovnou kategorii.',
 		       text = 'V praxi nejsou v naprosté většině členi po ukončení skautského věku “hotoví”.

@@ -1,3 +1,10 @@
+- Landing page:
+Jak dopadl velký roverský průzkum? Co z toho plyne rovering?
+Od 1. 3. se to dozvíte zde.
+
+Těšíme se na vás (a pilně dolaďujeme :-)
+
+
 - Zvýraznit celou cestu?
 - Zpět v Chrome hází na divná místa
 
@@ -5,7 +12,17 @@
 
 - Data ke zveřejnění
 
-- Možná bílý blok na konec stránek
+
+  
+5.13. poslední obrázek má divně nadpis
+
+- Umět skrýt horní lištu, když skroluju dolu??? (a zobrazit při scroll nahoru)
+
+===================================
+Hotovo:
+
+- Možná bílý blok na konec stránek. V zásadě hotovo.
+
 
 - Lišta nahoře:
   - Hamburger, vyhledávání, sdílení
@@ -13,10 +30,3 @@
   - Nechat nadpis vždy vidět
   - Sdílení
     - FB
-
-- Šipky na konci kapitoly při úzkém se objeví jen na konci stránky - měl by být výraznější
-  - Možná dát šipky vždy jen dolů
-  
-5.13. poslední obrázek má divně nadpis
-
-- Umět skrýt horní lištu, když skroluju dolu??? (a zobrazit při scroll nahoru)

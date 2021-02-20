@@ -1,8 +1,8 @@
 rmd_files:
   [ "index.Rmd"
   , "koncepce.Rmd"
-  # , "uvod_dlouha.Rmd"
-  # , "charakteristika_respondentu.Rmd"
+  , "uvod_dlouha.Rmd"
+  , "charakteristika_respondentu.Rmd"
   # , "stav_roveringu.Rmd"
   # , "kompetence.Rmd"
   # , "odchody_lidi.Rmd"
