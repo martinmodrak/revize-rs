@@ -3,61 +3,61 @@ kratka_zprava <- list(
 	     group_subheading = "Fakta o roveringu",
 		contents = list(
 			list(name = 'Do roverského věku přechází “elita” skautského věku.',
-				text = 'Většina RS, kteří vstupují do roverského věku, za sebou má “dobrou skautskou kariéru”. Působili ve funkcích družinových či oddílových rádců (79%) a zúčastnili se rádcovských kurzů (59%). [Více o vstupu do roverského věku...](#vstup_do_rs)')
+				text = 'Většina RS, kteří vstupují do roverského věku, za sebou má “dobrou skautskou kariéru”. Působili ve funkcích družinových či oddílových rádců (79%) a zúčastnili se rádcovských kurzů (59%). [Více v části "Vstup do roverského věku"...](#vstup_do_rs)')
 ,
 			list(name = 'RS mizí do ztracena, rovering nemá zakončení.',
-				text = 'RS odchází z roverských společenství spíše brzy --- jen třetina respondentů strávila v kmeni více jak 3 roky. Odchod navíc velmi často (89%) probíhá bez jasného ukončení či završení roverského věku --- roveři spíše tak postupně vypadnou z činnosti. [Více o odchodech z roverských společenství...](#odchod_z_rs)')
+				text = 'RS odchází z roverských společenství spíše brzy --- jen třetina respondentů strávila v kmeni více jak 3 roky. Odchod navíc velmi často (89%) probíhá bez jasného ukončení či završení roverského věku --- roveři spíše tak postupně vypadnou z činnosti. [Více v části "Odchod ze společenství"...](#odchod_z_rs)')
 ,
 			list(name = 'RS se velmi věnují oddílům.',
-				text = 'RS v Junáku se ve velkém zapojují do vedení mladších členů. Drtivá většina (85%) RS přímo uvedla práci s mladšími členy (ve vedení oddílů nebo jako družinový/oddílový rádce) jako jednu ze svých rolí. Menší část RS (29%) zastává jiné než výchovné role (administrativa, technika), jen 10% RS neuvedlo žádnou roli, která by přímo pomáhala jejich oddílu/středisku. [Více o roverech ve vedení...](#vedenioddilu)')
+				text = 'RS v Junáku se ve velkém zapojují do vedení mladších členů. Drtivá většina (85%) RS přímo uvedla práci s mladšími členy (ve vedení oddílů nebo jako družinový/oddílový rádce) jako jednu ze svých rolí. Menší část RS (29%) zastává jiné než výchovné role (administrativa, technika), jen 10% RS neuvedlo žádnou roli, která by přímo pomáhala jejich oddílu/středisku. [Více v části "Roveři ve vedení oddílu"...](#vedenioddilu)')
 ,
 			list(name = 'SkautIS nedává dobrý přehled o roveringu.',
-				text = 'Jen třetina RS uvádí, že jejich společenství je registrováno jako roverský kmen a více jak polovina uvádí, že členové společenství jsou (alespoň částečně) registrováni u dětských oddílů. [Více o registraci roverů...](#registrace)')
+				text = 'Jen třetina RS uvádí, že jejich společenství je registrováno jako roverský kmen a více jak polovina uvádí, že členové společenství jsou (alespoň částečně) registrováni u dětských oddílů. [Více v části "Registrace"...](#registrace)')
 ,
 			list(name = 'Rozvoj kompetencí vlastních roverskému věku je často zanedbán.',
-				text = 'Mezi kompetence, které RS sami na sobě hodnotí nejčastěji jako nerozvinuté/nerozvíjené patří kompetence z oblasti svědomí, morálky, občanské odpovědnosti a pod.  Přitom roverský věk je k osvojení těchto kompetencí zásadní a podíl na vedení mladších členů je rozvíjí spíše méně. [Více o kompetencích...](#kompetence)')
+				text = 'Mezi kompetence, které RS sami na sobě hodnotí nejčastěji jako nerozvinuté/nerozvíjené patří kompetence z oblasti svědomí, morálky, občanské odpovědnosti a pod.  Přitom roverský věk je k osvojení těchto kompetencí zásadní a podíl na vedení mladších členů je rozvíjí spíše méně. [Více v kapitole "Kompetence"...](#kompetence)')
 ,
 			list(name = 'Organizace a vedení RS jsou důležité.',
-				text = 'Roverská společenství, která nemají dobrou organizaci, vykazují celou řadu negativních znaků - členové takovýchto společenství bývají méně aktivní a méně spokojení s členstvím i náplní činnosti společenství a mají méně rozvinuté kompetence. Oproti tomu členové společenství, kde je zavedena téměř libovolná forma organizace - od jasného vůdce, přes širší radu až po sdílení odpovědnosti všemi - jsou v těchto měřítkách lepší. Mezi konkrétními způsoby organizace roverských společenství pak průzkum ukazuje jen malé rozdíly. [Více o formách vedení...](#vedeni_rs)')
+				text = 'Roverská společenství, která nemají dobrou organizaci, vykazují celou řadu negativních znaků - členové takovýchto společenství bývají méně aktivní a méně spokojení s členstvím i náplní činnosti společenství a mají méně rozvinuté kompetence. Oproti tomu členové společenství, kde je zavedena téměř libovolná forma organizace - od jasného vůdce, přes širší radu až po sdílení odpovědnosti všemi - jsou v těchto měřítkách lepší. Mezi konkrétními způsoby organizace roverských společenství pak průzkum ukazuje jen malé rozdíly. [Více v části "Forma vedení a forma společenství"...](#vedeni_rs)')
 ,
 			list(name = 'Vzdělávací kurzy mají velký vliv na RS a jsou jimi hojně navštěvovány.',
-				text = 'Do věku 19 let si tři čtvrtiny respondentů udělalo čekatelky a jen o něco méně se jich do 26 let vydá na vůdcovky. Vzdělávací kurzy tak mají velký vliv na aktuální podobu Junáka i roveringu. Kurzy s roverským zaměřením absolvovalo poměrně méně respondentů (13%). [Více o kurzech..](#kurzy)')
+				text = 'Do věku 19 let si tři čtvrtiny respondentů udělalo čekatelky a jen o něco méně se jich do 26 let vydá na vůdcovky. Vzdělávací kurzy tak mají velký vliv na aktuální podobu Junáka i roveringu. Kurzy s roverským zaměřením absolvovalo poměrně méně respondentů (13%). [Více v části "Kurzy"...](#kurzy)')
 ,
 			list(name = 'RS singles jsou početná skupina.',
-				text = 'Náš dotazník se pravděpodobně šířil hlavně mezi aktivnějšími RS a zachytil tak méně lidí v roverském věku, kteří v RS společenství aktivní nejsou. I tak 15% respondentů uvedlo, že nejsou členy společenství a dvě třetiny z těchto respondentů považují sami sebe za RS. Dá se tedy očekávat, že existuje nezanedbatelná skupina “roverských singles” a stálo by za to hledat, jak i jim umožnit co největší rozvoj. [Více o RS singles...](#rssingles)')
+				text = 'Náš dotazník se pravděpodobně šířil hlavně mezi aktivnějšími RS a zachytil tak méně lidí v roverském věku, kteří v RS společenství aktivní nejsou. I tak 15% respondentů uvedlo, že nejsou členy společenství a dvě třetiny z těchto respondentů považují sami sebe za RS. Dá se tedy očekávat, že existuje nezanedbatelná skupina “roverských singles” a stálo by za to hledat, jak i jim umožnit co největší rozvoj. [Více v části "Roverští singles"...](#rssingles)')
 ,
 			list(name = 'RS mimo roverská společenství by ve společenství chtěli být.',
-				text = 'Nejčastější odpovědí na otázku “Proč nejsi nikdy nebyla součástí roverského společenství” je “Na středisku nebylo žádné roverské společenství” (74%), naopak možnosti jako “nelákalo mě to” či “nesedla jsem si ostatními členy” vybralo méně než 12% respondentů. [Více o RS singles...](#rssingles)')
+				text = 'Nejčastější odpovědí na otázku “Proč nejsi nikdy nebyla součástí roverského společenství” je “Na středisku nebylo žádné roverské společenství” (74%), naopak možnosti jako “nelákalo mě to” či “nesedla jsem si ostatními členy” vybralo méně než 12% respondentů. [Více v části "Roverští singles"...](#rssingles)')
 	)),
 	list(group_name = 'Problémy roveringu',
 	     group_subheading = "Skutečné i domnělé",
 		contents = list(
 			list(name = 'Samotný přechod k roverům není zásadní problém.',
-				text = 'Pro většinu RS (59%) byl vstup do roverského věku snadný. Necelá polovina  (47%) RS se rovery stala automaticky a podobné množství (46%) se při vstupu do RS věku cítilo být připraveno na tvorbu vlastního programu pro sebe a své společenství. [Více o vstupu do RS...](#vstup_do_rs)')
+				text = 'Pro většinu RS (59%) byl vstup do roverského věku snadný. Necelá polovina  (47%) RS se rovery stala automaticky a podobné množství (46%) se při vstupu do RS věku cítilo být připraveno na tvorbu vlastního programu pro sebe a své společenství. [Více v části "Vstup do roverského věku"...](#vstup_do_rs)')
 ,
 			list(name = 'Exodus z Junáka na prahu roverského věku je spíše mýtus.',
-				text = 'Dle registrace je nejvyšší míra odchodů z organizace ještě ve skautském věku. Nízký počet roverů tak souvisí mnohem více s nedostatkem nováčků ve skautském a roverském věku. [Více o odchodech členů...](#odchody-lidi)')
+				text = 'Dle registrace je nejvyšší míra odchodů z organizace ještě ve skautském věku. Nízký počet roverů tak souvisí mnohem více s nedostatkem nováčků ve skautském a roverském věku. [Více v kapitole "Odchody na přechodu do RS"...](#odchody-lidi)')
 ,
 			list(name = 'Kdo nevstoupí do roverského společenství v začátku roverského věku, nejspíš už do žádného nevstoupí.',
-				text = 'Naprostá většina našich respondentů vstoupila do roverského společenství do 17 let, zároveň se podíl RS, kteří nikdy nebyli ve společenství s rostoucím věkem respondentů nijak nesnižuje. Dá se tedy usuzovat, že starší členové již jen zřídka vytváří nová společenství nebo vstupují do již existujících. [Více o věku vstupu do RS...](#vek_vstupu)')
+				text = 'Naprostá většina našich respondentů vstoupila do roverského společenství do 17 let, zároveň se podíl RS, kteří nikdy nebyli ve společenství s rostoucím věkem respondentů nijak nesnižuje. Dá se tedy usuzovat, že starší členové již jen zřídka vytváří nová společenství nebo vstupují do již existujících. [Více v části "Věk vstupu do roverských společenství"...](#vek_vstupu)')
 ,
 			list(name = 'RS jsou příliš vytížení prací u oddílů.',
-				text = 'Jedná se o nejčastěji vnímaný problém roveringu (58%) mezi RS, kteří jsou v nějakém společenství. Patří to také k nejčastěji zmiňovaným problémům roveringu podle RS, kteří ve společenství již nejsou nebo nikdy nebyli. Více o problémech v [kapitole o odchodech z RS](#odchod_z_rs).')
+				text = 'Jedná se o nejčastěji vnímaný problém roveringu (58%) mezi RS, kteří jsou v nějakém společenství. Patří to také k nejčastěji zmiňovaným problémům roveringu podle RS, kteří ve společenství již nejsou nebo nikdy nebyli. [Více v části "Odchod ze společenství"...](#odchod_z_rs)')
 ,
 			list(name = 'RS postrádají vedení.',
-				text = 'Absence vedení je nejčastěji zmiňovaným problémem mezi RS, kteří nikdy nebyli ve společenství. Zároveň náš průzkum naznačuje, že absence organizace roveringu neprospívá. Na konkrétní formě vedení přitom nezáleží. Organizace, podpora a vedení jsou pro RS podstatné zejména po přechodu ze skautského věku. Více v [kapitole o RS singles](#rssingles) a v [kapitole o odchodech z RS](#odchod_z_rs).')
+				text = 'Absence vedení je nejčastěji zmiňovaným problémem mezi RS, kteří nikdy nebyli ve společenství. Zároveň náš průzkum naznačuje, že absence organizace roveringu neprospívá. Na konkrétní formě vedení přitom nezáleží. Organizace, podpora a vedení jsou pro RS podstatné zejména po přechodu ze skautského věku. [Více v části "Roverští singles"](#rssingles) a [v části "Odchod ze společenství"...](#odchod_z_rs)')
 ,
 			list(name = 'Roverské heslo "sloužím" vyznívá příliš jednostranně.',
 				text = 'Roverské heslo může vyznít jako “služ oddílu a středisku” - to je podle nás nežádoucí a může být i zneužito - 28% RS ve společenství uvádí, že středisko bere rovery jako pracovní četu. Roverské heslo ve skutečnosti připomíná tři roviny služby (službu sobě, službu druhým a službu vyšším principům). Má RS směřovat k životu podle tří principů Junáka (odpovědnost vůči sobě, druhým a vyšším principům) - tedy ke skautské dospělosti.
 
-Z naší zkušenosti je zejména pro mladší RS důležité zaměření na sebe (služba sobě?), které je ale často zanedbáno. Což následně může komplikovat i úspěšný rozvoj služby druhým a vyšším principům ve starším roverském věku. [Více o vztahu roverů a střediska...](#rsastredisko)')
+Z naší zkušenosti je zejména pro mladší RS důležité zaměření na sebe (služba sobě?), které je ale často zanedbáno. Což následně může komplikovat i úspěšný rozvoj služby druhým a vyšším principům ve starším roverském věku. [Více též v části "RS a středisko"](#rsastredisko)...')
 ,
 			list(name = 'Spokojenost RS není závislá na velikosti střediska/oddílu.',
 				text = 'Spokojenost RS s členstvím v Junáku i s vlastním roveringem je velmi podobná u malých i velkých středisek a oddílů. Tedy jakékoli středisko má potenciál mít spokojené rovery. Odkaz se připravuje.')
 ,
 			list(name = 'RS odcházejí za prací a školou.',
 				text = 'Problém s odchody RS od oddílů za školou či prací se týká téměř poloviny (48%) respondentů, kteří nyní jsou v roverském společenství. Střediskům odchází generace RS s nejvyšším potenciálem pro budoucí vedení a předání zkušeností mezi generacemi. Mnoho středisek tak funguje díky obětavému dojíždění vysokoškoláků či dlouhé službě starších generací. S odchody za prací a školou nejde bohužel mnoho udělat. Můžeme ale podporovat RS v místech, kam dojíždí. Velký význam tak má “komunitní rovering” - otevřená roverská společenství, skautské instituty a drobné akce pro RS, případně vysokoškolské roverské kmeny.
-				Více v [kapitole o odchodech z RS](#odchod_z_rs), o  komunitním roveringu píšeme v [kapitole o RS singles](#rssingles).')
+				[Více v části "Odchod ze společenství"](#odchod_z_rs) a [v části "Roverští singles"](#rssingles).')
 	)),
 	list(group_name = 'Děravá koncepce našeho roveringu',
 	     group_subheading = "Co nefunguje a mělo by",
@@ -73,28 +73,28 @@ Z naší zkušenosti je zejména pro mladší RS důležité zaměření na sebe
 		       a úspěchem celé předešlé výchovy.
 		       Přesto v praxi Junák spoléhá spíše na “samospád”.
 		       Na RS obvykle výchovně nepůsobí a nejspíš doufá, že se RS dovychovají sami --- možná vedením mladších členů.
-		       [Více o chybějící koncepci...](#koncepce)'),
+		       [Více v kapitole "Děravá koncepce roveringu"...](#koncepce)'),
 			list(name = 'Chybí odpovědi na základní koncepční otázky o roveringu.',
-				text = 'Hnutí se posledních skoro 10 let potýká se stále stejnými otázkami, jejichž odpovědi leží v nejasně stanovené koncepci. (Např. Jsem rover, když vedu mladší členy? Je vedení mladších členů plnohodnotnou náplní roveringu? Co jsou cíle výchovy RS? Kdo odpovídá za rozvoj roverů? RS se přece mají vést sami, nebo ne? Je možné dělat rovering bez roverského kmene?, …). Junák též nemá uchopen celostní pohled na výchovu od benjamínka k dospělému. [Více o chybějící koncepci...](#koncepce)')
+				text = 'Hnutí se posledních skoro 10 let potýká se stále stejnými otázkami, jejichž odpovědi leží v nejasně stanovené koncepci. (Např. Jsem rover, když vedu mladší členy? Je vedení mladších členů plnohodnotnou náplní roveringu? Co jsou cíle výchovy RS? Kdo odpovídá za rozvoj roverů? RS se přece mají vést sami, nebo ne? Je možné dělat rovering bez roverského kmene?, …). Junák též nemá uchopen celostní pohled na výchovu od benjamínka k dospělému. [Více v kapitole "Děravá koncepce roveringu"...](#koncepce)')
 ,
 			list(name = '“Nový roverský program” není v podstatě nikde plně zaveden.',
-				text = 'Roverský program (tedy oficiální cesta k naplnění výchovných cílů organizace pro roverský věk) vydaný Junákem v roce 2011 byl jen málo úspěšný: Mezi RS existuje povědomí o jeho existenci a 80% RS společenství využívá alespoň jeden z jeho 9 klíčových nástrojů. Nicméně oba nástroje přímého rozvoje RS - projekty a výzvy - jsou současně využívány jen v 18% společenství a žádný jednotlivý nástroj nepoužívá víc než 41% respondentů. Můžeme tedy říci, že nový roverský program není v organizaci prakticky používán. [Více o využití programových nástrojů...](#nastroje)')
+				text = 'Roverský program (tedy oficiální cesta k naplnění výchovných cílů organizace pro roverský věk) vydaný Junákem v roce 2011 byl jen málo úspěšný: Mezi RS existuje povědomí o jeho existenci a 80% RS společenství využívá alespoň jeden z jeho 9 klíčových nástrojů. Nicméně oba nástroje přímého rozvoje RS - projekty a výzvy - jsou současně využívány jen v 18% společenství a žádný jednotlivý nástroj nepoužívá víc než 41% respondentů. Můžeme tedy říci, že nový roverský program není v organizaci prakticky používán. [Více v části "Nástroje roverského programu"...](#nastroje)')
 ,
 			list(name = '“Nový roverský program” ignoruje kompetence.',
-				text = 'Roverský program (tedy oficiální cesta k naplnění výchovných cílů organizace pro roverský věk) vydaný Junákem v roce 2011 má dbát na všestranný rozvoj roverů a směřovat je k životu podle tří principů Junáka pomocí tří oblastí služeb. Všechny předcházející výchovné kategorie Junáka využívají pro směřování seberozvoje a životu podle tří principů systém kompetencí skautské výchovy. Tvůrci roverského programu se rozhodli systém kompetencí opustit a popsat program pomocí systému tří služeb, tří “srdcí”.  Z našeho pohledu je změna z kompetencí na jiný systém je spíše komplikací. Mimo to je systémem služeb těžké používat jako nástroj podporující všestranný rozvoj. [Více o našem pohledu na výchovu v roverském věku...](#vychova)')
+				text = 'Roverský program (tedy oficiální cesta k naplnění výchovných cílů organizace pro roverský věk) vydaný Junákem v roce 2011 má dbát na všestranný rozvoj roverů a směřovat je k životu podle tří principů Junáka pomocí tří oblastí služeb. Všechny předcházející výchovné kategorie Junáka využívají pro směřování seberozvoje a životu podle tří principů systém kompetencí skautské výchovy. Tvůrci roverského programu se rozhodli systém kompetencí opustit a popsat program pomocí systému tří služeb, tří “srdcí”.  Z našeho pohledu je změna z kompetencí na jiný systém je spíše komplikací. Mimo to je systémem služeb těžké používat jako nástroj podporující všestranný rozvoj. [Více v části "Výchova v roverském věku"...](#vychova)')
 ,
 			list(name = 'Junák nenabízí kvalitní konkrétní programy pro RS.',
 				text = 'Hnutí chybí příklady kvalitních programů, které by byly inspirací pro RS a ukazovaly, jak propojit činnost společenství s cíli roverské výchovy. Přitom kvalitní program má potenciál zvýšit přitažlivost roveringu a usnadnit roverským společenstvím najít si svou cestu. Toto know how mají potenciál vnést do roverského programu RS kurzy.
 
 Roverský program z roku 2011 nepřináší do práce s RS konkrétní obsah. Jeho hlavní nástroje rozvoje RS výzvy a projekty jsou pojmenováním formy a metody.
-[Více o našem pohledu na výchovu v roverském věku...](#vychova)
+[Více v části "Výchova v roverském věku"...](#vychova)
 ')
 ,
 			list(name = 'V roveringu chybí téma sebepřijetí.',
-				text = 'Téma sebepřijetí je obrovským úkolem rozvoje mladého člověka v roverském věku. Do vysoké míry s ním pracují roverské seberozvojové kurzy a setkávají se s intenzivní odezvou. V hnutí však toto téma není dostatečně pojmenované a sledované, ani se o něm nemluví. Sebepřijetí přitom pomáhá zdravému seberozvoji a je prevencí proti sebeničení (vyhoření, přetížení, rozvoj na sílu, neexistence hranic).  [Více o našem pohledu na výchovu v RS věku...](#vychova)')
+				text = 'Téma sebepřijetí je obrovským úkolem rozvoje mladého člověka v roverském věku. Do vysoké míry s ním pracují roverské seberozvojové kurzy a setkávají se s intenzivní odezvou. V hnutí však toto téma není dostatečně pojmenované a sledované, ani se o něm nemluví. Sebepřijetí přitom pomáhá zdravému seberozvoji a je prevencí proti sebeničení (vyhoření, přetížení, rozvoj na sílu, neexistence hranic).  [Více v části "Výchova v roverském věku"...](#vychova)')
 ,
 			list(name = 'I v základním roverském názvosloví máme nejasnosti.',
-				text = 'Neshodneme se, komu říkat rover - je člověk ve vedení vždy též roverem? Není shoda, jak říkat dívkám a dámám v roverském věku - rangers nebo roverky? Zahrnuje označení “roveři” nebo “roverský věk” všechna pohlaví? Existuje “rangerský věk”? Kdy je skupina roverů roverský kmen? A proč si některá roverská společenství nechtějí říkat “kmen”? To nejsou samo o sobě zásadní problémy - a shoda napříč organizací se bude hledat velmi těžko - ale je to trochu příznakem nejasností ohledně koncepce samotného roveringu v Junáku. [Více o názvosloví...](#nazvoslovi)')
+				text = 'Neshodneme se, komu říkat rover - je člověk ve vedení vždy též roverem? Není shoda, jak říkat dívkám a dámám v roverském věku - rangers nebo roverky? Zahrnuje označení “roveři” nebo “roverský věk” všechna pohlaví? Existuje “rangerský věk”? Kdy je skupina roverů roverský kmen? A proč si některá roverská společenství nechtějí říkat “kmen”? To nejsou samo o sobě zásadní problémy - a shoda napříč organizací se bude hledat velmi těžko - ale je to trochu příznakem nejasností ohledně koncepce samotného roveringu v Junáku. [Více v části "Nejasnosti v názvosloví"...](#nazvoslovi)')
 	)),
 	list(group_name = 'S čím nesouhlasíme',
 		group_subheading = 'přestože v hnutí nachází nezanedbatelnou podporu',

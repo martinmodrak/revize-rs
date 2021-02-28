@@ -223,7 +223,7 @@ div.collapsed.kz_heading h4::before, .rozbalit_vse.collapsed::before {
 }
 
 /* Force navigation always on bottom*/
-.book .book-body .navigation{position:static;top:auto;max-width:50%;width:50%;display:inline-block;float:left}
+.book .book-body .navigation{position:static;top:auto;max-width:49%;width:49%;display:inline-block;float:left}
 
 .book .book-body .navigation.navigation-unique{
 	max-width:100%;
@@ -297,4 +297,3 @@ div.collapsed.kz_heading h4::before, .rozbalit_vse.collapsed::before {
   }
 
 }
-

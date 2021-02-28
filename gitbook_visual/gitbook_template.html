@@ -52,9 +52,11 @@ div.abstract{
 }
 </style>
 $endif$
+
 $for(header-includes)$
 $header-includes$
 $endfor$
+
 
 $if(highlightjs)$
 <style type="text/css">code{white-space: pre;}</style>
@@ -146,7 +148,7 @@ $if(abstract)$
 $abstract$
 </div>
 $endif$
-<i class="fa fa-arrow-down"></i>
+<a href="#hlavni"><i class="fa fa-arrow-down"></i></a>
 </div>
 $endif$
 <!--bookdown:title:end-->
@@ -249,7 +251,6 @@ $if(math)$
   })();
 </script>
 $endif$
-</body>
 
 $if(title)$
 <!-- Force inclusion of some images -->
@@ -258,6 +259,10 @@ $if(title)$
   <img src="gitbook_visual/title_narrow.jpg">
 </div>
 $endif$
+
+
+</body>
+
 
 
 </html>

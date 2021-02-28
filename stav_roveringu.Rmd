@@ -1036,7 +1036,7 @@ plot_summary_mc(hlavni_data, co_pomaha_roveringu, "Roveringu dle mé vlastní\nz
 # hlavni_data %>% mutate(studuje = zivotni_faze == "studuji" | zivotni_faze =="studuji_pracuji") %>% plot_binarni_s_nejistotou("studuje", age)
 ```
 
-## Rovering a středisko {#rsastredisko}
+## RS a středisko {#rsastredisko}
 
 ```{r}
 podil_spokojen_postoj_strediska <- mean(hlavni_data$s_cim_spokojen.postoj_strediska, na.rm = TRUE)
