@@ -1,8 +1,10 @@
 # Vytvori objekty s daty tak, abychom vsude analyzovali to same
 
+anonymized_file <- here::here("public_data/odpovedi_anonymizovane/preprocessed.rds")
+
 if(exists("raw_data") && exists("datasety_wide") && exists("datasety_long")) {
   warning("Data uz ve workspace existuji, preskakuji nacitani. Pro vynuceni znovunacteni spust\nrm(raw_data)")
-} else {
+} else if(file.exists(here::here("private_data/hlavni_dotaznik.json"))) {
   preprocessed_file <- here::here("local_data", "preprocessed_cache.rds")
   if(file.exists(preprocessed_file)) {
     message(paste0("Nacitam predzpracovana data z ", preprocessed_file, ". Pro prepocitani je potreba soubor odstranit"))
@@ -66,4 +68,15 @@ if(exists("raw_data") && exists("datasety_wide") && exists("datasety_long")) {
     aplikuj_manual_codings(verbose = FALSE) %>%
     spocitej_kategorii_respondenta() %>%
     zalohuj_labels()
+} else if(file.exists(anonymized_file)) {
+  warning("Nenalezana uplna data, nacitam anonymizovane, urcene ke zverejneni.")
+
+  cache_contents <- readRDS(anonymized_file)
+  datasety_wide <- cache_contents$wide
+  datasety_long <- cache_contents$long
+  zaloha_labels <- cache_contents$zaloha_labels
+  hlavni_data <- datasety_wide$hlavni
+  hlavni_data_long <- datasety_long$hlavni
+} else {
+  stop("Nenalezena data. Anonymizovana verze dat je prilozena k clanku na krizovatce, pripadne si o ne muzete napsat Orlovi (orel@derwen.info).")
 }

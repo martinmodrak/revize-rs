@@ -21,7 +21,7 @@ assign("zaloha_labels", zaloha_labels, envir = globalenv())
 ```
 
 
-## Celkové počty
+## Celkové počty {#celkove-pocty}
 
 Dotazník měl delší a kratší verzi. Těch, co vyplnili verzi kratší jsme se pak ještě zeptali, jestli přeci jen nechtějí pokračovat a vyplnit delší :-)
 
@@ -181,7 +181,7 @@ reprezentativnost_vek(data_skautis_jednotlivci, hlavni_data %>% filter(sex != "j
 
 ```
 
-### Dle kraje, velikosti střediska
+### Dle kraje, velikosti střediska {#reprezentativnost-kraj-stredisko}
 
 Zde vycházíme z open dat ze SkautISu --- používáme data z registrace 2019, v době zpracování ještě novější nebyly k dispozici.
 
@@ -341,7 +341,7 @@ hlavni_data %>% group_by(sex) %>% summarise(prumer_vek = mean(age), .groups = "d
 ```
 
 
-## Střediska
+## Střediska {#respondenti-strediska}
 
 Respondenti měli více způsobů jak vyplnit informace o středisku --- buď přímo registrační číslo, nebo naopak odpovědět na otázky o počtu členů apod.
 
@@ -356,7 +356,11 @@ pocet_vyplnenych_reg_c <- sum(!is.na(hlavni_data$reg_c_strediska))
 Seznam středisek ze kterých máme nejvíce respondentů asi nepřekvapí (Blaník). Čísla je navíc potřeba brát s ohledem na to, že detailní informace o středisku nám vyplnilo jen `r pocet_vyplnenych_reg_c` respondentů (tj. necelá polovina).
 
 ```{r}
-hlavni_data %>% group_by(reg_c_strediska) %>% summarise(pocet = n(), nazev = nazev_strediska[1], .groups = "drop") %>% filter(!is.na(reg_c_strediska), pocet > 8) %>% arrange(desc(pocet)) %>% table_format
+if(is.null(hlavni_data$reg_c_strediska)) {
+ warning("Anonymizovana data neobsahuji detaily strediska") 
+} else {
+  hlavni_data %>% group_by(reg_c_strediska) %>% summarise(pocet = n(), nazev = nazev_strediska[1], .groups = "drop") %>% filter(!is.na(reg_c_strediska), pocet > 8) %>% arrange(desc(pocet)) %>% table_format
+}
 ```
 
 ```{r}
