@@ -23,7 +23,13 @@ if(gitbook_output) {
 } 
 ```
 
+
 # Hlavní závěry {#hlavni}
+
+<script>
+  document.getElementById("our-title-wrapper-id").style.display = "block";
+</script>
+
 
 Začínáme našimi hlavními závěry, další kapitoly pak poskytují širší kontext, více detailů a zdůvodnění těchto závěrů. Celkově spíše nečekáme, že zprávu budete číst celou, ale že se podívate na hlavní závěry, případně na konkrétní další části, které probudí vaši zvědavost. V textu užíváme zkratku “RS” ve smyslu “všichni členové i členky Junáka v roverském věku”.
 

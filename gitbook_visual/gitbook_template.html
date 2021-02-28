@@ -108,6 +108,22 @@ $endif$
 $for(css)$
 <link rel="stylesheet" href="$css$" $if(html5)$$else$type="text/css" $endif$/>
 $endfor$
+
+<!-- Matomo -->
+<script type="text/javascript">
+  var _paq = window._paq = window._paq || [];
+  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//roverskypruzkum.skaut.cz/analytics_mtm/";
+    _paq.push(['setTrackerUrl', u+'matomo.php']);
+    _paq.push(['setSiteId', '1']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<!-- End Matomo Code -->
 </head>
 
 <body>
@@ -116,30 +132,11 @@ $endfor$
 
 <!--bookdown:title:start-->
 $if(title)$
-<div>
-  <img src="gitbook_visual/title.jpg">
-</div>
-
-
 <div id="$idprefix$header">
 <h1 class="title">$title$</h1>
 $if(subtitle)$
 <h2 class="subtitle"><em>$subtitle$</em></h2>
 $endif$
-$for(author)$
-$if(author.name)$
-<p class="author"><em>$author.name$</em></p>
-$if(author.affiliation)$
-<address class="author_afil">
-$author.affiliation$<br>$endif$
-$if(author.email)$
-<a class="author_email" href="mailto:#">$author.email$</a>
-</address>
-$endif$
-$else$
-<p class="author"><em>$author$</em></p>
-$endif$
-$endfor$
 $if(date)$
 <p class="date"><em>$date$</em></p>
 $endif$
@@ -149,6 +146,7 @@ $if(abstract)$
 $abstract$
 </div>
 $endif$
+<i class="fa fa-arrow-down"></i>
 </div>
 $endif$
 <!--bookdown:title:end-->
@@ -175,6 +173,42 @@ $endif$
         </div>
 
         <div class="page-wrapper" tabindex="-1" role="main">
+
+
+          <div class="our-title-wrap" id="our-title-wrapper-id">
+
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+
+
+
+                <p class="opening-quote">“Na roverském průzkumu jsme pracovali s nadějí na zlepšení stavu a postavení roveringu v Junáku. Teď je důležité, co uděláme dál. Změna přijde se změnou smýšlení jednotlivců. <u>Mého</u> i <u>Tvého</u>. Jsme připraveni na změnu?”</p>
+
+$for(author)$
+$if(author.name)$
+<p class="author"><em>$author.name$</em></p>
+$if(author.affiliation)$
+<address class="author_afil">
+$author.affiliation$<br>$endif$
+$if(author.email)$
+<a class="author_email" href="mailto:#">$author.email$</a>
+</address>
+$endif$
+$else$
+<p class="author"><em>$author$</em></p>
+$endif$
+$endfor$
+                <img class="symbol" src="gitbook_visual/symbol.png">
+                <p class="help">
+                  S orientací ve zprávě Ti pomůže menu vlevo.<br>
+                  Na telefonu ho můžeš vyvolat přes <i class="fa fa-align-justify"></i>.
+                </p>
+
+              </section>
+            </div>
+          </div>
+
           <div class="page-inner">
 
             <section class="normal" id="section-">
@@ -216,5 +250,14 @@ $if(math)$
 </script>
 $endif$
 </body>
+
+$if(title)$
+<!-- Force inclusion of some images -->
+<div style="display:none;">
+  <img src="gitbook_visual/title.jpg">
+  <img src="gitbook_visual/title_narrow.jpg">
+</div>
+$endif$
+
 
 </html>
