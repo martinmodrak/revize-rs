@@ -1,9 +1,9 @@
 bookdown::gitbook:
-  split_by: chapter
   css: gitbook_visual/gitbook_style.css
   template: gitbook_visual/gitbook_template.html
-  pandoc_args: ["--lua-filter=non_breaking_policy.lua"]
+  pandoc_args: ["--lua-filter=non_breaking_policy.lua", "--lua-filter=pandoc-quotes.lua"]
   toc_depth: 3
+  math: false
   config:
     toc:
       collapse: section

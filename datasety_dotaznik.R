@@ -1,6 +1,6 @@
 # Vytvori objekty s daty tak, abychom vsude analyzovali to same
 
-anonymized_file <- here::here("public_data/odpovedi_anonymizovane/preprocessed.rds")
+anonymized_file <- here::here("private_data/odpovedi_anonymizovane/preprocessed.rds")
 
 if(exists("raw_data") && exists("datasety_wide") && exists("datasety_long")) {
   warning("Data uz ve workspace existuji, preskakuji nacitani. Pro vynuceni znovunacteni spust\nrm(raw_data)")

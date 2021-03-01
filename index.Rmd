@@ -7,6 +7,7 @@ apple-touch-icon: gitbook_visual/favicon.png
 cover-image: gitbook_visual/cover.jpg
 url: https://roverskypruzkum.skaut.cz
 github-repo: martinmodrak/revize-rs
+quot-marks: „“‚‘
 ---
 
 ```{r setup, message=FALSE,warning=FALSE, results="hide", echo = FALSE}
