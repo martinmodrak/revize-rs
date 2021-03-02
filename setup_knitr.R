@@ -10,7 +10,11 @@ if(document_output) {
 }
 
 #V palcich
-plot_size_multiplier <- 1
+if(!document_output || gitbook_output) {
+  plot_size_multiplier <- 0.66
+} else {
+  plot_size_multiplier <- 1
+}
 
 default_plot_width <- 12 * plot_size_multiplier
 default_plot_height <- (default_plot_width / 16) * 9
