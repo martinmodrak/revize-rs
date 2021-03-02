@@ -1,8 +1,12 @@
-- Landing page:
-Jak dopadl velký roverský průzkum? Co z toho plyne rovering?
-Od 1. 3. se to dozvíte zde.
+- Opera, Edge, Chrome (nefunguje refresh #odkaz a back - fwd)
 
-Těšíme se na vás (a pilně dolaďujeme :-)
+
+
+- Mozna na mobilu zmensit horni listu
+- Nadpis v liste schovat na prvni strance
+
+
+- Šedý proužek mezi lištou nahoře a titulním obrázkem
 
 
 - Zvýraznit celou cestu?
@@ -10,7 +14,6 @@ Těšíme se na vás (a pilně dolaďujeme :-)
 
 - Klikací nadpisy PART? Nebo jednu úroveň posunout??
 
-- Data ke zveřejnění
 
 
   
@@ -20,6 +23,19 @@ Těšíme se na vás (a pilně dolaďujeme :-)
 
 ===================================
 Hotovo:
+- Sjednotit odkazy - vždy celá věta je odkaz, vždy trojtečka
+
+- Data ke zveřejnění
+
+- Analytics
+
+
+- Landing page:
+Jak dopadl velký roverský průzkum? Co z toho plyne rovering?
+Od 1. 3. se to dozvíte zde.
+
+Těšíme se na vás (a pilně dolaďujeme :-)
+
 
 - Možná bílý blok na konec stránek. V zásadě hotovo.
 
