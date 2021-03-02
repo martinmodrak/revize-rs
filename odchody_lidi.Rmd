@@ -25,7 +25,7 @@ max_vek <- 21
 
 Ve skauting se často operuje s představou, že nízké množství roverů je dáno problematickým přechodem mezi skautskou a roverskou výchovnou kategorií. Dle mého soukromého názoru převládá představa, že kolem patnáctého roku věku, při přechodu do roverské kategorie, Junák ztrácí velké množství mladých lidí. Chci tedy zjistit do jaké míry je tato zvýšená míra odchodů viditelná v datech z registrace.
 
-## Shrnutí výsledků
+## Shrnutí výsledků {#odchody-shrnuti}
 
 V datech z registrace za roky 2012---2018 lze v některých skupinách členů vidět mírný vzestup míry odchodů kolem 15tého roku věku. Nejsilnější takový nárůst jsme pozorovali u chlapců, kteří jsou již členy Junáka alespoň 4 roky. Ve 12ti letech opouští organizaci v průměru 14% takovýchto chlapců z ročníku (tj. zhruba jeden ze sedmi). Tato míra pak roste plynule až k 16ti letům, kdy jich odchází 17% z ročníku (tj. zhruba jeden z šesti). V jiných kategoriích je nárůst odchodů kolem přechodu do roverského věku nižší. V roverském věku pak míra odchodů s rostoucím věkem klesá.
 
@@ -41,7 +41,7 @@ Zajímavým poznatkem je také to, že dívky odcházejí obecně ve stejné neb
 
 Bylo by zajímavé se podívat zvlášť na odchody dle velikosti města/kraje --- lze očekávat, že v menších obcích dochází k větší míře odchodů v souvislosti s přechodem na střední nebo vysokou školu. To v datech, které máme nelze zjistit. Nicméně jelikož v průměru k nárůstu odchodů spíše nedochází, musel by být nárůst odchodů kolem 15ti let v menších městech kompenzován snížením množství takových odchodů ve větších městech, což bych považoval za spíše nepravděpodobné.
 
-## Hlavní kvantitativní výstupy
+## Hlavní kvantitativní výstupy {#odchody-hlavni-vystupy}
 
 
 
@@ -115,7 +115,7 @@ plot_odchody(odchazeni_posledni_focus %>% filter(Year >= 2016) , "delka_clenstvi
 
 
 
-## Příchody nováčků
+## Příchody nováčků {#prichody-novacku}
 
 Zde vidíme podíl nováčků v každém registrovaném ročníku
 
@@ -132,7 +132,7 @@ plot_prichody(odchazeni_posledni, by = "year", response = n_novych) + ggtitle("P
 
 ```
 
-## Celkové počty členů
+## Celkové počty členů {#celkove-pocty-clenu}
 
 A ještě se můžeme podívat na celkové počty členů --- souhrný graf má vysoká čísla, protože sčítá přes všechny sledované roky.
 
@@ -144,7 +144,7 @@ plot_pocty(odchazeni_posledni %>% filter(delka_clenstvi >= 2)) + ggtitle("Souhrn
 
 ```
 
-## Co by znamenalo srovnat odchody napříč skautským věkem
+## Co by znamenalo srovnat odchody napříč skautským věkem {#co-by-znamenalo-srovnat-odchody}
 
 ```{r}
 optimisticky_odhad_zmeny <- 0.03
@@ -182,7 +182,7 @@ rozsah_clenstvi %>%
 ```
 
 
-## Délka členství
+## Délka členství {#delka-clenstvi}
 
 Zdá se, že až na rozdíl mezi nováčky a ostatními se délka řídí geometrickým rozložením.
 
@@ -192,7 +192,7 @@ rozsah_clenstvi %>%
   ggplot(aes(x=posledni_registrace - prvni_registrace)) + geom_histogram(binwidth = 1) + vodorovne_popisky_x
 ```
 
-## Doplňkové a kontrolní výstupy
+## Doplňkové a kontrolní výstupy {#odchody-doplnky-a-kontroly}
 
 Zkontroluji, jak časté jsou přestávky v členství
 
@@ -210,7 +210,7 @@ Bohužel je tu dost lidí, kteří odešli vícekrát a to i ve věku, který n�
 V této analýze bereme neregistraci jako konec členství. Výsledky jsou ale podobné i když vezmeme jednoroční přestávku jako souvislé členství.
 
 
-### Poslední odchody
+### Poslední odchody {#posledni-odchody}
 
 
 ```{r}
@@ -240,7 +240,7 @@ Trend ve všech letech víceméně podobný --- žádná výrazná změna kolem 
 
 Data mají mírně sestupný trend v čase (tj. poslední dobou méně lidí odchází) ale nutno podotknout, že zde očekáváme sestupný trend v čase i kdyby se nic neměnilo --- část lidí se do Junáka vrací a ti z posledních let kteří se v budoucnu vrátí jsou v grafu vedeni jako ztracení.
 
-### První odchody
+### První odchody {#prvni-odchody}
 
 Pro jistotu se podíváme na ty samé grafy, ale s prvními odchody, tj. kdy poprvé měl člověk v pauzu v registraci. Ti, kteří se pak vrátili jsou počítáni pouze ke svému prvnímu odchodu.
 
@@ -252,7 +252,7 @@ plot_odchody(odchazeni_prvni, "year") + ggtitle("Podíl prvních odchodů po let
 
 Vidíme, že trendy v prvních odchodech jsou velmi podobné jako v posledních odchodech, dál bereme tedy poslední odchody (ty jsou také počítány ve shrnutí na začátku).
 
-### Poslední odchody, dlouhodobí členové
+### Poslední odchody, dlouhodobí členové {#posledni-odchody-dlouhodobi}
 
 V grafech výše  se spíše nevyskytuje žádná špička u přechodu do roverského věku. Ale vidíme, že odchází celkem hodně lidí (cca pětina ročníku). To budou asi lidé, kteří se registrovali jen krátce. Podíváme se tedy, jestli to vypadá stejně u členů, kteří již chodili déle. Údaje jsou relativní k celkovému počtu dlouhodobých členů v té době registrovaných.
 
@@ -276,7 +276,7 @@ plot_odchody(odchazeni_posledni_4_roky, "year") + ggtitle("Odchody 4+ let")
 
 S jístou mírou mžourání si můžeme myslet, že špička kolem 15tého roku v čase spíše mizí.
 
-### Shoda se skautskými opendata
+### Shoda se skautskými opendata {#shoda-opendata}
 
 Data úplně nesedí s daty z https://opendata.skaut.cz, ale taky nejsou úplně mimo... :-( těžko říct, co si o tom myslet. 
 

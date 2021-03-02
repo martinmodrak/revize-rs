@@ -8,7 +8,7 @@ source(here::here("setup_knitr.R"))
 
 V této části závěrečné zprávy se budeme věnovat závěrům, které méně vychází ze samotného průzkumu a tedy jsou méně podložené přímo daty. Naopak více vychází z širšího kontextu roveringu v Junáku tak jak jsme jej pochopili a interpretovali během práce na projektu Revize roverského programu. Vycházíme z debat s tvůrci Nového roverského programu z roku 2011, tvůrců metodiky pro práci s RS, zkušeností Roverského odboru, diskusí na Roverských poradách od roku 2016, studia podkladů a dostupných materiálů o roveringu (k roku 2020) vlastních zkušeností s roveringem, vlastní praxí na roverských kurzech a mnoha dalších setkání, rozhovorů a úvah, které jsme sesbírali nejen v průběhu samotného projektu Revize roverského programu. Snažíme se sjednotit názor co nejvíce lidí, se kterými jsme se během té doby setkali.
 
-## Kontext roverského věku v Junáku
+## Kontext roverského věku v Junáku {#kontext-roverskeho-veku}
 
 Abychom pochopili postavení roverského věku v Junáku, musíme se na rovering podívat v širším kontextu celé organizace. Připomeňme si několik důležitých východisek, ke kterým se budeme vracet při vyvozování závěrů o roveringu v Junáku:
 
@@ -26,7 +26,7 @@ Abychom pochopili postavení roverského věku v Junáku, musíme se na rovering
 *   Skautská výchova probíhá pomocí **skautské metody** definované zakladateli hnutí a WOSM.
 *   Skautská výchova má být/má se postupně stát sebevýchovou, o čemž hovoří stanovy v rámci zakotvení skautské výchovné metody.
 
-### Poslání roverského věku v Junáku i životě RS
+### Poslání roverského věku v Junáku i životě RS {#poslani-roverskeho-veku}
 
 Pojďme shrnout, co vyplývá z výše uvedeného (pokud je naše chápání všeho správné):
 
@@ -44,13 +44,13 @@ V roverském věku má jednotlivec **začít vědomě žít podle tří skautsk�
 
 **Roverský věk je tedy kategorií velmi důležitou**. Na jejím konci máme vidět zralé plody skautské výchovy, tedy veškeré výchovné práce vložené do jednotlivce během jeho členství v Junáku. Mají se v něm ideálně naplnit a ukončit výchovné procesy, kterými Junák formuje své členy od mladších výchovným kategorií. Metodika pro práci s RS pojmenovává cílový stav po ukončení skautské výchovy jako “**skautskou dospělost**”. Jedná se o stav, kdy člen Junáka přešel od výchovy k sebevýchově (přijal odpovědnost za svůj seberozvoj) a snaží se vědomě žít podle tří skautských principů. Význam roverského věku je a má být obrovský - jak pro osobní vyspělost každého člena hnutí, tak potažmo pro výchovný úspěch organizace.
 
-## Rovering očima organizace
+## Rovering očima organizace {#rovering-ocima-organizace}
 
 V předchozí části jsme se snažili vysvětlit, proč považujeme RS za důležitou výchovnou kategorii. V praxi však tuto důležitost nevidíme. Junák neklade na roverský věk důraz, podceňuje jeho význam. Svou komunikací a postojem dává najevo, že od členů roverského věku očekává hlavně podíl na chodu organizace a výchově mladších členů: Střediska podporují či dokonce vyžadují účast svých RS na vzdělávacích kurzech mnohem častěji než na akcích rozvojových. Vzdělávací kurzy pro činovníky věnují jen malý prostor výchově RS. V hodnocení kvality nejsou RS považováni za výchovnou kategorii a je jim věnován zásadně menší prostor. RS zkrátka nejsou ve hnutí vnímáni jako plnohodnotná výchovná kategorie.
 
 Roverský věk a všechny jeho milníky zároveň nelze dobře přeskočit a dohnat je později - Junák toho starším členům nabízí méně a méně. Vynecháním důležitých milníků směřující k dospělosti a vyzrálosti svých členů Junák prodlužuje dobu, než se stanou dospělými. Z toho paradoxně potom nemůže těžit ani on sám (mladší členy by mohli vést vyzrálejší lidé) a také brzdí vývoj společnosti.
 
-### Chybí celostní pohled na skautskou výchovu 
+### Chybí celostní pohled na skautskou výchovu {#celostni-pohled}
 
 Myslíme si, že Junáku chybí celostní pohled na skautskou výchovu. Více než pohled na celek se v hnutí poslední dobou řeší dílčí (a obvykle mladší) výchovné kategorie. Ty jsou samozřejmě samozřejmě důležité.  Nicméně menší důraz na celkový pohled (a tedy i na hlavní výchovné cíle) se zásadně projevuje právě na roverské výchovné kategorii. Pokud k naplnění skautské výchovy dochází v roverském věku, je roverský věk klíčovým obdobím odrážejícím úspěšnost celkového výchovného úsilí Junáka. **Problémy roveringu jsou tak do značné míry problémy celé organizace.** Naopak úspěšný rovering je úspěchem celé organizace a úspěchem všech předcházejících kategorií.
 
@@ -60,7 +60,7 @@ Rovering se v posledních nejméně 10 letech potýká se stále stejnými otáz
 
 Protože se jedná o díry v koncepci skautské výchovy v Junáku, má odpovědi na tyto otázky přinést Junák jako organizace. Dlouhodobě chybějící odpovědi poukazují na chybějící celostní pohled organizace. To samé dokládá také naše vlastní zkušenost se shromažďováním podkladů pro samotný roverský průzkum, které zahrnovalo rešerši většiny dostupných Junákem vydaných materiálů o roveringu. Ani ty nepřináší odpovědi.
 
-### Proč vadí nemít odpovědi na koncepční otázky? 
+### Proč vadí nemít odpovědi na koncepční otázky? {#proc-vadi-nemit-odpovedi}
 
 Koncepce v první řadě konkretizuje cíl a cestu k jeho naplnění. Junák je výchovná organizace a měla by mít názor na to, jakou cestou se dobře dostat k cíli. Tento názor se může vyvíjet a měnit. Zároveň přináší řád, uchopitelnost, důvěryhodnost a ukazuje cestu. Kdyby takový názor neexistoval, Junák by sice vytyčoval cíl cesty, ale neukazoval by, jak k němu jít. Byl by výchovnou organizací bez názoru (metody a nástrojů) na výchovu.
 
@@ -89,7 +89,7 @@ Další naší výtkou vůči NRP je **nekonkrétnost obsahu**. Hlavní nástroj
 
 V kombinaci s dlouho chybějící metodikou pro práci s RS tak není divu, že roveringu se v ČR daří spíše málo. Roverský průzkum také ukázal, že **NRP není v podstatě nikde plně zaveden**. Mezi RS existuje povědomí o jeho existenci a 83% roverských společenství využívá alespoň jeden z jeho nástrojů. Nicméně dva z klíčových nástrojů rozvoje RS - projekty a výzvy - jsou současně využívány jen v 18% společenství a žádný jednotlivý nástroj nepoužívá víc než 41% respondentů.  Roverský program (tedy oficiální cesta k naplnění výchovných cílů organizace pro roverský věk) vydaný Junákem v roce 2011, není v organizaci prakticky používán. Více v kapitole \@ref(nastroje).
 
-### Chybějící sebepřijetí 
+### Chybějící sebepřijetí {#chybejici-sebeprijeti}
 
 V roveringu **chybí téma sebepřijetí**. Přitom sebepřijetí je důležitým úkolem rozvoje mladého člověka v roverském věku. Se sebepřijetím pracují do vysoké míry roverské seberozvojové kurzy a setkávají se s intenzivní odezvou. Sebepřijetí přitom pomáhá zdravému seberozvoji a je prevencí proti sebeničení (vyhoření, přetížení, rozvoji na sílu, neexistenci hranic). Ve hnutí a zejména v roverském věku však toto téma není dostatečně pojmenované a sledované, ani se o něm nemluví. Vidíme v něm nevyužitý potenciál; chybějící úhel pohledu, který může přinést zdravý a udržitelný růst jedinci i celé organizaci.
 
@@ -107,7 +107,7 @@ Myslíme si, že sebepřijetí by se mělo objevit v projevech kompetencí pro r
 
 
 
-## Odpovědnost oddílu a střediska za RS
+## Odpovědnost oddílu a střediska za RS {#odpovednost-oddilu-a-strediska}
 
 Co znamená, že za RS nese odpovědnost středisko? Zhruba lze ale říct, že nedostatečnou nabídku pro RS bychom měli řešit stejně tak, jak bychom řešili, že se nám rozpadá roj světlušek nebo že máme více odrostlých vlčat než míst u skautů. Máme oddíly pro každou kategorii zvlášť? Pak spíše čekáme, že nedostatky v roveringu bude řešit středisková rada. Máme oddíly, které sdružují více věkových kategorií? Pak asi čekáme, že není-li dohodnuto jinak, oddíly si "pohlídají" i své rovery --- ale pokud se to neděje, měla by středisková rada nabídnout pomocnou ruku. 
 To platí i o úroveň výš: vodácký přístav bez žabiček by určitě měl okres či kraj podpořit v jejich založení, stejně tak středisko bez funkčních RS. V každém případě nemůžeme RS považovat za "problém někoho jiného".
@@ -118,14 +118,14 @@ Neshodneme se, komu říkat rover/ranger a komu ne. Jsem roverem, pokud se věnu
 
 Roverky/rangers.
 
-### Roverská společenství si nerada říkají “Roverský kmen”.
+### Roverská společenství si nerada říkají “Roverský kmen”. {#nerada-si-rikaji-kmen}
 
 Během přípravy průzkumu jsme zaznamenali nechuť k užívání oficiálního názvu společenství roverů jako roverský kmen. Přijatelnějším názvem se zdá být roverské společenství. Možná za to může i frustrace z dlouhodobě špatně fungujícího roveringu a tendence opouštět to, co nefunguje a hledat čerstvé pohledy, lepší řešení.
 
 (V průzkumu jsme se tímto jevem přímo nezabývali a nemůžeme k němu uvést exaktní čísla.)
 
 
-## Doporučení
+## Doporučení {#doporuceni}
 
 Úkolem Junáka v **oblasti koncepce** by podle nás mělo být:
 

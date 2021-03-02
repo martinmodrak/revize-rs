@@ -18,7 +18,7 @@ Cílem datové části zprávy je poskytnout detaily tomu, koho to zajímá a uk
 jak jsme dospěli k našim hlavním závěrům. 
 
 
-## Kontext vzniku projektu {.kz_group}
+## Kontext vzniku projektu {.kz_group #kontext-vzniku}
 
 ```{r results='asis'}
 if(gitbook_output) {
@@ -38,7 +38,7 @@ V době vzniku průzkumu kolovalo o roveringu v Junáku mnoho rozdílných tvrze
 Z celkového obrazu o roveringu pohledem zkušeností Roverského odboru a roverských kurzů se dalo vyvodit pouze to, že rovering funguje velmi rozdílně napříč oddíly a středisky v ČR a že se pere s různě závažnými problémy. Velký roverský průzkum si dal za cíl zmapovat hlavní rysy roveringu v Junáku a vytvořit prostor pro zlepšení stavu roveringu. Samotný průzkum se setkal s nebývalou odezvou - odpověděl nám zhruba každý desátý člen v roverském věku. Na základě tohoto průzkumu a diskuzí, které jsme absolvovali během projektu, pak formulujeme i další, obecnější doporučení.
 
 
-## Velký průzkum
+## Velký průzkum {#velky-pruzkum}
 
 V kapitolách \@ref(charakteristika-respondentu) - \@ref(kompetence) se věnujeme detailní analýze dat z velkého průzkumu. 
 Začínáme [charakteristikou respondentů](#charakteristika-respondentu), 
@@ -58,7 +58,7 @@ Pro technicky laděné, je k dispozici i přesná [definice otázek pro FormR](h
 
 Naprostá většina respondentů souhlasila, abychom sdíleli anonymizovanou verzi odpovědí s širší skautskou veřejností (ale ne zcela veřejně), proto jsou tato data k dispozici na [skautském Google Drive](https://drive.google.com/file/d/1ykytGRbEzyU_SH9LPmfHSu6kSD59kD5Q/). Pokud nemáte přístup, můžete si o data též napsat Orlovi (orel@derwen.info), který vám data nasdílí a rád pomůže i s analýzou.
 
-## Další zdroje dat
+## Další zdroje dat {#dalsi-zdroje-dat}
 
 V kapitole \@ref(odchody-lidi) se podíváme detailně na data z registrace o [odchodech členů](#odchody-lidi) s
 hlavním důrazem na přechod ze skautského do roverského věku.

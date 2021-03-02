@@ -20,7 +20,7 @@ rmarkdown::find_pandoc() # Try to use version at least 2.8 to allow unlisted hea
 
 ```{r results='asis'}
 if(gitbook_output) {
-  cat("# (PART\\*) Závěry a doporučení {-}\n")
+  cat("# (PART\\*) Závěry a doporučení {- #zavery-doporuceni}\n")
 } 
 ```
 
@@ -90,7 +90,7 @@ purrr::walk(kratka_zprava, print_kz_group_full)
 
 
 
-## Kam dál v této zprávě?
+## Kam dál v této zprávě? {#kam-dal}
 
 V kapitole \@ref(koncepce) - ["Děravá koncepce roveringu"](#koncepce) představujeme
 obecnější závěry ke koncepci roveringu a roverského programu, které se opírají primárně o úvahy a osobní zkušenosti

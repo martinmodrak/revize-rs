@@ -204,6 +204,7 @@ porovnej_skautis_my <- function(skautis, my) {
     ggplot(aes(x = as.factor(rok), y = pocet, color = zdroj)) +
       geom_point(size = 2,position = position_dodge(width = 0.2)) +
       vodorovne_popisky_x +
+      scale_color_revize() +
       facet_grid(vek_kategorie_interval ~ Sex, scales = "free")
 
 }

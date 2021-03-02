@@ -35,7 +35,7 @@ Zásadní závěry z této části otázek podle nás jsou:
 
 Detaily a zdůvodnění lze nalézt v příslušných částech dokumentu.
 
-## Jak interpretovat tato data
+## Jak interpretovat tato data {#jak-interpretovat}
 
 Pro interpretaci výsledků je potřeba připomenout, že všechny údaje jsou sebehodnocením a samozřejmě se lidé mohou lišit v tom, jak "přísní" na sebe a svá roverská společenství jsou. Nesmíme také zapomenout na možnou nepozornost nebo únavu při vyplňování. Proto zejména odpovědi, kde s něčím (ne)souhlasí jen malá procenta respondentů nelze brát příliš doslova. Je totiž velmi těžké napsat otázku, kde se  shodnou všichni. Například: jen 89% respondentů jednoho amerického průzkumu uvedlo, že "Férové volby jsou pro demokracii důležité".
 
@@ -139,7 +139,7 @@ Hlavním důvodem, proč jsme přesvědčeni, že pozdější vstupy do roversk�
 
 ```
 
-### Vlastní vstup
+### Vlastní vstup {#vlastni-vstup}
 
 Jak vypadá vlastní přechod do roverského věku? Tady je opět těžká interpretace: necelých 60% uvedlo, že mělo snadný přechod. Je to úspěch nebo se máme rmoutit pro dva z pěti roverů, co to dle vlastního pocitu snadné neměli? Obdobně, když si zhruba polovina roverů myslí, že byla připravena se aspoň trochu podílet na přípravě programu roverského společenství, je to hodně nebo málo?
 
@@ -176,7 +176,7 @@ hlavni_data %>% filter(!is.na(vyroky_o_roveringu_zazil_2)) %>%
 A co ti, co do společenství nikdy nevstoupili (ale již nejsou v oddíle mladších členů)? To je zhruba `r scales::percent(sum(hlavni_data$kategorie_respondenta_full == "nikdy_spolecenstvi_starsi") / nrow(hlavni_data))` respondentů.
 
 
-### Pohled nečlenů
+### Pohled nečlenů {#pohled-neclenu}
 
 ```{r}
 podil_neroveru_bez_informaci <- mean(hlavni_data$vyroky_o_roveringu_stredisko.nevim, na.rm=TRUE)
@@ -196,7 +196,7 @@ plot_summary_mc(hlavni_data, vyroky_o_roveringu_stredisko, "O roverech v mém st
 V otázkách výše je taky vidět, že "mít vlastní akce" je (z pohledu lidí, co se na společenství dívají z vnějšku) o dost snažší naplnit než "funkční společenství". 
 
 
-## Život ve společenství
+## Život ve společenství {#zivot-ve-spolecenstvi}
 
 Asi nepřekvapí, že většina roverských společenství (kmenů) je malá. Jen kolem pětiny roverů je ve společenstvích s více jak 20 členy. Zajímavé ale může být, že mikro společenství (do 5 členů) je jen minimum. _(Ač zde je možné, že někteří respondenti v malých společenství uvedli, že v žádném společenství nejsou)_.
 
@@ -231,7 +231,7 @@ hlavni_data  %>% plot_binarni_s_nejistotou(paste0("vyroky_o_roveringu_zazil_2.",
 ```
 
 
-### Frekvence akcí
+### Frekvence akcí {#frekvence-akci}
 
 Ptali jsme se též na frekvenci akcí, ale jen současných členů (nevěřili jsme, že bývalí si to budou dobře pamatovat). Hrubá čísla asi nepřekvapí --- většina roverů má tu a tam nějakou akci, velmi aktivních i zcela neaktivních kmenů je málo.
 
@@ -296,7 +296,7 @@ hlavni_data %>%
 ```
 
 
-### Jak roversky žijí rádci?
+### Jak roversky žijí rádci? {#jak-roversky-ziji-radci}
 
 Dotaz od Ifanky: Jak jsou na tom rádci u oddílů / u družin s aktivitou (jde mi asi hlavně o ty mladší) --- jak často jezdí na akce, vzdělávačky, jednoduše jak jsou aktivní?
 
@@ -432,7 +432,7 @@ Tím, že míra zavedení (ve smyslu počtu používaných nástrojů) dost kore
 ```
 
 
-### Muži, ženy a nástroje
+### Muži, ženy a nástroje {#muzi-zeny-nastroje}
 
 Musíme velmi opatrně, protože muži ve vzorku jsou celkově starší než ženy.
 
@@ -508,7 +508,7 @@ Obecně se tedy dá očekávat, že kurzy jsou dobrým místem, kde lidé v rove
 V našem vzorku též vyšlo, že ženy o něco častěji uvádějí, že zažily roverské kurzy, ale po zohlednění rozdílů ve věku se rozdíl nezdá přesvědčivý (data zde neukazujeme).
 
 
-### Velké akce a neorganizované společenství 
+### Velké akce a neorganizované společenství {#velke-akce-a-neorganizovane-spolecenstvi}
 
 > Dotaz RO: Čekali bychom, že velké akce jsou důležité pro společenství, co není moc organizované, ale data to možná nepotvrzují.
 
@@ -520,7 +520,7 @@ plot_velke_akce_organizovan <- hlavni_data %>% plot_binarni_s_nejistotou("vychov
 plot_velke_akce_organizovan
 ```
 
-## Spokojenost roverů
+## Spokojenost roverů {#spokojenost}
 
 
 ```{r}
@@ -611,7 +611,7 @@ hlavni_data %>%
   plot_binarni_s_nejistotou(c("s_cim_spokojen.program"), age, na.rm = TRUE) + plot_annotation("Spokojen s náplní programu dle věku", "Jen současní členové")
 ```
 
-## Stárnutí rovera
+## Stárnutí rovera {#starnuti-rovera}
 
 ```{r}
 podil_vic_jak_3_roky_v_kmeni <- hlavni_data %>% filter(!is.na(let_v_kmeni))  %>% summarise(podil = mean(let_v_kmeni > 3)) %>% pull(podil)
@@ -1074,7 +1074,7 @@ hlavni_data %>% plot_summary_mc(problemy_roveringu, "Hlavní problémy roveringu
 
 ```
 
-## Kontakt s "vyšší" organizací
+## Kontakt s "vyšší" organizací {#kontakt-s-vyssi-organizaci}
 
 Roveři celkově nevnímají "vyšší místa" jako někoho, kdo roverům pomáhá, jakkoliv některé konkrétní věci organizované na "vyšší" úrovni (roverské akce, sociální sítě) jsou vnímány pozitivně.
 
@@ -1117,7 +1117,7 @@ hlavni_data %>% plot_binarni_s_nejistotou(nazvy_komunikace, by = age, names_pref
 
 
 
-## Přínosy roveringu organizaci
+## Přínosy roveringu organizaci {#prinosy-roveringu-organizaci}
 
 ```{r}
 neroverske_role <- setdiff(attributes(hlavni_data$role_skauting)$labels, roverske_role)

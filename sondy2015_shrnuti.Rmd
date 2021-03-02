@@ -18,7 +18,7 @@ sondy_pouze_roveri <- nacti_sondy(pouze_roveri = TRUE)
 ```
 
 
-## Zániky kmenů
+## Zániky kmenů {#sondy2015-zaniky}
 
 Respondenti, kteří uvedli, že roverské společenství na středisku zaniklo dostali otevřenou otázku na důvod zániku. 
 
@@ -58,7 +58,7 @@ sondy %>% drop_na(kolik_let_fungoval_zanikly_rs_kmen) %>%
   ggplot(aes(x = kolik_let_fungoval_zanikly_rs_kmen)) + geom_histogram(binwidth = 1) + vodorovne_popisky_x + ggtitle("Jak dlouho fungoval kmen než zanikl")
 ```
 
-## Pouze formalne reg. kmeny
+## Pouze formalne reg. kmeny {#sondy2015-pouze-formalne}
 
 V sondách byla otázka na registraci a taky na to, jestli je kmen aktivní (s možnostmi, "Ano", "Ne" a "Nevím") - tím se můžeme podívat na to,
 kolik registrovaných kmenů je ve skutečnosti neaktivních.
@@ -74,7 +74,7 @@ cred_int_formalne = qbeta(c(0.025, 0.975), sumar_formalne$pocet_registrovanych -
 
 Můžeme usuzovat, že v roce 2015 `r round(cred_int_formalne[1] * 100)`% až `r round(cred_int_formalne[2] * 100)`% registrovaných roverských kmenů vykazovalo činnost (nebyly registrované pouze formálně).
 
-## RS neformálně vedou oddíl
+## RS neformálně vedou oddíl {#sondy2015-neformalne-vedou-oddil}
 
 Další zajímavou konkrétní otázkou bylo, jestli některý rover vede dětský oddíl,
 ač papírově vedení zastává někdo jiný.
@@ -101,7 +101,7 @@ cred_int_rs_neformalne_vede <- round(qbeta(c(0.025, 0.975), pocty_vedeni["Ano, a
 
 Můžeme očekávat, že `r cred_int_rs_neformalne_vede[1]`% až `r cred_int_rs_neformalne_vede[2]`% roverských společenství mělo v roce 2015 ve svém středu někoho, kdo neformálně vedl oddíl.
 
-## Závěrečná doplňující poznámka k roveringu
+## Závěrečná doplňující poznámka k roveringu {#sondy2015-otevrena}
 
 ```{r}
 dodatky_rs <- unique(sondy %>% drop_na(dodatek_rs) %>% pull(dodatek_rs))
@@ -126,7 +126,7 @@ cat(paste0("> ", gsub("\n", "\n> ", gsub("\r", "", dodatky_rs[zajimave], fixed=T
 ```
 
 
-## Další drobné věci
+## Další drobné věci {#sondy2015-dalsi-drobne}
 
 Jak je na tom čas strávený u dětských oddílů vs. čas na samostatný rovering.
 
@@ -172,7 +172,9 @@ sondy %>% drop_na(souhlas_roveri_potrebuji_vedouciho_kmene) %>%
   mutate(druh = if_else(grepl("nesouhlasím", souhlas_roveri_potrebuji_vedouciho_kmene), "nesouhlasím", "souhlasím"),
          sila = if_else(grepl("Určitě", souhlas_roveri_potrebuji_vedouciho_kmene), "určitě", "spíše") %>% factor(levels = c("určitě","spíše"))) %>%
   ggplot(aes(x = rs_kmen_prvky_vudce, y = podil, color = druh, linetype = sila, group = souhlas_roveri_potrebuji_vedouciho_kmene)) + 
-  geom_point() + geom_line() + vodorovne_popisky_x + ggtitle("Pod")
+  geom_point() + geom_line() + vodorovne_popisky_x + 
+  scale_color_revize() +
+  ggtitle("Podíl souhlasí s potřebou vůdce", "Dle toho, jestli kmen má vůdce")
 ```
 
 Tj. kmeny, které vůdce mají jsou spíše nakloněny tomu, že to je dobrý nápad. Naopak téměř všichni, kteří nesouhlasí s tím, že kmen potřebuje vůdce jsou v kmeni, který vůdce nemá.

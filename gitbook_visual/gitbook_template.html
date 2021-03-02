@@ -233,7 +233,6 @@ $endfor$
   </div>
 <!--bookdown:config-->
 
-$if(math)$
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
   (function () {
@@ -248,7 +247,6 @@ $if(math)$
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
 </script>
-$endif$
 
 $if(title)$
 <!-- Force inclusion of some images -->

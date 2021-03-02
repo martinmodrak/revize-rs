@@ -37,11 +37,11 @@ Ke každé otázce vybírali odpověď na sedmibodové škále od "Zcela souhlas
 
 Část respondentů měla kratší verzi dotazníku a vyjadřovala se tak jen k náhodně vybrané polovině otázek.
 
-## Dle kategorie
+## Dle kategorie {#dle-kategorie}
 
 Zde si shrneme celkové odpovědi ke každé kategorii.
 
-### Zvládám to
+### Zvládám to {#kategorie-zvladam-to}
 
 ```{r}
 plot_kategorie_kompetence <- function(data_long, kategorie, kategorie_popis) {
@@ -106,7 +106,7 @@ plot_tabulka_extrem(tabulka_nezvladane) + plot_annotation("Nejčastěji nezvlád
 
 ```
 
-### Je to pro mě důležité
+### Je to pro mě důležité {#kategorie-je-to-pro-me-dulezite}
 
 A nyní to samé pro "Je to pro mě velmi důležité" --- zde je vidět, že respondenti považují v podstatě vše za důležité a spektrum odpovědí je tak na rozdíl od ostatních otázek posunuté hodně "doprava".
 
@@ -167,7 +167,7 @@ plot_tabulka_extrem(tabulka_dulezite, text_y = 0.05) + plot_annotation("Nejčast
 
 
 
-### Rozvíjím se v tom
+### Rozvíjím se v tom {#kategorie-rozvijim-se-v-tom}
 
 A ještě obdobné grafy pro "Rozvíjím se v tom"
 
@@ -213,7 +213,7 @@ plot_tabulka_extrem(tabulka_nerozvijim) + plot_annotation("Nejčastěji nerozví
 ```
 
 
-### Skauting mi pomáhá
+### Skauting mi pomáhá {#kategorie-skauting-mi-pomaha}
 
 ```{r}
 plot_kategorie_kompetence(hlavni_data_long, "skauting", popis_pro_plot(hlavni_data, "duchovni_zivot.skauting")) + theme(plot.title = element_text(size = 30))
@@ -259,7 +259,7 @@ plot_tabulka_extrem(tabulka_neskauting, text_y = 0.05) + plot_annotation("Skauti
 ```
 
 
-## Dle pohlaví, vývoj s věkem
+## Dle pohlaví, vývoj s věkem {#dle-pohlavi-vyvoj-s-vekem}
 
 
 ```{r}
@@ -283,7 +283,7 @@ Pro jednoduchost interpretace zde budeme převádět odpovědi respondentů na �
 
 V neposlední řadě je taky nemožné říct, jestli jsou rozdíly hlavně ve skutečném zvládání kompetencí, nebo jestli jsou hlavně v sebehodnocení. 
 
-### Zvládám to
+### Zvládám to {#vek-vyvoj-zvladam}
 
 Nejdříve se podíváme na průměr hodnocení "Zvládám" napříč všemi kompetencemi dle věku a pohlaví --- je zde mírný vzestupný trend s několika zuby --- ty jsou (jak uvidíme za chvíli) primárně způsobeny podivnými fluktuacemi v několika kompetencích. Vzestupný trend může být způsoben rozvojem v roverském věku, změnou sebehodnocení s věkem nebo tím, že ta dnešní mladá generace zvládá všechno hůř než my v jejich věku ;-). Taky je dobré si všimnout, že celý graf pokrývá jen několik desetin jednoho bodu, tj. díky velkému počtu respondentů zde máme malou nejistotu (světlý pruh), ale absolutní velikost změn je malá.
 
@@ -304,7 +304,7 @@ plot_kompetence_by_smooth(hlavni_data_long_sex, "zvladam", age, group2 = sex)
 
 ```
 
-### Je to pro mě důležité
+### Je to pro mě důležité {#vek-vyvoj-dulezite}
 
 Obdobně průměrné hodnocení důležitosti. Při pohledu na celkový průměr vidíme podivné zuby, které je těžké interpetovat (tentokrát je nelze snadno svést jen na několik kompetencí). Zároveň zde není znatelný celkový vzestupný nebo sestupný trend. Opět si všimněte, že největší skok (mezi 22. a 23. rokem u mužů) je 0.3 stupně, tj. velmi málo.
 
@@ -327,7 +327,7 @@ plot_kompetence_by(hlavni_data_long_sex, "dulezite", age, group2 = sex)
 
 
 
-### Rozvijim se v tom
+### Rozvíjím se v tom {#vek-vyvoj-rozvijim}
 
 Celkový trend vnímání seberozvoje je klesající a to (s ohledem na předchozí otázky) poměrně výrazně --- u mužů o zhruba půl stupně. Optimistický výklad je, že jde o výsledek toho, že roveři věci čím dál lépe zvládají, pesimistický že s věkem leniví a kornatí. Je taky možné, že jde jen o střízlivější sebehodnocení u starších nebo čistě o kohortový efekt, kdy současní mladí prožívají více rozvoje, protože se změnila situace ve společnosti a skautingu, ne proto, že jsou mladší. Opět neumím vysvětlit dva výrazné zuby u mužů. 
 
@@ -345,7 +345,7 @@ plot_kompetence_by_smooth(hlavni_data_long_sex, "rozvijim", age, group2 = sex)
 ```
 
 
-### Skauting me rozviji
+### Skauting mi pomáhá {#vek-vyvoj-skauting}
 
 Tak a  do čtvrtice --- celkový trend je klesající, podobně jako u "Rozvíjím se v tom". V jistém smyslu je asi žádoucí, aby zde byl klesající trend --- s rostoucím věkem by skauting měl v rozvoji lidí asi hrát menší a menší roli. (a ač to je otravné, stále je možné, že to je kohortový efekt)
 
@@ -362,7 +362,7 @@ plot_kompetence_by_smooth(hlavni_data_long_sex, "skauting", age, group2 = sex)
 
 ```
 
-## Rozdíly a nedostatky
+## Rozdíly a nedostatky {#rozdily-a-nedostatky}
 
 Ještě se podíváme na rozdíly/kontrasty jednotlivých otázek.
 
@@ -410,7 +410,7 @@ tabulka_rozdilu <- function(data_rozdil) {
 
 ```
 
-### Důležité vs. zvládám
+### Důležité vs. zvládám {#dulezite-vs-zvladam}
 
 První --- věci, které respondent bral jako důležité, ale myslí si, že je nezvládá:
 
@@ -451,7 +451,7 @@ plot_tabulka_rozdil(tabulka_dulezite_zvladam, text_y = 0.05) + plot_annotation("
 
 
 
-### Důležité vs. rozvíjím
+### Důležité vs. rozvíjím {#dulezite-vs-rozvijim}
 
 Obdobně se můžeme podívat na ty, které byly označeny jako důležité, ale respondent si myslí, že se v nich nerozvíjí. 
 
@@ -494,7 +494,7 @@ tabulka_dulezite_rozvijim %>% plot_tabulka_rozdil(indices = 7:1) + plot_annotati
 
 
 
-### Důležité vs. skauting me rozviji
+### Důležité vs. skauting me rozviji {#dulezite-vs-skauting}
 
 Tohle velmi blízce kopíruje obecně to, kde skauting lidi nerozvíjí, takže nepřínáší moc další informace.
 
@@ -509,7 +509,7 @@ tabulka_dulezite_skauting %>%
 ```
 
 
-### Rozvijim se vs. skauting me rozviji
+### Rozvíjím se vs. skauting mě rozvíjí {#rozvijimi-vs-skauting}
 
 Opět poměrně kopíruje jen ty věci, kde mě skauting nerozvíjí...
 
@@ -696,7 +696,7 @@ plot_single_marginal <- function(marginals_to_show, m, ind, title = m, subtitle 
 _Technická poznámka:  Pro zjišťování asociací používáme lineární "mixed effects" modely (s ordinální odpovědí), které zohledňují větší množství prediktorů pro odpověď na kompetenční otázku. Tyto modely jsou implementovány plně Bayesovky pomocí balíčku INLA. Hlavním měřítkem důvěryhodnosti asociace je pak šířka nejširšího "credible interval", který neobsahuje nulu (do jisté míry je to ekvivalentní 1 - p-hodnota v frekventistické statistice)_
 
 
-### Pohlaví, účast na kurzu - nejdůvěryhodnější asociace
+### Pohlaví, účast na kurzu - nejdůvěryhodnější asociace {#kompetence-pohlavi-kurzy}
 
 Jak jsme již zmiňovali, jednou z nejsilnějších asociací je asociace s pohlavím/genderem. Takto to vypadá souhrně přes všechny komptence a kategorie:
 
@@ -722,7 +722,7 @@ plot_single_marginal(marginals_to_show, "byl_na_rs_kurzu","", title = "Byl na ro
 
 Všechny asociace uvedené dále jsou již méně důvěryhodné. 
 
-### Role ve hnutí
+### Role ve hnutí {#kompetence-role}
 
 ```{r}
 plot_all_indices <- function(marginals_to_show, m, title = m) {
@@ -746,7 +746,7 @@ vidíme pro roli "neformální tahoun roverů" následované "vedoucí nebo zás
 plot_all_indices(marginals_to_show, "role_skauting", title = "Současné role ve skautingu")
 ```
 
-### Kurzy/zkušenosti detailněji
+### Kurzy/zkušenosti detailněji {#kompetence-kurzy-detailneji}
 
 V modelu B jsme se dívali vedle souhrných kategorií "roverský kurz" a "neroverský kurz" dívali na jemnější rozčlenění, které máme v datech - to obsahuje navíc i to, jestli byla respondentka rádkyně/podrádkyně ve skautském věku. Tím, že to je z detailnějšího modelu, tak máme o dost méně důvěryhodných asociací. 
 
@@ -754,7 +754,7 @@ V modelu B jsme se dívali vedle souhrných kategorií "roverský kurz" a "nerov
 plot_all_indices(marginals_to_show, "co_zazil", title = "Co ve skautingu zažila")
 ```
 
-### Fungování skautského oddílu
+### Fungování skautského oddílu {#kompetence-fungovani-oddilu}
 
 
 
@@ -776,7 +776,7 @@ A máme i výsledky pro detailní rozpad, jak otázku respondenti vyplňovali z 
 plot_all_indices(marginals_to_show, "organizace_spolecenstvi", title = "Kdo organizuje/organizoval tvé společenství")
 ```
 
-### Dle kompetencí
+### Dle kompetencí {#asociace-dle-kompetenci}
 
 Na ta samá data se můžeme podívat z druhé strany a setřídit si to po kompetencích a dívat se, které prediktory jsou asociovány s jednotlivými kompetencemi.
 
@@ -807,7 +807,7 @@ Na ta samá data se můžeme podívat z druhé strany a setřídit si to po komp
 
 
 
-## Doplňky a kontroly
+## Doplňky a kontroly {#kompetence-doplnky-a-kontroly}
 
 Nevymyká se nějaká kompetence svým rozložením odpovědí?
 
@@ -828,7 +828,7 @@ histogram_kompetence(hlavni_data_long, "rozvijim")
 histogram_kompetence(hlavni_data_long, "skauting")
 ```
 
-## Jak se liší různá měřítka?
+## Jak se liší různá měřítka? {#kompetence-jak-se-lisi-meritka}
 
 Korelace:
 
