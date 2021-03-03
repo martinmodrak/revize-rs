@@ -7,6 +7,8 @@ apple-touch-icon: gitbook_visual/favicon.png
 cover-image: gitbook_visual/cover.jpg
 url: https://roverskypruzkum.skaut.cz
 github-repo: martinmodrak/revize-rs
+fb-app-id: "746547445843369"
+description: Jak dopadl velký roverský průzkum? Co z něj plyne pro rovering?
 quot-marks: „“‚‘
 ---
 
