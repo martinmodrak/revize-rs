@@ -53,7 +53,6 @@ registrace <- registrace_jednotlivci() %>% rename(Sex = ID_Sex)
 
 ```{r}
 posledni_rok <- max(registrace$Year)
-cat("Zpracováváme data od roku",min_rok,"do roku", posledni_rok)
 ```
 
 _Poznámka: Všude bereme že věk = rok registrace - rok narození._

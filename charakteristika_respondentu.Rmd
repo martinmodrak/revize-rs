@@ -5,7 +5,7 @@ knitr::opts_chunk$set(echo = FALSE, cache=TRUE)
 ```
 
 
-# Velký průzkum - kdo odpovídal? {#charakteristika-respondentu}
+# Velký průzkum --- kdo odpovídal? {#charakteristika-respondentu}
 
 V této kapitole se věnujeme obecným charakteristikám respondentů a klademe si otázku, 
 jak moc může být průzkum (ne)reprezentativní vůči naší cílové populaci, 

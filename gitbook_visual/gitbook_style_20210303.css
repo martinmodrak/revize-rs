@@ -223,8 +223,13 @@ div.collapsed.kz_heading h4::before, .rozbalit_vse.collapsed::before {
   display:none;
 }
 
-.summary .part:first-child {
+.summary .part:first-child, .book .book-summary .book-search {
 	background-color:rgb(179,221,211);
+}
+
+.book .book-summary .book-search input, .book .book-summary .book-search input:focus, .book .book-summary .book-search input:hover {
+  border: 1px solid black;
+  background-color: #fafafa;
 }
 
 .summary .chapter[data-level="1"], .summary .chapter[data-level="2"] {

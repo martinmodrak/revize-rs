@@ -29,18 +29,18 @@ if(gitbook_output) {
 ```
 
 
-Projekt Revize roverského programu vznikl v rámci tématu Podpora roverské věkové kategorie - Strategie Junáka 2022. Jeho zásadní součástí byl i velký roverský průzkum, ze kterého v této zprávě hlavně vycházíme. Potřeba zjistit a kvantifikovat, v jakém stavu se rovering v ČR nachází, byla dána zejména dlouhodobým nedostatkem dat o roveringu, ze kterých by se dalo vycházet při revizi samotného Roverského programu vydaného Junákem v roce 2011.
+Projekt Revize roverského programu vznikl v rámci tématu Podpora roverské věkové kategorie --- Strategie Junáka 2022. Jeho zásadní součástí byl i velký roverský průzkum, ze kterého v této zprávě hlavně vycházíme. Potřeba zjistit a kvantifikovat, v jakém stavu se rovering v ČR nachází, byla dána zejména dlouhodobým nedostatkem dat o roveringu, ze kterých by se dalo vycházet při revizi samotného Roverského programu vydaného Junákem v roce 2011.
 
 
 V době vzniku průzkumu kolovalo o roveringu v Junáku mnoho rozdílných tvrzení a domněnek. Při debatách o roveringu se stále dokola naráželo na důležité otázky o roveringu, na které neexistovaly jasné odpovědi. Žádané byly odpovědi na otázky ‘jak pracovat s RS’ a ‘jak dělat rovering u oddílů’. Z výpovědí o zkušenostech s praktickým roveringem byla často cítit frustrace.
 
 
-Z celkového obrazu o roveringu pohledem zkušeností Roverského odboru a roverských kurzů se dalo vyvodit pouze to, že rovering funguje velmi rozdílně napříč oddíly a středisky v ČR a že se pere s různě závažnými problémy. Velký roverský průzkum si dal za cíl zmapovat hlavní rysy roveringu v Junáku a vytvořit prostor pro zlepšení stavu roveringu. Samotný průzkum se setkal s nebývalou odezvou - odpověděl nám zhruba každý desátý člen v roverském věku. Na základě tohoto průzkumu a diskuzí, které jsme absolvovali během projektu, pak formulujeme i další, obecnější doporučení.
+Z celkového obrazu o roveringu pohledem zkušeností Roverského odboru a roverských kurzů se dalo vyvodit pouze to, že rovering funguje velmi rozdílně napříč oddíly a středisky v ČR a že se pere s různě závažnými problémy. Velký roverský průzkum si dal za cíl zmapovat hlavní rysy roveringu v Junáku a vytvořit prostor pro zlepšení stavu roveringu. Samotný průzkum se setkal s nebývalou odezvou --- odpověděl nám zhruba každý desátý člen v roverském věku. Na základě tohoto průzkumu a diskuzí, které jsme absolvovali během projektu, pak formulujeme i další, obecnější doporučení.
 
 
 ## Velký průzkum {#velky-pruzkum}
 
-V kapitolách \@ref(charakteristika-respondentu) - \@ref(kompetence) se věnujeme detailní analýze dat z velkého průzkumu. 
+V kapitolách \@ref(charakteristika-respondentu) --- \@ref(kompetence) se věnujeme detailní analýze dat z velkého průzkumu. 
 Začínáme [charakteristikou respondentů](#charakteristika-respondentu), 
 pak se věnujeme první části dotazníku, která se dívala na [stav roveringu](#stav-roveringu) 
 a končíme rozborem asi nejambicioznější části otázek, která se věnovala [kompetencím](#kompetence).

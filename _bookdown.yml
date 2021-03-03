@@ -7,6 +7,7 @@ rmd_files:
   , "kompetence.Rmd"
   , "odchody_lidi.Rmd"
   , "sondy2015_shrnuti.Rmd"
+  , "historie_verzi.md"
   ]
 new_session: yes
 

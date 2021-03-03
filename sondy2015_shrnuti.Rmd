@@ -1,5 +1,5 @@
 
-# Sondy 2015 - shrnutí {#sondy2015}
+# Sondy 2015 --- shrnutí {#sondy2015}
 
 V rámci projektu jsme též reanalyzovali data ze sond do roveringu z roku 2015, 
 protože se pokud víme nikdo nepokusil o nějaké hlubší shrnutí a interpretaci výsledků.

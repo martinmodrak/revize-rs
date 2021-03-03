@@ -1,5 +1,5 @@
 bookdown::gitbook:
-  css: gitbook_visual/gitbook_style_20210302.css
+  css: gitbook_visual/gitbook_style_20210303.css
   template: gitbook_visual/gitbook_template.html
   pandoc_args: ["--lua-filter=non_breaking_policy.lua", "--lua-filter=pandoc-quotes.lua"]
   toc_depth: 3

@@ -19,7 +19,11 @@ assign("zaloha_labels", zaloha_labels, envir = globalenv())
 Na co jsme se přesně ptali v kompetenční části?
 
 ```{r}
-otazky_rmd <- kompetence_otazky %>% arrange(ciselne_id) %>% mutate(rmd = paste0("- **", popis_pro_grafy,"** (",nazev_oblasti," --- ", nazev_podoblasti,")\r\n  --- ", text_otazky)) %>% pull(rmd) %>% paste0(collapse = "\r\n") 
+otazky_rmd <- kompetence_otazky %>% 
+  arrange(ciselne_id) %>% 
+  mutate(rmd = paste0("- **", popis_pro_grafy,"** (",nazev_oblasti," --- ", nazev_podoblasti,")\r\n  --- ", text_otazky)) %>%
+  pull(rmd) %>% 
+  paste0(collapse = "\r\n") 
 ```
 
 Tučně je zkrácený popis, který budeme používat v tabulkách a grafech, za ním v závorce odkaz, jak je tato kompetence uvedena mezi "komptencemi skautské výchovy", pod tím přesné znění otázky, jak bylo v dotazníku.
@@ -216,7 +220,7 @@ plot_tabulka_extrem(tabulka_nerozvijim) + plot_annotation("Nejčastěji nerozví
 ### Skauting mi pomáhá {#kategorie-skauting-mi-pomaha}
 
 ```{r}
-plot_kategorie_kompetence(hlavni_data_long, "skauting", popis_pro_plot(hlavni_data, "duchovni_zivot.skauting")) + theme(plot.title = element_text(size = 30))
+plot_kategorie_kompetence(hlavni_data_long, "skauting", popis_pro_plot(hlavni_data, "duchovni_zivot.skauting")) + theme(plot.title = element_text(size = 18))
 
 
 ```
@@ -530,10 +534,10 @@ hlavni_data_long %>% spocitej_data_rozdil(rozvijim, skauting, "kompetence_poziti
 
 ## Asociace s dalšími částmi dotazníku {#kompetenceasociace}
 
-Tato část je trochu spekulativnější - hledáme asociace mezi různými dalšími odpovědmi
+Tato část je trochu spekulativnější --- hledáme asociace mezi různými dalšími odpovědmi
 v dotazníku a rozvojem kompetencní. Na začátku je na místě říct, že důvěryhodných asociací 
 vidíme (vedle věku a pohlaví, které jsme rozebírali výše) spíše méně. Do toho se skutečně
-jedná jen o asociace - není vůbec jasné, jestli se jedná o příčinu a následek a pokud ano, tak v jakém směru - tj. například u asociace mezi účastí na kurzu a některými kompetencemi se nabízejí 3 možnosti:
+jedná jen o asociace --- není vůbec jasné, jestli se jedná o příčinu a následek a pokud ano, tak v jakém směru --- tj. například u asociace mezi účastí na kurzu a některými kompetencemi se nabízejí 3 možnosti:
 
 1) Kurzy přispívají k rozvoji komptencí
 2) Lidé, co se obecně více rozvíjejí pravděpodobněji pojedou na kurz
@@ -683,7 +687,7 @@ plot_single_marginal <- function(marginals_to_show, m, ind, title = m, subtitle 
             scale_y_discrete("Kompetence") +
             scale_x_discrete("Varianty modelu") +
             expand_limits(fill = c(min_ci,max_ci)) +
-            #theme(axis.text.x = element_blank()) + 
+            theme(axis.text.y = element_text(size = 8)) +
             facet_wrap(~kategorie, nrow = 1) +
             plot_annotation(title, subtitle)  
 }
@@ -696,7 +700,7 @@ plot_single_marginal <- function(marginals_to_show, m, ind, title = m, subtitle 
 _Technická poznámka:  Pro zjišťování asociací používáme lineární "mixed effects" modely (s ordinální odpovědí), které zohledňují větší množství prediktorů pro odpověď na kompetenční otázku. Tyto modely jsou implementovány plně Bayesovky pomocí balíčku INLA. Hlavním měřítkem důvěryhodnosti asociace je pak šířka nejširšího "credible interval", který neobsahuje nulu (do jisté míry je to ekvivalentní 1 - p-hodnota v frekventistické statistice)_
 
 
-### Pohlaví, účast na kurzu - nejdůvěryhodnější asociace {#kompetence-pohlavi-kurzy}
+### Pohlaví, účast na kurzu --- nejdůvěryhodnější asociace {#kompetence-pohlavi-kurzy}
 
 Jak jsme již zmiňovali, jednou z nejsilnějších asociací je asociace s pohlavím/genderem. Takto to vypadá souhrně přes všechny komptence a kategorie:
 
@@ -704,16 +708,16 @@ Jak jsme již zmiňovali, jednou z nejsilnějších asociací je asociace s pohl
 plot_single_marginal(marginals_to_show, "sexmuz", "", title = "Je muž")
 ```
 
-Je to trochu zmatený obrázek, tak zkusím vysvětlit: každý řádek odpovídá kompetenci, graf je rozdělen dle kategorií (Zvládám to, Je to pro mě důležité, Rozvíjím se v tom, Skauting mi v rozvoji významně pomáhá). Barva políček měří jak moc důvěřejeme, že zde je pozitivní (zelená) asociace nebo negativní (fialová) asociace (čím sytější barva, tím jsme si jistější). Políčka v barvě pozadí jsou taková, kde z technických důvodů model nefungoval. Sloupce uvnitř kategorií se liší dle varianty modelu - ty jsou buď _Absolutní_, kdy se díváme přímo na číselnou odpověď, jak ji respondent zadal nebo _Relativní_, kdy se díváme na vztah mezi odpovědí k dané kompetenci a průměrem všech odpovědí respondenta. To má trochu zvláštní efekt v tom, že u relativního modelu v principu musí být v podstatě stejně pozitivních a negativních asociací.  Graf nám **neukazuje**, sílu/velikost asociace (obecně je ale síla/velikost všech asociací kromě věku a pohlaví malá.) 
+Je to trochu zmatený obrázek, tak zkusím vysvětlit: každý řádek odpovídá kompetenci, graf je rozdělen dle kategorií (Zvládám to, Je to pro mě důležité, Rozvíjím se v tom, Skauting mi v rozvoji významně pomáhá). Barva políček měří jak moc důvěřejeme, že zde je pozitivní (zelená) asociace nebo negativní (fialová) asociace (čím sytější barva, tím jsme si jistější). Políčka v barvě pozadí jsou taková, kde z technických důvodů model nefungoval. Sloupce uvnitř kategorií se liší dle varianty modelu --- ty jsou buď _Absolutní_, kdy se díváme přímo na číselnou odpověď, jak ji respondent zadal nebo _Relativní_, kdy se díváme na vztah mezi odpovědí k dané kompetenci a průměrem všech odpovědí respondenta. To má trochu zvláštní efekt v tom, že u relativního modelu v principu musí být v podstatě stejně pozitivních a negativních asociací.  Graf nám **neukazuje**, sílu/velikost asociace (obecně je ale síla/velikost všech asociací kromě věku a pohlaví malá.) 
 
 Písmena A a B pak určují, kolik dalších faktorů bral model v potaz. Obecně, pokud je asociace "sytá" ve všech sloupečcích, je to poměrně důvěryhodný výsledek, tam, kde je "sytá" jen část sloupečků, je situace komplikovanější. 
 
-Další skupinou důvěryhodnějších asociací je mezi účastí na kurzu (kromě roverských) a kompetencemi. Zajímavé je, že tyto asociace jsou často i negativní (což by nebylo tak překvapivé u relativního modelu - tam musí být negativní a pozitivní zhruba vyvážené počtem, ale u absolutního to trochu překvapivé je). Zejména u "4.A Rodina", "3.C Pomáhám" a "1.F Tvořivost zručnost".
+Další skupinou důvěryhodnějších asociací je mezi účastí na kurzu (kromě roverských) a kompetencemi. Zajímavé je, že tyto asociace jsou často i negativní (což by nebylo tak překvapivé u relativního modelu --- tam musí být negativní a pozitivní zhruba vyvážené počtem, ale u absolutního to trochu překvapivé je). Zejména u "4.A Rodina", "3.C Pomáhám" a "1.F Tvořivost zručnost".
 
 ```{r}
 plot_single_marginal(marginals_to_show, "byl_na_jinem_nez_rs_kurzu", "", title = "Byl na jiném než roverském kurzu", subtitle = "vůdcovky/čekatelky/rádcovský")
 ```
-Roverské kurzy mají o něco jednoznačnější výsledky ("více zelené") a jsou spojeny s absolutním nárůstem u velké části kompetencí. Rozhodně ale musíme opatrně mluvit o příčině a následku - je jisté, že lidé, kteří jezdí na roverské kurzy jsou častěji ti, kteří na svém rozvoji více pracují.
+Roverské kurzy mají o něco jednoznačnější výsledky ("více zelené") a jsou spojeny s absolutním nárůstem u velké části kompetencí. Rozhodně ale musíme opatrně mluvit o příčině a následku --- je jisté, že lidé, kteří jezdí na roverské kurzy jsou častěji ti, kteří na svém rozvoji více pracují.
 
 ```{r}
 plot_single_marginal(marginals_to_show, "byl_na_rs_kurzu","", title = "Byl na roverském kurzu")
@@ -748,7 +752,7 @@ plot_all_indices(marginals_to_show, "role_skauting", title = "Současné role ve
 
 ### Kurzy/zkušenosti detailněji {#kompetence-kurzy-detailneji}
 
-V modelu B jsme se dívali vedle souhrných kategorií "roverský kurz" a "neroverský kurz" dívali na jemnější rozčlenění, které máme v datech - to obsahuje navíc i to, jestli byla respondentka rádkyně/podrádkyně ve skautském věku. Tím, že to je z detailnějšího modelu, tak máme o dost méně důvěryhodných asociací. 
+V modelu B jsme se dívali vedle souhrných kategorií "roverský kurz" a "neroverský kurz" dívali na jemnější rozčlenění, které máme v datech --- to obsahuje navíc i to, jestli byla respondentka rádkyně/podrádkyně ve skautském věku. Tím, že to je z detailnějšího modelu, tak máme o dost méně důvěryhodných asociací. 
 
 ```{r}
 plot_all_indices(marginals_to_show, "co_zazil", title = "Co ve skautingu zažila")
@@ -759,7 +763,7 @@ plot_all_indices(marginals_to_show, "co_zazil", title = "Co ve skautingu zažila
 
 
 ```{r}
-plot_all_indices(marginals_to_show, "fungovani_skautskeho_oddilu", title = "Zkušenost z doby, kdy jsi byla ve skautském věku")
+plot_all_indices(marginals_to_show, "fungovani_skautskeho_oddilu", title = "Co jsi zažila ve skautském věku")
 ```
 
 ### Organizace společenství {#kompetence_organizace}
@@ -770,7 +774,7 @@ Organizaci jsme (obdobně jako kurzy/zkušenosti) zpracovávali ve dvou úrovní
 plot_all_indices(marginals_to_show, "organizace_nejvyssi", title = "Organizace společenství - nejvyšší dosažená")
 ```
 
-A máme i výsledky pro detailní rozpad, jak otázku respondenti vyplňovali z modelu B - zde se zohledňuje i to, že někteří respondenti zaškrtli více možností a taky se zároveň bere v potaz role, kterou respondent má (dá se čekat, že z kmenů, kde je vůdce odpovídá častěji přímo vůdce, u kterého očekáváme, že spíše pozitivně vyčnívá). Zde nám "Bez jasného vedení - organizují všichni" vychází nejlépe, ale efekt vůdce je rozložen mezi více kategorií, což mohlo viditelné asociace ztlumit. 
+A máme i výsledky pro detailní rozpad, jak otázku respondenti vyplňovali z modelu B --- zde se zohledňuje i to, že někteří respondenti zaškrtli více možností a taky se zároveň bere v potaz role, kterou respondent má (dá se čekat, že z kmenů, kde je vůdce odpovídá častěji přímo vůdce, u kterého očekáváme, že spíše pozitivně vyčnívá). Zde nám "Bez jasného vedení --- organizují všichni" vychází nejlépe, ale efekt vůdce je rozložen mezi více kategorií, což mohlo viditelné asociace ztlumit. 
 
 ```{r}
 plot_all_indices(marginals_to_show, "organizace_spolecenstvi", title = "Kdo organizuje/organizoval tvé společenství")
@@ -797,6 +801,7 @@ Na ta samá data se můžeme podívat z druhé strany a setřídit si to po komp
           scale_fill_asociace +
           scale_x_discrete("Varianta modelu") +
           expand_limits(fill = c(min_ci,max_ci)) +
+          theme(axis.text.y = element_text(size = 8)) +
           facet_wrap(~kategorie, nrow = 1, scales = "free_x") +
           plot_annotation(kompetence_otazky %>% filter(kompetence == kompetence_to_show) %>% pull(popis_pro_grafy))
     )

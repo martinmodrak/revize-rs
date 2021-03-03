@@ -1,7 +1,7 @@
 ---
 title: "Revize roverského programu: Závěrečná zpráva"
 author: 'Petr "Klíč" Šilhavý, Martin "Orel" Modrák, Filip "Fíďa" Děchtěrenko'
-date: 'Verze 1.0 (`r format(Sys.time(), "%Y-%m-%d")`)'
+date: 'Verze 1.01 (`r format(Sys.time(), "%Y-%m-%d")`)'
 favicon: gitbook_visual/favicon.png
 apple-touch-icon: gitbook_visual/favicon.png
 cover-image: gitbook_visual/cover.jpg
@@ -92,10 +92,10 @@ purrr::walk(kratka_zprava, print_kz_group_full)
 
 ## Kam dál v této zprávě? {#kam-dal}
 
-V kapitole \@ref(koncepce) - ["Děravá koncepce roveringu"](#koncepce) představujeme
+V kapitole \@ref(koncepce) --- ["Děravá koncepce roveringu"](#koncepce) představujeme
 obecnější závěry ke koncepci roveringu a roverského programu, které se opírají primárně o úvahy a osobní zkušenosti
 nás či dalších lidí, se kterými jsme v průběhu projektu o roveringu diskutovali. 
-V kapitolách \@ref(uvod-data) - \@ref(sondy2015) se pak věnujeme analýze dat, 
+V kapitolách \@ref(uvod-data) --- \@ref(sondy2015) se pak věnujeme analýze dat, 
 zejména průzkumu, který jsme pro projekt provedli ale i dalším, které pak byly podkladem pro
 naše hlavní závěry i koncepční úvahy. 
 

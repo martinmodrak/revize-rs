@@ -635,7 +635,7 @@ hlavni_data %>% filter(!is.na(let_v_kmeni)) %>%
 ```
 
 
-Zároveň si myslíme, že průzkum je co se týká věku respondentů jakž takž reprezentativní (viz [Kapitola \@ref(reprezentativnost-vek)](#reprezentativnost-vek)). A - jak [vidíme v registraci](#odchody-roveri) - odcházení lidí z Junáka se sice po 15tém roku zpomaluje, ale stále zůstává nezanedbatelné, zatímco počet nováčků je v tomto věku minimální.  
+Zároveň si myslíme, že průzkum je co se týká věku respondentů jakž takž reprezentativní (viz [Kapitola \@ref(reprezentativnost-vek)](#reprezentativnost-vek)). A --- jak [vidíme v registraci](#odchody-roveri) --- odcházení lidí z Junáka se sice po 15tém roku zpomaluje, ale stále zůstává nezanedbatelné, zatímco počet nováčků je v tomto věku minimální.  
 
 
 ```{r}
@@ -757,7 +757,7 @@ hlavni_data %>% plot_summary_mc(problemy_roveringu, "Hlavní problémy roveringu
 podil_odstehovani <- mean(hlavni_data$problemy_roveringu.odstehovani, na.rm = TRUE)
 ```
 
-V neposlední řadě je dobré si všimnout, že odstěhovávání se je nejčastěji problém v menších střediscích (bohužel nemáme plně zapracované informace o velikosti města, kde je středisko, ale očekáváme, že zde je korelace) - zatímco u ostatních problémů vidíme střediska různých velikostí promíchané, odstěhovávání se (druhé zleva v grafu níže) je krásně seřazeno podle velikosti střediska.
+V neposlední řadě je dobré si všimnout, že odstěhovávání se je nejčastěji problém v menších střediscích (bohužel nemáme plně zapracované informace o velikosti města, kde je středisko, ale očekáváme, že zde je korelace) --- zatímco u ostatních problémů vidíme střediska různých velikostí promíchané, odstěhovávání se (druhé zleva v grafu níže) je krásně seřazeno podle velikosti střediska.
 
 ```{r}
 hlavni_data %>% filter(kategorie_respondenta == "nyni_spolecenstvi") %>% plot_binarni_s_nejistotou(nazvy_problemy, pocet_clenu_strediska, flip = TRUE, names_prefix = "problemy_roveringu.") + svisle_popisky_x + plot_annotation("Problémy roveringu", "jen vybrané, dle velikosti střediska")
@@ -819,7 +819,7 @@ Taky se vyskytují skoro všechny možné kombinace vedení:
 
 
 
-Pro další kroky si strukturu organizace trochu zjednoduššíme a vezmeme "nejvyšší přítomnou organizaci" - tj. tam kde mají vůdce/tahouna řadíme pod "ma_vudce", kde nemají vůdce ale mají radu, zařadíme pod "ma_radu" - kde nemají ani, jedno, ale uvedli, že organizují všichni, necháme "vsichni" - poslední dvě možnosti jsou, že neorganizuje nikdo, nebo že kmen není aktivní. To nám změní rozložení ve prospěch vůdců (protože jakákoliv zmínka o vůdci zařadí kmen do kategorie "má vůdce").
+Pro další kroky si strukturu organizace trochu zjednoduššíme a vezmeme "nejvyšší přítomnou organizaci" --- tj. tam kde mají vůdce/tahouna řadíme pod "ma_vudce", kde nemají vůdce ale mají radu, zařadíme pod "ma_radu" --- kde nemají ani, jedno, ale uvedli, že organizují všichni, necháme "vsichni" --- poslední dvě možnosti jsou, že neorganizuje nikdo, nebo že kmen není aktivní. To nám změní rozložení ve prospěch vůdců (protože jakákoliv zmínka o vůdci zařadí kmen do kategorie "má vůdce").
 
 
 ```{r}
@@ -885,7 +885,7 @@ Potenciálním problémem těchto porovnání je, že část společenství, kte
 
 Spojitostí mezi organizací společenství a naplněním kompetencí se pak zabýváme i v kapitole \@ref(kompetenceasociace) o asociaci kompetencí s dalšími charakteristikami.
 
-Celkově můžeme říct, že je hlavní, že je kmen nějak organizován. Jsou důvody považovat z dat za lepší když kmen má vůdce (spojeno s větší frekvencí akcí, více nástrojů programu), zároveň ale není jisté, že to není problém dat a že se to skutečně promítne v kompetencích či dalších zásadních výstupech. Pokud se tedy podaří kolektivní organizace, je dobré ji podpořit. Zároveň je ale podle nás určený vůdce - pokud zároveň umí dát dost prostoru ostatním --- nejspolehlivější způsob organizace. Všimněme si též, že organizace "všemi" se jen málokdy vyskytuje bez zmínky o vůdci či radě (jen `r scales::percent(podil_organizace_nejvyssi_vsichni)`), takže v praxi není k vidění příliš často, z čehož lze usuzovat, že je těžké takové společenství rozjet --- což potvrzuje i naše osobní zkušenost. 
+Celkově můžeme říct, že je hlavní, že je kmen nějak organizován. Jsou důvody považovat z dat za lepší když kmen má vůdce (spojeno s větší frekvencí akcí, více nástrojů programu), zároveň ale není jisté, že to není problém dat a že se to skutečně promítne v kompetencích či dalších zásadních výstupech. Pokud se tedy podaří kolektivní organizace, je dobré ji podpořit. Zároveň je ale podle nás určený vůdce --- pokud zároveň umí dát dost prostoru ostatním --- nejspolehlivější způsob organizace. Všimněme si též, že organizace "všemi" se jen málokdy vyskytuje bez zmínky o vůdci či radě (jen `r scales::percent(podil_organizace_nejvyssi_vsichni)`), takže v praxi není k vidění příliš často, z čehož lze usuzovat, že je těžké takové společenství rozjet --- což potvrzuje i naše osobní zkušenost. 
 
 ## Roveři ve vedení oddílu {#vedenioddilu}
 
@@ -914,7 +914,7 @@ podil_funkci_v_rs <-
 #podil_funkci_v_rs
 ```
 
-Překvapení: `r scales::percent(podil_vedeni_rovering)` označilo, že "`r popis_vedeni_je_rovering`". Podíváme-li se na respondenty, co sami sebe označili za rovery --- jaké mají ve skautu další role? Nejčastěji to jsou role spojené s vedením dětí. Velká část roverů (`r scales::percent(podil_funkci_v_rs$vychova_mladsich)`) zastává aspoň jednu funkci v oddíle mladších členů (vedoucí, zástupce, člen vedení, oddílový rádce, družinový rádce). K tomu `r scales::percent(podil_funkci_v_rs$pomocne_role)` roverů zastává technickou/administrativní či organizační roli a jen `r scales::percent(podil_funkci_v_rs$nic_na_stredisku)` nezastává žádnou roli, jež by přímo přinášela prospěch středisku (role, které jsou prospěšné Junáku jako celku - např. tým velkých akcí - zde vynecháváme).
+Překvapení: `r scales::percent(podil_vedeni_rovering)` označilo, že "`r popis_vedeni_je_rovering`". Podíváme-li se na respondenty, co sami sebe označili za rovery --- jaké mají ve skautu další role? Nejčastěji to jsou role spojené s vedením dětí. Velká část roverů (`r scales::percent(podil_funkci_v_rs$vychova_mladsich)`) zastává aspoň jednu funkci v oddíle mladších členů (vedoucí, zástupce, člen vedení, oddílový rádce, družinový rádce). K tomu `r scales::percent(podil_funkci_v_rs$pomocne_role)` roverů zastává technickou/administrativní či organizační roli a jen `r scales::percent(podil_funkci_v_rs$nic_na_stredisku)` nezastává žádnou roli, jež by přímo přinášela prospěch středisku (role, které jsou prospěšné Junáku jako celku --- např. tým velkých akcí --- zde vynecháváme).
 
 
 ```{r}

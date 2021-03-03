@@ -109,9 +109,11 @@ plot_kompetence_by <- function(data, kategorie, group, group2 = NULL, meritko = 
     my_facet <- NULL
     #if(is.null(group2) == 1) {
     kompetence_group <-  quo(1)
+    line_size <- 2
   } else {
     my_facet <- facet_wrap(~ popis_pro_grafy)
     kompetence_group <- quo(popis_pro_grafy)
+    line_size <- 1
   }
 
 
@@ -126,7 +128,7 @@ plot_kompetence_by <- function(data, kategorie, group, group2 = NULL, meritko = 
     ungroup() %>%
     ggplot(aes(x = {{group}}, y = prumer, ymin = dolni, ymax = horni,
                color = {{group2}}, fill = {{group2}}, group = {{group2}})) +
-    geom_ribbon(alpha = 0.4, color = FALSE) + geom_line(alpha = 0.8) + my_facet +
+    geom_ribbon(alpha = 0.4, color = FALSE) + geom_line(alpha = 0.8, size = line_size) + my_facet +
     my_scale_x + my_theme + scale_y_continuous("Průměr") +
     scale_color_revize() + scale_fill_revize() +
     ggtitle(kategorie_kompetence_nazvy[ kategorie_kompetence == kategorie ],
@@ -146,15 +148,17 @@ plot_kompetence_by_smooth <- function(data, kategorie, group, group2 = NULL, mer
 
   if(all_together) {
     my_facet <- NULL
+    line_size <- 2
   } else {
     my_facet <- facet_wrap(~ popis_pro_grafy)
+    line_size <- 1
   }
 
   meritko_nazev <- names(data %>% select({{meritko}})) #Blby hack, protoze neumim tidy a jsem liny se to ucit
   data %>%
     filter(kategorie_kompetence == kategorie) %>%
     ggplot(aes(x = {{group}}, y = {{ meritko }}, group = {{group2}}, color = {{group2}}, fill = {{group2}})) +
-    geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"), alpha = 0.5) + my_facet +
+    geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"), alpha = 0.5, size = line_size) + my_facet +
     my_scale_x + my_theme + scale_y_continuous("Průměr") +
     scale_color_revize() + scale_fill_revize() +
     ggtitle(kategorie_kompetence_nazvy[ kategorie_kompetence == kategorie ],
